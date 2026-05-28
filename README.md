@@ -281,6 +281,9 @@ If `screenshot-basic` is not installed, the bridge logs a warning and calls the 
 ## Roadmap
 
 - [ ] Built-in plugin for server-side vehicle sync (authoritative vehicle state replication)
+- [ ] `mp.prototype` support — allow extending `mp` with custom methods (e.g. `mp.Player.prototype.myMethod`)
+- [ ] Migrate RPC to [leonardssh/rage-rpc](https://github.com/leonardssh/rage-rpc) fork
+- [ ] `mp.browsers.new` with separate browser instances — global NUI environment that manages individual browsers as iframes, matching RAGE:MP browser lifecycle
 
 ---
 

@@ -1,0 +1,8 @@
+packages:
+  - 'packages/**'
+
+catalog:
+  rimraf: ^6.1.2
+  rollup: ^4.57.1
+  "@rollup/plugin-terser": ^0.4.4
+  "@rollup/plugin-node-resolve": ^16.0.3

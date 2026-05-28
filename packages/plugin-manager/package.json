@@ -1,0 +1,24 @@
+{
+  "name": "@ragemp-fivem-bridge/plugin-manager",
+  "version": "0.0.0",
+  "description": "Shared plugin loader used by the RAGE:MP → FiveM bridge (server + client)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "types/index.d.ts",
+  "files": [
+    "dist",
+    "types"
+  ],
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "rollup -c"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "catalog:",
+    "@rollup/plugin-terser": "catalog:",
+    "rimraf": "catalog:",
+    "rollup": "catalog:"
+  },
+  "license": "ISC",
+  "packageManager": "pnpm@10.28.2"
+}

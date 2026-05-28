@@ -1,0 +1,116 @@
+import { Pool } from "@ragemp-fivem-bridge/shared";
+import { ObjectMp } from "../Entities/ObjectMp";
+
+let objectIdCounter = 0;
+
+export class ObjectMpPool extends Pool {
+  _handleToEntity = new Map();
+
+  constructor() {
+    super();
+    this._setupServerSync();
+  }
+
+  _setupServerSync() {
+    onNet("ragemp:objectAlpha", (netId, value) => {
+      const handle = NetworkGetEntityFromNetworkId(netId);
+      if (handle && DoesEntityExist(handle)) {
+        SetEntityAlpha(handle, value, false);
+      }
+    });
+  }
+
+  atRemoteId(remoteId) {
+    return this.at(remoteId);
+  }
+
+  new(model, position, options = {}) {
+    const modelHash = typeof model === "string" ? GetHashKey(model) : model;
+
+    const handle = CreateObject(modelHash, position.x, position.y, position.z, true, true, false);
+    const id = ++objectIdCounter;
+    const obj = new ObjectMp(id, handle);
+
+    if (options.rotation) {
+      obj.rotation = options.rotation;
+    }
+
+    if (options.alpha !== undefined) {
+      obj.alpha = options.alpha;
+    }
+
+    this._add(obj);
+    this._handleToEntity.set(handle, obj);
+
+    return obj;
+  }
+
+  atHandle(handle) {
+    return this._handleToEntity.get(handle) ?? null;
+  }
+
+  newWeak(handle) {
+    const id = ++objectIdCounter;
+    const obj = new ObjectMp(id, handle);
+    obj._isWeak = true;
+
+    this._add(obj);
+    this._handleToEntity.set(handle, obj);
+
+    return obj;
+  }
+
+  newWeaponObject(weaponHash, position, options = {}) {
+    const hash = typeof weaponHash === "string" ? GetHashKey(weaponHash) : weaponHash;
+    const ammoCount = options.ammoCount ?? 0;
+    const createDefaultComponents = options.createDefaultComponents ?? true;
+    const scale = options.scale ?? 1.0;
+    const customModelHash = options.customModelHash ?? 0;
+
+    const handle = CreateWeaponObject(
+      hash,
+      ammoCount,
+      position.x,
+      position.y,
+      position.z,
+      createDefaultComponents,
+      scale,
+      customModelHash
+    );
+
+    const id = ++objectIdCounter;
+    const obj = new ObjectMp(id, handle);
+
+    if (options.rotation) {
+      obj.rotation = options.rotation;
+    }
+
+    if (options.alpha !== undefined) {
+      obj.alpha = options.alpha;
+    }
+
+    this._add(obj);
+    this._handleToEntity.set(handle, obj);
+
+    return obj;
+  }
+
+  getAllByHash(hash) {
+    const modelHash = typeof hash === "string" ? GetHashKey(hash) : hash;
+    const result = [];
+    this._entities.forEach((entity) => {
+      if (GetEntityModel(entity._handle) === modelHash) {
+        result.push(entity);
+      }
+    });
+    return result;
+  }
+
+  _remove(id) {
+    const entity = this._entities.get(id);
+    if (entity) {
+      this._handleToEntity.delete(entity._handle);
+    }
+    super._remove(id);
+  }
+}

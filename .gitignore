@@ -1,0 +1,16 @@
+node_modules
+dist
+.turbo
+
+# Per-example outputs
+examples/*/dist
+examples/*/node_modules
+
+# Editor / IDE / local-dev artifacts
+.vscode/
+.idea/
+*.log
+.DS_Store
+
+# Local test FiveM server (not for git)
+.test/

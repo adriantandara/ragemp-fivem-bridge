@@ -1,0 +1,18 @@
+{
+  "name": "ragemp-fivem-bridge",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "turbo build",
+    "build:dev": "cross-env DEV=1 turbo build",
+    "build:resource": "node packages/cli/bin/mp-fivem.js build",
+    "pack-bridge": "node packages/cli/bin/mp-fivem.js pack-bridge"
+  },
+  "license": "ISC",
+  "packageManager": "pnpm@10.28.2",
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "turbo": "^2.8.9"
+  }
+}

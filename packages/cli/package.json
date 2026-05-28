@@ -1,0 +1,24 @@
+{
+  "name": "@ragemp-fivem-bridge/cli",
+  "version": "0.1.0",
+  "description": "Smart resource builder for the RAGE:MP → FiveM bridge",
+  "type": "module",
+  "bin": {
+    "mp-fivem": "bin/mp-fivem.js"
+  },
+  "main": "src/index.js",
+  "scripts": {
+    "build": "echo 'CLI is source-only, nothing to build'"
+  },
+  "dependencies": {
+    "@ragemp-fivem-bridge/server": "workspace:*",
+    "@ragemp-fivem-bridge/client": "workspace:*",
+    "@ragemp-fivem-bridge/cef": "workspace:*",
+    "@ragemp-fivem-bridge/shared": "workspace:*",
+    "rollup": "catalog:",
+    "@rollup/plugin-node-resolve": "catalog:",
+    "@rollup/plugin-terser": "catalog:"
+  },
+  "license": "ISC",
+  "packageManager": "pnpm@10.28.2"
+}

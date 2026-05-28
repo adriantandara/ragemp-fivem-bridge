@@ -12,11 +12,11 @@ The bridge reimplements the full `mp.*` API surface on top of FiveM natives — 
 
 ## Modes
 
-| | Standalone | Bundled (CLI) |
-|---|---|---|
-| Best for | Existing FiveM servers with multiple resources | RAGE:MP gamemodes shipped as a single resource |
-| Setup | Add one shared resource, opt in via `@`-imports | Use the CLI to compile everything into one output |
-| Build step | None | `mp-fivem build` |
+|            | Standalone                                      | Bundled (CLI)                                     |
+| ---------- | ----------------------------------------------- | ------------------------------------------------- |
+| Best for   | Existing FiveM servers with multiple resources  | RAGE:MP gamemodes shipped as a single resource    |
+| Setup      | Add one shared resource, opt in via `@`-imports | Use the CLI to compile everything into one output |
+| Build step | None                                            | `mp-fivem build`                                  |
 
 ---
 
@@ -178,32 +178,35 @@ OPTIONS (pack-bridge)
 }
 ```
 
-| Field | Description |
-|---|---|
-| `name` | Resource name (folder name in `output/`) |
-| `server` | Server entry point |
-| `client` | Client entry point |
-| `cef` | NUI source directory |
-| `assets` | Extra files/globs to copy into the output |
-| `output` | Build output directory |
-| `minify` | Minify output (default `true`) |
-| `serverPath` | Auto-deploy destination (optional) |
+| Field        | Description                               |
+| ------------ | ----------------------------------------- |
+| `name`       | Resource name (folder name in `output/`)  |
+| `server`     | Server entry point                        |
+| `client`     | Client entry point                        |
+| `cef`        | NUI source directory                      |
+| `assets`     | Extra files/globs to copy into the output |
+| `output`     | Build output directory                    |
+| `minify`     | Minify output (default `true`)            |
+| `serverPath` | Auto-deploy destination (optional)        |
 
 ---
 
 ## What's supported
 
 ### Players
+
 `position`, `heading`, `health`, `armour`, `name`, `ip`, `ping`, `dimension`, `model`, `weapon`, `weaponAmmo`, `alpha`, `vehicle`, `seat`, `streamedPlayers`, `hairColor`, `headBlend`, `headOverlays`, `faceFeatures`, `clothes`, `props`, `decorations`, `eyeColor`, `isAiming`, `isInVehicle`, `isClimbing`, `isJumping`, `isReloading`, `isOnLadder`
 
 `kick`, `ban`, `spawn`, `outputChatBox`, `notify`, `call`, `callProc`, `giveWeapon`, `removeWeapon`, `removeAllWeapons`, `putIntoVehicle`, `removeFromVehicle`, `setClothes`, `setProp`, `setHairColor`, `setHeadBlend`, `setHeadOverlay`, `setFaceFeature`, `setCustomization`, `setDecoration`, `clearDecorations`, `playAnimation`, `stopAnimation`, `playScenario`, `enableVoiceTo`, `disableVoiceTo`, `setVariable`, `getVariable`, `eval`, `invoke`
 
 ### Vehicles
+
 `position`, `heading`, `health`, `engine`, `rotation`, `velocity`, `model`, `plate`, `livery`, `dimension`, `alpha`, `color`, `paintType`, `mod`, `neon`, `neonColor`, `tire`, `extra`, `dashboard`, `pearlescentColor`, `wheelColor`, `trimColor`, `movable`, `highbeams`, `rocketBoost`, `taxiLights`, `steerAngle`, `siren`, `horn`
 
 `repair`, `explode`, `spawn`, `setMod`, `setExtra`, `destroy`, `call`, `setVariable`, `getVariable`
 
 ### Events
+
 `mp.events.add`, `mp.events.remove`, `mp.events.call`, `mp.events.callRemote`, `mp.events.addCommand`, `mp.events.addProc`, `mp.events.callRemoteProc`
 
 Built-in server events: `playerJoin`, `playerQuit`, `playerReady`, `playerDeath`, `playerSpawn`, `playerChat`, `playerCommand`, `playerEnterVehicle`, `playerExitVehicle`, `playerEnterCheckpoint`, `playerExitCheckpoint`, `playerStreamIn`, `playerStreamOut`, `packagesLoaded`, `serverShutdown`, `incomingConnection`, `vehicleDeath`, `vehicleDamage`
@@ -211,14 +214,17 @@ Built-in server events: `playerJoin`, `playerQuit`, `playerReady`, `playerDeath`
 Built-in client events: `playerReady`, `playerDeath`, `playerSpawn`, `playerChat`, `playerCommand`, `playerWeaponChange`, `playerWeaponShot`, `playerEnterVehicle`, `playerLeaveVehicle`, `playerEnterCheckpoint`, `playerExitCheckpoint`, `playerStreamIn`, `playerStreamOut`, `render`, `click`, `browserCreated`, `browserDomReady`
 
 ### Pools
+
 `mp.players`, `mp.vehicles`, `mp.objects`, `mp.blips`, `mp.colshapes`, `mp.checkpoints`, `mp.markers`, `mp.labels`, `mp.peds`, `mp.pickups`, `mp.dummies`, `mp.browsers`
 
 All pools implement: `new`, `at`, `atHandle`, `exists`, `forEach`, `toArray`, `length`
 
 ### World, game, GUI
+
 `mp.world.time`, `mp.world.weather`, `mp.world.trafficLights`, `mp.game.*` (client-side GTA5 natives), `mp.gui.chat`, `mp.gui.cursor`, `mp.gui.takeScreenshot`
 
 ### RPC (`mp.rpc`)
+
 Vendored port of [rage-rpc](https://github.com/micaww/rage-rpc). Same API — drop-in replacement.
 
 ```js
@@ -269,6 +275,12 @@ ensure my-gamemode
 ```
 
 If `screenshot-basic` is not installed, the bridge logs a warning and calls the callback with `null`. Your code will not crash.
+
+---
+
+## Roadmap
+
+- [ ] Built-in plugin for server-side vehicle sync (authoritative vehicle state replication)
 
 ---
 

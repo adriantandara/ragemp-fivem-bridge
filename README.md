@@ -6,6 +6,8 @@ The bridge reimplements the full `mp.*` API surface on top of FiveM natives — 
 
 > **JavaScript gamemodes only.** TypeScript declarations are included for IDE autocomplete.
 
+**Built with collaboration from [ghosty2004](https://github.com/ghosty2004). Thank you.**
+
 ---
 
 ## Modes
@@ -258,13 +260,19 @@ mp.events.add("playerJoin", (player) => {
 
 ## Troubleshooting
 
-### NUI / browser not showing up in FiveM devtools
+### NUI / browser not showing up in FiveM devtools (`localhost:13172`)
 
-**Symptom:** Your `ui_page` doesn't appear at `localhost:13172`.
+**Symptom:** Your `ui_page` doesn't appear at `localhost:13172/json` — only "CitizenFX root UI" is listed.
 
-**Cause:** Vite builds scripts with `type="module" crossorigin`. FiveM's internal NUI server does not send CORS headers, so the browser silently blocks the script, and the page never renders.
+**Causes (most common to least):**
 
-**Fix:** Remove `type="module"` and `crossorigin` from script and link tags in the built HTML. Add `defer` so the script waits for DOM to be ready:
+1. **External font import** — If your CSS or JS imports a font from Google Fonts (`@import url("https://fonts.googleapis.com/...")`), FiveM's NUI sandbox blocks the external request. The CSS parser hangs waiting for a response, preventing the page from rendering. Remove the import and use system fonts or bundle fonts locally.
+
+2. **`type="module" crossorigin` on scripts** — Vite's default output adds these attributes. FiveM's NUI server does not send CORS headers, so the script is silently blocked. The page exists but cannot execute.
+
+3. **Strict CSP meta tag** — A `<meta http-equiv="Content-Security-Policy">` with a tight `connect-src` or `script-src` can interfere with NUI's internal messaging. FiveM's sandbox handles security itself; remove the CSP meta tag from NUI pages.
+
+**Fix:** Remove Google Fonts imports, strip `type="module"` and `crossorigin`, remove the CSP meta tag, and add `defer` to all scripts:
 
 ```html
 <script defer src="./env.js"></script>
@@ -272,7 +280,7 @@ mp.events.add("playerJoin", (player) => {
 <script defer src="./index.js"></script>
 ```
 
-If you use Vite, set `format: "iife"` in `rollupOptions.output` and add a transform plugin to strip those attributes.
+If you use Vite, set `format: "iife"` in `rollupOptions.output` and add a `transformIndexHtml` plugin to automate all of the above.
 
 ---
 
@@ -358,6 +366,25 @@ ensure my-gamemode
 ```
 
 If `screenshot-basic` is not installed, the bridge logs a warning and calls the callback with `null`. Your code will not crash.
+
+---
+
+## Contributing
+
+Contributions are welcome — bug fixes, new `mp.*` API implementations, improved CLI features, or documentation improvements.
+
+1. Fork the repo and create a branch.
+2. Make your changes. Run `pnpm build` to verify everything compiles.
+3. Open a pull request with a clear description of what you changed and why.
+
+This project can be freely used and modified for personal or commercial projects under the terms of the MIT license. If you build something with it, a mention or a star is appreciated but not required.
+
+---
+
+## Support
+
+- **Discord:** adriantandara
+- **Email:** adriantandara2005@gmail.com
 
 ---
 

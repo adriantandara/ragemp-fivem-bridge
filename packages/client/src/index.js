@@ -14,10 +14,25 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
   emitNet("ragemp:playerReady", GetCurrentResourceName());
 
   const _clothesState = new Map();
+
+  function applyClothes(ped, component, drawable, texture, palette) {
+    if (!ped || ped === 0) return false;
+    let d = drawable | 0;
+    if (d < 0) d = 0;
+    let t = texture | 0;
+    if (t < 0) t = 0;
+    const maxD = GetNumberOfPedDrawableVariations(ped, component);
+    if (maxD > 0 && d >= maxD) return false;
+    const maxT = GetNumberOfPedTextureVariations(ped, component, d);
+    if (maxT > 0 && t >= maxT) t = 0;
+    SetPedComponentVariation(ped, component, d, t, palette | 0);
+    return true;
+  }
+
   globalThis.mp.events.add("playerSpawn", () => {
     const ped = PlayerPedId();
     for (const [component, c] of _clothesState) {
-      SetPedComponentVariation(ped, component, c[0], c[1], c[2]);
+      applyClothes(ped, component, c[0], c[1], c[2]);
     }
   });
 
@@ -35,7 +50,7 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
 
   onNet("ragemp:setClothes", (component, drawable, texture, palette) => {
     _clothesState.set(component, [drawable, texture, palette]);
-    SetPedComponentVariation(PlayerPedId(), component, drawable, texture, palette);
+    applyClothes(PlayerPedId(), component, drawable, texture, palette);
   });
 
   onNet("ragemp:notify", (message) => {

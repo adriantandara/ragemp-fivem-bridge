@@ -1,11 +1,9 @@
-import { Pool } from "@ragemp-fivem-bridge/shared";
+import { HandlePool } from "@ragemp-fivem-bridge/shared";
 import { ObjectMp } from "../Entities/ObjectMp";
 
 let objectIdCounter = 0;
 
-export class ObjectMpPool extends Pool {
-  _handleToEntity = new Map();
-
+export class ObjectMpPool extends HandlePool {
   new(model, position, options = {}) {
     const modelHash = typeof model === "string" ? GetHashKey(model) : model;
     const dimension = options.dimension ?? 0;
@@ -30,17 +28,5 @@ export class ObjectMpPool extends Pool {
     this._handleToEntity.set(handle, obj);
 
     return obj;
-  }
-
-  atHandle(handle) {
-    return this._handleToEntity.get(handle) ?? null;
-  }
-
-  _remove(id) {
-    const entity = this._entities.get(id);
-    if (entity) {
-      this._handleToEntity.delete(entity._handle);
-    }
-    super._remove(id);
   }
 }

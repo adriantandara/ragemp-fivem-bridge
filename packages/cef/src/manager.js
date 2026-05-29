@@ -217,6 +217,10 @@ export function startManager() {
   window.addEventListener("keyup", (e) => forwardKey(e, false), true);
 
   window.addEventListener("message", (nativeEvent) => {
+    if (nativeEvent.source && nativeEvent.source !== window) {
+      return;
+    }
+
     const data = nativeEvent.data;
     if (!data || typeof data !== "object") return;
 

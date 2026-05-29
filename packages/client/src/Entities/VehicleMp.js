@@ -199,8 +199,8 @@ export class VehicleMp extends Entity {
   }
 
   getHandling(fieldName) {
-    const type = typeof GetVehicleHandlingFloat(this._handle, "CHandlingData", fieldName);
-    if (type === "number") return GetVehicleHandlingFloat(this._handle, "CHandlingData", fieldName);
+    const v = GetVehicleHandlingFloat(this._handle, "CHandlingData", fieldName);
+    if (typeof v === "number") return v;
     return GetVehicleHandlingInt(this._handle, "CHandlingData", fieldName);
   }
 

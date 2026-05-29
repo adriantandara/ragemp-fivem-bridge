@@ -14,6 +14,10 @@ export function createRuntime() {
       toClient("ragemp:browserEvent", { browserId: selfId, event: eventName, args });
     },
     invoke(eventName, ...args) {
+      if (eventName === "command") {
+        toClient("ragemp:cef:command", { command: args[0] });
+        return;
+      }
       mp.trigger(eventName, ...args);
     },
     events,

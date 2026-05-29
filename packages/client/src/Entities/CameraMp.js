@@ -30,20 +30,12 @@ export class CameraMp extends Entity {
     SetCamCoord(this._handle, value.x, value.y, value.z);
   }
 
-  setCoord(x, y, z) {
-    SetCamCoord(this._handle, x, y, z);
-  }
-
   get rotation() {
     const rot = GetCamRot(this._handle, 2);
     return new Vector3(rot[0], rot[1], rot[2]);
   }
   set rotation(value) {
     SetCamRot(this._handle, value.x, value.y, value.z, 2);
-  }
-
-  setRot(x, y, z) {
-    SetCamRot(this._handle, x, y, z, 2);
   }
 
   get fov() {

@@ -1,3 +1,9 @@
+let _lifecycleSink = null;
+
+export function setPoolLifecycleSink(fn) {
+  _lifecycleSink = fn;
+}
+
 export class Pool {
   _entities = new Map();
 
@@ -34,13 +40,13 @@ export class Pool {
 
   _add(entity) {
     this._entities.set(entity.id, entity);
-    globalThis.mp?.events?._fire("entityCreated", entity);
+    _lifecycleSink?.("entityCreated", entity);
   }
 
   _remove(id) {
     const entity = this._entities.get(id);
     this._entities.delete(id);
-    if (entity) globalThis.mp?.events?._fire("entityDestroyed", entity);
+    if (entity) _lifecycleSink?.("entityDestroyed", entity);
   }
 
   forEachFast(fn) {
@@ -68,12 +74,23 @@ export class Pool {
   }
 
   getClosest(position, limit = 1) {
-    const sorted = this.toArray()
-      .map((entity) => ({ entity, dist: entity.position.distance(position) }))
+    if (limit === 1) {
+      let best = null;
+      let bestDist = Infinity;
+      this._entities.forEach((entity) => {
+        const d = entity.position.distanceSqr(position);
+        if (d < bestDist) {
+          bestDist = d;
+          best = entity;
+        }
+      });
+      return best ? [best] : [];
+    }
+    return this.toArray()
+      .map((entity) => ({ entity, dist: entity.position.distanceSqr(position) }))
       .sort((a, b) => a.dist - b.dist)
       .slice(0, limit)
       .map((x) => x.entity);
-    return sorted;
   }
 
   toArrayFast() {
@@ -97,13 +114,25 @@ export class Pool {
   }
 
   getClosestInDimension(position, dimension, limit = 1) {
-    const sorted = this.toArray()
+    if (limit === 1) {
+      let best = null;
+      let bestDist = Infinity;
+      this._entities.forEach((entity) => {
+        if (entity.dimension !== dimension) return;
+        const d = entity.position.distanceSqr(position);
+        if (d < bestDist) {
+          bestDist = d;
+          best = entity;
+        }
+      });
+      return best ? [best] : [];
+    }
+    return this.toArray()
       .filter((entity) => entity.dimension === dimension)
-      .map((entity) => ({ entity, dist: entity.position.distance(position) }))
+      .map((entity) => ({ entity, dist: entity.position.distanceSqr(position) }))
       .sort((a, b) => a.dist - b.dist)
       .slice(0, limit)
       .map((x) => x.entity);
-    return sorted;
   }
 
   [Symbol.iterator]() {

@@ -63,7 +63,7 @@ export default function setup({ mp, plugin }) {
         data.y,
         data.z,
         data.heading,
-        true,
+        0,
         false,
       );
       const newPed = PlayerPedId();
@@ -107,6 +107,7 @@ export default function setup({ mp, plugin }) {
       DoScreenFadeIn(500);
       SetPlayerControl(PlayerId(), true, 0);
 
+      if (globalThis.mp?.events) globalThis.mp.events._wasAlive = true;
       mp.events.call("playerSpawn", firstSpawn);
       emitNet("ragemp:playerSpawn");
       firstSpawn = false;

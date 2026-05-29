@@ -1,5 +1,4 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
-import { Vector3 } from "@ragemp-fivem-bridge/shared";
 
 export class ColshapeMp extends Entity {
   _position;

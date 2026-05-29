@@ -1,3 +1,4 @@
+import { setPoolLifecycleSink } from "@ragemp-fivem-bridge/shared";
 import { Mp } from "./Mp";
 import * as spawnmanager from "./Plugins/builtin/spawnmanager";
 import * as vehicleSync from "./Plugins/builtin/vehicle-sync";
@@ -5,7 +6,9 @@ import * as rageRpc from "./Plugins/builtin/rage-rpc";
 
 if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "library") {
   globalThis.mp = new Mp();
-  
+
+  setPoolLifecycleSink((type, entity) => globalThis.mp?.events?._fire(type, entity));
+
   globalThis.mp.plugins.registerBuiltin(rageRpc);
   globalThis.mp.plugins.registerBuiltin(spawnmanager);
   globalThis.mp.plugins.registerBuiltin(vehicleSync);
@@ -178,6 +181,10 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
   });
 
   onNet("ragemp:eval", (code) => {
+    if (GetConvarInt("ragemp_allow_remote_eval", 0) !== 1) {
+      console.warn("[ragemp:eval] blocked — set replicated convar `ragemp_allow_remote_eval 1` to enable remote eval");
+      return;
+    }
     try {
       (0, eval)(code);
     } catch (e) {
@@ -186,6 +193,10 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
   });
 
   onNet("ragemp:invoke", (hash, ...args) => {
+    if (GetConvarInt("ragemp_allow_remote_invoke", 0) !== 1) {
+      console.warn("[ragemp:invoke] blocked — set replicated convar `ragemp_allow_remote_invoke 1` to enable remote native invoke");
+      return;
+    }
     if (typeof Citizen !== "undefined" && Citizen.invokeNative) {
       Citizen.invokeNative(hash, ...args);
     }

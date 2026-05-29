@@ -1,10 +1,9 @@
-import { Pool } from "@ragemp-fivem-bridge/shared";
+import { HandlePool } from "@ragemp-fivem-bridge/shared";
 import { VehicleMp } from "../Entities/VehicleMp";
 
 let vehicleIdCounter = 0;
 
-export class VehicleMpPool extends Pool {
-  _handleToEntity = new Map();
+export class VehicleMpPool extends HandlePool {
   _netIdToEntity = new Map();
 
   new(model, position, options = {}) {
@@ -52,10 +51,6 @@ export class VehicleMpPool extends Pool {
     return vehicle;
   }
 
-  atHandle(handle) {
-    return this._handleToEntity.get(handle) ?? null;
-  }
-
   atNetId(netId) {
     if (!netId) return null;
     const cached = this._netIdToEntity.get(netId);
@@ -80,7 +75,6 @@ export class VehicleMpPool extends Pool {
   _remove(id) {
     const entity = this._entities.get(id);
     if (entity) {
-      this._handleToEntity.delete(entity._handle);
       for (const [netId, e] of this._netIdToEntity) {
         if (e === entity) this._netIdToEntity.delete(netId);
       }

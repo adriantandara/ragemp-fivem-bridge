@@ -23,23 +23,10 @@ export function startWorldScan(ms) {
   handle = setInterval(scan, intervalMs);
 }
 
-export function setWorldScanInterval(ms) {
-  if (typeof ms !== "number" || ms <= 0) return;
-  intervalMs = ms;
-  if (started && handle !== null) {
-    clearInterval(handle);
-    handle = setInterval(scan, intervalMs);
-  }
-}
-
 export function onWorldScan(cb) {
   startWorldScan();
   subscribers.add(cb);
   return () => subscribers.delete(cb);
-}
-
-export function getActivePlayers() {
-  return cache.players;
 }
 
 export function getVehiclePool() {
@@ -48,8 +35,4 @@ export function getVehiclePool() {
 
 export function getPedPool() {
   return cache.peds;
-}
-
-export function worldScanPass() {
-  return cache.pass;
 }

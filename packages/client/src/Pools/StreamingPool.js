@@ -4,11 +4,13 @@ import { safeGetNetworkId } from "../utils/netId";
 
 export class StreamingPool extends Pool {
   _handleToEntity = new Map();
+  _activeSet = new Set();
 
   _startStreaming(getHandles, makeEntity, filter) {
     onWorldScan(() => {
       const handles = getHandles();
-      const activeSet = new Set();
+      const activeSet = this._activeSet;
+      activeSet.clear();
 
       for (const handle of handles) {
         if (filter && !filter(handle)) continue;

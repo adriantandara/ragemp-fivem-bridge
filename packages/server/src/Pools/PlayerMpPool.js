@@ -30,6 +30,10 @@ export class PlayerMpPool extends Pool {
 
     on("playerDropped", (reason) => {
       const playerSource = source;
+      const player = this._entities.get(playerSource);
+      if (player && typeof player.cancelPendingProc === "function") {
+        player.cancelPendingProc();
+      }
       this._remove(playerSource);
     });
   }

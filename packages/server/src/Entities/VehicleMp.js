@@ -1,5 +1,6 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { EntitySyncQueue } from "../utils/EntitySyncQueue";
 
 export class VehicleMp extends Entity {
   _neonEnabled = false;
@@ -33,6 +34,7 @@ export class VehicleMp extends Entity {
   constructor(id, handle) {
     super(id, "vehicle");
     this._handle = handle;
+    this._sync = new EntitySyncQueue(() => this._handle, "ragemp:vehicle:batch");
   }
 
   get netId() {
@@ -50,29 +52,7 @@ export class VehicleMp extends Entity {
   }
 
   _emit(event, ...args) {
-    if (!this._syncQueue) this._syncQueue = [];
-    this._syncQueue.push([event, args]);
-    if (this._syncScheduled) return;
-    this._syncScheduled = true;
-    const flush = (tries) => {
-      if (!DoesEntityExist(this._handle)) {
-        this._syncScheduled = false;
-        this._syncQueue = null;
-        return;
-      }
-      const netId = NetworkGetNetworkIdFromEntity(this._handle);
-      if (!netId && tries < 50) {
-        setTimeout(() => flush(tries + 1), 50);
-        return;
-      }
-      const queue = this._syncQueue;
-      this._syncQueue = null;
-      this._syncScheduled = false;
-      if (netId && queue && queue.length) {
-        emitNet("ragemp:vehicle:batch", -1, netId, queue);
-      }
-    };
-    setTimeout(() => flush(0), 0);
+    this._sync.emit(event, ...args);
   }
 
   get position() {
@@ -131,10 +111,11 @@ export class VehicleMp extends Entity {
   }
 
   get numberPlate() {
-    return GetVehicleNumberPlateText(this._handle);
+    return this._numberPlate ?? GetVehicleNumberPlateText(this._handle);
   }
 
   set numberPlate(value) {
+    this._numberPlate = value;
     SetVehicleNumberPlateText(this._handle, value);
   }
 
@@ -210,6 +191,7 @@ export class VehicleMp extends Entity {
   }
 
   get dead() {
+    if (typeof IsEntityDead === "function") return !!IsEntityDead(this._handle);
     return GetEntityHealth(this._handle) <= 0;
   }
 
@@ -289,7 +271,32 @@ export class VehicleMp extends Entity {
   }
 
   get streamedPlayers() {
-    return globalThis.mp.players.toArray();
+    const mp = globalThis.mp;
+    if (!mp || !mp.players) return [];
+    let pos;
+    try {
+      pos = this.position;
+    } catch (e) {
+      return mp.players.toArray();
+    }
+    if (!pos) return mp.players.toArray();
+    const dim = this.dimension;
+    const out = [];
+    mp.players.forEach((player) => {
+      if (player.dimension !== dim) return;
+      let ppos;
+      try {
+        ppos = player.position;
+      } catch (e) {
+        return;
+      }
+      if (!ppos) return;
+      const dx = ppos.x - pos.x;
+      const dy = ppos.y - pos.y;
+      const dz = ppos.z - pos.z;
+      if (dx * dx + dy * dy + dz * dz <= 300 * 300) out.push(player);
+    });
+    return out;
   }
 
   get trailer() {
@@ -421,6 +428,7 @@ export class VehicleMp extends Entity {
     ];
     SetVehicleCustomPrimaryColour(this._handle, r1, g1, b1);
     SetVehicleCustomSecondaryColour(this._handle, r2, g2, b2);
+    this._emit("ragemp:vehicleColorRGB", this._colorRGB);
   }
 
   getExtra(extraId) {

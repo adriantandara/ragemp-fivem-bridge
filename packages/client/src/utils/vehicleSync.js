@@ -28,6 +28,11 @@ export const vehicleAppliers = {
     const [r, g, b] = value;
     SetVehicleNeonLightsColour(h, r, g, b);
   },
+  colorRGB: (h, value) => {
+    const [[r1, g1, b1], [r2, g2, b2]] = value;
+    SetVehicleCustomPrimaryColour(h, r1, g1, b1);
+    SetVehicleCustomSecondaryColour(h, r2, g2, b2);
+  },
 };
 
 export function applyVehicleProp(handle, key, value) {
@@ -73,12 +78,6 @@ export function applyVehicleSnapshot(handle, snap) {
 
   if (snap.color) {
     SetVehicleColours(handle, snap.color.primary, snap.color.secondary);
-  }
-
-  if (snap.colorRGB) {
-    const [[r1, g1, b1], [r2, g2, b2]] = snap.colorRGB;
-    SetVehicleCustomPrimaryColour(handle, r1, g1, b1);
-    SetVehicleCustomSecondaryColour(handle, r2, g2, b2);
   }
 
   if (snap.numberPlate !== undefined && snap.numberPlate !== null) {

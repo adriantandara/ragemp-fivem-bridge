@@ -1,3 +1,6 @@
+import { EventEmitter } from "@ragemp-fivem-bridge/shared";
+import { ingressAllowed, clearRateLimit } from "../utils/guard";
+
 const RAGEMP_TO_FIVEM_EVENTS = {
   playerJoin: "playerJoining",
   playerQuit: "playerDropped",
@@ -6,14 +9,13 @@ const RAGEMP_TO_FIVEM_EVENTS = {
   incomingConnection: "playerConnecting",
 };
 
-export class EventManager {
-  _handlers = new Map();
-
+export class EventManager extends EventEmitter {
   _procs = new Map();
 
   _playerReadyHandled = new Set();
 
   constructor() {
+    super();
     this._setupBuiltinEvents();
   }
 
@@ -22,6 +24,7 @@ export class EventManager {
   _setupBuiltinEvents() {
     onNet("ragemp:playerReady", (forResource) => {
       const src = source;
+      if (!ingressAllowed(src, "playerReady")) return;
       const player = globalThis.mp.players.at(src);
       if (!player) return;
       emitNet("ragemp:playerReady", src, forResource);
@@ -32,6 +35,8 @@ export class EventManager {
 
     on("playerDropped", () => {
       this._playerReadyHandled.delete(source);
+      this._playerCheckpointStates.delete(source);
+      clearRateLimit(`${source}:`);
     });
 
     onNet("ragemp:chat:message", (rawText) => {
@@ -55,6 +60,7 @@ export class EventManager {
     });
 
     onNet("ragemp:playerDeath", (reason, killerId) => {
+      if (!ingressAllowed(source, "playerDeath")) return;
       const player = globalThis.mp.players.at(source);
       const killer = killerId ? globalThis.mp.players.at(killerId) : null;
       if (player) this._fire("playerDeath", player, reason, killer);
@@ -68,7 +74,7 @@ export class EventManager {
     if (typeof AddStateBagChangeHandler === "function") {
       AddStateBagChangeHandler(null, null, (bagName, key, value) => {
         const mp = globalThis.mp;
-        if (!mp || typeof bagName !== "string") return;
+        if (!mp || typeof bagName !== "string" || typeof key !== "string") return;
         let entity = null;
         if (bagName.indexOf("player:") === 0) {
           entity = mp.players?.at?.(parseInt(bagName.slice(7), 10)) ?? null;
@@ -280,32 +286,7 @@ export class EventManager {
     }
   }
 
-  _getHandlers(eventName) {
-    if (!this._handlers.has(eventName)) {
-      this._handlers.set(eventName, new Set());
-    }
-    return this._handlers.get(eventName);
-  }
-
-  _fire(eventName, ...args) {
-    const handlers = this._handlers.get(eventName);
-    if (!handlers) return;
-    for (const handler of handlers) {
-      handler(...args);
-    }
-  }
-
-  add(eventNameOrObject, handler) {
-    if (typeof eventNameOrObject === "object" && handler === undefined) {
-      for (const [name, fn] of Object.entries(eventNameOrObject)) {
-        this.add(name, fn);
-      }
-      return;
-    }
-
-    const eventName = eventNameOrObject;
-    this._getHandlers(eventName).add(handler);
-
+  _onAdd(eventName) {
     const fivemEvent = RAGEMP_TO_FIVEM_EVENTS[eventName];
     if (fivemEvent && !this._handlers.get(`__fivem_${eventName}`)) {
       this._handlers.set(`__fivem_${eventName}`, new Set([true]));
@@ -328,8 +309,16 @@ export class EventManager {
         on("playerConnecting", (name, setKickReason, deferrals) => {
           const playerSrc = source;
           const ip = GetPlayerEndpoint(String(playerSrc)) ?? "";
-          const serial = "";
-          const rgscId = "";
+          let serial = "";
+          let rgscId = "";
+          try {
+            const count = GetNumPlayerIdentifiers(String(playerSrc));
+            for (let i = 0; i < count; i++) {
+              const ident = GetPlayerIdentifier(String(playerSrc), i) || "";
+              if (!serial && ident.indexOf("license:") === 0) serial = ident.slice(8);
+              else if (!rgscId && ident.indexOf("steam:") === 0) rgscId = ident.slice(6);
+            }
+          } catch (e) {}
           const cancel = (reason) => {
             setKickReason(reason ?? "Connection rejected");
             CancelEvent();
@@ -341,8 +330,11 @@ export class EventManager {
 
     if (!fivemEvent && !this._handlers.get(`__net_${eventName}`)) {
       this._handlers.set(`__net_${eventName}`, new Set([true]));
+      const isFrameworkEvent = eventName.indexOf("__rpc:") === 0;
       onNet(eventName, (...args) => {
-        const player = globalThis.mp.players.at(source);
+        const src = source;
+        if (!isFrameworkEvent && !ingressAllowed(src, eventName)) return;
+        const player = globalThis.mp.players.at(src);
         if (player) {
           this._fire(eventName, player, ...args);
         }
@@ -371,12 +363,11 @@ export class EventManager {
     });
   }
 
-  getAllOf(eventName) {
-    return [...(this._handlers.get(eventName) ?? [])];
-  }
-
   reset() {
-    this._handlers.clear();
+    for (const key of this._handlers.keys()) {
+      if (key.indexOf("__fivem_") === 0 || key.indexOf("__net_") === 0) continue;
+      this._handlers.delete(key);
+    }
   }
 
   get binded() {
@@ -416,10 +407,6 @@ export class EventManager {
     this._fire(eventName, ...args);
   }
 
-  // callRemote(player, eventName, ...args) {
-    // emitNet(eventName, player.id, ...args);
-  // }
-  
   callRemote(player, eventName, args) {
     emitNet(eventName, player.id, ...(Array.isArray(args) ? args : args === undefined ? [] : [args]));
   }
@@ -436,14 +423,4 @@ export class EventManager {
     return false;
   }
   set delayInitialization(_v) {}
-
-  remove(eventName, handler) {
-    const handlers = this._handlers.get(eventName);
-    if (!handlers) return;
-    if (handler) {
-      handlers.delete(handler);
-    } else {
-      handlers.clear();
-    }
-  }
 }

@@ -1,6 +1,7 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { withEntityNatives } from "../utils/native";
+import { applyBlipName } from "../utils/blipName";
 
 export class BlipMp extends Entity {
   _handle;
@@ -56,9 +57,7 @@ export class BlipMp extends Entity {
 
   set name(value) {
     this._name = value;
-    BeginTextCommandSetBlipName("STRING");
-    AddTextComponentSubstringPlayerName(value);
-    EndTextCommandSetBlipName(this._handle);
+    applyBlipName(this._handle, value);
   }
 
   get shortRange() {

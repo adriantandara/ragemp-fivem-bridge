@@ -1,5 +1,6 @@
 export class KeyManager {
   _bindings = new Map();
+  _keyCodeCache = new Map();
   _pressedKeys = new Set();
   _nuiPressed = new Set();
   _tick = null;
@@ -45,7 +46,10 @@ export class KeyManager {
 
   bind(keyCode, isDown, handler) {
     const key = this._getKey(keyCode, isDown);
-    if (!this._bindings.has(key)) this._bindings.set(key, new Set());
+    if (!this._bindings.has(key)) {
+      this._bindings.set(key, new Set());
+      this._keyCodeCache.set(key, parseInt(keyCode, 10));
+    }
     this._bindings.get(key).add(handler);
     this._ensureTick();
   }
@@ -56,9 +60,13 @@ export class KeyManager {
     if (!handlers) return;
     if (handler) {
       handlers.delete(handler);
-      if (handlers.size === 0) this._bindings.delete(key);
+      if (handlers.size === 0) {
+        this._bindings.delete(key);
+        this._keyCodeCache.delete(key);
+      }
     } else {
       this._bindings.delete(key);
+      this._keyCodeCache.delete(key);
     }
     if (this._bindings.size === 0) this._cleanupTick();
   }
@@ -69,7 +77,7 @@ export class KeyManager {
       const focused = typeof IsNuiFocused === "function" && IsNuiFocused();
       if (!focused && this._nuiPressed.size) this._nuiPressed.clear();
       for (const key of this._bindings.keys()) {
-        const keyCode = parseInt(key, 10);
+        const keyCode = this._keyCodeCache.get(key);
         const isDown = focused
           ? this._nuiPressed.has(keyCode)
           : IsDisabledRawKeyPressed(keyCode) || IsRawKeyPressed(keyCode);

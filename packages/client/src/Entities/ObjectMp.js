@@ -1,5 +1,6 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { withEntityNatives } from "../utils/native";
 
 export class ObjectMp extends Entity {
   _isWeak = false;
@@ -9,6 +10,7 @@ export class ObjectMp extends Entity {
   constructor(id, handle) {
     super(id, "object");
     this._handle = handle;
+    return withEntityNatives(this, (t) => t._handle, ["Object", "Entity", ""]);
   }
 
   _stateBag() {

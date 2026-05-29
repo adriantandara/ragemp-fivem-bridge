@@ -12,6 +12,24 @@ These load automatically when the bridge initializes:
 | `spawnmanager` | both | Player spawning with collision loading + ground-Z; `player.spawn(pos)`. |
 | `vehicle-sync` | both | Authoritative vehicle state replication (below). |
 
+## Disabling built-in plugins
+
+Built-in plugins load automatically, but you can turn any of them off per resource by
+adding `disable_plugin` lines to **your gamemode's** `fxmanifest.lua` (the consuming
+resource, not the bridge resource). Use the plugin name from the table above:
+
+```lua
+disable_plugin 'rage-rpc'
+disable_plugin 'vehicle-sync'
+```
+
+List it once per name, as many lines as you need. On startup the bridge logs each skipped
+plugin (`[bridge:plugins] 'rage-rpc' disabled via fxmanifest`). The same names also disable
+third-party plugins (matched against `bridge_plugin_name`).
+
+Disable a plugin when you ship your own implementation (your own RPC layer or spawn system)
+and don't want the built-in one installing conflicting handlers.
+
 ## `vehicle-sync` (authoritative vehicle replication)
 
 Cosmetic vehicle state — colour, neon, mods, livery, window tint, extras, … — is applied

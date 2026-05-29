@@ -25,9 +25,17 @@ A head-to-tail guide to running RAGE:MP JavaScript gamemodes on FiveM with the b
 ## Subsystems
 
 6. **[NUI, browsers & chat](06-nui-and-chat.md)** — the host/iframe browser model,
-   `mp.browsers`, and the `ragemp-chat` resource.
+   `mp.browsers`, the required `ui/` folder, and the `ragemp-chat` resource.
 7. **[Plugins & roadmap features](07-plugins-and-features.md)** — built-in plugins
-   (`vehicle-sync`, `spawnmanager`, `rage-rpc`), `mp.prototype`, RPC, third-party plugins.
+   (`vehicle-sync`, `spawnmanager`, `rage-rpc`), disabling them, `mp.prototype`, RPC,
+   third-party plugins.
+
+## Reference
+
+8. **[Configuration & conventions](08-configuration.md)** — every non-optional rule in one
+   place: fxmanifest layout, load order, the `ui/` requirement, `disable_plugin`,
+   `bridge.config.json`, and a troubleshooting table. **Check here first when something
+   won't load.**
 
 ## Examples
 

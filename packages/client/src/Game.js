@@ -1,4 +1,5 @@
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { withGameNatives } from "./utils/native";
 
 function toVec3(arr) {
   return new Vector3(arr[0] ?? 0, arr[1] ?? 0, arr[2] ?? 0);
@@ -305,6 +306,9 @@ class GamePlayerNs {
   setSwimMultiplier(player, multiplier) { SetPlayerSwimMultiplier(player, multiplier); }
   setRunSpeedMultiplier(player, multiplier) { SetRunSpeedMultiplierForPlayer(player, multiplier); }
   setFallDistance(player, fallDistance) { SetPlayerFallDistance(player, fallDistance); }
+  restoreStamina(player, p1) { RestorePlayerStamina(player ?? PlayerId(), p1 ?? 1.0); }
+  resetStamina(player) { ResetPlayerStamina(player ?? PlayerId()); }
+  getStamina(player) { return GetPlayerSprintStaminaRemaining(player ?? PlayerId()); }
 }
 
 class GameVehicleNs {
@@ -1057,6 +1061,9 @@ class GameObjectNs {
   slideToCoord(object, toX, toY, toZ, speedX, speedY, speedZ) {
     SlideObjectToCoords(object, toX, toY, toZ, speedX ?? 5, speedY ?? 5, speedZ ?? 5);
   }
+  doorControl(doorHash, x, y, z, locked, xRotMult, yRotMult, zRotMult) {
+    DoorControl(doorHash, x, y, z, !!locked, xRotMult ?? 0.0, yRotMult ?? 0.0, zRotMult ?? 0.0);
+  }
 }
 
 class GameShapetestNs {
@@ -1124,6 +1131,10 @@ class GamePathfindNs {
   }
   isPointOnRoad(x, y, z, entity) { return IsPointOnRoad(x, y, z, entity ?? 0); }
   generateDirectionsToCoord(x, y, z) { GenerateDirectionsToCoord(x, y, z); }
+  getStreetNameAtCoord(x, y, z) {
+    const [streetName, crossingRoad] = GetStreetNameAtCoord(x, y, z);
+    return { streetName, crossingRoad };
+  }
 }
 
 class GamePhysicsNs {
@@ -1473,6 +1484,13 @@ export class GameMp {
     this.ui = this.hud;
 
     this.gxt = new GameGxt();
+
+    for (const key of Object.keys(this)) {
+      const ns = this[key];
+      if (ns && typeof ns === "object") {
+        this[key] = withGameNatives(ns, key, key === "player" ? ["Player", ""] : [""]);
+      }
+    }
   }
 
   invoke(hash, ...args) { return Citizen.invokeNative(hash, ...args); }

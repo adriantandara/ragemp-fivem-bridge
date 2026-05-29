@@ -52,9 +52,6 @@ export class EventManager {
     this._setupMainTick();
 
     onNet("ragemp:playerReady", (forResource) => {
-      // The handshake net event is global across every resource on the client,
-      // so the server's echo reaches all of them. Ignore echoes meant for other
-      // bridge resources and fire playerReady only once per client session.
       if (forResource && forResource !== GetCurrentResourceName()) return;
       if (this._playerReadyFired) return;
       const localPlayer = globalThis.mp?.players?.local;

@@ -15,13 +15,29 @@ export class PluginManager {
   }
 
   loadAll() {
+    this._disabled = this._readDisabled();
     for (const mod of this._builtins) {
+      if (this._disabled.has(mod.name)) {
+        console.log(`[bridge:plugins] '${mod.name}' disabled via fxmanifest`);
+        continue;
+      }
       this._invoke(mod.name, GetCurrentResourceName(), mod.default, { builtin: true });
     }
     this._scanExternal();
     if (this._resourceStartEvent) {
       on(this._resourceStartEvent, (resource) => this._tryLoadResource(resource));
     }
+  }
+
+  _readDisabled() {
+    const disabled = new Set();
+    const self = GetCurrentResourceName();
+    const count = GetNumResourceMetadata(self, "disable_plugin");
+    for (let i = 0; i < count; i++) {
+      const value = GetResourceMetadata(self, "disable_plugin", i);
+      if (value) disabled.add(value.trim());
+    }
+    return disabled;
   }
 
   _scanExternal() {
@@ -45,6 +61,7 @@ export class PluginManager {
       return;
     }
     const name = GetResourceMetadata(resource, "bridge_plugin_name", 0) || resource;
+    if (this._disabled?.has(name)) return;
     if (this._plugins.has(name)) return;
     try {
       const fn = new Function("mp", "plugin", code);

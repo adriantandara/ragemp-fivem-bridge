@@ -25,6 +25,20 @@ my-gamemode/ui/
 └─ index.js
 ```
 
+> ### The `ui/` folder is required
+>
+> Your NUI files **must** live in a folder literally named `ui/`, and `ui_page` must point
+> inside it (`ui_page 'ui/host.html'`). This is a hard convention, not a suggestion:
+>
+> - The bridge runtime is served at `ui/_bridge.js`, and relative browser URLs
+>   (`mp.browsers.new("index.html")`) resolve **relative to `host.html`** — i.e. against
+>   `cfx-nui-<resource>/ui/`. Put pages elsewhere and relative URLs point at the wrong path.
+> - In **bundled / CLI** mode the build writes your UI to `ui/` and injects `_bridge.js`
+>   there; the generated `fxmanifest.lua` references `ui/index.html`.
+>
+> If you skip the `ui/` folder, the host shell and your pages won't load correctly. Keep
+> everything under `ui/`.
+
 No need to copy `_bridge.js` — your pages load it straight from the bridge resource
 (`https://cfx-nui-ragemp-fivem-bridge/ui/_bridge.js`). Just keep `ragemp-fivem-bridge`
 `ensure`d before your resource.

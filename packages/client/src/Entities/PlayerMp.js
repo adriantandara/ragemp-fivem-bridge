@@ -1,5 +1,6 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { withEntityNatives } from "../utils/native";
 
 export class PlayerMp extends Entity {
   _playerIndex;
@@ -7,6 +8,7 @@ export class PlayerMp extends Entity {
   constructor(id, playerIndex) {
     super(id, "player");
     this._playerIndex = playerIndex;
+    return withEntityNatives(this, (t) => t.ped);
   }
 
   _stateBag() {
@@ -231,6 +233,22 @@ export class PlayerMp extends Entity {
 
   setCanUseCover(toggle) {
     SetPlayerCanUseCover(this._playerIndex, !!toggle);
+  }
+
+  isPlayingAnim(animDict, animName, flags = 3) {
+    return IsEntityPlayingAnim(this.ped, animDict, animName, flags);
+  }
+
+  getHealth() {
+    return GetEntityHealth(this.ped);
+  }
+
+  isSwimmingUnderWater() {
+    return IsPedSwimmingUnderWater(this.ped);
+  }
+
+  playFacialAnim(animName, animDict) {
+    PlayFacialAnim(this.ped, animName, animDict);
   }
 
   isClimbing() {

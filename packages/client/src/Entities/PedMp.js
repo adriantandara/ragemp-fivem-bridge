@@ -1,4 +1,5 @@
 import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
+import { withEntityNatives } from "../utils/native";
 
 export class PedMp extends Entity {
   _handle;
@@ -6,6 +7,7 @@ export class PedMp extends Entity {
   constructor(id, handle) {
     super(id, "ped");
     this._handle = handle;
+    return withEntityNatives(this, (t) => t._handle, ["Ped", "Entity", ""]);
   }
 
   _stateBag() {

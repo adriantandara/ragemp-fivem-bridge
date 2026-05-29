@@ -8,7 +8,7 @@ The bridge reimplements the full `mp.*` API surface on top of FiveM natives — 
 
 **Built with collaboration from [ghosty2004](https://github.com/ghosty2004). Thank you.**
 
-**Thanks to [Adryan](https://github.com/AdrianOficial) for valuable feedback and ideas.**
+**Thanks to [Adryan](https://github.com/AdrianOficial) for the collaboration, valuable feedback and ideas, and thorough in-game testing that drove many fixes and improvements to the bridge.**
 
 ---
 

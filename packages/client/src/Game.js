@@ -384,8 +384,8 @@ class GameVehicleNs {
 
   setMod(vehicle, modType, modIndex, customTires) { SetVehicleMod(vehicle, modType, modIndex, customTires ?? false); }
   getMod(vehicle, modType) { return GetVehicleMod(vehicle, modType); }
-  setModColor1(vehicle, paintType, color, pearlescentColor) { SetVehicleModColor1(vehicle, paintType, color, pearlescentColor); }
-  setModColor2(vehicle, paintType, color) { SetVehicleModColor2(vehicle, paintType, color); }
+  setModColor1(vehicle, paintType, color, pearlescentColor) { SetVehicleModColor_1(vehicle, paintType, color, pearlescentColor); }
+  setModColor2(vehicle, paintType, color) { SetVehicleModColor_2(vehicle, paintType, color); }
   setLivery(vehicle, livery) { SetVehicleLivery(vehicle, livery); }
   getLivery(vehicle) { return GetVehicleLivery(vehicle); }
   toggleMod(vehicle, modType, toggle) { ToggleVehicleMod(vehicle, modType, toggle); }
@@ -1476,21 +1476,21 @@ export class GameMp {
     this.datafile = new GameDatafileNs();
     this.event = new GameEventNs();
 
+    this.gxt = new GameGxt();
+
+    for (const key of Object.keys(this)) {
+      const ns = this[key];
+      if (ns && typeof ns === "object") {
+        this[key] = withGameNatives(ns, key);
+      }
+    }
+
     this.gameplay = this.misc;
     this.ai = this.task;
     this.time = this.clock;
     this.rope = this.physics;
     this.controls = this.pad;
     this.ui = this.hud;
-
-    this.gxt = new GameGxt();
-
-    for (const key of Object.keys(this)) {
-      const ns = this[key];
-      if (ns && typeof ns === "object") {
-        this[key] = withGameNatives(ns, key, key === "player" ? ["Player", ""] : [""]);
-      }
-    }
   }
 
   invoke(hash, ...args) { return Citizen.invokeNative(hash, ...args); }

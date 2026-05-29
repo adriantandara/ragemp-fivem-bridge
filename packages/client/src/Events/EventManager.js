@@ -21,6 +21,7 @@ export class EventManager {
   _wasShooting = false;
 
   _playerReadyFired = false;
+  _playerReadyWaiting = false;
 
   _wasClicking = false;
 
@@ -53,11 +54,22 @@ export class EventManager {
 
     onNet("ragemp:playerReady", (forResource) => {
       if (forResource && forResource !== GetCurrentResourceName()) return;
-      if (this._playerReadyFired) return;
-      const localPlayer = globalThis.mp?.players?.local;
-      if (!localPlayer) return;
-      this._playerReadyFired = true;
-      this._fire("playerReady", localPlayer);
+      if (this._playerReadyFired || this._playerReadyWaiting) return;
+      const fire = () => {
+        const localPlayer = globalThis.mp?.players?.local;
+        if (!localPlayer) return false;
+        this._playerReadyFired = true;
+        this._fire("playerReady", localPlayer);
+        return true;
+      };
+      if (fire()) return;
+      this._playerReadyWaiting = true;
+      const tick = setTick(() => {
+        if (fire()) {
+          this._playerReadyWaiting = false;
+          clearTick(tick);
+        }
+      });
     });
   }
 

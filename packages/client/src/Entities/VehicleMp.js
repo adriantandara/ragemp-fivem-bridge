@@ -7,7 +7,7 @@ export class VehicleMp extends Entity {
   constructor(id, handle) {
     super(id, "vehicle");
     this._handle = handle;
-    return withEntityNatives(this, (t) => t._handle, ["Vehicle", "Entity", ""]);
+    return withEntityNatives(this, (t) => t._handle, ["Entity", "Vehicle"]);
   }
 
   _stateBag() {

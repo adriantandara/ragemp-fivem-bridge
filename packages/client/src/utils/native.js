@@ -3,7 +3,17 @@ import { NATIVE_SHAPES } from "./nativeShapes";
 
 const _warned = new Set();
 const _resolved = new Map();
-const _probe = new Set(["then", "catch", "finally", "toJSON"]);
+const _probe = new Set([
+  "then",
+  "catch",
+  "finally",
+  "toJSON",
+  "toArray",
+  "toBSON",
+  "inspect",
+  "length",
+  "size",
+]);
 
 function pascal(name) {
   return name.charAt(0).toUpperCase() + name.slice(1);

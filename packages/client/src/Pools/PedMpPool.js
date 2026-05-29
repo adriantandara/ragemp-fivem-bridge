@@ -32,9 +32,6 @@ export class PedMpPool extends StreamingPool {
       );
       ped._handle = handle;
       if (options.frozen) FreezeEntityPosition(handle, true);
-      if (typeof options.dimension === "number" && typeof SetEntityRoutingBucket === "function") {
-        SetEntityRoutingBucket(handle, options.dimension);
-      }
       SetModelAsNoLongerNeeded(hash);
     };
 

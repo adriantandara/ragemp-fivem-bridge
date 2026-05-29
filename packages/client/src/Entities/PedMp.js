@@ -81,6 +81,38 @@ export class PedMp extends Entity {
     SetPedComponentVariation(this._handle, component, drawable, texture, palette ?? 0);
   }
 
+  setAlpha(alpha) {
+    SetEntityAlpha(this._handle, alpha, false);
+  }
+
+  setHairColor(firstColor, secondColor) {
+    SetPedHairColor(this._handle, firstColor, secondColor ?? 0);
+  }
+
+  setEyeColor(index) {
+    SetPedEyeColor(this._handle, index);
+  }
+
+  setHeadOverlay(overlayId, index, opacity) {
+    SetPedHeadOverlay(this._handle, overlayId, index, opacity ?? 1.0);
+  }
+
+  setHeadOverlayColor(overlayId, colorType, colorId, secondColorId) {
+    SetPedHeadOverlayColor(this._handle, overlayId, colorType, colorId, secondColorId ?? 0);
+  }
+
+  setHeadBlendData(shapeFirst, shapeSecond, shapeThird, skinFirst, skinSecond, skinThird, shapeMix, skinMix, thirdMix, isParent) {
+    SetPedHeadBlendData(this._handle, shapeFirst, shapeSecond, shapeThird ?? 0, skinFirst, skinSecond, skinThird ?? 0, shapeMix, skinMix, thirdMix ?? 0, !!isParent);
+  }
+
+  setFaceFeature(index, scale) {
+    SetPedFaceFeature(this._handle, index, scale);
+  }
+
+  isPositionFrozen() {
+    return IsEntityPositionFrozen(this._handle);
+  }
+
   destroy() {
     SetEntityAsMissionEntity(this._handle, false, true);
     DeleteEntity(this._handle);

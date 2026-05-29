@@ -270,6 +270,207 @@ export class VehicleMp extends Entity {
     RollDownWindow(this._handle, index);
   }
 
+  isDriveable(checkDoors) {
+    return IsVehicleDriveable(this._handle, checkDoors ?? false);
+  }
+
+  isDamaged() {
+    return IsVehicleDamaged(this._handle);
+  }
+
+  isStopped() {
+    return IsVehicleStopped(this._handle);
+  }
+
+  isStoppedAtTrafficLights() {
+    return IsVehicleStoppedAtTrafficLights(this._handle);
+  }
+
+  isAlarmActivated() {
+    return IsVehicleAlarmActivated(this._handle);
+  }
+
+  isAnySeatEmpty() {
+    return IsAnyVehicleSeatEmpty(this._handle);
+  }
+
+  isSeatFree(seatIndex) {
+    return IsVehicleSeatFree(this._handle, seatIndex - 1);
+  }
+
+  isOnAllWheels() {
+    return IsVehicleOnAllWheels(this._handle);
+  }
+
+  isSirenOn() {
+    return IsVehicleSirenOn(this._handle);
+  }
+
+  isSirenSoundOn() {
+    return IsVehicleSirenAudioOn(this._handle);
+  }
+
+  isTyreBurst(wheel, onRim) {
+    return IsVehicleTyreBurst(this._handle, wheel, !!onRim);
+  }
+
+  isVisible() {
+    return IsEntityVisible(this._handle);
+  }
+
+  isWindowIntact(windowIndex) {
+    return IsVehicleWindowIntact(this._handle, windowIndex);
+  }
+
+  areAllWindowsIntact() {
+    return AreAllVehicleWindowsIntact(this._handle);
+  }
+
+  isDoorDamaged(doorIndex) {
+    return IsVehicleDoorDamaged(this._handle, doorIndex);
+  }
+
+  getClass() {
+    return GetVehicleClass(this._handle);
+  }
+
+  getMaxNumberOfPassengers() {
+    return GetVehicleMaxNumberOfPassengers(this._handle);
+  }
+
+  getNumberOfPassengers() {
+    return GetVehicleNumberOfPassengers(this._handle);
+  }
+
+  getPedInSeat(seatIndex) {
+    return GetPedInVehicleSeat(this._handle, seatIndex - 1);
+  }
+
+  getLastPedInSeat(seatIndex) {
+    return GetLastPedInVehicleSeat(this._handle, seatIndex - 1);
+  }
+
+  getLiveryCount() {
+    return GetVehicleLiveryCount(this._handle);
+  }
+
+  getModKit() {
+    return GetVehicleModKit(this._handle);
+  }
+
+  getNumMods(modType) {
+    return GetNumVehicleMods(this._handle, modType);
+  }
+
+  getLandingGearState() {
+    return GetLandingGearState(this._handle);
+  }
+
+  setLandingGear(state) {
+    ControlLandingGear(this._handle, state);
+  }
+
+  setLights(toggle) {
+    SetVehicleLights(this._handle, toggle ? 3 : 4);
+  }
+
+  setFullbeam(toggle) {
+    SetVehicleFullbeam(this._handle, !!toggle);
+  }
+
+  setAlarm(toggle) {
+    SetVehicleAlarm(this._handle, !!toggle);
+  }
+
+  setDoorOpen(doorIndex, loose, instantly) {
+    SetVehicleDoorOpen(this._handle, doorIndex, !!loose, instantly ?? false);
+  }
+
+  setDoorShut(doorIndex, instantly) {
+    SetVehicleDoorShut(this._handle, doorIndex, instantly ?? false);
+  }
+
+  setDoorsLockedForAllPlayers(toggle) {
+    SetVehicleDoorsLockedForAllPlayers(this._handle, !!toggle);
+  }
+
+  setEnginePowerMultiplier(value) {
+    SetVehicleEnginePowerMultiplier(this._handle, value);
+  }
+
+  setEngineTorqueMultiplier(value) {
+    SetVehicleEngineTorqueMultiplier(this._handle, value);
+  }
+
+  setGravity(toggle) {
+    SetVehicleGravity(this._handle, !!toggle);
+  }
+
+  setIndicatorLights(leftToggle, rightToggle) {
+    SetVehicleIndicatorLights(this._handle, 0, !!rightToggle);
+    SetVehicleIndicatorLights(this._handle, 1, !!leftToggle);
+  }
+
+  setIsStolen(toggle) {
+    SetVehicleIsStolen(this._handle, !!toggle);
+  }
+
+  setLodMultiplier(value) {
+    SetVehicleLodMultiplier(this._handle, value);
+  }
+
+  setModKit(modKitIndex) {
+    SetVehicleModKit(this._handle, modKitIndex);
+  }
+
+  setNeedsToBeHotwired(toggle) {
+    SetVehicleNeedsToBeHotwired(this._handle, !!toggle);
+  }
+
+  setNumberPlateTextIndex(index) {
+    SetVehicleNumberPlateTextIndex(this._handle, index);
+  }
+
+  clearCustomPrimaryColour() {
+    ClearVehicleCustomPrimaryColour(this._handle);
+  }
+
+  clearCustomSecondaryColour() {
+    ClearVehicleCustomSecondaryColour(this._handle);
+  }
+
+  getPetrolTankHealth() {
+    return GetVehiclePetrolTankHealth(this._handle);
+  }
+
+  getBodyHealth() {
+    return GetVehicleBodyHealth(this._handle);
+  }
+
+  getEngineHealth() {
+    return GetVehicleEngineHealth(this._handle);
+  }
+
+  getColours() {
+    return GetVehicleColours(this._handle);
+  }
+
+  getCustomPrimaryColour() {
+    return GetVehicleCustomPrimaryColour(this._handle);
+  }
+
+  getCustomSecondaryColour() {
+    return GetVehicleCustomSecondaryColour(this._handle);
+  }
+
+  getNumberPlateTextIndex() {
+    return GetVehicleNumberPlateTextIndex(this._handle);
+  }
+
+  getNumberPlateText() {
+    return GetVehicleNumberPlateText(this._handle);
+  }
+
   destroy() {
     SetEntityAsMissionEntity(this._handle, false, true);
     DeleteEntity(this._handle);

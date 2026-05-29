@@ -59,6 +59,105 @@ export class CameraMp extends Entity {
     this.active = state;
   }
 
+  doesExist() {
+    return DoesCamExist(this._handle);
+  }
+
+  isRendering() {
+    return IsCamRendering(this._handle);
+  }
+
+  isPlayingAnim() {
+    return IsCamPlayingAnim(this._handle);
+  }
+
+  getCoord() {
+    const c = GetCamCoord(this._handle);
+    return { x: c[0], y: c[1], z: c[2] };
+  }
+
+  getRot(rotationOrder) {
+    const r = GetCamRot(this._handle, rotationOrder ?? 2);
+    return { x: r[0], y: r[1], z: r[2] };
+  }
+
+  getFov() {
+    return GetCamFov(this._handle);
+  }
+
+  getNearClip() {
+    return GetCamNearClip(this._handle);
+  }
+
+  getFarClip() {
+    return GetCamFarClip(this._handle);
+  }
+
+  getFarDof() {
+    return GetCamFarDof(this._handle);
+  }
+
+  setCoord(x, y, z) {
+    SetCamCoord(this._handle, x, y, z);
+  }
+
+  setRot(x, y, z, rotationOrder) {
+    SetCamRot(this._handle, x, y, z, rotationOrder ?? 2);
+  }
+
+  setAffectsAiming(toggle) {
+    SetCamAffectsAiming(this._handle, !!toggle);
+  }
+
+  setDebugName(name) {
+    SetCamDebugName(this._handle, name);
+  }
+
+  setUseShallowDofMode(toggle) {
+    SetUseHiDof();
+    SetCamUseShallowDofMode(this._handle, !!toggle);
+  }
+
+  setInheritRollVehicle(toggle) {
+    SetCamInheritRollVehicle(this._handle, !!toggle);
+  }
+
+  setShakeAmplitude(amplitude) {
+    SetCamShakeAmplitude(this._handle, amplitude);
+  }
+
+  setParams(posX, posY, posZ, rotX, rotY, rotZ, fov, duration, easePos, easeRot, rotOrder) {
+    SetCamParams(this._handle, posX, posY, posZ, rotX, rotY, rotZ, fov, duration ?? 0, easePos ?? 1, easeRot ?? 1, rotOrder ?? 2);
+  }
+
+  getSplinePhase() {
+    return GetCamSplinePhase(this._handle);
+  }
+
+  getAnimCurrentPhase() {
+    return GetCamAnimCurrentPhase(this._handle);
+  }
+
+  setAnimCurrentPhase(phase) {
+    SetCamAnimCurrentPhase(this._handle, phase);
+  }
+
+  setDofFnumberOfLens(value) {
+    SetCamDofFnumberOfLens(this._handle, value);
+  }
+
+  setDofFocusDistanceBias(value) {
+    SetCamDofFocusDistanceBias(this._handle, value);
+  }
+
+  setDofMaxNearInFocusDistance(value) {
+    SetCamDofMaxNearInFocusDistance(this._handle, value);
+  }
+
+  setDofMaxNearInFocuxDistanceBlendLevel(value) {
+    SetCamDofMaxNearInFocuxDistanceBlendLevel(this._handle, value);
+  }
+
   pointAtCoord(x, y, z) {
     PointCamAtCoord(this._handle, x, y, z);
   }

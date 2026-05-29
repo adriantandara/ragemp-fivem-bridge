@@ -39,6 +39,9 @@ export class BrowserMp extends Entity {
   _active = false;
   _isChatBrowser = false;
   _destroyed = false;
+  _inputEnabled = true;
+  _mouseInputEnabled = true;
+  orderId = 0;
 
   constructor(id, url) {
     super(id, "browser");
@@ -65,6 +68,22 @@ export class BrowserMp extends Entity {
 
   executeCached(code) {
     this.execute(code);
+  }
+
+  get inputEnabled() {
+    return this._inputEnabled;
+  }
+
+  set inputEnabled(value) {
+    this._inputEnabled = !!value;
+  }
+
+  get mouseInputEnabled() {
+    return this._mouseInputEnabled;
+  }
+
+  set mouseInputEnabled(value) {
+    this._mouseInputEnabled = !!value;
   }
 
   markAsChat(flag) {

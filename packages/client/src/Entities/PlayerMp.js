@@ -144,6 +144,195 @@ export class PlayerMp extends Entity {
     globalThis.mp?.events?._fire(eventName, this, ...args);
   }
 
+  getTeam() {
+    return GetPlayerTeam(this._playerIndex);
+  }
+
+  setTeam(team) {
+    SetPlayerTeam(this._playerIndex, team);
+  }
+
+  setPoliceIgnore(toggle) {
+    SetPoliceIgnorePlayer(this._playerIndex, !!toggle);
+  }
+
+  setWantedLevelNow(level) {
+    SetPlayerWantedLevel(this._playerIndex, level, false);
+    SetPlayerWantedLevelNow(this._playerIndex, false);
+  }
+
+  setWantedLevelNoDrop(level) {
+    SetPlayerWantedLevelNoDrop(this._playerIndex, level, false);
+  }
+
+  setMaxArmour(value) {
+    SetPlayerMaxArmour(this._playerIndex, value);
+  }
+
+  setSprint(toggle) {
+    SetPlayerSprint(this._playerIndex, !!toggle);
+  }
+
+  setMayNotEnterAnyVehicle() {
+    SetPlayerMayNotEnterAnyVehicle(this._playerIndex);
+  }
+
+  setMayOnlyEnterThisVehicle(vehicle) {
+    SetPlayerMayOnlyEnterThisVehicle(this._playerIndex, vehicle._handle ?? vehicle);
+  }
+
+  setMeleeWeaponDamageModifier(modifier) {
+    SetPlayerMeleeWeaponDamageModifier(this._playerIndex, modifier);
+  }
+
+  setVehicleDamageModifier(modifier) {
+    SetPlayerVehicleDamageModifier(this._playerIndex, modifier);
+  }
+
+  setVehicleDefenseModifier(modifier) {
+    SetPlayerVehicleDefenseModifier(this._playerIndex, modifier);
+  }
+
+  setWeaponDamageModifier(modifier) {
+    SetPlayerWeaponDamageModifier(this._playerIndex, modifier);
+  }
+
+  setWeaponDefenseModifier(modifier) {
+    SetPlayerWeaponDefenseModifier(this._playerIndex, modifier);
+  }
+
+  setSimulateAiming(toggle) {
+    SetPlayerSimulateAiming(this._playerIndex, !!toggle);
+  }
+
+  setLockon(toggle) {
+    SetPlayerLockon(this._playerIndex, !!toggle);
+  }
+
+  setLockonRangeOverride(range) {
+    SetPlayerLockonRangeOverride(this._playerIndex, range);
+  }
+
+  setForcedAim(toggle) {
+    SetPlayerForcedAim(this._playerIndex, !!toggle);
+  }
+
+  setForcedZoom(toggle) {
+    SetPlayerForcedZoom(this._playerIndex, !!toggle);
+  }
+
+  setCanDoDriveBy(toggle) {
+    SetPlayerCanDoDriveBy(this._playerIndex, !!toggle);
+  }
+
+  setCanBeTargetted(toggle) {
+    SetPlayerCanBeTargetted(this._playerIndex, !!toggle);
+  }
+
+  setCanUseCover(toggle) {
+    SetPlayerCanUseCover(this._playerIndex, !!toggle);
+  }
+
+  isClimbing() {
+    return IsPedClimbing(this.ped);
+  }
+
+  isJumping() {
+    return IsPedJumping(this.ped);
+  }
+
+  isInCover() {
+    return IsPedInCover(this.ped, false);
+  }
+
+  isPressingHorn() {
+    return IsPlayerPressingHorn(this._playerIndex);
+  }
+
+  getSprintStaminaRemaining() {
+    return GetPlayerSprintStaminaRemaining(this._playerIndex);
+  }
+
+  getSprintTimeRemaining() {
+    return GetPlayerSprintTimeRemaining(this._playerIndex);
+  }
+
+  getUnderwaterTimeRemaining() {
+    return GetPlayerUnderwaterTimeRemaining(this._playerIndex);
+  }
+
+  isRidingTrain() {
+    return IsPlayerRidingTrain(this._playerIndex);
+  }
+
+  isTargettingAnything() {
+    return IsPlayerTargettingAnything(this._playerIndex);
+  }
+
+  isControlOn() {
+    return IsPlayerControlOn(this._playerIndex);
+  }
+
+  getGroup() {
+    return GetPedGroupIndex(this.ped);
+  }
+
+  giveRagdollControl(toggle) {
+    GivePlayerRagdollControl(this._playerIndex, !!toggle);
+  }
+
+  explodeHead(weaponHash) {
+    ExplodePedHead(this.ped, weaponHash);
+  }
+
+  clearSecondaryTask() {
+    ClearPedSecondaryTask(this.ped);
+  }
+
+  resetStamina() {
+    ResetPlayerStamina(this._playerIndex);
+  }
+
+  setNoiseMultiplier(multiplier) {
+    SetPlayerNoiseMultiplier(this._playerIndex, multiplier);
+  }
+
+  setSneakingNoiseMultiplier(multiplier) {
+    SetPlayerSneakingNoiseMultiplier(this._playerIndex, multiplier);
+  }
+
+  setStealthPerceptionModifier(value) {
+    SetStealthPerceptionModifier(this._playerIndex, value);
+  }
+
+  setCanBeHassledByGangs(toggle) {
+    SetPlayerCanBeHassledByGangs(this._playerIndex, !!toggle);
+  }
+
+  isWantedLevelGreater(level) {
+    return IsPlayerWantedLevelGreater(this._playerIndex, level);
+  }
+
+  getCurrentScriptedAnim() {
+    return GetEntityCurrentAnimDict(this.ped);
+  }
+
+  getCurrentScenarioId() {
+    return GetScriptTaskStatus(this.ped, 0x6E0B9A8F);
+  }
+
+  taskBleedingDeath() {
+    TaskPedDieInVehicle(this.ped, 0);
+  }
+
+  taskRevive() {
+    NetworkResurrectLocalPlayer(0, 0, 0, 0, true, false);
+  }
+
+  taskCrawl() {
+    TaskGoToCoordsWhilstAimingAtCoords(this.ped, 0, 0, 0, 0, 0, 0, 0, 0, true, 0, 0, false, false, 0);
+  }
+
   get isVoiceActive() {
     return NetworkIsPlayerTalking(this._playerIndex);
   }

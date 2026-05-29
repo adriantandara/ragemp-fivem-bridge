@@ -67,10 +67,46 @@ files {
 
 ## Using browsers
 
+### Browser URL formats
+
+Three URL styles are supported:
+
+| Style | Example | Resolves to |
+| --- | --- | --- |
+| Relative | `"login.html"` | file inside the same resource's `ui/` folder (relative to `host.html`) |
+| `@resource/path` | `"@ragemp-server/client/login/index.html"` | a file **inside another FiveM resource** |
+| Absolute | `"https://cfx-nui-ragemp-server/client/login/index.html"` | same as above, explicit |
+
+The `@resource/path` shorthand is the recommended way to split your game UI across multiple
+resources. The bridge translates it to `https://cfx-nui-{resource}/{path}` automatically.
+
+> **Requirement:** the target resource must list the file in its `fxmanifest.lua` `files {}`
+> block. FiveM will refuse to serve any file not declared there.
+
+```lua
+-- in ragemp-server/fxmanifest.lua
+files {
+  'client/login/index.html',
+  'client/login/index.css',
+  'client/login/index.js',
+  'client/login/_bridge.js',  -- each page needs its own copy of _bridge.js
+}
+```
+
+Every page that uses `mp.*` must load `_bridge.js` regardless of which resource it lives in.
+
+### Creating browsers
+
 Client:
 
 ```js
-const browser = mp.browsers.new("index.html"); // url relative to ui/host.html
+const browser = mp.browsers.new("index.html"); // relative: same resource's ui/
+
+// load a page from a different resource
+this.loginBrowser = mp.browsers.new("@ragemp-server/client/login/index.html");
+
+// or explicit absolute URL
+const hud = mp.browsers.new("https://cfx-nui-my-hud/index.html");
 
 // client → browser
 browser.call("setName", "Adrian");

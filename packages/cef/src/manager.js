@@ -21,7 +21,10 @@ export function startManager() {
 
   function resolveUrl(url) {
     let resolved = url;
-    if (!/^(https?:|nui:|file:|blob:|data:)/i.test(url)) {
+    const atMatch = /^@([^/]+)\/(.+)$/.exec(url);
+    if (atMatch) {
+      resolved = `https://cfx-nui-${atMatch[1]}/${atMatch[2]}`;
+    } else if (!/^(https?:|nui:|file:|blob:|data:)/i.test(url)) {
       try { resolved = new URL(url, location.href).href; } catch (e) { resolved = url; }
     }
     return resolved + (resolved.indexOf("#") === -1 ? "#__ragemp_view" : "&__ragemp_view");

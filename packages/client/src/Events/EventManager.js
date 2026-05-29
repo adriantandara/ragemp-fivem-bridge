@@ -20,6 +20,8 @@ export class EventManager {
 
   _wasShooting = false;
 
+  _playerReadyFired = false;
+
   _wasClicking = false;
 
   _streamedPlayers = new Set();
@@ -49,9 +51,16 @@ export class EventManager {
     this._setupStateBags();
     this._setupMainTick();
 
-    onNet("ragemp:playerReady", () => {
+    onNet("ragemp:playerReady", (forResource) => {
+      // The handshake net event is global across every resource on the client,
+      // so the server's echo reaches all of them. Ignore echoes meant for other
+      // bridge resources and fire playerReady only once per client session.
+      if (forResource && forResource !== GetCurrentResourceName()) return;
+      if (this._playerReadyFired) return;
       const localPlayer = globalThis.mp?.players?.local;
-      if (localPlayer) this._fire("playerReady", localPlayer);
+      if (!localPlayer) return;
+      this._playerReadyFired = true;
+      this._fire("playerReady", localPlayer);
     });
   }
 

@@ -144,7 +144,7 @@ export function startManager() {
       iframe.setAttribute("name", "__ragemp_view");
       iframe.setAttribute(
         "sandbox",
-        "allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-pointer-lock",
+        "allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-pointer-lock allow-downloads allow-top-navigation-by-user-activation",
       );
       iframe.addEventListener("error", () =>
         log("iframe error", browserId, "srcdoc"),

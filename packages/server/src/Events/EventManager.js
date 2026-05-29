@@ -1,15 +1,17 @@
 const RAGEMP_TO_FIVEM_EVENTS = {
-  "playerJoin": "playerJoining",
-  "playerQuit": "playerDropped",
-  "playerReady": "ragemp:playerReady",
-  "playerChat": "chatMessage",
-  "incomingConnection": "playerConnecting",
+  playerJoin: "playerJoining",
+  playerQuit: "playerDropped",
+  playerReady: "ragemp:playerReady",
+  playerChat: "chatMessage",
+  incomingConnection: "playerConnecting",
 };
 
 export class EventManager {
   _handlers = new Map();
 
   _procs = new Map();
+
+  _playerReadyHandled = new Set();
 
   constructor() {
     this._setupBuiltinEvents();
@@ -18,12 +20,18 @@ export class EventManager {
   _playerCheckpointStates = new Map();
 
   _setupBuiltinEvents() {
-    onNet("ragemp:playerReady", () => {
-      const player = globalThis.mp.players.at(source);
-      if (player) {
-        this._fire("playerReady", player);
-        emitNet("ragemp:playerReady", source);
-      }
+    onNet("ragemp:playerReady", (forResource) => {
+      const src = source;
+      const player = globalThis.mp.players.at(src);
+      if (!player) return;
+      emitNet("ragemp:playerReady", src, forResource);
+      if (this._playerReadyHandled.has(src)) return;
+      this._playerReadyHandled.add(src);
+      this._fire("playerReady", player);
+    });
+
+    on("playerDropped", () => {
+      this._playerReadyHandled.delete(source);
     });
 
     onNet("ragemp:chat:message", (rawText) => {
@@ -41,7 +49,9 @@ export class EventManager {
       if (cancelled) return;
 
       const safe = text.replace(/[<>]/g, "");
-      globalThis.mp.players.forEach((p) => p.outputChatBox(`${player.name}: ${safe}`));
+      globalThis.mp.players.forEach((p) =>
+        p.outputChatBox(`${player.name}: ${safe}`),
+      );
     });
 
     onNet("ragemp:playerDeath", (reason, killerId) => {
@@ -63,7 +73,8 @@ export class EventManager {
         if (bagName.indexOf("player:") === 0) {
           entity = mp.players?.at?.(parseInt(bagName.slice(7), 10)) ?? null;
         } else if (bagName.indexOf("entity:") === 0) {
-          entity = mp.vehicles?.atNetId?.(parseInt(bagName.slice(7), 10)) ?? null;
+          entity =
+            mp.vehicles?.atNetId?.(parseInt(bagName.slice(7), 10)) ?? null;
         }
         if (entity) {
           entity._variables.set(key, value);
@@ -77,7 +88,12 @@ export class EventManager {
       const vehicle = globalThis.mp.vehicles.atNetId(vehicleNetId);
       if (player) {
         player._vehicle = vehicle ?? null;
-        this._fire("playerEnterVehicle", player, vehicle, (seatIndex ?? -1) + 1);
+        this._fire(
+          "playerEnterVehicle",
+          player,
+          vehicle,
+          (seatIndex ?? -1) + 1,
+        );
       }
     });
 
@@ -93,7 +109,8 @@ export class EventManager {
     onNet("ragemp:playerStartEnterVehicle", (vehicleNetId, seatIndex) => {
       const player = globalThis.mp.players.at(source);
       const vehicle = globalThis.mp.vehicles.atNetId(vehicleNetId);
-      if (player) this._fire("playerStartEnterVehicle", player, vehicle, seatIndex);
+      if (player)
+        this._fire("playerStartEnterVehicle", player, vehicle, seatIndex);
     });
 
     onNet("ragemp:playerStartExitVehicle", (vehicleNetId) => {
@@ -104,7 +121,8 @@ export class EventManager {
 
     onNet("ragemp:playerWeaponChange", (oldWeapon, newWeapon) => {
       const player = globalThis.mp.players.at(source);
-      if (player) this._fire("playerWeaponChange", player, oldWeapon, newWeapon);
+      if (player)
+        this._fire("playerWeaponChange", player, oldWeapon, newWeapon);
     });
 
     onNet("ragemp:playerDamage", (healthLoss, armorLoss) => {
@@ -117,10 +135,19 @@ export class EventManager {
       if (vehicle) this._fire("vehicleDeath", vehicle);
     });
 
-    onNet("ragemp:vehicleDamage", (vehicleNetId, bodyHealthLoss, engineHealthLoss) => {
-      const vehicle = globalThis.mp.vehicles.atNetId(vehicleNetId);
-      if (vehicle) this._fire("vehicleDamage", vehicle, bodyHealthLoss, engineHealthLoss);
-    });
+    onNet(
+      "ragemp:vehicleDamage",
+      (vehicleNetId, bodyHealthLoss, engineHealthLoss) => {
+        const vehicle = globalThis.mp.vehicles.atNetId(vehicleNetId);
+        if (vehicle)
+          this._fire(
+            "vehicleDamage",
+            vehicle,
+            bodyHealthLoss,
+            engineHealthLoss,
+          );
+      },
+    );
 
     on("onResourceStop", (resource) => {
       if (resource === GetCurrentResourceName()) {
@@ -171,11 +198,12 @@ export class EventManager {
       const mp = globalThis.mp;
       let entity = null;
       if (entityNetId != null && mp) {
-        entity = mp.vehicles?.atNetId?.(entityNetId)
-          ?? mp.peds?.atNetId?.(entityNetId)
-          ?? mp.objects?.atNetId?.(entityNetId)
-          ?? mp.players?.at(source)
-          ?? null;
+        entity =
+          mp.vehicles?.atNetId?.(entityNetId) ??
+          mp.peds?.atNetId?.(entityNetId) ??
+          mp.objects?.atNetId?.(entityNetId) ??
+          mp.players?.at(source) ??
+          null;
       }
       this._fire("entityModelChange", entity, oldModel, newModel);
     });
@@ -209,15 +237,15 @@ export class EventManager {
 
       for (const checkpoint of mp.checkpoints) {
         const matchesDimension =
-          checkpoint.dimension === 0 || player.dimension === checkpoint.dimension;
+          checkpoint.dimension === 0 ||
+          player.dimension === checkpoint.dimension;
 
         let isInside = false;
         if (matchesDimension && checkpoint.visible) {
           try {
             const dist = playerPos.distance(checkpoint.position);
             isInside = dist <= checkpoint.radius;
-          } catch (e) {
-          }
+          } catch (e) {}
         }
 
         if (isInside && !inside.has(checkpoint.id)) {
@@ -323,7 +351,13 @@ export class EventManager {
         const result = await handler(player, ...args);
         emitNet(`ragemp:procResult:${procName}`, src, requestId, result, null);
       } catch (err) {
-        emitNet(`ragemp:procResult:${procName}`, src, requestId, null, String(err));
+        emitNet(
+          `ragemp:procResult:${procName}`,
+          src,
+          requestId,
+          null,
+          String(err),
+        );
       }
     });
   }
@@ -338,27 +372,34 @@ export class EventManager {
 
   get binded() {
     const handlers = this._handlers;
-    return new Proxy({}, {
-      get(_, eventName) {
-        const set = handlers.get(eventName);
-        return set ? set.size > 0 : false;
+    return new Proxy(
+      {},
+      {
+        get(_, eventName) {
+          const set = handlers.get(eventName);
+          return set ? set.size > 0 : false;
+        },
+        has(_, eventName) {
+          const set = handlers.get(eventName);
+          return set ? set.size > 0 : false;
+        },
       },
-      has(_, eventName) {
-        const set = handlers.get(eventName);
-        return set ? set.size > 0 : false;
-      },
-    });
+    );
   }
 
   addCommand(name, handler) {
-    RegisterCommand(name, (src, args, rawCommand) => {
-      const player = globalThis.mp.players.at(src);
-      if (player) {
-        const fullText = args.join(" ");
-        this._fire("playerCommand", player, rawCommand);
-        handler(player, fullText, ...args);
-      }
-    }, false);
+    RegisterCommand(
+      name,
+      (src, args, rawCommand) => {
+        const player = globalThis.mp.players.at(src);
+        if (player) {
+          const fullText = args.join(" ");
+          this._fire("playerCommand", player, rawCommand);
+          handler(player, fullText, ...args);
+        }
+      },
+      false,
+    );
   }
 
   call(eventName, ...args) {
@@ -370,11 +411,17 @@ export class EventManager {
     emitNet(eventName, player.id, ...args);
   }
 
-  get delayShutdown() { return false; }
+  get delayShutdown() {
+    return false;
+  }
   set delayShutdown(_v) {}
-  get delayTermination() { return false; }
+  get delayTermination() {
+    return false;
+  }
   set delayTermination(_v) {}
-  get delayInitialization() { return false; }
+  get delayInitialization() {
+    return false;
+  }
   set delayInitialization(_v) {}
 
   remove(eventName, handler) {

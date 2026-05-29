@@ -11,7 +11,7 @@ if (GetCurrentResourceName() !== "ragemp-fivem-bridge") {
   globalThis.mp.plugins.registerBuiltin(vehicleSync);
   globalThis.mp.plugins.loadAll();
 
-  emitNet("ragemp:playerReady");
+  emitNet("ragemp:playerReady", GetCurrentResourceName());
 
   onNet("ragemp:giveWeapon", (weaponHash, ammo) => {
     GiveWeaponToPed(PlayerPedId(), weaponHash, ammo, false, true);

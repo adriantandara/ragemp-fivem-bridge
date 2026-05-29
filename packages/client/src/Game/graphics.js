@@ -4,7 +4,13 @@ export class GameGraphicsNs {
   unk = createUnkProxy();
 
   screen2dToWorld3d(screenX, screenY) {
-    const [coords] = GetWorldCoordFromScreenCoord(screenX, screenY);
+    let sx = screenX;
+    let sy = screenY;
+    if (sx != null && typeof sx === "object") {
+      sy = sx.y ?? sx[1] ?? 0;
+      sx = sx.x ?? sx[0] ?? 0;
+    }
+    const [coords] = GetWorldCoordFromScreenCoord(+sx || 0, +sy || 0);
     return coords ? toVec3(coords) : null;
   }
 

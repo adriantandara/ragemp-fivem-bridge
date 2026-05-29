@@ -36,15 +36,25 @@ function candidates(name, words) {
   return list;
 }
 
+const _aliases = {
+  setRagdollFlag: "SetRagdollBlockingFlags",
+  setResetRagdollFlag: "ClearRagdollBlockingFlags",
+};
+
 export function findNative(name, words) {
   const key = name + "|" + words.join(",");
   if (_resolved.has(key)) return _resolved.get(key);
   let found = null;
-  for (const cand of candidates(name, words)) {
-    const candidate = globalThis[cand];
-    if (typeof candidate === "function") {
-      found = { fn: candidate, name: cand };
-      break;
+  const alias = _aliases[name];
+  if (alias && typeof globalThis[alias] === "function") {
+    found = { fn: globalThis[alias], name: alias };
+  } else {
+    for (const cand of candidates(name, words)) {
+      const candidate = globalThis[cand];
+      if (typeof candidate === "function") {
+        found = { fn: candidate, name: cand };
+        break;
+      }
     }
   }
   _resolved.set(key, found);

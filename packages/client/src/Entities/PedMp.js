@@ -73,6 +73,18 @@ export class PedMp extends Entity {
     SetEntityInvincible(this._handle, value);
   }
 
+  setConfigFlag(flagId, value) {
+    SetPedConfigFlag(this._handle, flagId, !!value);
+  }
+
+  getConfigFlag(flagId) {
+    return GetPedConfigFlag(this._handle, flagId, true);
+  }
+
+  resetConfigFlag(flagId) {
+    SetPedResetFlag(this._handle, flagId, true);
+  }
+
   taskPlayAnim(dict, name, speed, speedMultiplier, duration, flag, playbackRate, lockX, lockY, lockZ) {
     TaskPlayAnim(this._handle, dict, name, speed, speedMultiplier ?? -1, duration ?? -1, flag ?? 0, playbackRate ?? 0, !!lockX, !!lockY, !!lockZ);
   }

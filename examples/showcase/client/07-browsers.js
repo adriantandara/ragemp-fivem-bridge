@@ -28,3 +28,23 @@ mp.events.add("showcase:hudReady", () => {
 mp.events.add("showcase:uiButton", (label) => {
   mp.gui.chat.push(`!{#4ade80}Browser button clicked: ${label}`);
 });
+
+let crossResourceBrowser = null;
+
+mp.events.add("showcase:openCrossResource", (url) => {
+  if (crossResourceBrowser && !crossResourceBrowser._destroyed) {
+    crossResourceBrowser.destroy();
+    crossResourceBrowser = null;
+    mp.gui.cursor.visible = false;
+  }
+  crossResourceBrowser = mp.browsers.new(url);
+  mp.gui.cursor.visible = true;
+  mp.gui.chat.push(`!{#60a5fa}Browser opened: ${url}`);
+});
+
+mp.events.add("showcase:closeCrossResource", () => {
+  if (!crossResourceBrowser) return;
+  crossResourceBrowser.destroy();
+  crossResourceBrowser = null;
+  mp.gui.cursor.visible = false;
+});

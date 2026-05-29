@@ -22,9 +22,12 @@ my-gamemode/ui/
 ├─ host.html      ← the NUI root (host shell)
 ├─ index.html     ← your actual page (loaded as a browser/iframe)
 ├─ index.css
-├─ index.js
-└─ _bridge.js     ← the bridge NUI runtime (copy from the bridge resource)
+└─ index.js
 ```
+
+No need to copy `_bridge.js` — your pages load it straight from the bridge resource
+(`https://cfx-nui-ragemp-fivem-bridge/ui/_bridge.js`). Just keep `ragemp-fivem-bridge`
+`ensure`d before your resource.
 
 `fxmanifest.lua`:
 
@@ -35,20 +38,19 @@ files {
   'ui/index.html',
   'ui/index.css',
   'ui/index.js',
-  'ui/_bridge.js',
 }
 ```
 
-`ui/host.html` — just loads the runtime:
+`ui/host.html` — just loads the runtime straight from the bridge resource (no local copy needed):
 
 ```html
 <!doctype html>
 <html><body>
-  <script src="_bridge.js"></script>
+  <script src="https://cfx-nui-ragemp-fivem-bridge/ui/_bridge.js"></script>
 </body></html>
 ```
 
-`ui/index.html` — your page also loads the runtime (it detects it's in an iframe):
+`ui/index.html` — your page loads the runtime the same way (it auto-detects it's in an iframe):
 
 ```html
 <!doctype html>
@@ -56,14 +58,27 @@ files {
   <head><link rel="stylesheet" href="index.css" /></head>
   <body>
     <div id="app">Hello from CEF</div>
-    <script src="_bridge.js"></script>
+    <script src="https://cfx-nui-ragemp-fivem-bridge/ui/_bridge.js"></script>
     <script src="index.js"></script>
   </body>
 </html>
 ```
 
-> Copy `_bridge.js` from `ragemp-fivem-bridge/ui/_bridge.js` (standalone) into your `ui/`.
-> The CLI injects it for you in bundled mode.
+> ### Loading `_bridge.js`
+>
+> **Recommended — reference the bridge resource directly** (shown above). No copying, one source of truth, always up to date with the installed bridge:
+> ```html
+> <script src="https://cfx-nui-ragemp-fivem-bridge/ui/_bridge.js"></script>
+> ```
+> Works because `ui/_bridge.js` is declared in the bridge's `files {}`. Just `ensure ragemp-fivem-bridge` **before** your resource in `server.cfg`. This works from any resource — perfect for splitting UI across resources (e.g. a separate `login` page).
+>
+> **Alternatives:**
+> - **Local copy** — copy `ragemp-fivem-bridge/ui/_bridge.js` into your `ui/` and use `<script src="_bridge.js"></script>`. Fine, but you must re-copy it when the bridge updates.
+> - **Auto-injection** — the NUI runtime injects `_bridge.js` into pages that don't load it themselves, so a page with no `<script>` at all often still works. Referencing it explicitly (above) is more reliable.
+>
+> `<script src="@ragemp-fivem-bridge/ui/_bridge.js">` does **not** work — the `@resource/path` syntax is for `mp.browsers.new(...)` and FiveM scripts, **not** valid in HTML. Use the full `https://cfx-nui-…` URL in `<script>` tags.
+>
+> The CLI handles all of this for you in bundled mode.
 
 ## Using browsers
 

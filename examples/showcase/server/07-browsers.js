@@ -14,6 +14,16 @@ mp.events.addCommand("ui", (player) => {
   player.outputChatBox("!{#4ade80}Toggled the demo HUD. It shows server pushes.");
 });
 
+mp.events.addCommand("testbrowser", (player) => {
+  player.call("showcase:openCrossResource", "@ragemp/ui/index.html");
+  player.outputChatBox("!{#60a5fa}Opening @ragemp/ui/index.html via cross-resource browser.");
+});
+
+mp.events.addCommand("closebrowser", (player) => {
+  player.call("showcase:closeCrossResource");
+  player.outputChatBox("!{#f87171}Cross-resource browser closed.");
+});
+
 mp.events.add("showcase:requestHudUpdate", (player) => {
   openHuds.add(player.id);
   pushHud(player);

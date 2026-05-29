@@ -13,10 +13,23 @@ export class PlayerMpPool extends Pool {
   }
 
   _setupLocal() {
-    const playerId = PlayerId();
-    const serverId = GetPlayerServerId(playerId);
-    this.local = new PlayerMp(serverId, playerId);
-    this._add(this.local);
+    try {
+      const playerId = PlayerId();
+      const serverId = GetPlayerServerId(playerId);
+      this.local = new PlayerMp(serverId || playerId, playerId);
+      this._add(this.local);
+    } catch (e) {
+      const tick = setTick(() => {
+        try {
+          const playerId = PlayerId();
+          const serverId = GetPlayerServerId(playerId);
+          if (!serverId) return;
+          clearTick(tick);
+          this.local = new PlayerMp(serverId, playerId);
+          this._add(this.local);
+        } catch (_) {}
+      });
+    }
   }
 
   atRemoteId(remoteId) {
@@ -25,6 +38,18 @@ export class PlayerMpPool extends Pool {
 
   get weapon() {
     return this.local?.weapon ?? 0;
+  }
+
+  get health() {
+    return this.local?.health ?? 100;
+  }
+
+  get position() {
+    return this.local?.position ?? null;
+  }
+
+  get heading() {
+    return this.local?.heading ?? 0;
   }
 
   get streamed() {

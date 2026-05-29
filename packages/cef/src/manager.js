@@ -30,6 +30,26 @@ export function startManager() {
     return resolved + (resolved.indexOf("#") === -1 ? "#__ragemp_view" : "&__ragemp_view");
   }
 
+  const BRIDGE_URL = `https://cfx-nui-${HOST_RESOURCE}/ui/_bridge.js`;
+
+  function tryInjectBridge(iframe, browserId, done) {
+    try {
+      const doc = iframe.contentDocument;
+      if (!doc) { done(); return; }
+      if (doc.querySelector("script[data-ragemp-bridge]")) { done(); return; }
+      const existing = doc.querySelector("script[src*=\"_bridge\"]");
+      if (existing) { done(); return; }
+      const script = doc.createElement("script");
+      script.setAttribute("data-ragemp-bridge", "1");
+      script.src = BRIDGE_URL;
+      script.onload = done;
+      script.onerror = done;
+      (doc.head || doc.documentElement).appendChild(script);
+    } catch (e) {
+      done();
+    }
+  }
+
   function flush(entry, browserId) {
     entry.ready = true;
     try { entry.iframe.contentWindow.postMessage({ __ragempForward: true, inner: { type: "__ragemp:assignId", browserId } }, "*"); } catch (e) { log("assignId post failed", String(e)); }
@@ -54,7 +74,7 @@ export function startManager() {
 
     iframe.addEventListener("load", () => {
       log("iframe loaded", browserId);
-      flush(entry, browserId);
+      tryInjectBridge(iframe, browserId, () => flush(entry, browserId));
     });
     iframe.addEventListener("error", () => log("iframe error", browserId, resolved));
 

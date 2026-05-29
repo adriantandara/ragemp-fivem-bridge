@@ -1,5 +1,5 @@
-// Server entry — uses the RAGE:MP `mp.*` API
-// The bridge auto-loads before this file runs.
+
+
 
 mp.events.add("playerJoin", (player) => {
   console.log(`[server] ${player.name} joined (id=${player.id})`);

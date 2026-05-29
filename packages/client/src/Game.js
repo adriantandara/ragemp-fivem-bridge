@@ -563,6 +563,14 @@ class GameStreamingNs {
   requestCollisionForModel(modelHash) { RequestCollisionForModel(modelHash); }
   hasCollisionForModelLoaded(modelHash) { return HasCollisionForModelLoaded(modelHash); }
 
+  requestIpl(iplName) { RequestIpl(iplName); }
+  removeIpl(iplName) { RemoveIpl(iplName); }
+  isIplActive(iplName) { return IsIplActive(iplName); }
+
+  requestStreamedTextureDict(textureDict, p1) { RequestStreamedTextureDict(textureDict, p1 ?? false); }
+  hasStreamedTextureDictLoaded(textureDict) { return HasStreamedTextureDictLoaded(textureDict); }
+  releaseStreamedTextureDict(textureDict) { SetStreamedTextureDictAsNoLongerNeeded(textureDict); }
+
   loadScene(x, y, z) { LoadScene(x, y, z); }
   startPlayerSwitch(from, to, flags, switchType) { StartPlayerSwitch(from, to, flags ?? 0, switchType ?? 0); }
   stopPlayerSwitch() { StopPlayerSwitch(); }
@@ -1188,6 +1196,13 @@ class GameGraphicsNs {
 
   setArtificialLightsState(toggle) { SetArtificialLightsState(toggle); }
   setArtificialLightsStateAffectsVehicles(toggle) { SetArtificialLightsStateAffectsVehicles(toggle); }
+
+  requestStreamedTextureDict(textureDict, p1) { RequestStreamedTextureDict(textureDict, p1 ?? false); }
+  hasStreamedTextureDictLoaded(textureDict) { return HasStreamedTextureDictLoaded(textureDict); }
+  releaseStreamedTextureDict(textureDict) { SetStreamedTextureDictAsNoLongerNeeded(textureDict); }
+  drawSprite(textureDict, textureName, screenX, screenY, width, height, heading, r, g, b, alpha, unk) {
+    DrawSprite(textureDict, textureName, screenX, screenY, width, height, heading ?? 0, r, g, b, alpha ?? 255, unk ?? false);
+  }
 }
 
 class GameStatsNs {

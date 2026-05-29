@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "turbo build",
-    "build:dev": "cross-env DEV=1 turbo build",
+    "build": "turbo run build --filter=!.",
+    "build:dev": "cross-env DEV=1 turbo run build --filter=!.",
     "build:resource": "node packages/cli/bin/mp-fivem.js build",
     "pack-bridge": "node packages/cli/bin/mp-fivem.js pack-bridge"
   },

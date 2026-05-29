@@ -23,6 +23,10 @@ export class PlayerMpPool extends Pool {
     return this.at(remoteId);
   }
 
+  get weapon() {
+    return this.local?.weapon ?? 0;
+  }
+
   get streamed() {
     return this.toArray().filter(p => p !== this.local);
   }

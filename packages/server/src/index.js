@@ -5,7 +5,7 @@ import * as spawnmanager from "./Plugins/builtin/spawnmanager";
 import * as vehicleSync from "./Plugins/builtin/vehicle-sync";
 import * as rageRpc from "./Plugins/builtin/rage-rpc";
 
-if (GetCurrentResourceName() !== "ragemp-fivem-bridge") {
+if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "library") {
   globalThis.mp = new Mp();
 
   globalThis.mp.plugins.registerBuiltin(fsCompat);

@@ -1,6 +1,6 @@
 import rpc from "@ragemp-fivem-bridge/rage-rpc";
 import { EventManager } from "./events.js";
-import { toClient, log, setDebug, isDebug } from "./transport.js";
+import { toClient, log, setDebug, isDebug, setResourceName } from "./transport.js";
 
 export function createRuntime() {
   let selfId = "host";
@@ -47,6 +47,7 @@ export function createRuntime() {
 
     if (data.type === "__ragemp:assignId") {
       setSelfId(data.browserId);
+      if (data.resource) setResourceName(data.resource);
       log("assigned id", data.browserId);
       return;
     }

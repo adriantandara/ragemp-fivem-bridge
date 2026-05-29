@@ -78,7 +78,11 @@ export function startManager() {
       entry.iframe.contentWindow.postMessage(
         {
           __ragempForward: true,
-          inner: { type: "__ragemp:assignId", browserId },
+          inner: {
+            type: "__ragemp:assignId",
+            browserId,
+            resource: HOST_RESOURCE,
+          },
         },
         "*",
       );

@@ -26,6 +26,8 @@ name 'ragemp-fivem-bridge'
 description 'Standalone RAGE:MP → FiveM bridge. Exposes mp.* to other resources via @-imports.'
 version '1.0.0'
 
+ragemp_bridge 'library'
+
 server_script 'server.js'
 client_script 'client.js'
 

@@ -217,8 +217,11 @@ export function startManager() {
   window.addEventListener("keyup", (e) => forwardKey(e, false), true);
 
   window.addEventListener("message", (nativeEvent) => {
-    if (nativeEvent.source && nativeEvent.source !== window) {
-      return;
+    const src = nativeEvent.source;
+    if (src) {
+      for (const entry of frames.values()) {
+        if (entry.iframe && entry.iframe.contentWindow === src) return;
+      }
     }
 
     const data = nativeEvent.data;

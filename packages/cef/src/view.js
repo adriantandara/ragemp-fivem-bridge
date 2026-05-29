@@ -7,7 +7,6 @@ export function startView() {
   log("view ready in", typeof window !== "undefined" ? window.location.href : "?", "resource =", resourceName());
 
   window.addEventListener("message", (nativeEvent) => {
-    if (nativeEvent.source !== window.parent) return;
     const data = nativeEvent.data;
     if (!data || typeof data !== "object") return;
     if (data.__ragempForward && data.inner) {

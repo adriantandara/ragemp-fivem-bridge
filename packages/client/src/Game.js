@@ -944,6 +944,14 @@ class GameMiscNs {
     return IsProjectileTypeInArea(x1, y1, z1, x2, y2, z2, type, ownedByPlayer ?? false);
   }
 
+  getModelDimensions(modelHash) {
+    const [min, max] = GetModelDimensions(modelHash);
+    return {
+      min: toVec3(min) ?? new Vector3(min[0], min[1], min[2]),
+      max: toVec3(max) ?? new Vector3(max[0], max[1], max[2]),
+    };
+  }
+
   getHashKey(string) { return GetHashKey(string); }
   getRandomIntInRange(startRange, endRange) { return GetRandomIntInRange(startRange, endRange); }
   getRandomFloatInRange(startRange, endRange) { return GetRandomFloatInRange(startRange, endRange); }

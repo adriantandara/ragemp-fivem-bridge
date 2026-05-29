@@ -1,5 +1,6 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { withEntityNatives } from "../utils/native";
 
 export class CheckpointMp extends Entity {
   _handle;
@@ -9,6 +10,7 @@ export class CheckpointMp extends Entity {
   constructor(id, handle) {
     super(id, "checkpoint");
     this._handle = handle;
+    return withEntityNatives(this, (t) => t._handle, ["Checkpoint"]);
   }
 
   get position() {

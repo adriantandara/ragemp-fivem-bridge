@@ -1,11 +1,48 @@
-import { Pool } from "@ragemp-fivem-bridge/shared";
+import { Pool, Vector3 } from "@ragemp-fivem-bridge/shared";
 import { CameraMp } from "../Entities/CameraMp";
+import { withGameNatives } from "../utils/native";
 
 let cameraIdCounter = 0;
 
+function makeGameplayCamera() {
+  const cam = {
+    get handle() {
+      return GetRenderingCam();
+    },
+    get position() {
+      const c = GetGameplayCamCoord();
+      return new Vector3(c[0], c[1], c[2]);
+    },
+    get rotation() {
+      const r = GetGameplayCamRot(2);
+      return new Vector3(r[0], r[1], r[2]);
+    },
+    getCoord() {
+      const c = GetGameplayCamCoord();
+      return new Vector3(c[0], c[1], c[2]);
+    },
+    getRot() {
+      const r = GetGameplayCamRot(2);
+      return new Vector3(r[0], r[1], r[2]);
+    },
+    getFov() {
+      return GetGameplayCamFov();
+    },
+    getDirection() {
+      const r = GetGameplayCamRot(2);
+      const z = (r[2] * Math.PI) / 180;
+      const x = (r[0] * Math.PI) / 180;
+      const num = Math.abs(Math.cos(x));
+      return new Vector3(-Math.sin(z) * num, Math.cos(z) * num, Math.sin(x));
+    },
+  };
+  return withGameNatives(cam, "gameplayCam", ["GameplayCam"]);
+}
+
 export class CameraMpPool extends Pool {
   get gameplay() {
-    return GetRenderingCam();
+    if (!this._gameplay) this._gameplay = makeGameplayCamera();
+    return this._gameplay;
   }
 
   new(name, position, rotation, fov) {

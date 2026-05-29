@@ -43,6 +43,8 @@ function runNativeTests() {
     ["game.gameplay.getGroundZFor3dCoord [obj]", () => mp.game.gameplay.getGroundZFor3dCoord(pos.x, pos.y, pos.z + 1.0, false)],
     ["game.weapon.getWeaponClipSize  [int]", () => mp.game.weapon.getWeaponClipSize(mp.game.joaat("weapon_pistol"))],
     ["game.entity.getEntitySpeedVector [Vec3]", () => mp.game.entity.getEntitySpeedVector(p.ped, true)],
+    ["cameras.gameplay.getDirection()  [Vec3]", () => mp.cameras.gameplay.getDirection()],
+    ["cameras.gameplay.getCoord()      [Vec3]", () => mp.cameras.gameplay.getCoord()],
   ];
 
   mp.gui.chat.push("!{#4ade80}=== Native fallback test (F6) ===");

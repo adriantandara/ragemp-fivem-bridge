@@ -1,5 +1,6 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { withEntityNatives } from "../utils/native";
 
 export class BlipMp extends Entity {
   _handle;
@@ -8,6 +9,7 @@ export class BlipMp extends Entity {
   constructor(id, handle) {
     super(id, "blip");
     this._handle = handle;
+    return withEntityNatives(this, (t) => t._handle, ["Blip"]);
   }
 
   get handle() {

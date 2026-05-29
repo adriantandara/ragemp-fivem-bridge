@@ -51,6 +51,9 @@ class GameEntityNs {
   isAPed(entity) { return IsEntityAPed(entity); }
   isAVehicle(entity) { return IsEntityAVehicle(entity); }
   isAnObject(entity) { return IsEntityAnObject(entity); }
+  createModelHide(x, y, z, radius, model, p5) { CreateModelHide(x, y, z, radius, model, p5 ?? false); }
+  createModelHideExcludingScriptObjects(x, y, z, radius, model, p5) { CreateModelHideExcludingScriptObjects(x, y, z, radius, model, p5 ?? false); }
+  removeModelHide(x, y, z, radius, model, p5) { if (typeof RemoveModelHide === "function") RemoveModelHide(x, y, z, radius, model, p5 ?? false); }
   getType(entity) { return GetEntityType(entity); }
   getModel(entity) { return GetEntityModel(entity); }
 
@@ -830,6 +833,8 @@ class GameHudNs {
 
   hideHudComponentThisFrame(id) { HideHudComponentThisFrame(id); }
   showHudComponentThisFrame(id) { ShowHudComponentThisFrame(id); }
+  setRadarAsInteriorThisFrame(interior, x, y, z, heading) { SetRadarAsInteriorThisFrame(interior, x, y, z, heading); }
+  setRadarAsExteriorThisFrame() { if (typeof SetRadarAsExteriorThisFrame === "function") SetRadarAsExteriorThisFrame(); }
   isHudComponentActive(id) { return IsHudComponentActive(id); }
   hideHudAndRadarThisFrame() { HideHudAndRadarThisFrame(); }
   isHudHidden() { return IsHudHidden(); }

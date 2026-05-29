@@ -234,6 +234,42 @@ export class VehicleMp extends Entity {
     SetVehicleWheelTireColliderSize(this._handle, wheelIndex, value);
   }
 
+  setEngineOn(toggle, instantly, disableAutoStart) {
+    SetVehicleEngineOn(this._handle, !!toggle, instantly ?? true, disableAutoStart ?? false);
+  }
+
+  setHandbrake(toggle) {
+    SetVehicleHandbrake(this._handle, !!toggle);
+  }
+
+  setForwardSpeed(speed) {
+    SetVehicleForwardSpeed(this._handle, speed);
+  }
+
+  setUndriveable(toggle) {
+    SetVehicleUndriveable(this._handle, !!toggle);
+  }
+
+  setDoorsLocked(state) {
+    SetVehicleDoorsLocked(this._handle, state);
+  }
+
+  setDirtLevel(level) {
+    SetVehicleDirtLevel(this._handle, level);
+  }
+
+  getDirtLevel() {
+    return GetVehicleDirtLevel(this._handle);
+  }
+
+  rollUpWindow(index) {
+    RollUpWindow(this._handle, index);
+  }
+
+  rollDownWindow(index) {
+    RollDownWindow(this._handle, index);
+  }
+
   destroy() {
     SetEntityAsMissionEntity(this._handle, false, true);
     DeleteEntity(this._handle);

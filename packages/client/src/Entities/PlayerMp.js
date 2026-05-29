@@ -120,6 +120,10 @@ export class PlayerMp extends Entity {
     SetPlayerControl(this._playerIndex, state, 0);
   }
 
+  freezePosition(toggle) {
+    FreezeEntityPosition(this.ped, !!toggle);
+  }
+
   setEveryoneIgnore(state) {
     SetEveryoneIgnorePlayer(this._playerIndex, state);
   }

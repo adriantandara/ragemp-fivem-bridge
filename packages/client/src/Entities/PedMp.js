@@ -73,6 +73,14 @@ export class PedMp extends Entity {
     SetEntityInvincible(this._handle, value);
   }
 
+  taskPlayAnim(dict, name, speed, speedMultiplier, duration, flag, playbackRate, lockX, lockY, lockZ) {
+    TaskPlayAnim(this._handle, dict, name, speed, speedMultiplier ?? -1, duration ?? -1, flag ?? 0, playbackRate ?? 0, !!lockX, !!lockY, !!lockZ);
+  }
+
+  setComponentVariation(component, drawable, texture, palette) {
+    SetPedComponentVariation(this._handle, component, drawable, texture, palette ?? 0);
+  }
+
   destroy() {
     SetEntityAsMissionEntity(this._handle, false, true);
     DeleteEntity(this._handle);

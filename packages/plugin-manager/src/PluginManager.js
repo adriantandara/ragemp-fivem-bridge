@@ -16,11 +16,11 @@ export class PluginManager {
 
   loadAll() {
     this._disabled = this._readDisabled();
+    if (this._disabled.size) {
+      console.log(`[bridge:plugins] disabled: ${[...this._disabled].join(", ")}`);
+    }
     for (const mod of this._builtins) {
-      if (this._disabled.has(mod.name)) {
-        console.log(`[bridge:plugins] '${mod.name}' disabled via fxmanifest`);
-        continue;
-      }
+      if (this._disabled.has(mod.name)) continue;
       this._invoke(mod.name, GetCurrentResourceName(), mod.default, { builtin: true });
     }
     this._scanExternal();
@@ -31,11 +31,21 @@ export class PluginManager {
 
   _readDisabled() {
     const disabled = new Set();
-    const self = GetCurrentResourceName();
-    const count = GetNumResourceMetadata(self, "disable_plugin");
-    for (let i = 0; i < count; i++) {
-      const value = GetResourceMetadata(self, "disable_plugin", i);
-      if (value) disabled.add(value.trim());
+    const readFrom = (res) => {
+      if (!res) return;
+      const count = GetNumResourceMetadata(res, "disable_plugin");
+      for (let i = 0; i < count; i++) {
+        const value = GetResourceMetadata(res, "disable_plugin", i);
+        if (value) disabled.add(value.trim());
+      }
+    };
+    readFrom(GetCurrentResourceName());
+    const total = GetNumResources();
+    for (let i = 0; i < total; i++) {
+      const res = GetResourceByFindIndex(i);
+      if (res && GetResourceMetadata(res, "ragemp_bridge", 0) === "library") {
+        readFrom(res);
+      }
     }
     return disabled;
   }

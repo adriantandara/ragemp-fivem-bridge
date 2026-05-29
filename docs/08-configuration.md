@@ -50,9 +50,11 @@ ensure your-gamemode
 
 ## Disabling built-in plugins
 
-Add `disable_plugin '<name>'` to your gamemode's `fxmanifest.lua` (the consuming resource).
-Names: `fs-compat`, `env-loader`, `rage-rpc`, `spawnmanager`, `vehicle-sync`, or any
-third-party `bridge_plugin_name`. Details in [07-plugins-and-features](07-plugins-and-features.md#disabling-built-in-plugins).
+Add `disable_plugin '<name>'` to your gamemode's `fxmanifest.lua` (per-gamemode) or to the
+bridge resource's `fxmanifest.lua` (global) — both are honored. Names: `fs-compat`,
+`env-loader`, `rage-rpc`, `spawnmanager`, `vehicle-sync`, or any third-party
+`bridge_plugin_name`. The bridge logs the disabled set on startup. Details in
+[07-plugins-and-features](07-plugins-and-features.md#disabling-built-in-plugins).
 
 ## Third-party plugin metadata
 

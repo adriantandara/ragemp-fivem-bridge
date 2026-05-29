@@ -1,0 +1,86 @@
+name: Release standalone bridge
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version without the leading v (e.g. 1.0.1). Creates tag v<version>."
+        required: true
+      overwrite:
+        description: "Replace the release if this version already exists"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm run build
+
+      - name: Resolve version and tag
+        id: ver
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+            TAG="v${VERSION#v}"
+          else
+            TAG="${GITHUB_REF_NAME}"
+            VERSION="${TAG#v}"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Releasing ${TAG}"
+
+      - name: Guard against accidental overwrite
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          OVERWRITE="${{ github.event.inputs.overwrite }}"
+          if gh release view "${{ steps.ver.outputs.tag }}" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            if [ "$OVERWRITE" != "true" ]; then
+              echo "::error::Release ${{ steps.ver.outputs.tag }} already exists. Re-run this workflow manually with 'overwrite' ticked to replace it."
+              exit 1
+            fi
+            echo "Release ${{ steps.ver.outputs.tag }} exists and overwrite=true -> rebuilding and replacing its assets."
+          else
+            echo "No existing release for ${{ steps.ver.outputs.tag }} -> creating a new one."
+          fi
+
+      - name: Pack standalone bridge resource
+        run: pnpm run pack-bridge
+
+      - name: Zip release artifact
+        run: |
+          cd dist
+          zip -r "ragemp-fivem-bridge-${{ steps.ver.outputs.tag }}.zip" ragemp-fivem-bridge
+          ls -la
+
+      - name: Create / update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: ${{ steps.ver.outputs.tag }}
+          make_latest: "true"
+          generate_release_notes: true
+          files: dist/ragemp-fivem-bridge-${{ steps.ver.outputs.tag }}.zip

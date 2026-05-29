@@ -69,6 +69,7 @@ export class VehicleMpPool extends Pool {
       return existing;
     }
     if (typeof DoesEntityExist === "function" && !DoesEntityExist(handle)) return null;
+    if (typeof GetEntityType === "function" && GetEntityType(handle) !== 2) return null;
     const vehicle = new VehicleMp(++vehicleIdCounter, handle);
     this._add(vehicle);
     this._handleToEntity.set(handle, vehicle);

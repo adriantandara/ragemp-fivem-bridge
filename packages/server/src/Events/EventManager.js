@@ -73,8 +73,17 @@ export class EventManager {
         if (bagName.indexOf("player:") === 0) {
           entity = mp.players?.at?.(parseInt(bagName.slice(7), 10)) ?? null;
         } else if (bagName.indexOf("entity:") === 0) {
-          entity =
-            mp.vehicles?.atNetId?.(parseInt(bagName.slice(7), 10)) ?? null;
+          const handle =
+            typeof GetEntityFromStateBagName === "function"
+              ? GetEntityFromStateBagName(bagName)
+              : 0;
+          if (handle && handle !== 0) {
+            entity =
+              mp.vehicles?.atHandle?.(handle) ??
+              mp.objects?.atHandle?.(handle) ??
+              mp.peds?.atHandle?.(handle) ??
+              null;
+          }
         }
         if (entity) {
           entity._variables.set(key, value);

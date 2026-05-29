@@ -8,6 +8,8 @@ The bridge reimplements the full `mp.*` API surface on top of FiveM natives — 
 
 **Built with collaboration from [ghosty2004](https://github.com/ghosty2004). Thank you.**
 
+**Thanks to [Adryan](https://github.com/AdrianOficial) for valuable feedback and ideas.**
+
 ---
 
 ## Modes
@@ -60,21 +62,34 @@ Your scripts can now use `mp.*` directly, exactly as on RAGE:MP.
 
 **CEF / NUI**
 
+The bridge's NUI runtime runs as a **host** document that manages each browser as its
+own `<iframe>` (matching RAGE:MP's `mp.browsers.new`). Point your resource's `ui_page`
+at a host shell, and load your actual pages with `mp.browsers.new(url)`:
+
 ```lua
-ui_page 'ui/index.html'
+ui_page 'ui/host.html'
 files {
   'ui/**/*',
   '@ragemp-fivem-bridge/ui/_bridge.js'
 }
 ```
 
-In `ui/index.html`, load the bridge before your own scripts:
+`ui/host.html` is a transparent shell that just loads the runtime:
 
 ```html
-<script src="/_bridge.js"></script>
+<body><script src="_bridge.js"></script></body>
 ```
 
-This gives the NUI context `mp.events.add()`, `mp.trigger()`, and `mp.rpc`.
+Each page (e.g. `ui/index.html`) loads the same `_bridge.js`; it detects it is running
+inside an iframe and wires itself to the host automatically. Every page gets
+`mp.events.add()`, `mp.trigger()`, and `mp.rpc`. Open one client-side:
+
+```js
+const browser = mp.browsers.new("index.html"); // relative to ui/host.html
+```
+
+> See [`docs/`](docs/) for a head-to-tail tutorial on server structure, where the bridge
+> goes, handling multi-file `packages/` / `client_packages/`, and both standalone and CLI setups.
 
 ---
 
@@ -243,7 +258,7 @@ const balance = await mp.rpc.callServer("getBalance");
 
 ## Plugins
 
-Built-in plugins load automatically: `spawnmanager`, `rage-rpc`, `fs-compat`, `env-loader`.
+Built-in plugins load automatically: `spawnmanager`, `vehicle-sync`, `rage-rpc`, `fs-compat`, `env-loader`.
 
 Third-party plugins can ship as FiveM resources with these metadata fields in `fxmanifest.lua`:
 
@@ -280,12 +295,22 @@ If `screenshot-basic` is not installed, the bridge logs a warning and calls the 
 
 ## Roadmap
 
-- [ ] Built-in plugin for server-side vehicle sync (authoritative vehicle state replication)
-- [ ] `mp.prototype` support — allow extending `mp` with custom methods (e.g. `mp.Player.prototype.myMethod`)
-- [ ] Migrate RPC to [leonardssh/rage-rpc](https://github.com/leonardssh/rage-rpc) fork
-- [ ] `mp.browsers.new` with separate browser instances — global NUI environment that manages individual browsers as iframes, matching RAGE:MP browser lifecycle
+- [x] Built-in plugin for server-side vehicle sync (authoritative vehicle state replication) — the `vehicle-sync` built-in keeps cosmetic state (colour, neon, mods, livery, …) on the server and replays it to any client that streams the vehicle in later.
+- [x] `mp.prototype` support — entity constructors are exposed on `mp` (`mp.Player`, `mp.Vehicle`, `mp.Object`, `mp.Blip`, …), so you can extend them: `mp.Player.prototype.myMethod = …`.
+- [x] Migrate RPC to [leonardssh/rage-rpc](https://github.com/leonardssh/rage-rpc) fork — `mp.rpc` is now a port of the fork, adding large-payload chunking, entity (de)serialization across the wire, and `mp.rpc.setDebugMode(true)`.
+- [x] `mp.browsers.new` with separate browser instances — the bridge's NUI runtime runs as a global host that manages each browser as its own `<iframe>`, matching RAGE:MP browser lifecycle. Set your resource's `ui_page` to the bridge host shell and create pages with `mp.browsers.new(url)`.
 
 ---
+
+## Security & production notes
+
+The bridge mirrors the RAGE:MP event model, where some events are **reported by the client**. Treat the client as untrusted:
+
+- **Client-reported events are not authoritative.** `playerDeath`, `playerDamage`, `playerWeaponChange`, `playerEnterVehicle`/`playerExitVehicle`, and similar fire from client-side detection — a modified client can forge them. Do **not** grant money, items, or kills based solely on these. Validate server-side (positions, ownership, cooldowns) for anything that matters. `playerPickup` is distance-checked server-side by the bridge; `chat` messages are length-capped (256) and `<`/`>`-stripped before broadcast.
+- **RPC / proc handlers run with client-supplied arguments.** Validate and authorize inside `mp.rpc.register(...)` / `addProc(...)` handlers; never trust the args.
+- **NUI runs your web content with `mp.*` and `eval`-based messaging.** Only load UI you control. Never point a browser at remote/untrusted pages — a hostile page can call your registered client procedures and trigger events. Keep the bridge's CEF debug off in production (`mp.cef.setDebugMode(false)`, the default).
+- **Secrets stay out of git.** Put license keys, DB credentials, and tokens in a `.env` (loaded by the `env-loader` plugin) — `.env` is gitignored. Never commit `server.cfg` license keys.
+- **Routing buckets cost memory.** Each dimension/bucket has a footprint; don't allocate unbounded buckets.
 
 ## Contributing
 

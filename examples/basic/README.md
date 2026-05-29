@@ -1,6 +1,6 @@
 # basic
 
-Built with [ragemp-fivem-bridge](https://github.com/your-org/ragemp-fivem-bridge).
+Built with ragemp-fivem-bridge.
 
 ## Develop
 

@@ -14,26 +14,45 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
   emitNet("ragemp:playerReady", GetCurrentResourceName());
 
   const _clothesState = new Map();
+  let _clothesTick = null;
+  let _clothesDeadline = 0;
 
-  function applyClothes(ped, component, drawable, texture, palette) {
-    if (!ped || ped === 0) return false;
-    let d = drawable | 0;
+  function applyOneClothes(ped, component, c) {
+    let d = c[0] | 0;
     if (d < 0) d = 0;
-    let t = texture | 0;
+    let t = c[1] | 0;
     if (t < 0) t = 0;
     const maxD = GetNumberOfPedDrawableVariations(ped, component);
-    if (maxD > 0 && d >= maxD) return false;
+    if (!maxD || d >= maxD) return false;
     const maxT = GetNumberOfPedTextureVariations(ped, component, d);
     if (maxT > 0 && t >= maxT) t = 0;
-    SetPedComponentVariation(ped, component, d, t, palette | 0);
+    SetPedComponentVariation(ped, component, d, t, c[2] | 0);
     return true;
   }
 
-  globalThis.mp.events.add("playerSpawn", () => {
+  function applyAllClothes() {
     const ped = PlayerPedId();
+    if (!ped || ped === 0) return false;
+    let allDone = true;
     for (const [component, c] of _clothesState) {
-      applyClothes(ped, component, c[0], c[1], c[2]);
+      if (!applyOneClothes(ped, component, c)) allDone = false;
     }
+    return allDone;
+  }
+
+  function ensureClothesApplied() {
+    _clothesDeadline = GetGameTimer() + 10000;
+    if (_clothesTick !== null) return;
+    _clothesTick = setTick(() => {
+      if (!_clothesState.size || applyAllClothes() || GetGameTimer() > _clothesDeadline) {
+        clearTick(_clothesTick);
+        _clothesTick = null;
+      }
+    });
+  }
+
+  globalThis.mp.events.add("playerSpawn", () => {
+    if (_clothesState.size) ensureClothesApplied();
   });
 
   onNet("ragemp:giveWeapon", (weaponHash, ammo) => {
@@ -50,7 +69,7 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
 
   onNet("ragemp:setClothes", (component, drawable, texture, palette) => {
     _clothesState.set(component, [drawable, texture, palette]);
-    applyClothes(PlayerPedId(), component, drawable, texture, palette);
+    ensureClothesApplied();
   });
 
   onNet("ragemp:notify", (message) => {

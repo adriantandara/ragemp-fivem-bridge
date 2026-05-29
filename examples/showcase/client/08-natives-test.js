@@ -65,6 +65,11 @@ function runNativeTests() {
 
 mp.keys.bind(0x75, true, runNativeTests);
 
+mp.keys.bind(0x51, true, () => {
+  mp.gui.cursor.visible = !mp.gui.cursor.visible;
+  mp.gui.chat.push(`!{#a78bfa}[cursor] Q toggled -> visible = ${mp.gui.cursor.visible}`);
+});
+
 mp.events.add("playerReady", () => {
-  mp.gui.chat.push("!{#fbbf24}[native-test] Press F6 to run the native fallback smoke test.");
+  mp.gui.chat.push("!{#fbbf24}[native-test] F6 = native smoke test, Q = toggle cursor.");
 });

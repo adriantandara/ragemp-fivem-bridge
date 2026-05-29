@@ -59,10 +59,21 @@ export function startManager() {
     }
   }
 
+  function decodeDataHtml(url) {
+    const m = /^data:text\/html([^,]*),([\s\S]*)$/i.exec(url);
+    if (!m) return null;
+    const meta = m[1] || "";
+    const content = m[2];
+    try {
+      if (/;base64/i.test(meta)) return atob(content);
+      return decodeURIComponent(content);
+    } catch (e) {
+      try { return decodeURIComponent(content); } catch (_) { return content; }
+    }
+  }
+
   function createBrowser(browserId, url) {
     if (frames.has(browserId)) { log("create ignored, exists", browserId); return; }
-    const resolved = resolveUrl(url);
-    log("create browser", browserId, url, "->", resolved);
 
     const iframe = document.createElement("iframe");
     iframe.dataset.browserId = String(browserId);
@@ -76,14 +87,26 @@ export function startManager() {
       log("iframe loaded", browserId);
       tryInjectBridge(iframe, browserId, () => flush(entry, browserId));
     });
-    iframe.addEventListener("error", () => log("iframe error", browserId, resolved));
 
-    iframe.src = resolved;
+    const inlineHtml = /^data:text\/html/i.test(url) ? decodeDataHtml(url) : null;
+
+    if (inlineHtml !== null) {
+      log("create browser", browserId, "(inline html via srcdoc)");
+      iframe.setAttribute("name", "__ragemp_view");
+      iframe.addEventListener("error", () => log("iframe error", browserId, "srcdoc"));
+      iframe.srcdoc = inlineHtml;
+    } else {
+      const resolved = resolveUrl(url);
+      log("create browser", browserId, url, "->", resolved);
+      iframe.addEventListener("error", () => log("iframe error", browserId, resolved));
+      iframe.src = resolved;
+    }
+
     ensureContainer().appendChild(iframe);
     frames.set(browserId, entry);
 
     setTimeout(() => {
-      if (!entry.ready) log("iframe still not loaded after 5s", browserId, resolved);
+      if (!entry.ready) log("iframe still not loaded after 5s", browserId);
     }, 5000);
   }
 

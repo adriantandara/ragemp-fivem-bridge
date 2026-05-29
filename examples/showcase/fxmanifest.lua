@@ -38,5 +38,6 @@ files {
     'ui/index.html',
     'ui/index.css',
     'ui/index.js',
+    'ui/login.html',
     'ui/_bridge.js',
 }

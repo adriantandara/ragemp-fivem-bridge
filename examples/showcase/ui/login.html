@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login</title>
+    <style>
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); font-family: "Segoe UI", system-ui, sans-serif; overflow: hidden; }
+      #card { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; padding: 28px; background: #11151c; border: 1px solid #2b3340; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); color: #e5e7eb; }
+      #card h1 { margin: 0 0 4px; font-size: 20px; }
+      #card p { margin: 0 0 20px; font-size: 13px; color: #9ca3af; }
+      .field { margin-bottom: 14px; }
+      .field label { display: block; font-size: 12px; color: #9ca3af; margin-bottom: 6px; }
+      .field input { width: 100%; box-sizing: border-box; padding: 10px 12px; background: #0b0e13; border: 1px solid #2b3340; border-radius: 8px; color: #fff; font-size: 14px; outline: none; }
+      .field input:focus { border-color: #4ade80; }
+      button { width: 100%; padding: 11px; background: #4ade80; color: #07210f; border: 0; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; }
+      button:hover { filter: brightness(1.08); }
+      #status { margin-top: 12px; font-size: 12px; text-align: center; min-height: 16px; color: #4ade80; }
+      .tag { display:inline-block; margin-bottom:14px; font-size:11px; color:#60a5fa; border:1px solid #28406b; border-radius:6px; padding:2px 8px; }
+    </style>
+  </head>
+  <body>
+    <div id="card">
+      <span class="tag">@ragemp/ui/login.html · inline &lt;style&gt;</span>
+      <h1>Welcome back</h1>
+      <p>Cross-resource browser loaded via the @-path.</p>
+      <div class="field">
+        <label for="user">Username</label>
+        <input id="user" type="text" autocomplete="off" value="Adrian" />
+      </div>
+      <div class="field">
+        <label for="pass">Password</label>
+        <input id="pass" type="password" autocomplete="off" value="••••••" />
+      </div>
+      <button id="submit">Log in</button>
+      <div id="status">Press F9 to toggle · ESC handled in JS</div>
+    </div>
+
+    <script src="https://cfx-nui-ragemp-fivem-bridge/ui/_bridge.js"></script>
+    <script>
+      (function () {
+        function ready(fn) {
+          if (document.readyState !== "loading") fn();
+          else document.addEventListener("DOMContentLoaded", fn);
+        }
+        ready(function () {
+          var status = document.getElementById("status");
+          if (typeof mp === "undefined") {
+            status.style.color = "#f87171";
+            status.textContent = "mp not loaded (_bridge.js missing)";
+            return;
+          }
+          status.textContent = "Bridge ready. Inline style + script work ✓";
+          document.getElementById("submit").addEventListener("click", function () {
+            var user = document.getElementById("user").value;
+            mp.trigger("showcase:loginSubmit", user);
+          });
+          document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") mp.trigger("showcase:loginClose");
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

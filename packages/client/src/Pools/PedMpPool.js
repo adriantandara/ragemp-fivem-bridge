@@ -1,50 +1,16 @@
-import { Pool } from "@ragemp-fivem-bridge/shared";
+import { StreamingPool } from "./StreamingPool";
 import { PedMp } from "../Entities/PedMp";
-import { safeGetNetworkId } from "../utils/netId";
+import { getPedPool } from "../utils/worldScan";
 
-export class PedMpPool extends Pool {
-  _handleToEntity = new Map();
-
+export class PedMpPool extends StreamingPool {
   constructor() {
     super();
-    this._setupStreaming();
+    this._startStreaming(
+      getPedPool,
+      (netId, handle) => new PedMp(netId, handle),
+      (handle) => !IsPedAPlayer(handle)
+    );
     this._setupServerSync();
-  }
-
-  atRemoteId(remoteId) {
-    return this.at(remoteId);
-  }
-
-  atHandle(handle) {
-    return this._handleToEntity.get(handle) ?? null;
-  }
-
-  _setupStreaming() {
-    setTick(() => {
-      const peds = GetGamePool("CPed");
-      const activeSet = new Set();
-
-      for (const handle of peds) {
-        if (IsPedAPlayer(handle)) continue;
-
-        const netId = safeGetNetworkId(handle);
-        if (netId === 0) continue;
-        activeSet.add(netId);
-
-        if (!this._handleToEntity.has(handle)) {
-          const ped = new PedMp(netId, handle);
-          this._add(ped);
-          this._handleToEntity.set(handle, ped);
-        }
-      }
-
-      for (const [handle, entity] of this._handleToEntity) {
-        if (!activeSet.has(entity.id)) {
-          this._entities.delete(entity.id);
-          this._handleToEntity.delete(handle);
-        }
-      }
-    });
   }
 
   _setupServerSync() {
@@ -58,13 +24,5 @@ export class PedMpPool extends Pool {
         }
       }
     });
-  }
-
-  _remove(id) {
-    const entity = this._entities.get(id);
-    if (entity) {
-      this._handleToEntity.delete(entity._handle);
-    }
-    super._remove(id);
   }
 }

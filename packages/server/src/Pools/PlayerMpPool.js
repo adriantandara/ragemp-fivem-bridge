@@ -10,8 +10,22 @@ export class PlayerMpPool extends Pool {
   _setupListeners() {
     on("playerConnecting", (name, setKickReason, deferrals) => {
       const playerSource = source;
-      const player = new PlayerMp(playerSource);
-      this._add(player);
+      if (!this._entities.has(playerSource)) {
+        this._add(new PlayerMp(playerSource));
+      }
+    });
+
+    on("playerJoining", (oldId) => {
+      const realSource = source;
+      const old = Number(oldId);
+      const existing = this._entities.get(old);
+      if (existing && old !== realSource) {
+        this._entities.delete(old);
+        existing.id = realSource;
+        this._entities.set(realSource, existing);
+      } else if (!this._entities.has(realSource)) {
+        this._add(new PlayerMp(realSource));
+      }
     });
 
     on("playerDropped", (reason) => {
@@ -20,25 +34,23 @@ export class PlayerMpPool extends Pool {
     });
   }
 
-  broadcast(eventName, ...args) {
+  broadcast(text) {
+    this.forEach((player) => player.outputChatBox(text));
+  }
+
+  broadcastInRange(position, range, dimensionOrText, maybeText) {
+    const hasDimension = typeof dimensionOrText === "number";
+    const dimension = hasDimension ? dimensionOrText : null;
+    const text = hasDimension ? maybeText : dimensionOrText;
     this.forEach((player) => {
-      player.call(eventName, ...args);
+      if (hasDimension && player.dimension !== dimension) return;
+      if (player.position.distance(position) <= range) player.outputChatBox(text);
     });
   }
 
-  broadcastInRange(position, range, eventName, ...args) {
+  broadcastInDimension(dimension, text) {
     this.forEach((player) => {
-      if (player.position.distance(position) <= range) {
-        player.call(eventName, ...args);
-      }
-    });
-  }
-
-  broadcastInDimension(dimension, eventName, ...args) {
-    this.forEach((player) => {
-      if (player.dimension === dimension) {
-        player.call(eventName, ...args);
-      }
+      if (player.dimension === dimension) player.outputChatBox(text);
     });
   }
 

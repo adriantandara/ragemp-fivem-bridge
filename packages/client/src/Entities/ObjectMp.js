@@ -11,6 +11,10 @@ export class ObjectMp extends Entity {
     this._handle = handle;
   }
 
+  _stateBag() {
+    return Entity(this._handle).state;
+  }
+
   get position() {
     const coords = GetEntityCoords(this._handle, true);
     return new Vector3(coords[0], coords[1], coords[2]);

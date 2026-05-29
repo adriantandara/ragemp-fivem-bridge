@@ -8,7 +8,11 @@ export class Entity {
 
   constructor(id, type) {
     this.id = id;
-    this.type = type;
+    this._kind = type;
+  }
+
+  get type() {
+    return this._kind;
   }
 
   get remoteId() {
@@ -27,16 +31,31 @@ export class Entity {
   get position() { return this._position; }
   set position(v) { this._position = v; }
 
+  _stateBag() {
+    return null;
+  }
+
   getVariable(key) {
+    const bag = this._stateBag();
+    if (bag) {
+      try {
+        const value = bag[key];
+        if (value !== undefined && value !== null) return value;
+      } catch (e) {  }
+    }
     return this._variables.get(key);
   }
 
   setVariable(key, value) {
     this._variables.set(key, value);
+    const bag = this._stateBag();
+    if (bag) {
+      try { bag.set(key, value, true); } catch (e) {  }
+    }
   }
 
   hasVariable(key) {
-    return this._variables.has(key);
+    return this.getVariable(key) !== undefined;
   }
 
   setVariables(obj) {
@@ -46,8 +65,16 @@ export class Entity {
   }
 
   get data() {
-    if (!this._data) this._data = {};
-    return this._data;
+    if (!this._dataProxy) {
+      const self = this;
+      this._dataProxy = new Proxy({}, {
+        get(_, key) { return self.getVariable(key); },
+        set(_, key, value) { self.setVariable(key, value); return true; },
+        has(_, key) { return self.hasVariable(key); },
+        deleteProperty(_, key) { self.setVariable(key, undefined); return true; },
+      });
+    }
+    return this._dataProxy;
   }
 
   dist(position) {

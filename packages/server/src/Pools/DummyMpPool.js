@@ -11,7 +11,7 @@ export class DummyMpPool extends Pool {
 
   _setupSync() {
     onNet("ragemp:playerReady", () => {
-      const playerSource = globalThis.source;
+      const playerSource = source;
       const dummies = [];
       this.forEach((d) => dummies.push(d.toData()));
       if (dummies.length > 0) {

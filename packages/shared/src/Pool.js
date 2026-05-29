@@ -34,19 +34,13 @@ export class Pool {
 
   _add(entity) {
     this._entities.set(entity.id, entity);
-    if (globalThis.mp?.events) {
-      globalThis.mp.events._fire("entityCreated", entity);
-      globalThis.mp.events._fire("entityStreamIn", entity);
-    }
+    globalThis.mp?.events?._fire("entityCreated", entity);
   }
 
   _remove(id) {
     const entity = this._entities.get(id);
     this._entities.delete(id);
-    if (entity && globalThis.mp?.events) {
-      globalThis.mp.events._fire("entityDestroyed", entity);
-      globalThis.mp.events._fire("entityStreamOut", entity);
-    }
+    if (entity) globalThis.mp?.events?._fire("entityDestroyed", entity);
   }
 
   forEachFast(fn) {

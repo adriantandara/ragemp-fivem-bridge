@@ -32,13 +32,8 @@ export class PlayerMp extends Entity {
     this._gameType = "";
   }
 
-  setVariable(key, value) {
-    this._variables.set(key, value);
-    emitNet("ragemp:setPlayerVar", -1, this.id, key, value);
-  }
-
-  getVariable(key) {
-    return this._variables.get(key);
+  _stateBag() {
+    return Player(this.id).state;
   }
 
   get name() {
@@ -55,6 +50,36 @@ export class PlayerMp extends Entity {
 
   get ping() {
     return GetPlayerPing(this.id.toString());
+  }
+
+  get identifiers() {
+    const out = {};
+    const src = this.id.toString();
+    const count = GetNumPlayerIdentifiers(src);
+    for (let i = 0; i < count; i++) {
+      const id = GetPlayerIdentifier(src, i);
+      if (!id) continue;
+      const sep = id.indexOf(":");
+      if (sep > 0) out[id.slice(0, sep)] = id.slice(sep + 1);
+    }
+    return out;
+  }
+
+  getIdentifier(type) {
+    return this.identifiers[type] ?? null;
+  }
+
+  get serial() {
+    const ids = this.identifiers;
+    return ids.license2 || ids.license || ids.fivem || "";
+  }
+
+  get socialClub() {
+    return this.identifiers.fivem || this.name;
+  }
+
+  get rgscId() {
+    return this.identifiers.license2 || this.identifiers.license || "";
   }
 
   get ped() {
@@ -244,10 +269,15 @@ export class PlayerMp extends Entity {
   }
 
   get vehicle() {
-    const veh = GetVehiclePedIsIn(this.ped, false);
-    if (veh === 0) return null;
     const pool = globalThis.mp.vehicles;
+    if (this._vehicle && pool.exists(this._vehicle.id)) return this._vehicle;
+    const veh = GetVehiclePedIsIn(this.ped, false);
+    if (!veh || veh === 0) return null;
     return pool.atHandle(veh) ?? null;
+  }
+
+  set vehicle(value) {
+    this._vehicle = value ?? null;
   }
 
   kick(reason) {
@@ -293,7 +323,20 @@ export class PlayerMp extends Entity {
   }
 
   putIntoVehicle(vehicle, seat) {
-    TaskWarpPedIntoVehicle(this.ped, vehicle._handle ?? vehicle.id, seat);
+    if (!vehicle?._handle) return;
+    this._vehicle = vehicle;
+    const targetSeat = typeof seat === "number" ? seat : 0;
+    const playerId = this.id;
+    const send = (tries) => {
+      if (!DoesEntityExist(vehicle._handle)) return;
+      const netId = NetworkGetNetworkIdFromEntity(vehicle._handle);
+      if (netId) {
+        emitNet("ragemp:putIntoVehicle", playerId, netId, targetSeat);
+      } else if (tries < 50) {
+        setTimeout(() => send(tries + 1), 50);
+      }
+    };
+    send(0);
   }
 
   removeFromVehicle() {

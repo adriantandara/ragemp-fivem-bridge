@@ -78,10 +78,21 @@ export class MarkerMpPool extends Pool {
   }
 
   _startRendering() {
+    const MAX_DIST = 150.0;
     setTick(() => {
+      if (this._entities.size === 0) return;
+
+      const coords = GetEntityCoords(PlayerPedId(), true);
+      const px = coords[0], py = coords[1], pz = coords[2];
+
       this.forEach((marker) => {
         if (!marker._visible) return;
         if (this._hiddenSet.has(marker.id)) return;
+
+        const pos = marker._position;
+        const dx = px - pos.x, dy = py - pos.y, dz = pz - pos.z;
+        const limit = marker._drawDistance || MAX_DIST;
+        if (dx * dx + dy * dy + dz * dz > limit * limit) return;
 
         DrawMarker(
           marker._type,

@@ -1,4 +1,5 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
+import { onWorldScan } from "../utils/worldScan";
 
 class ClientPickup {
   constructor(data) {
@@ -102,7 +103,7 @@ export class PickupMpPool extends Pool {
   }
 
   _setupTick() {
-    setTick(() => {
+    onWorldScan(() => {
       for (const [id, pickup] of this._pickups) {
         if (pickup._collected || !pickup._handle) continue;
         if (HasPickupBeenCollected(pickup._handle)) {

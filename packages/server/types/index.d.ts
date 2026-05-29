@@ -8,6 +8,19 @@ export interface ServerMp {
   Vector3: typeof Vector3;
   enums: ServerEnums;
 
+  Entity: { prototype: EntityMp };
+  Player: { prototype: PlayerMp };
+  Vehicle: { prototype: VehicleMp };
+  Object: { prototype: ObjectMp };
+  Blip: { prototype: BlipMp };
+  Colshape: { prototype: ColshapeMp };
+  Checkpoint: { prototype: CheckpointMp };
+  Marker: { prototype: MarkerMp };
+  TextLabel: { prototype: TextLabelMp };
+  Ped: { prototype: PedMp };
+  Pickup: { prototype: PickupMp };
+  Dummy: { prototype: DummyMp };
+
   players: PlayerMpPool;
   vehicles: VehicleMpPool;
   objects: ObjectMpPool;
@@ -24,14 +37,47 @@ export interface ServerMp {
   world: WorldMp;
   config: ConfigMp;
   network: NetworkMp;
+  rpc: ServerRpc;
+  storage: StorageMp;
+  spawnmanager: { spawnPlayer(player: PlayerMp, info: { x: number; y: number; z: number; heading?: number; model?: HashOrString }): void };
 
   joaat(text: string): number;
+}
+
+export interface StorageMp {
+  readonly data: Record<string, any>;
+  sessionData: Record<string, any>;
+  flush(): void;
+}
+
+export interface RpcCallOptions {
+  timeout?: number;
+  noRet?: boolean;
+}
+
+export interface ServerRpc {
+  register(name: string, cb: (args: any, info: { player: PlayerMp; environment: string; id?: string }) => any): () => void;
+  unregister(name: string): void;
+  call<T = any>(name: string, args?: any, options?: RpcCallOptions): Promise<T>;
+  callClient<T = any>(player: PlayerMp, name: string, args?: any, options?: RpcCallOptions): Promise<T>;
+  callBrowsers<T = any>(player: PlayerMp, name: string, args?: any, options?: RpcCallOptions): Promise<T>;
+  on(name: string, cb: (args: any, info: any) => void): () => void;
+  off(name: string, cb: (args: any, info: any) => void): void;
+  trigger(name: string, args?: any): void;
+  triggerClient(player: PlayerMp, name: string, args?: any): void;
+  triggerBrowsers(player: PlayerMp, name: string, args?: any): void;
+  setDebugMode(state: boolean): void;
 }
 
 export interface PlayerMp extends EntityMp {
   readonly type: "player";
   readonly ip: string;
   readonly ping: number;
+  readonly serial: string;
+  readonly socialClub: string;
+  readonly rgscId: string;
+  readonly identifiers: Record<string, string>;
+  getIdentifier(type: string): string | null;
   readonly vehicle: VehicleMp | null;
   readonly action: string;
   readonly aimTarget: PlayerMp | null;

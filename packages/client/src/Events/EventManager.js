@@ -1,4 +1,5 @@
 import { safeGetNetworkId } from "../utils/netId";
+import { onWorldScan } from "../utils/worldScan";
 
 export class EventManager {
   _handlers = new Map();
@@ -45,6 +46,7 @@ export class EventManager {
     this._setupConsoleAndChat();
     this._setupGameEvents();
     this._setupGlobalErrorHandlers();
+    this._setupStateBags();
     this._setupMainTick();
 
     onNet("ragemp:playerReady", () => {
@@ -127,6 +129,30 @@ export class EventManager {
     });
   }
 
+  _setupStateBags() {
+    if (typeof AddStateBagChangeHandler !== "function") return;
+    AddStateBagChangeHandler(null, null, (bagName, key, value) => {
+      const mp = globalThis.mp;
+      if (!mp || typeof bagName !== "string") return;
+      let entity = null;
+      if (bagName.indexOf("player:") === 0) {
+        entity = mp.players?.atRemoteId?.(parseInt(bagName.slice(7), 10)) ?? null;
+      } else if (bagName.indexOf("entity:") === 0) {
+        const handle = NetworkGetEntityFromNetworkId(parseInt(bagName.slice(7), 10));
+        if (handle) {
+          entity = mp.vehicles?.atHandle?.(handle)
+            ?? mp.peds?.atHandle?.(handle)
+            ?? mp.objects?.atHandle?.(handle)
+            ?? null;
+        }
+      }
+      if (entity) {
+        entity._variables.set(key, value);
+        this._fire("entityDataChange", entity, key, value);
+      }
+    });
+  }
+
   _setupGlobalErrorHandlers() {
     on("unhandledPromiseRejection", (error) => {
       this._fire("unhandledRejection", error);
@@ -142,7 +168,7 @@ export class EventManager {
   }
 
   _setupMainTick() {
-    this._builtinTick = setTick(() => {
+    this._builtinTick = onWorldScan((cache) => {
       const ped = PlayerPedId();
       if (ped === 0) return;
 
@@ -170,7 +196,7 @@ export class EventManager {
             this._waypointZ = coords[2];
           }
         }
-        const activePlayers = GetActivePlayers();
+        const activePlayers = cache.players;
         for (const p of activePlayers) this._connectedPlayers.add(p);
         return;
       }
@@ -197,9 +223,10 @@ export class EventManager {
           }
         }
 
-        this._fire("playerDeath", localPlayer, causeOfDeath, killerEntity);
+        const killer = killerId ? (globalThis.mp?.players?.atRemoteId?.(killerId) ?? null) : null;
+        this._fire("playerDeath", localPlayer, causeOfDeath, killer);
         emitNet("ragemp:playerDeath", causeOfDeath, killerId);
-      } else if (!isDead && !this._wasAlive) {
+      } else if (!isDead && !this._wasAlive && !globalThis.mp?.spawnmanager?.isSpawning) {
         this._fire("playerSpawn", localPlayer);
         this._fire("playerResurrect", localPlayer);
         emitNet("ragemp:playerSpawn");
@@ -411,7 +438,8 @@ export class EventManager {
       }
       this._wasClicking = isClicking;
 
-      const activePlayers = GetActivePlayers();
+      const activePlayers = cache.players;
+      const activeSet = new Set(activePlayers);
       const localPlayerId = PlayerId();
       for (const p of activePlayers) {
         if (p === localPlayerId) continue;
@@ -428,7 +456,7 @@ export class EventManager {
         }
       }
       for (const p of this._streamedPlayers) {
-        if (!activePlayers.includes(p)) this._streamedPlayers.delete(p);
+        if (!activeSet.has(p)) this._streamedPlayers.delete(p);
       }
 
       for (const p of activePlayers) {
@@ -439,7 +467,7 @@ export class EventManager {
         }
       }
       for (const p of this._connectedPlayers) {
-        if (!activePlayers.includes(p)) {
+        if (!activeSet.has(p)) {
           this._connectedPlayers.delete(p);
           const quitMp = globalThis.mp?.players?.atRemoteId?.(GetPlayerServerId(p));
           this._fire("playerQuit", quitMp ?? p, "quit", "");
@@ -459,10 +487,10 @@ export class EventManager {
         }
       }
       for (const p of this._talkingPlayers) {
-        if (!activePlayers.includes(p)) this._talkingPlayers.delete(p);
+        if (!activeSet.has(p)) this._talkingPlayers.delete(p);
       }
 
-      const vehPool = GetGamePool("CVehicle");
+      const vehPool = cache.vehicles;
       for (const handle of vehPool) {
         if (!NetworkGetEntityIsNetworked(handle)) continue;
         const owner = NetworkGetEntityOwner(handle);

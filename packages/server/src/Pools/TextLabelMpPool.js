@@ -11,7 +11,7 @@ export class TextLabelMpPool extends Pool {
 
   _setupSync() {
     onNet("ragemp:playerReady", () => {
-      const playerSource = globalThis.source;
+      const playerSource = source;
       const labels = [];
       this.forEach((label) => labels.push(label.toData()));
       if (labels.length > 0) {

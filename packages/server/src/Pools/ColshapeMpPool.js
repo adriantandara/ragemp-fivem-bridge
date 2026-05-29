@@ -20,7 +20,7 @@ export class ColshapeMpPool extends Pool {
 
   _checkAll() {
     const mp = globalThis.mp;
-    if (!mp || !mp.players) return;
+    if (!mp || !mp.players || this.length === 0) return;
 
     for (const colshape of this) {
       if (!this._playerStates.has(colshape.id)) {

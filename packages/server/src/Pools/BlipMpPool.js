@@ -11,7 +11,7 @@ export class BlipMpPool extends Pool {
 
   _setupSync() {
     onNet("ragemp:playerReady", () => {
-      const playerSource = globalThis.source;
+      const playerSource = source;
       const blips = [];
       this.forEach((blip) => blips.push(blip.toData()));
       if (blips.length > 0) {

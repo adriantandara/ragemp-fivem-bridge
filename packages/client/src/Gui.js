@@ -58,12 +58,19 @@ class ChatMp {
   }
 
   push(text) {
-    emit("chat:addMessage", { args: [text] });
+    const out = this._colors
+      ? text
+      : String(text).replace(/!\{#[0-9a-fA-F]{3,6}\}/g, "").replace(/\^[0-9]/g, "");
+    emit("chat:addMessage", { args: [out] });
   }
 
   show(state) {
     this._visible = state;
     emit("chat:toggleVisibility", state);
+  }
+
+  clear() {
+    emit("chat:clear");
   }
 }
 
@@ -75,9 +82,14 @@ class CursorMp {
     return this._visible;
   }
 
+  set visible(value) {
+    this.show(true, !!value);
+  }
+
   show(freezeControls, state) {
     this._visible = state;
     SetNuiFocus(state, state);
+    if (typeof SetNuiFocusKeepInput === "function") SetNuiFocusKeepInput(!!state);
     if (freezeControls && state) {
       if (!this._controlTick) {
         this._controlTick = setTick(() => {
@@ -96,6 +108,10 @@ class CursorMp {
   }
 
   get position() {
+    if (typeof GetNuiCursorPosition === "function") {
+      const [x, y] = GetNuiCursorPosition();
+      return [x ?? 0, y ?? 0];
+    }
     return [0, 0];
   }
 }

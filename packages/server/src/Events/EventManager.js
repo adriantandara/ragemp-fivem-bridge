@@ -1,5 +1,5 @@
 const RAGEMP_TO_FIVEM_EVENTS = {
-  "playerJoin": "playerConnecting",
+  "playerJoin": "playerJoining",
   "playerQuit": "playerDropped",
   "playerReady": "ragemp:playerReady",
   "playerChat": "chatMessage",
@@ -26,6 +26,24 @@ export class EventManager {
       }
     });
 
+    onNet("ragemp:chat:message", (rawText) => {
+      const player = globalThis.mp.players.at(source);
+      if (!player || typeof rawText !== "string") return;
+      const text = rawText.slice(0, 256);
+
+      let cancelled = false;
+      const handlers = this._handlers.get("playerChat");
+      if (handlers) {
+        for (const handler of handlers) {
+          if (handler(player, text) === false) cancelled = true;
+        }
+      }
+      if (cancelled) return;
+
+      const safe = text.replace(/[<>]/g, "");
+      globalThis.mp.players.forEach((p) => p.outputChatBox(`${player.name}: ${safe}`));
+    });
+
     onNet("ragemp:playerDeath", (reason, killerId) => {
       const player = globalThis.mp.players.at(source);
       const killer = killerId ? globalThis.mp.players.at(killerId) : null;
@@ -37,24 +55,51 @@ export class EventManager {
       if (player) this._fire("playerSpawn", player);
     });
 
+    if (typeof AddStateBagChangeHandler === "function") {
+      AddStateBagChangeHandler(null, null, (bagName, key, value) => {
+        const mp = globalThis.mp;
+        if (!mp || typeof bagName !== "string") return;
+        let entity = null;
+        if (bagName.indexOf("player:") === 0) {
+          entity = mp.players?.at?.(parseInt(bagName.slice(7), 10)) ?? null;
+        } else if (bagName.indexOf("entity:") === 0) {
+          entity = mp.vehicles?.atNetId?.(parseInt(bagName.slice(7), 10)) ?? null;
+        }
+        if (entity) {
+          entity._variables.set(key, value);
+          this._fire("entityDataChange", entity, key, value);
+        }
+      });
+    }
+
     onNet("ragemp:playerEnterVehicle", (vehicleNetId, seatIndex) => {
       const player = globalThis.mp.players.at(source);
-      if (player) this._fire("playerEnterVehicle", player, vehicleNetId, seatIndex);
+      const vehicle = globalThis.mp.vehicles.atNetId(vehicleNetId);
+      if (player) {
+        player._vehicle = vehicle ?? null;
+        this._fire("playerEnterVehicle", player, vehicle, (seatIndex ?? -1) + 1);
+      }
     });
 
     onNet("ragemp:playerExitVehicle", (vehicleNetId) => {
       const player = globalThis.mp.players.at(source);
-      if (player) this._fire("playerExitVehicle", player, vehicleNetId);
+      const vehicle = globalThis.mp.vehicles.atNetId(vehicleNetId);
+      if (player) {
+        player._vehicle = null;
+        this._fire("playerExitVehicle", player, vehicle);
+      }
     });
 
     onNet("ragemp:playerStartEnterVehicle", (vehicleNetId, seatIndex) => {
       const player = globalThis.mp.players.at(source);
-      if (player) this._fire("playerStartEnterVehicle", player, vehicleNetId, seatIndex);
+      const vehicle = globalThis.mp.vehicles.atNetId(vehicleNetId);
+      if (player) this._fire("playerStartEnterVehicle", player, vehicle, seatIndex);
     });
 
     onNet("ragemp:playerStartExitVehicle", (vehicleNetId) => {
       const player = globalThis.mp.players.at(source);
-      if (player) this._fire("playerStartExitVehicle", player, vehicleNetId);
+      const vehicle = globalThis.mp.vehicles.atNetId(vehicleNetId);
+      if (player) this._fire("playerStartExitVehicle", player, vehicle);
     });
 
     onNet("ragemp:playerWeaponChange", (oldWeapon, newWeapon) => {
@@ -68,12 +113,12 @@ export class EventManager {
     });
 
     onNet("ragemp:vehicleDeath", (vehicleNetId) => {
-      const vehicle = globalThis.mp.vehicles.atHandle(vehicleNetId);
+      const vehicle = globalThis.mp.vehicles.atNetId(vehicleNetId);
       if (vehicle) this._fire("vehicleDeath", vehicle);
     });
 
     onNet("ragemp:vehicleDamage", (vehicleNetId, bodyHealthLoss, engineHealthLoss) => {
-      const vehicle = globalThis.mp.vehicles.atHandle(vehicleNetId);
+      const vehicle = globalThis.mp.vehicles.atNetId(vehicleNetId);
       if (vehicle) this._fire("vehicleDamage", vehicle, bodyHealthLoss, engineHealthLoss);
     });
 
@@ -102,18 +147,18 @@ export class EventManager {
     });
 
     onNet("ragemp:vehicleHorn", (vehicleNetId, state) => {
-      const vehicle = globalThis.mp?.vehicles?.atHandle?.(vehicleNetId);
+      const vehicle = globalThis.mp?.vehicles?.atNetId?.(vehicleNetId);
       if (vehicle) this._fire("vehicleHornToggle", vehicle, !!state);
     });
 
     onNet("ragemp:vehicleSiren", (vehicleNetId, state) => {
-      const vehicle = globalThis.mp?.vehicles?.atHandle?.(vehicleNetId);
+      const vehicle = globalThis.mp?.vehicles?.atNetId?.(vehicleNetId);
       if (vehicle) this._fire("vehicleSirenToggle", vehicle, !!state);
     });
 
     onNet("ragemp:trailerAttached", (vehicleNetId, trailerNetId) => {
-      const vehicle = globalThis.mp?.vehicles?.atHandle?.(vehicleNetId);
-      const trailer = globalThis.mp?.vehicles?.atHandle?.(trailerNetId);
+      const vehicle = globalThis.mp?.vehicles?.atNetId?.(vehicleNetId);
+      const trailer = globalThis.mp?.vehicles?.atNetId?.(trailerNetId);
       if (vehicle) this._fire("trailerAttached", vehicle, trailer ?? null);
     });
 
@@ -126,9 +171,9 @@ export class EventManager {
       const mp = globalThis.mp;
       let entity = null;
       if (entityNetId != null && mp) {
-        entity = mp.vehicles?.atHandle?.(entityNetId)
-          ?? mp.peds?.atHandle?.(entityNetId)
-          ?? mp.objects?.atHandle?.(entityNetId)
+        entity = mp.vehicles?.atNetId?.(entityNetId)
+          ?? mp.peds?.atNetId?.(entityNetId)
+          ?? mp.objects?.atNetId?.(entityNetId)
           ?? mp.players?.at(source)
           ?? null;
       }
@@ -147,6 +192,7 @@ export class EventManager {
   _checkCheckpoints() {
     const mp = globalThis.mp;
     if (!mp || !mp.players || !mp.checkpoints) return;
+    if (mp.checkpoints.length === 0) return;
 
     mp.players.forEach((player) => {
       if (!this._playerCheckpointStates.has(player.id)) {
@@ -228,7 +274,7 @@ export class EventManager {
       this._handlers.set(`__fivem_${eventName}`, new Set([true]));
 
       if (eventName === "playerJoin") {
-        on("playerConnecting", (name, setKickReason, deferrals) => {
+        on("playerJoining", (oldId) => {
           const player = globalThis.mp.players.at(source);
           if (player) {
             this._fire("playerJoin", player);
@@ -270,7 +316,7 @@ export class EventManager {
   addProc(procName, handler) {
     this._procs.set(procName, handler);
     onNet(`ragemp:proc:${procName}`, async (requestId, ...args) => {
-      const src = global.source;
+      const src = source;
       const player = globalThis.mp.players.at(src);
       if (!player) return;
       try {
@@ -308,8 +354,9 @@ export class EventManager {
     RegisterCommand(name, (src, args, rawCommand) => {
       const player = globalThis.mp.players.at(src);
       if (player) {
-        this._fire("playerCommand", player, name, rawCommand, ...args);
-        handler(player, rawCommand, ...args);
+        const fullText = args.join(" ");
+        this._fire("playerCommand", player, rawCommand);
+        handler(player, fullText, ...args);
       }
     }, false);
   }

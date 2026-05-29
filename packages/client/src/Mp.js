@@ -1,4 +1,4 @@
-import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { Vector3, Entity } from "@ragemp-fivem-bridge/shared";
 import { PlayerMpPool } from "./Pools/PlayerMpPool";
 import { ObjectMpPool } from "./Pools/ObjectMpPool";
 import { BlipMpPool } from "./Pools/BlipMpPool";
@@ -25,11 +25,38 @@ import { UserMp } from "./User";
 import { SystemMp } from "./System";
 import { GameMp } from "./Game";
 import { PluginManager } from "./Plugins/PluginManager";
+import { PlayerMp } from "./Entities/PlayerMp";
+import { VehicleMp } from "./Entities/VehicleMp";
+import { ObjectMp } from "./Entities/ObjectMp";
+import { BlipMp } from "./Entities/BlipMp";
+import { ColshapeMp } from "./Entities/ColshapeMp";
+import { CheckpointMp } from "./Entities/CheckpointMp";
+import { MarkerMp } from "./Entities/MarkerMp";
+import { TextLabelMp } from "./Entities/TextLabelMp";
+import { PedMp } from "./Entities/PedMp";
+import { DummyMp } from "./Entities/DummyMp";
+import { CameraMp } from "./Entities/CameraMp";
+import { BrowserMp } from "./Entities/BrowserMp";
 import * as Enums from "./Enums";
 
 export class Mp {
   Vector3 = Vector3;
   enums = Enums;
+
+  Entity = Entity;
+  Player = PlayerMp;
+  Vehicle = VehicleMp;
+  Object = ObjectMp;
+  Blip = BlipMp;
+  Colshape = ColshapeMp;
+  Checkpoint = CheckpointMp;
+  Marker = MarkerMp;
+  TextLabel = TextLabelMp;
+  Ped = PedMp;
+  Dummy = DummyMp;
+  Camera = CameraMp;
+  Browser = BrowserMp;
+
   players = new PlayerMpPool();
   objects = new ObjectMpPool();
   blips = new BlipMpPool();

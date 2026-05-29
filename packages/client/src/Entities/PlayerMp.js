@@ -9,6 +9,10 @@ export class PlayerMp extends Entity {
     this._playerIndex = playerIndex;
   }
 
+  _stateBag() {
+    return Player(this.id).state;
+  }
+
   get ped() {
     return GetPlayerPed(this._playerIndex);
   }

@@ -7,7 +7,7 @@ export class WorldMp {
 
   constructor() {
     onNet("ragemp:playerReady", () => {
-      const src = global.source;
+      const src = source;
       emitNet("ragemp:setWeather", src, this._weather);
       emitNet("ragemp:setTime", src, this._time.hour, this._time.minute, this._time.second);
     });

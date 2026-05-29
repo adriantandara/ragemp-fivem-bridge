@@ -1,5 +1,6 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
 import { PlayerMp } from "../Entities/PlayerMp";
+import { onWorldScan } from "../utils/worldScan";
 
 export class PlayerMpPool extends Pool {
   local;
@@ -39,11 +40,6 @@ export class PlayerMpPool extends Pool {
       SetEntityAlpha(PlayerPedId(), value, false);
     });
 
-    onNet("ragemp:setPlayerVar", (serverId, key, value) => {
-      const player = this.at(serverId);
-      if (player) player._variables.set(key, value);
-    });
-
     onNet("ragemp:enableVoiceTo", (targetServerId) => {
       const voiceChat = globalThis.mp?.voiceChat;
       if (voiceChat) voiceChat.listenTo(targetServerId);
@@ -56,8 +52,8 @@ export class PlayerMpPool extends Pool {
   }
 
   _setupStreaming() {
-    setTick(() => {
-      const activePlayers = GetActivePlayers();
+    onWorldScan((cache) => {
+      const activePlayers = cache.players;
       const activeSet = new Set();
 
       for (const playerIndex of activePlayers) {

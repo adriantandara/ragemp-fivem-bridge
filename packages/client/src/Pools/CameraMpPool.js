@@ -9,9 +9,12 @@ export class CameraMpPool extends Pool {
   }
 
   new(name, position, rotation, fov) {
-    const hash = typeof name === "string" ? GetHashKey(name) : name;
+    const camName =
+      typeof name !== "string" || name.toLowerCase() === "default"
+        ? "DEFAULT_SCRIPTED_CAMERA"
+        : name;
     const handle = CreateCamWithParams(
-      hash || "DEFAULT_SCRIPTED_CAMERA",
+      camName,
       position?.x ?? 0, position?.y ?? 0, position?.z ?? 0,
       rotation?.x ?? 0, rotation?.y ?? 0, rotation?.z ?? 0,
       fov ?? 50.0,

@@ -1,5 +1,6 @@
 import { Mp } from "./Mp";
 import * as spawnmanager from "./Plugins/builtin/spawnmanager";
+import * as vehicleSync from "./Plugins/builtin/vehicle-sync";
 import * as rageRpc from "./Plugins/builtin/rage-rpc";
 
 if (GetCurrentResourceName() !== "ragemp-fivem-bridge") {
@@ -7,6 +8,7 @@ if (GetCurrentResourceName() !== "ragemp-fivem-bridge") {
 
   globalThis.mp.plugins.registerBuiltin(rageRpc);
   globalThis.mp.plugins.registerBuiltin(spawnmanager);
+  globalThis.mp.plugins.registerBuiltin(vehicleSync);
   globalThis.mp.plugins.loadAll();
 
   emitNet("ragemp:playerReady");
@@ -41,5 +43,45 @@ if (GetCurrentResourceName() !== "ragemp-fivem-bridge") {
     if (targetServerId !== -1 && targetServerId !== GetPlayerServerId(PlayerId())) return;
     if (!NetworkDoesNetworkIdExist(netId)) return;
     NetworkRequestControlOfNetworkId(netId);
+  });
+
+  onNet("ragemp:setTime", (hour, minute, second) => {
+    NetworkOverrideClockTime(hour | 0, minute | 0, (second | 0) || 0);
+  });
+
+  onNet("ragemp:setWeather", (weather) => {
+    if (typeof weather !== "string") return;
+    SetWeatherTypeNowPersist(weather);
+    SetWeatherTypePersist(weather);
+  });
+
+  onNet("ragemp:setWeatherTransition", (from, to) => {
+    if (typeof to === "string") SetWeatherTypeNowPersist(to);
+  });
+
+  onNet("ragemp:requestIpl", (name) => {
+    if (typeof RequestIpl === "function") RequestIpl(name);
+  });
+
+  onNet("ragemp:removeIpl", (name) => {
+    if (typeof RemoveIpl === "function") RemoveIpl(name);
+  });
+
+  onNet("ragemp:putIntoVehicle", (netId, seat) => {
+    let tries = 0;
+    const timer = setInterval(() => {
+      tries++;
+      const handle = NetworkGetEntityFromNetworkId(netId);
+      if (handle && DoesEntityExist(handle)) {
+        clearInterval(timer);
+        if (!NetworkHasControlOfNetworkId || !NetworkHasControlOfNetworkId(netId)) {
+          NetworkRequestControlOfNetworkId(netId);
+        }
+        const gtaSeat = (typeof seat === "number" ? seat : 0) - 1;
+        SetPedIntoVehicle(PlayerPedId(), handle, gtaSeat);
+      } else if (tries > 100) {
+        clearInterval(timer);
+      }
+    }, 50);
   });
 }

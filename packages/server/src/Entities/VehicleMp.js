@@ -23,20 +23,56 @@ export class VehicleMp extends Entity {
   _trimColor = 0;
   _wheelColor = 0;
   _paint = { primary: null, secondary: null };
+                                                                                   
+  _livery = -1;
+  _numberPlateType = 0;
+  _windowTint = 0;
+  _wheelType = 0;
+  _engineHealth = 1000;
 
   constructor(id, handle) {
     super(id, "vehicle");
     this._handle = handle;
-    this._netId = NetworkGetNetworkIdFromEntity(handle);
   }
 
-  setVariable(key, value) {
-    this._variables.set(key, value);
-    emitNet("ragemp:setEntityVar", -1, this._netId, key, value);
+  get netId() {
+    return NetworkGetNetworkIdFromEntity(this._handle);
   }
 
-  getVariable(key) {
-    return this._variables.get(key);
+  _stateBag() {
+    return Entity(this._handle).state;
+  }
+
+  setDistanceCullingRadius(radius) {
+    if (typeof SetEntityDistanceCullingRadius === "function") {
+      SetEntityDistanceCullingRadius(this._handle, radius);
+    }
+  }
+
+  _emit(event, ...args) {
+    if (!this._syncQueue) this._syncQueue = [];
+    this._syncQueue.push([event, args]);
+    if (this._syncScheduled) return;
+    this._syncScheduled = true;
+    const flush = (tries) => {
+      if (!DoesEntityExist(this._handle)) {
+        this._syncScheduled = false;
+        this._syncQueue = null;
+        return;
+      }
+      const netId = NetworkGetNetworkIdFromEntity(this._handle);
+      if (!netId && tries < 50) {
+        setTimeout(() => flush(tries + 1), 50);
+        return;
+      }
+      const queue = this._syncQueue;
+      this._syncQueue = null;
+      this._syncScheduled = false;
+      if (netId && queue && queue.length) {
+        emitNet("ragemp:vehicle:batch", -1, netId, queue);
+      }
+    };
+    setTimeout(() => flush(0), 0);
   }
 
   get position() {
@@ -45,7 +81,16 @@ export class VehicleMp extends Entity {
   }
 
   set position(value) {
-    SetEntityCoords(this._handle, value.x, value.y, value.z, false, false, false, false);
+    SetEntityCoords(
+      this._handle,
+      value.x,
+      value.y,
+      value.z,
+      false,
+      false,
+      false,
+      false,
+    );
   }
 
   get rotation() {
@@ -106,7 +151,8 @@ export class VehicleMp extends Entity {
   }
 
   set engineHealth(value) {
-    emitNet("ragemp:vehicleEngineHealth", -1, NetworkGetNetworkIdFromEntity(this._handle), value);
+    this._engineHealth = value;
+    this._emit("ragemp:vehicleEngineHealth", value);
   }
 
   get engine() {
@@ -115,7 +161,7 @@ export class VehicleMp extends Entity {
 
   set engine(value) {
     this._engine = value;
-    emitNet("ragemp:vehicleEngine", -1, NetworkGetNetworkIdFromEntity(this._handle), value);
+    this._emit("ragemp:vehicleEngine", value);
   }
 
   get alpha() {
@@ -124,7 +170,7 @@ export class VehicleMp extends Entity {
 
   set alpha(value) {
     this._alpha = value;
-    emitNet("ragemp:vehicleAlpha", -1, NetworkGetNetworkIdFromEntity(this._handle), value);
+    this._emit("ragemp:vehicleAlpha", value);
   }
 
   get livery() {
@@ -132,7 +178,8 @@ export class VehicleMp extends Entity {
   }
 
   set livery(value) {
-    emitNet("ragemp:vehicleLivery", -1, NetworkGetNetworkIdFromEntity(this._handle), value);
+    this._livery = value;
+    this._emit("ragemp:vehicleLivery", value);
   }
 
   get numberPlateType() {
@@ -140,7 +187,8 @@ export class VehicleMp extends Entity {
   }
 
   set numberPlateType(value) {
-    emitNet("ragemp:vehicleNumberPlateType", -1, NetworkGetNetworkIdFromEntity(this._handle), value);
+    this._numberPlateType = value;
+    this._emit("ragemp:vehicleNumberPlateType", value);
   }
 
   get windowTint() {
@@ -148,7 +196,8 @@ export class VehicleMp extends Entity {
   }
 
   set windowTint(value) {
-    emitNet("ragemp:vehicleWindowTint", -1, NetworkGetNetworkIdFromEntity(this._handle), value);
+    this._windowTint = value;
+    this._emit("ragemp:vehicleWindowTint", value);
   }
 
   get neonEnabled() {
@@ -157,7 +206,7 @@ export class VehicleMp extends Entity {
 
   set neonEnabled(value) {
     this._neonEnabled = value;
-    emitNet("ragemp:vehicleNeonEnabled", -1, NetworkGetNetworkIdFromEntity(this._handle), value);
+    this._emit("ragemp:vehicleNeonEnabled", value);
   }
 
   get dead() {
@@ -170,7 +219,7 @@ export class VehicleMp extends Entity {
 
   set customTires(value) {
     this._customTires = value;
-    emitNet("ragemp:vehicleCustomTires", -1, NetworkGetNetworkIdFromEntity(this._handle), value);
+    this._emit("ragemp:vehicleCustomTires", value);
   }
 
   get wheelType() {
@@ -178,7 +227,8 @@ export class VehicleMp extends Entity {
   }
 
   set wheelType(value) {
-    emitNet("ragemp:vehicleWheelType", -1, NetworkGetNetworkIdFromEntity(this._handle), value);
+    this._wheelType = value;
+    this._emit("ragemp:vehicleWheelType", value);
   }
 
   get velocity() {
@@ -189,15 +239,20 @@ export class VehicleMp extends Entity {
   get quaternion() {
     const rot = GetEntityRotation(this._handle, 2);
     const rad = Math.PI / 180;
-    const rx = rot[0] * rad / 2, ry = rot[1] * rad / 2, rz = rot[2] * rad / 2;
-    const cx = Math.cos(rx), sx = Math.sin(rx);
-    const cy = Math.cos(ry), sy = Math.sin(ry);
-    const cz = Math.cos(rz), sz = Math.sin(rz);
+    const rx = (rot[0] * rad) / 2,
+      ry = (rot[1] * rad) / 2,
+      rz = (rot[2] * rad) / 2;
+    const cx = Math.cos(rx),
+      sx = Math.sin(rx);
+    const cy = Math.cos(ry),
+      sy = Math.sin(ry);
+    const cz = Math.cos(rz),
+      sz = Math.sin(rz);
     return {
       x: sx * cy * cz - cx * sy * sz,
       y: cx * sy * cz + sx * cy * sz,
       z: cx * cy * sz - sx * sy * cz,
-      w: cx * cy * cz + sx * sy * sz
+      w: cx * cy * cz + sx * sy * sz,
     };
   }
 
@@ -258,7 +313,8 @@ export class VehicleMp extends Entity {
   }
 
   set controller(value) {
-    const targetId = value == null ? null : (typeof value === "number" ? value : value.id);
+    const targetId =
+      value == null ? null : typeof value === "number" ? value : value.id;
     const netId = NetworkGetNetworkIdFromEntity(this._handle);
     emitNet("ragemp:requestVehicleControl", targetId ?? -1, netId);
   }
@@ -269,7 +325,7 @@ export class VehicleMp extends Entity {
 
   set dashboardColor(value) {
     this._dashboardColor = value;
-    emitNet("ragemp:vehicleDashboardColor", -1, NetworkGetNetworkIdFromEntity(this._handle), value);
+    this._emit("ragemp:vehicleDashboardColor", value);
   }
 
   get movable() {
@@ -287,7 +343,7 @@ export class VehicleMp extends Entity {
 
   set pearlescentColor(value) {
     this._pearlescentColor = value;
-    emitNet("ragemp:vehiclePearlescentColor", -1, NetworkGetNetworkIdFromEntity(this._handle), value);
+    this._emit("ragemp:vehiclePearlescentColor", value);
   }
 
   get taxiLights() {
@@ -296,7 +352,7 @@ export class VehicleMp extends Entity {
 
   set taxiLights(value) {
     this._taxiLights = value;
-    emitNet("ragemp:vehicleTaxiLights", -1, NetworkGetNetworkIdFromEntity(this._handle), value);
+    this._emit("ragemp:vehicleTaxiLights", value);
   }
 
   get trimColor() {
@@ -305,7 +361,7 @@ export class VehicleMp extends Entity {
 
   set trimColor(value) {
     this._trimColor = value;
-    emitNet("ragemp:vehicleTrimColor", -1, NetworkGetNetworkIdFromEntity(this._handle), value);
+    this._emit("ragemp:vehicleTrimColor", value);
   }
 
   get wheelColor() {
@@ -314,19 +370,28 @@ export class VehicleMp extends Entity {
 
   set wheelColor(value) {
     this._wheelColor = value;
-    emitNet("ragemp:vehicleWheelColor", -1, NetworkGetNetworkIdFromEntity(this._handle), value);
+    this._emit("ragemp:vehicleWheelColor", value);
   }
 
   explode() {
-    emitNet("ragemp:vehicleExplode", -1, NetworkGetNetworkIdFromEntity(this._handle));
+    this._emit("ragemp:vehicleExplode");
   }
 
   repair() {
-    emitNet("ragemp:vehicleRepair", -1, NetworkGetNetworkIdFromEntity(this._handle));
+    this._emit("ragemp:vehicleRepair");
   }
 
   spawn(position, heading) {
-    SetEntityCoords(this._handle, position.x, position.y, position.z, false, false, false, false);
+    SetEntityCoords(
+      this._handle,
+      position.x,
+      position.y,
+      position.z,
+      false,
+      false,
+      false,
+      false,
+    );
     SetEntityHeading(this._handle, heading ?? 0);
     this.repair();
   }
@@ -341,11 +406,19 @@ export class VehicleMp extends Entity {
   }
 
   getColorRGB() {
-    return this._colorRGB ?? [[0, 0, 0], [0, 0, 0]];
+    return (
+      this._colorRGB ?? [
+        [0, 0, 0],
+        [0, 0, 0],
+      ]
+    );
   }
 
   setColorRGB(r1, g1, b1, r2, g2, b2) {
-    this._colorRGB = [[r1, g1, b1], [r2, g2, b2]];
+    this._colorRGB = [
+      [r1, g1, b1],
+      [r2, g2, b2],
+    ];
     SetVehicleCustomPrimaryColour(this._handle, r1, g1, b1);
     SetVehicleCustomSecondaryColour(this._handle, r2, g2, b2);
   }
@@ -356,7 +429,7 @@ export class VehicleMp extends Entity {
 
   setExtra(extraId, state) {
     this._extras[extraId] = !!state;
-    emitNet("ragemp:vehicleExtra", -1, NetworkGetNetworkIdFromEntity(this._handle), extraId, !state);
+    this._emit("ragemp:vehicleExtra", extraId, !state);
   }
 
   getMod(modType) {
@@ -365,7 +438,7 @@ export class VehicleMp extends Entity {
 
   setMod(modType, modIndex) {
     this._mods[modType] = modIndex;
-    emitNet("ragemp:vehicleMod", -1, NetworkGetNetworkIdFromEntity(this._handle), modType, modIndex);
+    this._emit("ragemp:vehicleMod", modType, modIndex);
   }
 
   getNeonColor() {
@@ -374,7 +447,7 @@ export class VehicleMp extends Entity {
 
   setNeonColor(r, g, b) {
     this._neonColor = [r, g, b];
-    emitNet("ragemp:vehicleNeonColor", -1, NetworkGetNetworkIdFromEntity(this._handle), r, g, b);
+    this._emit("ragemp:vehicleNeonColor", r, g, b);
   }
 
   getOccupant(seat) {
@@ -410,7 +483,7 @@ export class VehicleMp extends Entity {
     SetVehicleColours(this._handle, primary, secondary);
   }
 
-  isStreamed(player) {
+  isStreamed() {
     return DoesEntityExist(this._handle);
   }
 

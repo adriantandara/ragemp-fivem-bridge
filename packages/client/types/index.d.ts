@@ -8,6 +8,20 @@ export interface ClientMp {
   Vector3: typeof Vector3;
   enums: ClientEnums;
 
+  Entity: { prototype: EntityMp };
+  Player: { prototype: PlayerMp };
+  Vehicle: { prototype: VehicleMp };
+  Object: { prototype: ObjectMp };
+  Blip: { prototype: BlipMp };
+  Colshape: { prototype: ColshapeMp };
+  Checkpoint: { prototype: CheckpointMp };
+  Marker: { prototype: MarkerMp };
+  TextLabel: { prototype: TextLabelMp };
+  Ped: { prototype: PedMp };
+  Dummy: { prototype: DummyMp };
+  Camera: { prototype: CameraMp };
+  Browser: { prototype: BrowserMp };
+
   players: PlayerMpPool;
   vehicles: VehicleMpPool;
   objects: ObjectMpPool;
@@ -34,6 +48,38 @@ export interface ClientMp {
   user: UserMp;
   system: SystemMp;
   game: GameMp;
+  rpc: ClientRpc;
+  spawnmanager: {
+    setAutoSpawn(state: boolean): void;
+    readonly autoSpawn: boolean;
+    setSpawnPoint(info: { x?: number; y?: number; z?: number; heading?: number; model?: HashOrString }): void;
+    readonly spawnPoint: { x: number; y: number; z: number; heading: number; model: HashOrString };
+    spawn(info?: object): Promise<void> | void;
+    forceRespawn(): Promise<void> | void;
+    readonly isSpawning: boolean;
+    readonly hasSpawned: boolean;
+  };
+}
+
+export interface RpcCallOptions {
+  timeout?: number;
+  noRet?: boolean;
+}
+
+export interface ClientRpc {
+  register(name: string, cb: (args: any, info: { environment: string; id?: string; browser?: BrowserMp }) => any): () => void;
+  unregister(name: string): void;
+  call<T = any>(name: string, args?: any, options?: RpcCallOptions): Promise<T>;
+  callServer<T = any>(name: string, args?: any, options?: RpcCallOptions): Promise<T>;
+  callBrowser<T = any>(browser: BrowserMp, name: string, args?: any, options?: RpcCallOptions): Promise<T>;
+  callBrowsers<T = any>(name: string, args?: any, options?: RpcCallOptions): Promise<T>;
+  on(name: string, cb: (args: any, info: any) => void): () => void;
+  off(name: string, cb: (args: any, info: any) => void): void;
+  trigger(name: string, args?: any): void;
+  triggerServer(name: string, args?: any): void;
+  triggerBrowser(browser: BrowserMp, name: string, args?: any): void;
+  triggerBrowsers(name: string, args?: any): void;
+  setDebugMode(state: boolean): void;
 }
 
 export interface PlayerMp extends EntityMp {
@@ -364,6 +410,7 @@ export interface GuiMp {
     activate(state: boolean): void;
     push(text: string): void;
     show(state: boolean): void;
+    clear(): void;
     colors: boolean;
     safeMode: boolean;
   };

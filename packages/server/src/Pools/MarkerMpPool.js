@@ -11,7 +11,7 @@ export class MarkerMpPool extends Pool {
 
   _setupSync() {
     onNet("ragemp:playerReady", () => {
-      const playerSource = globalThis.source;
+      const playerSource = source;
       const markers = [];
       this.forEach((marker) => markers.push(marker.toData()));
       if (markers.length > 0) {

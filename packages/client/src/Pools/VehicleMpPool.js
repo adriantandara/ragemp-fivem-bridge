@@ -1,203 +1,62 @@
-import { Pool } from "@ragemp-fivem-bridge/shared";
+import { StreamingPool } from "./StreamingPool";
 import { VehicleMp } from "../Entities/VehicleMp";
-import { safeGetNetworkId } from "../utils/netId";
+import { getVehiclePool } from "../utils/worldScan";
+import {
+  applyVehicleProp,
+  applyVehicleMod,
+  applyVehicleRepair,
+} from "../utils/vehicleSync";
 
-export class VehicleMpPool extends Pool {
-  _handleToEntity = new Map();
+const VEHICLE_DISPATCH = {
+  "ragemp:vehicleEngine": (h, v) => applyVehicleProp(h, "engine", v),
+  "ragemp:vehicleAlpha": (h, v) => applyVehicleProp(h, "alpha", v),
+  "ragemp:vehicleLivery": (h, v) => applyVehicleProp(h, "livery", v),
+  "ragemp:vehicleNumberPlateType": (h, v) => applyVehicleProp(h, "numberPlateType", v),
+  "ragemp:vehicleWindowTint": (h, v) => applyVehicleProp(h, "windowTint", v),
+  "ragemp:vehicleNeonEnabled": (h, v) => applyVehicleProp(h, "neonEnabled", v),
+  "ragemp:vehicleCustomTires": (h, v) => applyVehicleProp(h, "customTires", v),
+  "ragemp:vehicleWheelType": (h, v) => applyVehicleProp(h, "wheelType", v),
+  "ragemp:vehicleEngineHealth": (h, v) => applyVehicleProp(h, "engineHealth", v),
+  "ragemp:vehicleDashboardColor": (h, v) => applyVehicleProp(h, "dashboardColor", v),
+  "ragemp:vehiclePearlescentColor": (h, v) => applyVehicleProp(h, "pearlescentColor", v),
+  "ragemp:vehicleTaxiLights": (h, v) => applyVehicleProp(h, "taxiLights", v),
+  "ragemp:vehicleTrimColor": (h, v) => applyVehicleProp(h, "trimColor", v),
+  "ragemp:vehicleWheelColor": (h, v) => applyVehicleProp(h, "wheelColor", v),
+  "ragemp:vehicleNeonColor": (h, r, g, b) => applyVehicleProp(h, "neonColor", [r, g, b]),
+  "ragemp:vehicleMod": (h, modType, modIndex) => applyVehicleMod(h, modType, modIndex),
+  "ragemp:vehicleExtra": (h, extraId, invertedState) => SetVehicleExtra(h, extraId, invertedState),
+  "ragemp:vehicleExplode": (h) => NetworkExplodeVehicle(h, true, false, false),
+  "ragemp:vehicleRepair": (h) => applyVehicleRepair(h),
+};
+
+export class VehicleMpPool extends StreamingPool {
+  _streamInHandlers = new Set();
 
   constructor() {
     super();
-    this._setupStreaming();
+    this._startStreaming(getVehiclePool, (netId, handle) => new VehicleMp(netId, handle));
     this._setupServerSync();
   }
 
-  atRemoteId(remoteId) {
-    return this.at(remoteId);
+  onVehicleStreamIn(handler) {
+    this._streamInHandlers.add(handler);
+    return () => this._streamInHandlers.delete(handler);
   }
 
-  atHandle(handle) {
-    return this._handleToEntity.get(handle) ?? null;
-  }
-
-  _setupStreaming() {
-    setTick(() => {
-      const vehicles = GetGamePool("CVehicle");
-      const activeSet = new Set();
-
-      for (const handle of vehicles) {
-        const netId = safeGetNetworkId(handle);
-        if (netId === 0) continue;
-        activeSet.add(netId);
-
-        if (!this._handleToEntity.has(handle)) {
-          const veh = new VehicleMp(netId, handle);
-          this._add(veh);
-          this._handleToEntity.set(handle, veh);
-        }
-      }
-
-      for (const [handle, entity] of this._handleToEntity) {
-        if (!activeSet.has(entity.id)) {
-          this._entities.delete(entity.id);
-          this._handleToEntity.delete(handle);
-        }
-      }
-    });
+  _onStreamIn(entity, handle, netId) {
+    for (const handler of this._streamInHandlers) {
+      try { handler(entity, handle, netId); } catch (e) {}
+    }
   }
 
   _setupServerSync() {
-    onNet("ragemp:setEntityVar", (netId, key, value) => {
+    onNet("ragemp:vehicle:batch", (netId, items) => {
       const handle = NetworkGetEntityFromNetworkId(netId);
       if (!handle || !DoesEntityExist(handle)) return;
-      const entity = this._handleToEntity.get(handle);
-      if (entity) entity._variables.set(key, value);
-    });
-
-    onNet("ragemp:vehicleEngine", (netId, value) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
-        SetVehicleEngineOn(handle, value, false, false);
+      for (const [event, args] of items) {
+        const fn = VEHICLE_DISPATCH[event];
+        if (fn) fn(handle, ...(args || []));
       }
     });
-
-    onNet("ragemp:vehicleLivery", (netId, value) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
-        SetVehicleLivery(handle, value);
-      }
-    });
-
-    onNet("ragemp:vehicleNumberPlateType", (netId, value) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
-        SetVehicleNumberPlateTextIndex(handle, value);
-      }
-    });
-
-    onNet("ragemp:vehicleWindowTint", (netId, value) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
-        SetVehicleWindowTint(handle, value);
-      }
-    });
-
-    onNet("ragemp:vehicleNeonEnabled", (netId, value) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
-        for (let i = 0; i < 4; i++) SetVehicleNeonLightEnabled(handle, i, value);
-      }
-    });
-
-    onNet("ragemp:vehicleCustomTires", (netId, value) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
-        SetVehicleModKit(handle, 0);
-        ToggleVehicleMod(handle, 18, value);
-      }
-    });
-
-    onNet("ragemp:vehicleWheelType", (netId, value) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
-        SetVehicleWheelType(handle, value);
-      }
-    });
-
-    onNet("ragemp:vehicleExplode", (netId) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
-        NetworkExplodeVehicle(handle, true, false, false);
-      }
-    });
-
-    onNet("ragemp:vehicleRepair", (netId) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
-        SetVehicleFixed(handle);
-        SetVehicleEngineHealth(handle, 1000.0);
-        SetVehicleBodyHealth(handle, 1000.0);
-      }
-    });
-
-    onNet("ragemp:vehicleExtra", (netId, extraId, invertedState) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
-        SetVehicleExtra(handle, extraId, invertedState);
-      }
-    });
-
-    onNet("ragemp:vehicleMod", (netId, modType, modIndex) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
-        SetVehicleModKit(handle, 0);
-        SetVehicleMod(handle, modType, modIndex, false);
-      }
-    });
-
-    onNet("ragemp:vehicleNeonColor", (netId, r, g, b) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
-        SetVehicleNeonLightsColour(handle, r, g, b);
-      }
-    });
-
-    onNet("ragemp:vehicleAlpha", (netId, value) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
-        SetEntityAlpha(handle, value, false);
-      }
-    });
-
-    onNet("ragemp:vehicleEngineHealth", (netId, value) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
-        SetVehicleEngineHealth(handle, value);
-      }
-    });
-
-    onNet("ragemp:vehicleDashboardColor", (netId, value) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
-        SetVehicleDashboardColour(handle, value);
-      }
-    });
-
-    onNet("ragemp:vehiclePearlescentColor", (netId, value) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
-        const [_, wheelCol] = GetVehicleExtraColours(handle);
-        SetVehicleExtraColours(handle, value, wheelCol);
-      }
-    });
-
-    onNet("ragemp:vehicleTaxiLights", (netId, value) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
-        SetTaxiLights(handle, value);
-      }
-    });
-
-    onNet("ragemp:vehicleTrimColor", (netId, value) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
-        SetVehicleInteriorColour(handle, value);
-      }
-    });
-
-    onNet("ragemp:vehicleWheelColor", (netId, value) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
-        const [pearlCol, _] = GetVehicleExtraColours(handle);
-        SetVehicleExtraColours(handle, pearlCol, value);
-      }
-    });
-  }
-
-  _remove(id) {
-    const entity = this._entities.get(id);
-    if (entity) {
-      this._handleToEntity.delete(entity._handle);
-    }
-    super._remove(id);
   }
 }

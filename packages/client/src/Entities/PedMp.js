@@ -8,6 +8,10 @@ export class PedMp extends Entity {
     this._handle = handle;
   }
 
+  _stateBag() {
+    return Entity(this._handle).state;
+  }
+
   get handle() {
     return this._handle;
   }

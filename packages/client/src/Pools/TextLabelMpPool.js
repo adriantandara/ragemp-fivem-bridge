@@ -71,6 +71,7 @@ export class TextLabelMpPool extends Pool {
 
   _startRendering() {
     setTick(() => {
+      if (this._entities.size === 0) return;
       const playerPed = PlayerPedId();
       const playerCoords = GetEntityCoords(playerPed, true);
       const playerX = playerCoords[0];

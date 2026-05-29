@@ -1,6 +1,7 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { ColshapeMp } from "../Entities/ColshapeMp";
+import { onWorldScan } from "../utils/worldScan";
 
 let colshapeIdCounter = 0;
 
@@ -17,7 +18,7 @@ export class ColshapeMpPool extends Pool {
   }
 
   _startChecking() {
-    setTick(() => {
+    onWorldScan(() => {
       const mp = globalThis.mp;
       if (!mp || !mp.players || !mp.players.local) return;
 

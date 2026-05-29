@@ -11,7 +11,7 @@ export class CheckpointMpPool extends Pool {
 
   _setupSync() {
     onNet("ragemp:playerReady", () => {
-      const playerSource = globalThis.source;
+      const playerSource = source;
       const checkpoints = [];
       this.forEach((cp) => checkpoints.push(cp.toData()));
       if (checkpoints.length > 0) {

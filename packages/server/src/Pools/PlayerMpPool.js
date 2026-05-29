@@ -54,16 +54,26 @@ export class PlayerMpPool extends Pool {
     });
   }
 
-  call(playersOrEventName, ...args) {
+  // call(playersOrEventName, ...args) {
+    //if (typeof playersOrEventName === "string") {
+      //this.forEach((player) => {
+       // player.call(playersOrEventName, ...args);
+    //  });
+    //} else {
+     // const [eventName, ...restArgs] = args;
+      //for (const player of playersOrEventName) {
+       // player.call(eventName, ...restArgs);
+      //}
+    //}
+  //}
+  
+  call(playersOrEventName, ...rest) {
     if (typeof playersOrEventName === "string") {
-      this.forEach((player) => {
-        player.call(playersOrEventName, ...args);
-      });
+      const [args] = rest;
+      this.forEach((player) => player.call(playersOrEventName, args));
     } else {
-      const [eventName, ...restArgs] = args;
-      for (const player of playersOrEventName) {
-        player.call(eventName, ...restArgs);
-      }
+      const [eventName, args] = rest;
+      for (const player of playersOrEventName) player.call(eventName, args);
     }
   }
 

@@ -407,8 +407,12 @@ export class EventManager {
     this._fire(eventName, ...args);
   }
 
-  callRemote(player, eventName, ...args) {
-    emitNet(eventName, player.id, ...args);
+  // callRemote(player, eventName, ...args) {
+    // emitNet(eventName, player.id, ...args);
+  // }
+  
+  callRemote(player, eventName, args) {
+    emitNet(eventName, player.id, ...(Array.isArray(args) ? args : args === undefined ? [] : [args]));
   }
 
   get delayShutdown() {

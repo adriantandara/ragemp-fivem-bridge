@@ -288,8 +288,9 @@ export class PlayerMp extends Entity {
     this.position = position;
   }
 
-  call(eventName, ...args) {
-    emitNet(eventName, this.id, ...args);
+  call(eventName, args) {
+    // emitNet(eventName, this.id, ...args);
+    emitNet(eventName, this.id, ...(Array.isArray(args) ? args : args === undefined ? [] : [args]));
   }
 
   notify(message) {

@@ -5,7 +5,7 @@ import * as rageRpc from "./Plugins/builtin/rage-rpc";
 
 if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "library") {
   globalThis.mp = new Mp();
-
+  
   globalThis.mp.plugins.registerBuiltin(rageRpc);
   globalThis.mp.plugins.registerBuiltin(spawnmanager);
   globalThis.mp.plugins.registerBuiltin(vehicleSync);

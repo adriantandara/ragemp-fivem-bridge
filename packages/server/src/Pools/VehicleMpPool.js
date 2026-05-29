@@ -60,15 +60,20 @@ export class VehicleMpPool extends Pool {
     if (!netId) return null;
     const cached = this._netIdToEntity.get(netId);
     if (cached && this._handleToEntity.has(cached._handle)) return cached;
-    if (typeof NetworkGetEntityFromNetworkId === "function") {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      const entity = handle ? this._handleToEntity.get(handle) : null;
-      if (entity) {
-        this._netIdToEntity.set(netId, entity);
-        return entity;
-      }
+    if (typeof NetworkGetEntityFromNetworkId !== "function") return null;
+    const handle = NetworkGetEntityFromNetworkId(netId);
+    if (!handle) return null;
+    const existing = this._handleToEntity.get(handle);
+    if (existing) {
+      this._netIdToEntity.set(netId, existing);
+      return existing;
     }
-    return null;
+    if (typeof DoesEntityExist === "function" && !DoesEntityExist(handle)) return null;
+    const vehicle = new VehicleMp(++vehicleIdCounter, handle);
+    this._add(vehicle);
+    this._handleToEntity.set(handle, vehicle);
+    this._netIdToEntity.set(netId, vehicle);
+    return vehicle;
   }
 
   _remove(id) {

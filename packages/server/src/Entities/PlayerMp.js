@@ -128,11 +128,12 @@ export class PlayerMp extends Entity {
   }
 
   get model() {
-    return GetEntityModel(this.ped);
+    return this._model || GetEntityModel(this.ped);
   }
 
   set model(value) {
-    emitNet("ragemp:setModel", this.id, typeof value === "string" ? GetHashKey(value) : value);
+    this._model = typeof value === "string" ? GetHashKey(value) : value;
+    emitNet("ragemp:setModel", this.id, this._model);
   }
 
   get weapon() {

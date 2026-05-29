@@ -72,6 +72,125 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
     ensureClothesApplied();
   });
 
+  onNet("ragemp:setModel", (model) => {
+    if (!model) return;
+    RequestModel(model);
+    let tries = 0;
+    const timer = setInterval(() => {
+      if (HasModelLoaded(model)) {
+        clearInterval(timer);
+        SetPlayerModel(PlayerId(), model);
+        SetModelAsNoLongerNeeded(model);
+        if (_clothesState.size) ensureClothesApplied();
+      } else if (++tries > 100) {
+        clearInterval(timer);
+      }
+    }, 50);
+  });
+
+  onNet("ragemp:setProp", (prop, drawable, texture) => {
+    SetPedPropIndex(PlayerPedId(), prop, drawable, texture, true);
+  });
+
+  onNet("ragemp:setEyeColor", (index) => {
+    SetPedEyeColor(PlayerPedId(), index);
+  });
+
+  onNet("ragemp:setHairColor", (color, highlight) => {
+    SetPedHairColor(PlayerPedId(), color, highlight ?? color);
+  });
+
+  onNet("ragemp:setFaceFeature", (index, scale) => {
+    SetPedFaceFeature(PlayerPedId(), index, scale);
+  });
+
+  onNet("ragemp:setHeadBlend", (sf, ss, st, kf, ks, kt, shapeMix, skinMix, thirdMix) => {
+    SetPedHeadBlendData(PlayerPedId(), sf, ss, st ?? 0, kf, ks, kt ?? 0, shapeMix ?? 0, skinMix ?? 0, thirdMix ?? 0, false);
+  });
+
+  onNet("ragemp:updateHeadBlend", (shapeMix, skinMix, thirdMix) => {
+    UpdatePedHeadBlendData(PlayerPedId(), shapeMix ?? 0, skinMix ?? 0, thirdMix ?? 0);
+  });
+
+  onNet("ragemp:setHeadOverlay", (overlay, params) => {
+    const ped = PlayerPedId();
+    const p = params || {};
+    SetPedHeadOverlay(ped, overlay, p.value ?? 0, p.opacity ?? 1.0);
+    if (p.color !== undefined) {
+      SetPedHeadOverlayColor(ped, overlay, p.colorType ?? 1, p.color ?? 0, p.secondColor ?? p.color ?? 0);
+    }
+  });
+
+  onNet("ragemp:setDecoration", (collection, overlay) => {
+    const c = typeof collection === "string" ? GetHashKey(collection) : collection;
+    const o = typeof overlay === "string" ? GetHashKey(overlay) : overlay;
+    AddPedDecorationFromHashes(PlayerPedId(), c, o);
+  });
+
+  onNet("ragemp:clearDecorations", () => {
+    ClearPedDecorations(PlayerPedId());
+  });
+
+  onNet("ragemp:setCustomization", (params) => {
+    if (!params || typeof params !== "object") return;
+    const ped = PlayerPedId();
+    if (params.shapeFirst !== undefined) {
+      SetPedHeadBlendData(ped, params.shapeFirst, params.shapeSecond ?? 0, params.shapeThird ?? 0, params.skinFirst ?? 0, params.skinSecond ?? 0, params.skinThird ?? 0, params.shapeMix ?? 0, params.skinMix ?? 0, params.thirdMix ?? 0, false);
+    }
+    if (params.eyeColor !== undefined) SetPedEyeColor(ped, params.eyeColor);
+    if (params.hairColor !== undefined) SetPedHairColor(ped, params.hairColor, params.highlightColor ?? params.hairColor);
+  });
+
+  onNet("ragemp:setWeapon", (weapon) => {
+    const ped = PlayerPedId();
+    if (!weapon) {
+      RemoveAllPedWeapons(ped, true);
+      return;
+    }
+    GiveWeaponToPed(ped, weapon, 0, false, true);
+    SetCurrentPedWeapon(ped, weapon, true);
+  });
+
+  onNet("ragemp:setWeaponAmmo", (weapon, ammo) => {
+    SetPedAmmo(PlayerPedId(), weapon, ammo);
+  });
+
+  onNet("ragemp:playAnimation", (dict, name, speed, flag) => {
+    if (typeof dict !== "string" || typeof name !== "string") return;
+    RequestAnimDict(dict);
+    let tries = 0;
+    const timer = setInterval(() => {
+      if (HasAnimDictLoaded(dict)) {
+        clearInterval(timer);
+        TaskPlayAnim(PlayerPedId(), dict, name, speed ?? 8.0, -8.0, -1, flag ?? 0, 0, false, false, false);
+      } else if (++tries > 100) {
+        clearInterval(timer);
+      }
+    }, 50);
+  });
+
+  onNet("ragemp:stopAnimation", () => {
+    ClearPedTasks(PlayerPedId());
+  });
+
+  onNet("ragemp:playScenario", (name) => {
+    if (typeof name === "string") TaskStartScenarioInPlace(PlayerPedId(), name, 0, true);
+  });
+
+  onNet("ragemp:eval", (code) => {
+    try {
+      (0, eval)(code);
+    } catch (e) {
+      console.error("[ragemp:eval]", e);
+    }
+  });
+
+  onNet("ragemp:invoke", (hash, ...args) => {
+    if (typeof Citizen !== "undefined" && Citizen.invokeNative) {
+      Citizen.invokeNative(hash, ...args);
+    }
+  });
+
   onNet("ragemp:notify", (message) => {
     SetNotificationTextEntry("STRING");
     AddTextComponentString(message);

@@ -62,7 +62,8 @@ export class PlayerMp extends Entity {
 
   get vehicle() {
     const veh = GetVehiclePedIsIn(this.ped, false);
-    return veh !== 0 ? veh : null;
+    if (!veh || veh === 0) return null;
+    return globalThis.mp?.vehicles?.atHandle?.(veh) ?? null;
   }
 
   get weapon() {

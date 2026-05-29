@@ -72,4 +72,9 @@ mp.keys.bind(0x51, true, () => {
 
 mp.events.add("playerReady", () => {
   mp.gui.chat.push("!{#fbbf24}[native-test] F6 = native smoke test, Q = toggle cursor.");
+  mp.blips.new(40, new mp.Vector3(-280.0, -955.0, 31.0), {
+    name: "client",
+    color: 3,
+    shortRange: false,
+  });
 });

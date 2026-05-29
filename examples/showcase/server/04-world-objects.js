@@ -21,6 +21,8 @@ mp.events.addCommand("obj", (player, _full, model) => {
 const POI = new mp.Vector3(-425.5, 1123.5, 325.8);
 
 mp.blips.new(1, POI, { name: "Showcase POI", color: 5, shortRange: true });
+
+mp.blips.new(40, new mp.Vector3(-265.0, -955.0, 31.0), { name: "server", color: 1, shortRange: false });
 mp.markers.new(1, new mp.Vector3(POI.x, POI.y, POI.z - 1), 1.5, {
   color: [0, 150, 255, 150],
   dimension: 0,

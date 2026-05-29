@@ -10,7 +10,7 @@ export class PedMp extends Entity {
   }
 
   _stateBag() {
-    return Entity(this._handle).state;
+    return globalThis.Entity(this._handle).state;
   }
 
   get position() {

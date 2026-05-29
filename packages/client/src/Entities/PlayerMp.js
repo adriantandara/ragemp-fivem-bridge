@@ -10,7 +10,7 @@ export class PlayerMp extends Entity {
   }
 
   _stateBag() {
-    return Player(this.id).state;
+    return globalThis.Player(this.id).state;
   }
 
   get ped() {

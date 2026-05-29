@@ -289,8 +289,7 @@ export class PlayerMp extends Entity {
   }
 
   call(eventName, args) {
-    // emitNet(eventName, this.id, ...args);
-    emitNet(eventName, this.id, ...(Array.isArray(args) ? args : args === undefined ? [] : [args]));
+    emitNet(eventName, this.id, ...(Array.isArray(args) ? args : args == null ? [] : [args]));
   }
 
   notify(message) {
@@ -304,10 +303,10 @@ export class PlayerMp extends Entity {
   giveWeapon(weaponOrArray, ammo) {
     if (Array.isArray(weaponOrArray)) {
       for (const [hash, amt] of weaponOrArray) {
-        this.call("ragemp:giveWeapon", hash, amt);
+        this.call("ragemp:giveWeapon", [hash, amt]);
       }
     } else {
-      this.call("ragemp:giveWeapon", weaponOrArray, ammo);
+      this.call("ragemp:giveWeapon", [weaponOrArray, ammo]);
     }
   }
 
@@ -320,7 +319,8 @@ export class PlayerMp extends Entity {
   }
 
   setClothes(component, drawable, texture, palette) {
-    this.call("ragemp:setClothes", component, drawable, texture, palette ?? 0);
+    this._clothes[component] = { drawable, texture, palette: palette ?? 0 };
+    this.call("ragemp:setClothes", [component, drawable, texture, palette ?? 0]);
   }
 
   putIntoVehicle(vehicle, seat) {
@@ -481,12 +481,12 @@ export class PlayerMp extends Entity {
     return (dx * dx + dy * dy + dz * dz) <= 300 * 300;
   }
 
-  callUnreliable(eventName, ...args) {
-    emitNet(eventName, this.id, ...args);
+  callUnreliable(eventName, args) {
+    emitNet(eventName, this.id, ...(Array.isArray(args) ? args : args == null ? [] : [args]));
   }
 
-  callToStreamed(eventName, ...args) {
-    emitNet(eventName, this.id, ...args);
+  callToStreamed(eventName, args) {
+    emitNet(eventName, this.id, ...(Array.isArray(args) ? args : args == null ? [] : [args]));
   }
 
   callProc(procName, ...args) {

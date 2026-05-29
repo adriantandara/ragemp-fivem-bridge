@@ -13,6 +13,14 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
 
   emitNet("ragemp:playerReady", GetCurrentResourceName());
 
+  const _clothesState = new Map();
+  globalThis.mp.events.add("playerSpawn", () => {
+    const ped = PlayerPedId();
+    for (const [component, c] of _clothesState) {
+      SetPedComponentVariation(ped, component, c[0], c[1], c[2]);
+    }
+  });
+
   onNet("ragemp:giveWeapon", (weaponHash, ammo) => {
     GiveWeaponToPed(PlayerPedId(), weaponHash, ammo, false, true);
   });
@@ -26,6 +34,7 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
   });
 
   onNet("ragemp:setClothes", (component, drawable, texture, palette) => {
+    _clothesState.set(component, [drawable, texture, palette]);
     SetPedComponentVariation(PlayerPedId(), component, drawable, texture, palette);
   });
 

@@ -54,19 +54,6 @@ export class PlayerMpPool extends Pool {
     });
   }
 
-  // call(playersOrEventName, ...args) {
-    //if (typeof playersOrEventName === "string") {
-      //this.forEach((player) => {
-       // player.call(playersOrEventName, ...args);
-    //  });
-    //} else {
-     // const [eventName, ...restArgs] = args;
-      //for (const player of playersOrEventName) {
-       // player.call(eventName, ...restArgs);
-      //}
-    //}
-  //}
-  
   call(playersOrEventName, ...rest) {
     if (typeof playersOrEventName === "string") {
       const [args] = rest;
@@ -77,31 +64,27 @@ export class PlayerMpPool extends Pool {
     }
   }
 
-  callInDimension(dimension, eventName, ...args) {
+  callInDimension(dimension, eventName, args) {
     this.forEach((player) => {
-      if (player.dimension === dimension) {
-        player.call(eventName, ...args);
-      }
+      if (player.dimension === dimension) player.call(eventName, args);
     });
   }
 
-  callInRange(position, range, eventName, ...args) {
+  callInRange(position, range, eventName, args) {
     this.forEach((player) => {
-      if (player.position.distance(position) <= range) {
-        player.call(eventName, ...args);
-      }
+      if (player.position.distance(position) <= range) player.call(eventName, args);
     });
   }
 
-  callUnreliable(players, eventName, ...args) {
-    this.call(players, eventName, ...args);
+  callUnreliable(...args) {
+    this.call(...args);
   }
 
-  callInDimensionUnreliable(dimension, eventName, ...args) {
-    this.callInDimension(dimension, eventName, ...args);
+  callInDimensionUnreliable(dimension, eventName, args) {
+    this.callInDimension(dimension, eventName, args);
   }
 
-  callInRangeUnreliable(position, range, eventName, ...args) {
-    this.callInRange(position, range, eventName, ...args);
+  callInRangeUnreliable(position, range, eventName, args) {
+    this.callInRange(position, range, eventName, args);
   }
 }

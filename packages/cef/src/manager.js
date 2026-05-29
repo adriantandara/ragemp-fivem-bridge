@@ -6,14 +6,20 @@ export function startManager() {
   const frames = new Map();
   const HOST_RESOURCE = resourceName();
 
-  log("manager ready on", typeof window !== "undefined" ? window.location.href : "?", "resource =", HOST_RESOURCE);
+  log(
+    "manager ready on",
+    typeof window !== "undefined" ? window.location.href : "?",
+    "resource =",
+    HOST_RESOURCE,
+  );
 
   function ensureContainer() {
     let c = document.getElementById("__ragemp_browsers");
     if (!c) {
       c = document.createElement("div");
       c.id = "__ragemp_browsers";
-      c.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;border:0;margin:0;padding:0;pointer-events:none;background:transparent;z-index:0;";
+      c.style.cssText =
+        "position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;border:0;margin:0;padding:0;pointer-events:none;background:transparent;z-index:0;";
       (document.body || document.documentElement).appendChild(c);
     }
     return c;
@@ -25,9 +31,16 @@ export function startManager() {
     if (atMatch) {
       resolved = `https://cfx-nui-${atMatch[1]}/${atMatch[2]}`;
     } else if (!/^(https?:|nui:|file:|blob:|data:)/i.test(url)) {
-      try { resolved = new URL(url, location.href).href; } catch (e) { resolved = url; }
+      try {
+        resolved = new URL(url, location.href).href;
+      } catch (e) {
+        resolved = url;
+      }
     }
-    return resolved + (resolved.indexOf("#") === -1 ? "#__ragemp_view" : "&__ragemp_view");
+    return (
+      resolved +
+      (resolved.indexOf("#") === -1 ? "#__ragemp_view" : "&__ragemp_view")
+    );
   }
 
   const BRIDGE_URL = `https://cfx-nui-${HOST_RESOURCE}/ui/_bridge.js`;
@@ -35,10 +48,19 @@ export function startManager() {
   function tryInjectBridge(iframe, browserId, done) {
     try {
       const doc = iframe.contentDocument;
-      if (!doc) { done(); return; }
-      if (doc.querySelector("script[data-ragemp-bridge]")) { done(); return; }
-      const existing = doc.querySelector("script[src*=\"_bridge\"]");
-      if (existing) { done(); return; }
+      if (!doc) {
+        done();
+        return;
+      }
+      if (doc.querySelector("script[data-ragemp-bridge]")) {
+        done();
+        return;
+      }
+      const existing = doc.querySelector('script[src*="_bridge"]');
+      if (existing) {
+        done();
+        return;
+      }
       const script = doc.createElement("script");
       script.setAttribute("data-ragemp-bridge", "1");
       script.src = BRIDGE_URL;
@@ -52,10 +74,27 @@ export function startManager() {
 
   function flush(entry, browserId) {
     entry.ready = true;
-    try { entry.iframe.contentWindow.postMessage({ __ragempForward: true, inner: { type: "__ragemp:assignId", browserId } }, "*"); } catch (e) { log("assignId post failed", String(e)); }
+    try {
+      entry.iframe.contentWindow.postMessage(
+        {
+          __ragempForward: true,
+          inner: { type: "__ragemp:assignId", browserId },
+        },
+        "*",
+      );
+    } catch (e) {
+      log("assignId post failed", String(e));
+    }
     const pending = entry.queue.splice(0);
     for (const inner of pending) {
-      try { entry.iframe.contentWindow.postMessage({ __ragempForward: true, inner }, "*"); } catch (e) { log("flush post failed", String(e)); }
+      try {
+        entry.iframe.contentWindow.postMessage(
+          { __ragempForward: true, inner },
+          "*",
+        );
+      } catch (e) {
+        log("flush post failed", String(e));
+      }
     }
   }
 
@@ -68,18 +107,26 @@ export function startManager() {
       if (/;base64/i.test(meta)) return atob(content);
       return decodeURIComponent(content);
     } catch (e) {
-      try { return decodeURIComponent(content); } catch (_) { return content; }
+      try {
+        return decodeURIComponent(content);
+      } catch (_) {
+        return content;
+      }
     }
   }
 
   function createBrowser(browserId, url) {
-    if (frames.has(browserId)) { log("create ignored, exists", browserId); return; }
+    if (frames.has(browserId)) {
+      log("create ignored, exists", browserId);
+      return;
+    }
 
     const iframe = document.createElement("iframe");
     iframe.dataset.browserId = String(browserId);
     iframe.setAttribute("allowtransparency", "true");
     iframe.setAttribute("frameborder", "0");
-    iframe.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;border:0;margin:0;padding:0;background:transparent;pointer-events:auto;display:block;";
+    iframe.style.cssText =
+      "position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;border:0;margin:0;padding:0;background:transparent;pointer-events:auto;display:block;";
 
     const entry = { iframe, ready: false, queue: [] };
 
@@ -88,18 +135,27 @@ export function startManager() {
       tryInjectBridge(iframe, browserId, () => flush(entry, browserId));
     });
 
-    const inlineHtml = /^data:text\/html/i.test(url) ? decodeDataHtml(url) : null;
+    const inlineHtml = /^data:text\/html/i.test(url)
+      ? decodeDataHtml(url)
+      : null;
 
     if (inlineHtml !== null) {
       log("create browser", browserId, "(inline html via srcdoc)");
       iframe.setAttribute("name", "__ragemp_view");
-      iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-pointer-lock");
-      iframe.addEventListener("error", () => log("iframe error", browserId, "srcdoc"));
+      iframe.setAttribute(
+        "sandbox",
+        "allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-pointer-lock",
+      );
+      iframe.addEventListener("error", () =>
+        log("iframe error", browserId, "srcdoc"),
+      );
       iframe.srcdoc = inlineHtml;
     } else {
       const resolved = resolveUrl(url);
       log("create browser", browserId, url, "->", resolved);
-      iframe.addEventListener("error", () => log("iframe error", browserId, resolved));
+      iframe.addEventListener("error", () =>
+        log("iframe error", browserId, resolved),
+      );
       iframe.src = resolved;
     }
 
@@ -122,10 +178,19 @@ export function startManager() {
 
   function forward(browserId, inner) {
     const entry = frames.get(browserId);
-    if (!entry) { log("forward to unknown browser", browserId); return; }
-    if (!entry.ready) { entry.queue.push(inner); return; }
+    if (!entry) {
+      log("forward to unknown browser", browserId);
+      return;
+    }
+    if (!entry.ready) {
+      entry.queue.push(inner);
+      return;
+    }
     if (entry.iframe.contentWindow) {
-      entry.iframe.contentWindow.postMessage({ __ragempForward: true, inner }, "*");
+      entry.iframe.contentWindow.postMessage(
+        { __ragempForward: true, inner },
+        "*",
+      );
     }
   }
 
@@ -133,7 +198,10 @@ export function startManager() {
     const data = nativeEvent.data;
     if (!data || typeof data !== "object") return;
 
-    if (typeof data.type === "string" && data.type.indexOf("__ragemp:browser:") === 0) {
+    if (
+      typeof data.type === "string" &&
+      data.type.indexOf("__ragemp:browser:") === 0
+    ) {
       log("manager recv", data.type, data.browserId ?? "");
     }
 
@@ -154,10 +222,19 @@ export function startManager() {
         forward(data.browserId, { event: data.event, args: data.args });
         return;
       case "__ragemp:browser:proc":
-        forward(data.browserId, { proc: data.proc, requestId: data.requestId, args: data.args });
+        forward(data.browserId, {
+          proc: data.proc,
+          requestId: data.requestId,
+          args: data.args,
+        });
         return;
       case "__ragemp:browser:procResult":
-        forward(data.browserId, { procResult: true, requestId: data.requestId, result: data.result, error: data.error });
+        forward(data.browserId, {
+          procResult: true,
+          requestId: data.requestId,
+          result: data.result,
+          error: data.error,
+        });
         return;
     }
 

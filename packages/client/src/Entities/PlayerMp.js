@@ -22,6 +22,10 @@ export class PlayerMp extends Entity {
   get name() {
     return GetPlayerName(this._playerIndex);
   }
+  
+  get handle() {
+    return GetPlayerPed(this._playerIndex);
+  }
 
   get health() {
     return GetEntityHealth(this.ped);

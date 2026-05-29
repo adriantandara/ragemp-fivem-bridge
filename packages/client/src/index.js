@@ -1,12 +1,9 @@
 import { Mp } from "./Mp";
 import * as spawnmanager from "./Plugins/builtin/spawnmanager";
 import * as vehicleSync from "./Plugins/builtin/vehicle-sync";
-import * as rageRpc from "./Plugins/builtin/rage-rpc";
 
 if (GetCurrentResourceName() !== "ragemp-fivem-bridge") {
   globalThis.mp = new Mp();
-
-  globalThis.mp.plugins.registerBuiltin(rageRpc);
   globalThis.mp.plugins.registerBuiltin(spawnmanager);
   globalThis.mp.plugins.registerBuiltin(vehicleSync);
   globalThis.mp.plugins.loadAll();

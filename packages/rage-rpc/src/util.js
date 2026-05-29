@@ -10,6 +10,12 @@ const MpTypes = {
   Vehicle: "v",
 };
 
+let DEBUG_MODE = false;
+
+export function setDebugMode(state) {
+  DEBUG_MODE = !!state;
+}
+
 export function getEnvironment() {
   const mp = globalThis.mp;
   if (!mp) return null;
@@ -19,7 +25,27 @@ export function getEnvironment() {
   return null;
 }
 
-export function uid() {
+export function log(data, type = "info") {
+  if (!DEBUG_MODE) return;
+
+  const env = getEnvironment();
+  const mp = globalThis.mp;
+  const message = `RPC (${env}): ${data}`;
+  const clientFormatLog = { info: "logInfo", error: "logError", warn: "logWarn" };
+
+  try {
+    if (mp && mp.console && typeof mp.console[clientFormatLog[type]] === "function") {
+      mp.console[clientFormatLog[type]](message);
+    } else {
+      const fn = type === "info" ? "log" : type;
+      (console[fn] || console.log)(message);
+    }
+  } catch (e) {
+
+  }
+}
+
+export function generateId() {
   const first = (Math.random() * 46656) | 0;
   const second = (Math.random() * 46656) | 0;
   return ("000" + first.toString(36)).slice(-3) + ("000" + second.toString(36)).slice(-3);
@@ -43,15 +69,15 @@ function isObjectMpType(value, type) {
     }
   } else if (env === "server") {
     switch (type) {
-      case MpTypes.Blip: return mp.blips?.at(value.id) === value;
-      case MpTypes.Checkpoint: return mp.checkpoints?.at(value.id) === value;
-      case MpTypes.Colshape: return mp.colshapes?.at(value.id) === value;
-      case MpTypes.Label: return mp.labels?.at(value.id) === value;
-      case MpTypes.Marker: return mp.markers?.at(value.id) === value;
-      case MpTypes.Object: return mp.objects?.at(value.id) === value;
-      case MpTypes.Pickup: return mp.pickups?.at(value.id) === value;
-      case MpTypes.Player: return mp.players?.at(value.id) === value;
-      case MpTypes.Vehicle: return mp.vehicles?.at(value.id) === value;
+      case MpTypes.Blip: return value.type === "blip" && mp.blips?.at(value.id) === value;
+      case MpTypes.Checkpoint: return value.type === "checkpoint" && mp.checkpoints?.at(value.id) === value;
+      case MpTypes.Colshape: return value.type === "colshape" && mp.colshapes?.at(value.id) === value;
+      case MpTypes.Label: return value.type === "textlabel" && mp.labels?.at(value.id) === value;
+      case MpTypes.Marker: return value.type === "marker" && mp.markers?.at(value.id) === value;
+      case MpTypes.Object: return value.type === "object" && mp.objects?.at(value.id) === value;
+      case MpTypes.Pickup: return value.type === "pickup" && mp.pickups?.at(value.id) === value;
+      case MpTypes.Player: return value.type === "player" && mp.players?.at(value.id) === value;
+      case MpTypes.Vehicle: return value.type === "vehicle" && mp.vehicles?.at(value.id) === value;
     }
   }
   return false;
@@ -103,11 +129,11 @@ export function parseData(data) {
 }
 
 export function promiseResolve(result) {
-  return new Promise((resolve) => setTimeout(() => resolve(result), 0));
+  return Promise.resolve(result);
 }
 
 export function promiseReject(error) {
-  return new Promise((_, reject) => setTimeout(() => reject(error), 0));
+  return Promise.reject(error);
 }
 
 export function promiseTimeout(promise, timeout) {
@@ -121,6 +147,20 @@ export function promiseTimeout(promise, timeout) {
 }
 
 export function isBrowserValid(browser) {
-  try { browser.url; } catch (e) { return false; }
+  try {
+    if (browser._destroyed) return false;
+    browser.url;
+  } catch (e) { return false; }
   return true;
+}
+
+export function chunkSubstr(str, size) {
+  const numChunks = Math.ceil(str.length / size);
+  const chunks = new Array(numChunks);
+  let index = 0;
+  for (let i = 0; i < numChunks; i += 1) {
+    chunks[i] = str.substr(index, size);
+    index += size;
+  }
+  return chunks;
 }

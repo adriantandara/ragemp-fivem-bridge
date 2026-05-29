@@ -13,14 +13,21 @@ export class BrowserMpPool extends Pool {
     const id = ++_browserIdCounter;
     const browser = new BrowserMp(id, url);
     this._add(browser);
+
+    if (typeof SendNuiMessage === "function") {
+      SendNuiMessage(JSON.stringify({ type: "__ragemp:browser:create", browserId: id, url }));
+    }
+
     globalThis.mp?.events?._fire("browserCreated", browser);
+
     setTimeout(() => {
       globalThis.mp?.events?._fire("browserDomReady", browser);
     }, 0);
+
     return browser;
   }
 
-  newHeadless(url, width, height) {
+  newHeadless(url) {
     return this.new(url);
   }
 

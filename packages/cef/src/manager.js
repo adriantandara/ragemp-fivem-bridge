@@ -93,6 +93,7 @@ export function startManager() {
     if (inlineHtml !== null) {
       log("create browser", browserId, "(inline html via srcdoc)");
       iframe.setAttribute("name", "__ragemp_view");
+      iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-pointer-lock");
       iframe.addEventListener("error", () => log("iframe error", browserId, "srcdoc"));
       iframe.srcdoc = inlineHtml;
     } else {

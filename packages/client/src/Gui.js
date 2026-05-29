@@ -87,9 +87,8 @@ class CursorMp {
   }
 
   show(freezeControls, state) {
-    this._visible = state;
-    SetNuiFocus(state, state);
-    if (typeof SetNuiFocusKeepInput === "function") SetNuiFocusKeepInput(!!state);
+    this._visible = !!state;
+    SetNuiFocus(!!state, !!state);
     if (freezeControls && state) {
       if (!this._controlTick) {
         this._controlTick = setTick(() => {

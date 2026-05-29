@@ -1,7 +1,20 @@
 export class KeyManager {
   _bindings = new Map();
   _pressedKeys = new Set();
+  _nuiPressed = new Set();
   _tick = null;
+
+  constructor() {
+    if (typeof RegisterNuiCallbackType === "function") {
+      RegisterNuiCallbackType("ragemp:__keyEvent");
+      on("__cfx_nui:ragemp:__keyEvent", (data, cb) => {
+        if (data && typeof data.code === "number") {
+          this._setNuiKey(data.code, !!data.down);
+        }
+        cb({});
+      });
+    }
+  }
 
   _getKey(keyCode, isDown) {
     return `${keyCode}_${isDown ? "down" : "up"}`;
@@ -13,6 +26,11 @@ export class KeyManager {
 
   isUp(keyCode) {
     return !this._pressedKeys.has(keyCode);
+  }
+
+  _setNuiKey(code, down) {
+    if (down) this._nuiPressed.add(code);
+    else this._nuiPressed.delete(code);
   }
 
   bind(keyCode, isDown, handler) {
@@ -45,17 +63,17 @@ export class KeyManager {
     }
   }
 
-  _isPressed(keyCode) {
-    return IsDisabledRawKeyPressed(keyCode) || IsRawKeyPressed(keyCode);
-  }
-
   _ensureTick() {
     if (this._tick !== null) return;
     this._tick = setTick(() => {
+      const focused = typeof IsNuiFocused === "function" && IsNuiFocused();
+      if (!focused && this._nuiPressed.size) this._nuiPressed.clear();
       const codes = new Set();
       for (const key of this._bindings.keys()) codes.add(parseInt(key, 10));
       for (const keyCode of codes) {
-        const isDown = this._isPressed(keyCode);
+        const isDown = focused
+          ? this._nuiPressed.has(keyCode)
+          : IsDisabledRawKeyPressed(keyCode) || IsRawKeyPressed(keyCode);
         const wasDown = this._pressedKeys.has(keyCode);
         if (isDown && !wasDown) {
           this._pressedKeys.add(keyCode);

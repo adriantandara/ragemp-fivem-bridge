@@ -472,7 +472,7 @@ export class PlayerMp extends Entity {
   }
 
   getHeadOverlay(overlay) {
-    return this._headOverlays[overlay] ?? { value: 0, opacity: 1.0, color: 0, secondColor: 0 };
+    return this._headOverlays[overlay] ?? [0, 0, 0, 0];
   }
 
   setCustomization(gender, shapeFirst, shapeSecond, shapeThird, skinFirst, skinSecond, skinThird, shapeMix, skinMix, thirdMix, eyeColor, hairColor, highlightColor, faceFeatures) {

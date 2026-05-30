@@ -47,6 +47,10 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
   }
 
   function applyHeadOverlay(ped, overlay, p) {
+    if (Array.isArray(p)) {
+      const op = p[1] ?? 1.0;
+      p = { value: p[0], opacity: op > 1 ? op / 100 : op, color: p[2], secondColor: p[3] };
+    }
     SetPedHeadOverlay(ped, overlay | 0, p.value | 0, p.opacity ?? 1.0);
     if (p.color !== undefined && p.color !== null) {
       SetPedHeadOverlayColor(ped, overlay | 0, p.colorType ?? 1, p.color | 0, (p.secondColor ?? p.color) | 0);

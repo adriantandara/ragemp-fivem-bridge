@@ -472,6 +472,30 @@ export class VehicleMp extends Entity {
   getNumberPlateText() {
     return GetVehicleNumberPlateText(this._handle);
   }
+  
+  getIsEngineRunning() {
+    return GetIsVehicleEngineRunning(this.handle);
+  }
+  
+  getClass() {
+    return GetVehicleClass(this.handle);
+  }
+
+  setEngineHealth(health) {
+    SetVehicleEngineHealth(this.handle, health);
+  }
+  
+  setEngineOn(toggle, instantly, disableAutoStart) {
+    SetVehicleEngineOn(this.handle, toggle, instantly ?? true, disableAutoStart ?? false);
+  }
+  
+  setPetrolTankHealth(health) {
+    SetVehiclePetrolTankHealth(this.handle, health);
+  }
+  
+  setUndriveable(toggle) {
+    SetVehicleUndriveable(this.handle, toggle);
+  }
 
   destroy() {
     SetEntityAsMissionEntity(this._handle, false, true);

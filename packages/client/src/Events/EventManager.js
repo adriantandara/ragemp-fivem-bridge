@@ -285,13 +285,18 @@ export class EventManager extends EventEmitter {
 
       const vehicleNetId = safeGetNetworkId(vehicleHandle);
 
-      this._fire("playerEnterVehicle", localPlayer, vehicleHandle, seatIndex);
+      const enteredVehicle = globalThis.mp?.vehicles?.atHandle?.(vehicleHandle) ?? null;
+      this._fire("playerEnterVehicle", enteredVehicle, seatIndex);
+
       emitNet("ragemp:playerEnterVehicle", vehicleNetId, seatIndex);
+	  
     } else if (!inVehicle && this._wasInVehicle) {
       const lastVehicle = this._lastVehicleHandle;
       const vehicleNetId = safeGetNetworkId(lastVehicle);
 
-      this._fire("playerLeaveVehicle", localPlayer, lastVehicle);
+      const leftVehicle = globalThis.mp?.vehicles?.atHandle?.(lastVehicle) ?? null;
+      this._fire("playerLeaveVehicle", leftVehicle, this._lastVehicleSeat ?? -1);
+
       emitNet("ragemp:playerExitVehicle", vehicleNetId);
       this._lastVehicleHandle = 0;
     }

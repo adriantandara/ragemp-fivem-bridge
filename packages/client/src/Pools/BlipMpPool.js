@@ -73,10 +73,13 @@ export class BlipMpPool extends Pool {
       }
     });
 
-    onNet("ragemp:blipRoute", (id, state) => {
+    onNet("ragemp:blipRoute", (id, state, color, scale) => {
       const existing = this.at(id);
       if (existing) {
         SetBlipRoute(existing._handle, state);
+        if (state && color !== undefined && color !== null) {
+          SetBlipRouteColour(existing._handle, color);
+        }
       }
     });
   }

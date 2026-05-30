@@ -76,10 +76,12 @@ export class CheckpointMpPool extends Pool {
     const nx = nextPosition?.x ?? 0;
     const ny = nextPosition?.y ?? 0;
     const nz = nextPosition?.z ?? 0;
-    const r = options.color?.r ?? 255;
-    const g = options.color?.g ?? 0;
-    const b = options.color?.b ?? 0;
-    const a = options.color?.a ?? 150;
+    const c = options.color;
+    const arr = Array.isArray(c);
+    const r = (arr ? c[0] : c?.r) ?? 255;
+    const g = (arr ? c[1] : c?.g) ?? 0;
+    const b = (arr ? c[2] : c?.b) ?? 0;
+    const a = (arr ? c[3] : c?.a) ?? 150;
 
     const handle = CreateCheckpoint(
       type,

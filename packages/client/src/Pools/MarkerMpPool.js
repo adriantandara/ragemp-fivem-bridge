@@ -114,10 +114,12 @@ export class MarkerMpPool extends Pool {
     marker._scale = scale;
 
     if (options.color) {
-      marker._r = options.color.r ?? marker._r;
-      marker._g = options.color.g ?? marker._g;
-      marker._b = options.color.b ?? marker._b;
-      marker._a = options.color.a ?? marker._a;
+      const c = options.color;
+      const arr = Array.isArray(c);
+      marker._r = (arr ? c[0] : c.r) ?? marker._r;
+      marker._g = (arr ? c[1] : c.g) ?? marker._g;
+      marker._b = (arr ? c[2] : c.b) ?? marker._b;
+      marker._a = (arr ? c[3] : c.a) ?? marker._a;
     }
     if (options.direction !== undefined) {
       marker._direction = options.direction instanceof Vector3 ? options.direction : new Vector3(options.direction.x, options.direction.y, options.direction.z);

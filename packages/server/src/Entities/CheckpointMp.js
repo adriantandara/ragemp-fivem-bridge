@@ -16,7 +16,10 @@ export class CheckpointMp extends Entity {
     this._position = position;
     this._nextPosition = nextPosition ?? new Vector3(0, 0, 0);
     this._radius = radius;
-    this._color = options.color ?? { r: 255, g: 0, b: 0, a: 150 };
+    const c = options.color;
+    this._color = Array.isArray(c)
+      ? { r: c[0] ?? 255, g: c[1] ?? 0, b: c[2] ?? 0, a: c[3] ?? 150 }
+      : (c ?? { r: 255, g: 0, b: 0, a: 150 });
     this._dimension = options.dimension ?? 0;
     this._visible = options.visible ?? true;
   }

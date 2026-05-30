@@ -22,11 +22,19 @@ export class KeyManager {
   }
 
   isDown(keyCode) {
-    return this._pressedKeys.has(keyCode);
+    const code = typeof keyCode === "number" ? keyCode : parseInt(keyCode, 10);
+    const focused = typeof IsNuiFocused === "function" && IsNuiFocused();
+    if (focused) {
+      return this._nuiPressed.has(code);
+    }
+    if (typeof IsDisabledRawKeyPressed === "function") {
+      return IsDisabledRawKeyPressed(code) || IsRawKeyPressed(code);
+    }
+    return this._pressedKeys.has(code);
   }
 
   isUp(keyCode) {
-    return !this._pressedKeys.has(keyCode);
+    return !this.isDown(keyCode);
   }
 
   _setNuiKey(code, down) {

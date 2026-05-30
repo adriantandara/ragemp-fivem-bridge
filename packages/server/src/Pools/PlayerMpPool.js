@@ -43,6 +43,11 @@ export class PlayerMpPool extends Pool {
         player._resolveProc(reqId, error, result);
       }
     });
+
+    onNet("ragemp:playerReady", () => {
+      const src = source;
+      emitNet("ragemp:setDimension", src, GetPlayerRoutingBucket(src.toString()));
+    });
   }
 
   broadcast(text) {

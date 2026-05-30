@@ -2,6 +2,7 @@ import { Pool } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { ColshapeMp } from "../Entities/ColshapeMp";
 import { onWorldScan } from "../utils/worldScan";
+import { isVisibleHere } from "../utils/dimension";
 
 let localColshapeIdCounter = 100000;
 
@@ -62,7 +63,7 @@ export class ColshapeMpPool extends Pool {
       const localPos = mp.players.local.position;
 
       for (const colshape of this) {
-        const isInside = colshape.isPointWithin(localPos);
+        const isInside = isVisibleHere(colshape._dimension) && colshape.isPointWithin(localPos);
         const wasInside = this._insideSet.has(colshape.id);
 
         if (isInside && !wasInside) {

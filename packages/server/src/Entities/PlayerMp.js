@@ -1,6 +1,7 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { gtaPedHealthToRage } from "@ragemp-fivem-bridge/shared";
+import { normalizeDimension } from "@ragemp-fivem-bridge/shared";
 
 export class PlayerMp extends Entity {
   constructor(source) {
@@ -133,7 +134,9 @@ export class PlayerMp extends Entity {
   }
 
   set dimension(value) {
-    SetPlayerRoutingBucket(this.id.toString(), value);
+    const dim = normalizeDimension(value);
+    SetPlayerRoutingBucket(this.id.toString(), dim);
+    emitNet("ragemp:setDimension", this.id, dim);
   }
 
   get model() {

@@ -1,6 +1,7 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { ColshapeMp } from "../Entities/ColshapeMp";
+import { dimensionsMatch } from "@ragemp-fivem-bridge/shared";
 
 let colshapeIdCounter = 0;
 
@@ -50,7 +51,7 @@ export class ColshapeMpPool extends Pool {
 
     if (entering) {
       if (inside.has(playerSource)) return;
-      if (colshape.dimension !== 0 && player.dimension !== colshape.dimension) return;
+      if (!dimensionsMatch(colshape.dimension, player.dimension)) return;
       let position;
       try {
         position = player.position;

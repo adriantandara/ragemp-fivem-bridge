@@ -2,6 +2,7 @@ import { Entity } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { gtaPedHealthToRage, rageHealthToGtaPed } from "@ragemp-fivem-bridge/shared";
 import { withEntityNatives } from "../utils/native";
+import { getLocalDimension } from "../utils/dimension";
 
 export class PlayerMp extends Entity {
   _playerIndex;
@@ -34,6 +35,15 @@ export class PlayerMp extends Entity {
 
   set health(value) {
     SetEntityHealth(this.ped, rageHealthToGtaPed(value));
+  }
+
+  get dimension() {
+    if (globalThis.mp?.players?.local === this) return getLocalDimension();
+    return this._dimension ?? 0;
+  }
+
+  set dimension(value) {
+    this._dimension = value;
   }
 
   get armour() {

@@ -1,6 +1,7 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { MarkerMp } from "../Entities/MarkerMp";
+import { isVisibleHere } from "../utils/dimension";
 
 let localMarkerIdCounter = 100000;
 
@@ -28,6 +29,7 @@ export class MarkerMpPool extends Pool {
     marker._b = data.b;
     marker._a = data.a;
     marker._visible = data.visible;
+    marker._dimension = data.dimension ?? 0;
     this._add(marker);
     return marker;
   }
@@ -57,6 +59,7 @@ export class MarkerMpPool extends Pool {
         existing._b = data.b;
         existing._a = data.a;
         existing._visible = data.visible;
+        existing._dimension = data.dimension ?? 0;
       }
     });
 
@@ -88,6 +91,7 @@ export class MarkerMpPool extends Pool {
       this.forEach((marker) => {
         if (!marker._visible) return;
         if (this._hiddenSet.has(marker.id)) return;
+        if (!isVisibleHere(marker._dimension)) return;
 
         const pos = marker._position;
         const dx = px - pos.x, dy = py - pos.y, dz = pz - pos.z;
@@ -128,6 +132,7 @@ export class MarkerMpPool extends Pool {
       marker._rotation = options.rotation instanceof Vector3 ? options.rotation : new Vector3(options.rotation.x, options.rotation.y, options.rotation.z);
     }
     if (options.visible !== undefined) marker._visible = options.visible;
+    if (options.dimension !== undefined) marker._dimension = options.dimension;
 
     this._add(marker);
     return marker;

@@ -35,11 +35,7 @@ export class CheckpointMp extends Entity {
 
   set visible(value) {
     this._visible = value;
-    if (value) {
-      SetCheckpointRgba(this._handle, this._r ?? 255, this._g ?? 0, this._b ?? 0, this._a ?? 150);
-    } else {
-      SetCheckpointRgba(this._handle, 0, 0, 0, 0);
-    }
+    globalThis.mp?.checkpoints?._applyVisibility(this);
   }
 
   get color() {
@@ -51,9 +47,7 @@ export class CheckpointMp extends Entity {
     this._g = value.g;
     this._b = value.b;
     this._a = value.a;
-    if (this.visible) {
-      SetCheckpointRgba(this._handle, value.r, value.g, value.b, value.a);
-    }
+    globalThis.mp?.checkpoints?._applyVisibility(this);
   }
 
   destroy() {

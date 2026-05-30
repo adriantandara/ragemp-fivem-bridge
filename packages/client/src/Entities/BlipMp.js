@@ -6,6 +6,7 @@ import { applyBlipName } from "../utils/blipName";
 export class BlipMp extends Entity {
   _handle;
   _dimension = 0;
+  _alpha = 255;
 
   constructor(id, handle) {
     super(id, "blip");
@@ -70,11 +71,12 @@ export class BlipMp extends Entity {
   }
 
   get alpha() {
-    return GetBlipAlpha(this._handle);
+    return this._alpha;
   }
 
   set alpha(value) {
-    SetBlipAlpha(this._handle, value);
+    this._alpha = value;
+    globalThis.mp?.blips?._applyVisibility(this);
   }
 
   get dimension() {
@@ -83,6 +85,7 @@ export class BlipMp extends Entity {
 
   set dimension(value) {
     this._dimension = value;
+    globalThis.mp?.blips?._applyVisibility(this);
   }
 
   doesExist() {
@@ -103,7 +106,7 @@ export class BlipMp extends Entity {
   }
 
   getAlpha() {
-    return GetBlipAlpha(this._handle);
+    return this._alpha;
   }
 
   getHudColour() {

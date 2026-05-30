@@ -1,6 +1,7 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { TextLabelMp } from "../Entities/TextLabelMp";
+import { isVisibleHere } from "../utils/dimension";
 
 let localLabelIdCounter = 100000;
 
@@ -80,6 +81,7 @@ export class TextLabelMpPool extends Pool {
 
       this.forEach((label) => {
         if (!label._visible) return;
+        if (!isVisibleHere(label._dimension)) return;
 
         const pos = label._position;
         if (!pos) return;

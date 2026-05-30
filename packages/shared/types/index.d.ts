@@ -1,5 +1,10 @@
 export type HashOrString = number | string;
 
+export const GLOBAL_DIMENSION: 4294967295;
+export function normalizeDimension(value: number | null | undefined): number;
+export function isGlobalDimension(value: number | null | undefined): boolean;
+export function dimensionsMatch(entityDimension: number, observerDimension: number): boolean;
+
 export type Vector3Like =
   | Vector3
   | { x: number; y: number; z: number }

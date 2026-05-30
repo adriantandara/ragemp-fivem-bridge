@@ -1,5 +1,6 @@
 import { Pool, Vector3 } from "@ragemp-fivem-bridge/shared";
 import { CheckpointMp } from "../Entities/CheckpointMp";
+import { isVisibleHere, onDimensionChange } from "../utils/dimension";
 
 let localCheckpointIdCounter = 100000;
 
@@ -7,10 +8,21 @@ export class CheckpointMpPool extends Pool {
   constructor() {
     super();
     this._setupServerSync();
+    onDimensionChange(() => this.forEach((cp) => this._applyVisibility(cp)));
   }
 
   atRemoteId(remoteId) {
     return this.at(remoteId);
+  }
+
+  _applyVisibility(cp) {
+    if (!cp._handle) return;
+    const shown = cp._visible && isVisibleHere(cp._dimension);
+    if (shown) {
+      SetCheckpointRgba(cp._handle, cp._r, cp._g, cp._b, cp._a);
+    } else {
+      SetCheckpointRgba(cp._handle, 0, 0, 0, 0);
+    }
   }
 
   _createFromData(data) {
@@ -31,13 +43,11 @@ export class CheckpointMpPool extends Pool {
     cp._visible = data.visible;
     cp._position = new Vector3(data.x, data.y, data.z);
     cp._radius = data.radius;
-
-    if (!data.visible) {
-      SetCheckpointRgba(handle, 0, 0, 0, 0);
-    }
+    cp._dimension = data.dimension ?? 0;
 
     cp._origin = "server";
     this._add(cp);
+    this._applyVisibility(cp);
     return cp;
   }
 
@@ -100,13 +110,11 @@ export class CheckpointMpPool extends Pool {
     cp._visible = options.visible ?? true;
     cp._position = new Vector3(position.x, position.y, position.z);
     cp._radius = radius;
-
-    if (!cp._visible) {
-      SetCheckpointRgba(handle, 0, 0, 0, 0);
-    }
+    cp._dimension = options.dimension ?? 0;
 
     cp._origin = "local";
     this._add(cp);
+    this._applyVisibility(cp);
     return cp;
   }
 }

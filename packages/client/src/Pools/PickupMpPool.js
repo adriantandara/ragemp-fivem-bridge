@@ -1,5 +1,6 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
 import { onWorldScan } from "../utils/worldScan";
+import { isVisibleHere, onDimensionChange } from "../utils/dimension";
 
 class ClientPickup {
   constructor(data) {
@@ -38,6 +39,17 @@ export class PickupMpPool extends Pool {
     super();
     this._setupSync();
     this._setupTick();
+    onDimensionChange(() => this._pickups.forEach((p) => this._applyVisibility(p)));
+  }
+
+  _applyVisibility(pickup) {
+    if (pickup._collected) return;
+    const shown = isVisibleHere(pickup.dimension);
+    if (shown && !pickup._handle) {
+      pickup._create();
+    } else if (!shown && pickup._handle) {
+      pickup._destroy();
+    }
   }
 
   at(id) {
@@ -83,7 +95,7 @@ export class PickupMpPool extends Pool {
       Object.assign(pickup, data);
       pickup._handle = null;
       pickup._collected = false;
-      pickup._create();
+      this._applyVisibility(pickup);
     });
 
     onNet("ragemp:pickupDestroy", (id) => {
@@ -98,8 +110,8 @@ export class PickupMpPool extends Pool {
   _addPickup(data) {
     if (this._pickups.has(data.id)) return;
     const pickup = new ClientPickup(data);
-    pickup._create();
     this._pickups.set(data.id, pickup);
+    this._applyVisibility(pickup);
   }
 
   _setupTick() {

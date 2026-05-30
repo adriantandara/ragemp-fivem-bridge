@@ -1,6 +1,7 @@
 import { EventEmitter } from "@ragemp-fivem-bridge/shared";
 import { safeGetNetworkId } from "../utils/netId";
 import { onWorldScan } from "../utils/worldScan";
+import { isVisibleHere } from "../utils/dimension";
 
 export class EventManager extends EventEmitter {
   _renderTick = null;
@@ -85,7 +86,7 @@ export class EventManager extends EventEmitter {
       }
     });
 
-    on("chatMessage", (source, name, message) => {
+    on("chatMessage", (_source, _name, message) => {
       const localPlayer = globalThis.mp?.players?.local;
       if (!localPlayer) return;
       this._fire("playerChat", localPlayer, message);
@@ -105,10 +106,26 @@ export class EventManager extends EventEmitter {
         const localPed = PlayerPedId();
 
         if (victim === localPed) {
-          this._fire("incomingDamage", localPlayer, attacker, weaponHash, damageAmount, false, 0);
+          this._fire(
+            "incomingDamage",
+            localPlayer,
+            attacker,
+            weaponHash,
+            damageAmount,
+            false,
+            0,
+          );
         }
         if (attacker === localPed) {
-          this._fire("outgoingDamage", localPlayer, victim, weaponHash, damageAmount, false, 0);
+          this._fire(
+            "outgoingDamage",
+            localPlayer,
+            victim,
+            weaponHash,
+            damageAmount,
+            false,
+            0,
+          );
         }
         return;
       }
@@ -118,7 +135,12 @@ export class EventManager extends EventEmitter {
         const posY = args[3] ?? 0;
         const posZ = args[4] ?? 0;
         const explosionType = args[1] ?? -1;
-        this._fire("explosion", localPlayer, { x: posX, y: posY, z: posZ }, explosionType);
+        this._fire(
+          "explosion",
+          localPlayer,
+          { x: posX, y: posY, z: posZ },
+          explosionType,
+        );
         return;
       }
 
@@ -129,7 +151,13 @@ export class EventManager extends EventEmitter {
         const damageAmount = args[3] ?? 0;
         const localPed = PlayerPedId();
         if (attacker === localPed) {
-          this._fire("meleeActionDamage", localPlayer, target, weaponHash, damageAmount);
+          this._fire(
+            "meleeActionDamage",
+            localPlayer,
+            target,
+            weaponHash,
+            damageAmount,
+          );
         }
         return;
       }
@@ -140,8 +168,17 @@ export class EventManager extends EventEmitter {
         const impactY = args[2] ?? 0;
         const impactZ = args[3] ?? 0;
         const targetEntity = args[4] ?? 0;
-        this._fire("playerWeaponShot", localPlayer, { x: impactX, y: impactY, z: impactZ }, targetEntity);
-        this._fire("projectile", { x: impactX, y: impactY, z: impactZ }, weaponHash);
+        this._fire(
+          "playerWeaponShot",
+          localPlayer,
+          { x: impactX, y: impactY, z: impactZ },
+          targetEntity,
+        );
+        this._fire(
+          "projectile",
+          { x: impactX, y: impactY, z: impactZ },
+          weaponHash,
+        );
         return;
       }
     });
@@ -154,14 +191,18 @@ export class EventManager extends EventEmitter {
       if (!mp || typeof bagName !== "string") return;
       let entity = null;
       if (bagName.indexOf("player:") === 0) {
-        entity = mp.players?.atRemoteId?.(parseInt(bagName.slice(7), 10)) ?? null;
+        entity =
+          mp.players?.atRemoteId?.(parseInt(bagName.slice(7), 10)) ?? null;
       } else if (bagName.indexOf("entity:") === 0) {
-        const handle = NetworkGetEntityFromNetworkId(parseInt(bagName.slice(7), 10));
+        const handle = NetworkGetEntityFromNetworkId(
+          parseInt(bagName.slice(7), 10),
+        );
         if (handle) {
-          entity = mp.vehicles?.atHandle?.(handle)
-            ?? mp.peds?.atHandle?.(handle)
-            ?? mp.objects?.atHandle?.(handle)
-            ?? null;
+          entity =
+            mp.vehicles?.atHandle?.(handle) ??
+            mp.peds?.atHandle?.(handle) ??
+            mp.objects?.atHandle?.(handle) ??
+            null;
         }
       }
       if (entity) {
@@ -253,14 +294,19 @@ export class EventManager extends EventEmitter {
               killerId = GetPlayerServerId(killerPlayer);
             }
           }
-        } catch (_) {
-        }
+        } catch (_) {}
       }
 
-      const killer = killerId ? (globalThis.mp?.players?.atRemoteId?.(killerId) ?? null) : null;
+      const killer = killerId
+        ? (globalThis.mp?.players?.atRemoteId?.(killerId) ?? null)
+        : null;
       this._fire("playerDeath", localPlayer, causeOfDeath, killer);
       emitNet("ragemp:playerDeath", causeOfDeath, killerId);
-    } else if (!isDead && !this._wasAlive && !globalThis.mp?.spawnmanager?.isSpawning) {
+    } else if (
+      !isDead &&
+      !this._wasAlive &&
+      !globalThis.mp?.spawnmanager?.isSpawning
+    ) {
       this._fire("playerSpawn", localPlayer);
       this._fire("playerResurrect", localPlayer);
       emitNet("ragemp:playerSpawn");
@@ -287,17 +333,22 @@ export class EventManager extends EventEmitter {
 
       const vehicleNetId = safeGetNetworkId(vehicleHandle);
 
-      const enteredVehicle = globalThis.mp?.vehicles?.atHandle?.(vehicleHandle) ?? null;
+      const enteredVehicle =
+        globalThis.mp?.vehicles?.atHandle?.(vehicleHandle) ?? null;
       this._fire("playerEnterVehicle", enteredVehicle, seatIndex);
 
       emitNet("ragemp:playerEnterVehicle", vehicleNetId, seatIndex);
-	  
     } else if (!inVehicle && this._wasInVehicle) {
       const lastVehicle = this._lastVehicleHandle;
       const vehicleNetId = safeGetNetworkId(lastVehicle);
 
-      const leftVehicle = globalThis.mp?.vehicles?.atHandle?.(lastVehicle) ?? null;
-      this._fire("playerLeaveVehicle", leftVehicle, this._lastVehicleSeat ?? -1);
+      const leftVehicle =
+        globalThis.mp?.vehicles?.atHandle?.(lastVehicle) ?? null;
+      this._fire(
+        "playerLeaveVehicle",
+        leftVehicle,
+        this._lastVehicleSeat ?? -1,
+      );
 
       emitNet("ragemp:playerExitVehicle", vehicleNetId);
       this._lastVehicleHandle = 0;
@@ -310,7 +361,8 @@ export class EventManager extends EventEmitter {
       this._tryingToEnterVehicleHandle = tryingToEnterVehicle;
 
       let seatIndex = -1;
-      const maxPassengers = GetVehicleMaxNumberOfPassengers(tryingToEnterVehicle);
+      const maxPassengers =
+        GetVehicleMaxNumberOfPassengers(tryingToEnterVehicle);
       for (let s = -1; s < maxPassengers; s++) {
         if (GetPedInVehicleSeat(tryingToEnterVehicle, s) === 0) {
           seatIndex = s;
@@ -319,7 +371,8 @@ export class EventManager extends EventEmitter {
       }
 
       const vehicleNetId = safeGetNetworkId(tryingToEnterVehicle);
-      const startVehicle = globalThis.mp?.vehicles?.atHandle?.(tryingToEnterVehicle) ?? null;
+      const startVehicle =
+        globalThis.mp?.vehicles?.atHandle?.(tryingToEnterVehicle) ?? null;
       this._fire("playerStartEnterVehicle", startVehicle, seatIndex);
       emitNet("ragemp:playerStartEnterVehicle", vehicleNetId, seatIndex);
     } else if (tryingToEnterVehicle === 0 && this._isTryingToEnterVehicle) {
@@ -332,7 +385,8 @@ export class EventManager extends EventEmitter {
       this._isTryingToExitVehicle = true;
       const vehicleHandle = GetVehiclePedIsIn(ped, false);
       const vehicleNetId = safeGetNetworkId(vehicleHandle);
-      const exitVehicle = globalThis.mp?.vehicles?.atHandle?.(vehicleHandle) ?? null;
+      const exitVehicle =
+        globalThis.mp?.vehicles?.atHandle?.(vehicleHandle) ?? null;
       this._fire("playerStartExitVehicle", exitVehicle);
       emitNet("ragemp:playerStartExitVehicle", vehicleNetId);
     } else if (!isTryingToExit && this._isTryingToExitVehicle) {
@@ -369,16 +423,19 @@ export class EventManager extends EventEmitter {
       const dy = py - pos.y;
       const dz = pz - pos.z;
       const distSq = dx * dx + dy * dy + dz * dz;
-      const isInside = distSq <= radius * radius;
+      const isInside =
+        isVisibleHere(checkpoint._dimension) && distSq <= radius * radius;
 
       if (isInside && !this._insideCheckpoints.has(checkpoint.id)) {
         this._insideCheckpoints.add(checkpoint.id);
         this._fire("playerEnterCheckpoint", localPlayer, checkpoint);
-        if (checkpoint._origin === "server") emitNet("ragemp:checkpoint:enter", checkpoint.id);
+        if (checkpoint._origin === "server")
+          emitNet("ragemp:checkpoint:enter", checkpoint.id);
       } else if (!isInside && this._insideCheckpoints.has(checkpoint.id)) {
         this._insideCheckpoints.delete(checkpoint.id);
         this._fire("playerExitCheckpoint", localPlayer, checkpoint);
-        if (checkpoint._origin === "server") emitNet("ragemp:checkpoint:exit", checkpoint.id);
+        if (checkpoint._origin === "server")
+          emitNet("ragemp:checkpoint:exit", checkpoint.id);
       }
     }
 
@@ -400,7 +457,12 @@ export class EventManager extends EventEmitter {
         const wy = coords[1];
         const wz = coords[2];
 
-        if (!this._waypointActive || wx !== this._waypointX || wy !== this._waypointY || wz !== this._waypointZ) {
+        if (
+          !this._waypointActive ||
+          wx !== this._waypointX ||
+          wy !== this._waypointY ||
+          wz !== this._waypointZ
+        ) {
           this._waypointX = wx;
           this._waypointY = wy;
           this._waypointZ = wz;
@@ -445,7 +507,11 @@ export class EventManager extends EventEmitter {
       if (trailerNetId !== (this._lastTrailerNetId ?? 0)) {
         this._lastTrailerNetId = trailerNetId;
         if (trailerNetId !== 0) {
-          emitNet("ragemp:trailerAttached", safeGetNetworkId(vehPed), trailerNetId);
+          emitNet(
+            "ragemp:trailerAttached",
+            safeGetNetworkId(vehPed),
+            trailerNetId,
+          );
         }
       }
     } else {
@@ -459,7 +525,12 @@ export class EventManager extends EventEmitter {
     const currentModel = GetEntityModel(ped);
     if (currentModel !== (this._lastPedModel ?? 0)) {
       if (this._lastPedModel !== undefined) {
-        emitNet("ragemp:entityModelChange", 0, this._lastPedModel, currentModel);
+        emitNet(
+          "ragemp:entityModelChange",
+          0,
+          this._lastPedModel,
+          currentModel,
+        );
       }
       this._lastPedModel = currentModel;
     }
@@ -481,7 +552,9 @@ export class EventManager extends EventEmitter {
     const isShooting = IsPedShooting(ped);
     if (isShooting && !this._wasShooting) {
       const [hit, impactCoords] = GetPedLastWeaponImpactCoord(ped);
-      const targetPos = hit ? { x: impactCoords[0], y: impactCoords[1], z: impactCoords[2] } : null;
+      const targetPos = hit
+        ? { x: impactCoords[0], y: impactCoords[1], z: impactCoords[2] }
+        : null;
       this._fire("playerWeaponShot", localPlayer, targetPos, 0);
     }
     this._wasShooting = isShooting;
@@ -509,11 +582,15 @@ export class EventManager extends EventEmitter {
       const isStreamed = pPed !== 0 && DoesEntityExist(pPed);
       if (isStreamed && !this._streamedPlayers.has(p)) {
         this._streamedPlayers.add(p);
-        const remoteMp = globalThis.mp?.players?.atRemoteId?.(GetPlayerServerId(p));
+        const remoteMp = globalThis.mp?.players?.atRemoteId?.(
+          GetPlayerServerId(p),
+        );
         this._fire("playerStreamIn", remoteMp ?? p);
       } else if (!isStreamed && this._streamedPlayers.has(p)) {
         this._streamedPlayers.delete(p);
-        const remoteMp = globalThis.mp?.players?.atRemoteId?.(GetPlayerServerId(p));
+        const remoteMp = globalThis.mp?.players?.atRemoteId?.(
+          GetPlayerServerId(p),
+        );
         this._fire("playerStreamOut", remoteMp ?? p);
       }
     }
@@ -524,14 +601,18 @@ export class EventManager extends EventEmitter {
     for (const p of activePlayers) {
       if (!this._connectedPlayers.has(p)) {
         this._connectedPlayers.add(p);
-        const joinedMp = globalThis.mp?.players?.atRemoteId?.(GetPlayerServerId(p));
+        const joinedMp = globalThis.mp?.players?.atRemoteId?.(
+          GetPlayerServerId(p),
+        );
         this._fire("playerJoin", joinedMp ?? p);
       }
     }
     for (const p of this._connectedPlayers) {
       if (!activeSet.has(p)) {
         this._connectedPlayers.delete(p);
-        const quitMp = globalThis.mp?.players?.atRemoteId?.(GetPlayerServerId(p));
+        const quitMp = globalThis.mp?.players?.atRemoteId?.(
+          GetPlayerServerId(p),
+        );
         this._fire("playerQuit", quitMp ?? p, "quit", "");
       }
     }
@@ -540,11 +621,15 @@ export class EventManager extends EventEmitter {
       const isTalking = NetworkIsPlayerTalking(p);
       if (isTalking && !this._talkingPlayers.has(p)) {
         this._talkingPlayers.add(p);
-        const talkingMp = globalThis.mp?.players?.atRemoteId?.(GetPlayerServerId(p));
+        const talkingMp = globalThis.mp?.players?.atRemoteId?.(
+          GetPlayerServerId(p),
+        );
         this._fire("playerStartTalking", talkingMp ?? p);
       } else if (!isTalking && this._talkingPlayers.has(p)) {
         this._talkingPlayers.delete(p);
-        const talkingMp = globalThis.mp?.players?.atRemoteId?.(GetPlayerServerId(p));
+        const talkingMp = globalThis.mp?.players?.atRemoteId?.(
+          GetPlayerServerId(p),
+        );
         this._fire("playerStopTalking", talkingMp ?? p);
       }
     }
@@ -618,7 +703,12 @@ export class EventManager extends EventEmitter {
     onNet("ragemp:callProc", async (procName, reqId, ...args) => {
       const handler = this._procs.get(procName);
       if (!handler) {
-        emitNet("ragemp:callProcResult", reqId, `Proc not found: ${procName}`, null);
+        emitNet(
+          "ragemp:callProcResult",
+          reqId,
+          `Proc not found: ${procName}`,
+          null,
+        );
         return;
       }
       try {

@@ -1,6 +1,7 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
 import { BlipMp } from "../Entities/BlipMp";
 import { applyBlipName } from "../utils/blipName";
+import { isVisibleHere, onDimensionChange } from "../utils/dimension";
 
 let localBlipIdCounter = 100000;
 
@@ -8,10 +9,17 @@ export class BlipMpPool extends Pool {
   constructor() {
     super();
     this._setupServerSync();
+    onDimensionChange(() => this.forEach((blip) => this._applyVisibility(blip)));
   }
 
   atRemoteId(remoteId) {
     return this.at(remoteId);
+  }
+
+  _applyVisibility(blip) {
+    if (!blip._handle || !DoesBlipExist(blip._handle)) return;
+    const shown = isVisibleHere(blip._dimension);
+    SetBlipAlpha(blip._handle, shown ? blip._alpha : 0);
   }
 
   _createFromData(data) {
@@ -19,7 +27,6 @@ export class BlipMpPool extends Pool {
     SetBlipSprite(handle, data.sprite);
     SetBlipColour(handle, data.color);
     SetBlipScale(handle, data.scale);
-    SetBlipAlpha(handle, data.alpha);
     SetBlipAsShortRange(handle, data.shortRange);
     applyBlipName(handle, data.name);
 
@@ -27,6 +34,9 @@ export class BlipMpPool extends Pool {
     blip._name = data.name;
     blip._shortRange = data.shortRange;
     blip._scale = data.scale;
+    blip._alpha = data.alpha ?? 255;
+    blip._dimension = data.dimension ?? 0;
+    this._applyVisibility(blip);
     this._add(blip);
 
     if (data.name) {
@@ -60,8 +70,9 @@ export class BlipMpPool extends Pool {
         existing.sprite = data.sprite;
         existing.color = data.color;
         existing.scale = data.scale;
-        existing.alpha = data.alpha;
+        existing._alpha = data.alpha ?? 255;
         existing.shortRange = data.shortRange;
+        existing.dimension = data.dimension ?? 0;
         if (data.name) existing.name = data.name;
       }
     });
@@ -91,7 +102,6 @@ export class BlipMpPool extends Pool {
     SetBlipSprite(handle, sprite);
     if (options.color !== undefined) SetBlipColour(handle, options.color);
     if (options.scale !== undefined) SetBlipScale(handle, options.scale);
-    if (options.alpha !== undefined) SetBlipAlpha(handle, options.alpha);
     if (options.shortRange !== undefined) SetBlipAsShortRange(handle, options.shortRange);
 
     applyBlipName(handle, options.name);
@@ -100,6 +110,9 @@ export class BlipMpPool extends Pool {
     blip._name = options.name ?? "";
     blip._shortRange = options.shortRange ?? false;
     blip._scale = options.scale ?? 1.0;
+    blip._alpha = options.alpha ?? 255;
+    blip._dimension = options.dimension ?? 0;
+    this._applyVisibility(blip);
     this._add(blip);
 
     return blip;

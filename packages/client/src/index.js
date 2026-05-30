@@ -3,6 +3,7 @@ import { Mp } from "./Mp";
 import * as spawnmanager from "./Plugins/builtin/spawnmanager";
 import * as vehicleSync from "./Plugins/builtin/vehicle-sync";
 import * as rageRpc from "./Plugins/builtin/rage-rpc";
+import { setLocalDimension } from "./utils/dimension";
 
 if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "library") {
   globalThis.mp = new Mp();
@@ -79,6 +80,10 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
   globalThis.mp.events.add("playerSpawn", () => {
     if (_clothesState.size) ensureClothesApplied();
     if (_customization) applyCustomization();
+  });
+
+  onNet("ragemp:setDimension", (dimension) => {
+    setLocalDimension(dimension);
   });
 
   onNet("ragemp:giveWeapon", (weaponHash, ammo) => {

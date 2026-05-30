@@ -11,6 +11,7 @@ export class ObjectMpPool extends HandlePool {
     const handle = CreateObjectNoOffset(modelHash, position.x, position.y, position.z, true, true, false);
     const id = ++objectIdCounter;
     const obj = new ObjectMp(id, handle);
+    obj._model = modelHash;
 
     if (options.rotation) {
       obj.rotation = options.rotation;

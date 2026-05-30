@@ -12,27 +12,15 @@ The bridge reimplements the full `mp.*` API surface on top of FiveM natives — 
 
 ---
 
-## Modes
+## Setup
 
-|            | Standalone                                      | Bundled (CLI)                                     |
-| ---------- | ----------------------------------------------- | ------------------------------------------------- |
-| Best for   | Existing FiveM servers with multiple resources  | RAGE:MP gamemodes shipped as a single resource    |
-| Setup      | Add one shared resource, opt in via `@`-imports | Use the CLI to compile everything into one output |
-| Build step | None                                            | `mp-fivem build`                                  |
-
----
-
-## Standalone mode
-
-Install the bridge once, shared across any resource that opts in.
+The bridge is installed once as a shared resource, and any resource opts in via `@`-imports.
 
 **1. Get the bridge resource**
 
-```bash
-npx mp-fivem pack-bridge --out /your/fivem/resources
-```
-
-Or download a release and drop the `ragemp-fivem-bridge/` folder into your `resources/` directory.
+Download a release and drop the `ragemp-fivem-bridge/` folder into your `resources/`
+directory. (Or build from source and assemble it manually — see
+[docs/02-server-structure](docs/02-server-structure.md#where-the-bridge-files-come-from).)
 
 **2. `server.cfg`**
 
@@ -89,120 +77,7 @@ const browser = mp.browsers.new("index.html"); // relative to ui/host.html
 ```
 
 > See [`docs/`](docs/) for a head-to-tail tutorial on server structure, where the bridge
-> goes, handling multi-file `packages/` / `client_packages/`, and both standalone and CLI setups.
-
----
-
-## Bundled mode (CLI)
-
-The CLI compiles your RAGE:MP gamemode and the bridge into a single self-contained FiveM resource.
-
-**Scaffold a new project**
-
-```bash
-npx mp-fivem init my-server
-cd my-server
-```
-
-This creates a ready-to-run project with server, client, and NUI entry points, installs dependencies, and generates `bridge.config.json`.
-
-**Start development**
-
-```bash
-npm run dev
-# or
-npx mp-fivem dev
-```
-
-Rebuilds on every file change and outputs to `dist/my-server/`.
-
-**Production build**
-
-```bash
-npm run build
-# or
-npx mp-fivem build
-```
-
-**Deploy directly to your FiveM server**
-
-```bash
-npx mp-fivem build --server /path/to/fivem/resources
-```
-
-Or set it once in `bridge.config.json`:
-
-```json
-{
-  "name": "my-server",
-  "server": "src/server/index.js",
-  "client": "src/client/index.js",
-  "cef": "src/cef",
-  "output": "dist",
-  "serverPath": "/path/to/fivem/resources"
-}
-```
-
-Then `npm run build` deploys automatically.
-
----
-
-## CLI reference
-
-```
-mp-fivem <command> [options]
-
-COMMANDS
-  init [name]         Scaffold a new bundled-mode project.
-  build               Build the project into a FiveM resource.
-  dev                 Build in watch mode with source maps (development).
-  deploy              Copy the last build to your FiveM server.
-  pack-bridge         Package the bridge as a standalone FiveM resource.
-
-OPTIONS (build / dev)
-  --config <path>     Path to bridge.config.json  [default: ./bridge.config.json]
-  --out <dir>         Override the output directory.
-  --server <dir>      FiveM resources folder to deploy into after build.
-  --minify / --no-minify
-  --source-map        Emit inline source maps.
-
-OPTIONS (init)
-  --no-install        Skip automatic dependency installation.
-
-OPTIONS (deploy)
-  --server <dir>      FiveM resources folder.
-
-OPTIONS (pack-bridge)
-  --out <dir>         Output directory  [default: ./dist/ragemp-fivem-bridge]
-```
-
----
-
-## `bridge.config.json`
-
-```json
-{
-  "name": "my-server",
-  "server": "src/server/index.js",
-  "client": "src/client/index.js",
-  "cef": "src/cef",
-  "assets": [],
-  "output": "dist",
-  "minify": true,
-  "serverPath": "/optional/path/to/fivem/resources"
-}
-```
-
-| Field        | Description                               |
-| ------------ | ----------------------------------------- |
-| `name`       | Resource name (folder name in `output/`)  |
-| `server`     | Server entry point                        |
-| `client`     | Client entry point                        |
-| `cef`        | NUI source directory                      |
-| `assets`     | Extra files/globs to copy into the output |
-| `output`     | Build output directory                    |
-| `minify`     | Minify output (default `true`)            |
-| `serverPath` | Auto-deploy destination (optional)        |
+> goes, and handling multi-file `packages/` / `client_packages/` gamemodes.
 
 ---
 
@@ -314,7 +189,7 @@ The bridge mirrors the RAGE:MP event model, where some events are **reported by 
 
 ## Contributing
 
-Contributions are welcome — bug fixes, new `mp.*` API implementations, improved CLI features, or documentation improvements.
+Contributions are welcome — bug fixes, new `mp.*` API implementations, or documentation improvements.
 
 1. Fork the repo and create a branch.
 2. Make your changes. Run `pnpm build` to verify everything compiles.

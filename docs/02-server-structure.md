@@ -1,6 +1,6 @@
 # Server structure
 
-## A FiveM server using the bridge (standalone)
+## A FiveM server using the bridge
 
 ```
 your-fivem-server/
@@ -41,32 +41,46 @@ If you use `mp.gui.takeScreenshot`, also `ensure screenshot-basic` first.
 
 ## Where the bridge files come from
 
-Build the monorepo once, then pack the standalone resource:
+Two options:
+
+**Download a release.** Grab `ragemp-fivem-bridge-<version>.zip` from the GitHub releases
+page and drop the extracted `ragemp-fivem-bridge/` folder into `resources/`. It already
+contains `server.js`, `client.js`, `ui/_bridge.js`, and a ready `fxmanifest.lua`.
+
+**Build from source.** Build the monorepo and copy the bundles into a resource folder:
 
 ```bash
 pnpm install && pnpm run build
-npx mp-fivem pack-bridge --out /path/to/your-fivem-server/resources
 ```
 
-`pack-bridge` copies the freshly built `server.js`, `client.js`, and `ui/_bridge.js` into
-a `ragemp-fivem-bridge/` folder with a ready `fxmanifest.lua`.
+Then create `resources/ragemp-fivem-bridge/` and copy:
 
-## A bundled (CLI) server
+| From (repo) | To (resource) |
+| --- | --- |
+| `packages/server/dist/index.js` | `server.js` |
+| `packages/client/dist/index.js` | `client.js` |
+| `packages/cef/dist/index.js` | `ui/_bridge.js` |
 
-In bundled mode there is no shared bridge resource — each built gamemode is fully
-self-contained:
+with this `fxmanifest.lua`:
 
+```lua
+fx_version 'cerulean'
+game 'gta5'
+
+name 'ragemp-fivem-bridge'
+description 'Standalone RAGE:MP -> FiveM bridge.'
+version '1.0.0'
+
+ragemp_bridge 'library'
+
+server_script 'server.js'
+client_script 'client.js'
+
+files {
+    'ui/_bridge.js'
+}
 ```
-your-fivem-server/resources/
-└─ my-server/                     ← `mp-fivem build` output
-   ├─ fxmanifest.lua
-   ├─ server.js                   ← bridge + your server code, bundled
-   ├─ client.js                   ← bridge + your client code, bundled
-   └─ ui/                          ← your CEF, with _bridge.js injected
-```
 
-```cfg
-ensure my-server
-```
-
-See the tutorials for the exact steps in each mode.
+The `ragemp_bridge 'library'` line is required — it marks the resource as the bridge
+library so the scripts don't self-initialize `mp` inside it. See
+[03-standalone-tutorial](03-standalone-tutorial.md) for opting your gamemode in.

@@ -34,35 +34,25 @@ to pass values between files), or is it just many scripts that all talk through 
 
 ## Case 1 — You have an entrypoint that `require()`s other files (a module graph)
 
-Use **Bundled / CLI** mode. The bundler starts at your entrypoint and follows the imports,
-exactly like RAGE loaded `index.js`.
+FiveM's script host does not run a module graph for you, so you have two options:
 
-`bridge.config.json`:
+**A. Bundle it yourself.** Point any JS bundler (rollup, esbuild, webpack…) at your
+`index.js` entrypoint and emit a single **IIFE** file (FiveM's v8 host does not load
+native ES modules). List the bundled output in `fxmanifest.lua` after the bridge:
 
-```json
-{
-  "name": "mygamemode",
-  "server": "packages/mygamemode/index.js",
-  "client": "client_packages/index.js",
-  "cef": "client_packages/ui",
-  "output": "dist"
+```lua
+server_scripts {
+  '@ragemp-fivem-bridge/server.js',   -- bridge first
+  'dist/server.js',                   -- your bundled output
 }
 ```
 
-Then:
+- You do **not** import `mp` — it's the global the bridge installs. Treat it as external
+  (e.g. mark it global in your bundler so it isn't resolved/inlined).
+- Prefer ES `import` over CommonJS `require` if your bundler resolves ESM.
 
-```bash
-npx mp-fivem build --server /path/to/fivem/resources
-```
-
-Notes:
-- Prefer ES `import` over CommonJS `require` (the bundler resolves ESM + node modules).
-  `const x = require("./accounts")` → `import { x } from "./accounts.js"`.
-- You do **not** import `mp` — it's the global the bridge installs.
-- One output resource contains the bridge + your whole graph. No `@ragemp-fivem-bridge`
-  references needed.
-
-This is the closest 1:1 to how RAGE ran your `index.js`.
+**B. Flatten it** into independent scripts and use Case 2 below — usually simplest if the
+files only ever talked through the global `mp`.
 
 ---
 
@@ -104,16 +94,15 @@ Mechanical conversion:
 
 ## "Do I need an `index.js` entrypoint on FiveM?"
 
-- **Standalone:** No. The manifest's script list *is* the load order. Keep an `index.js`
-  only if you like having one place for bootstrap logic — list it last.
-- **Bundled/CLI:** Yes — the config points at one `server`/`client` entry, and everything
-  it imports is bundled. That entry is your `index.js`.
+No. The manifest's script list *is* the load order. Keep an `index.js` only if you like
+having one place for bootstrap logic — list it last. (If you bundle a module graph
+yourself, that bundle has its own internal entrypoint, but FiveM still just loads the one
+output file you list.)
 
 ## Load order matters
 
-In both modes:
-- The **bridge** must initialize before your code (`@ragemp-fivem-bridge/server.js` first
-  in standalone; the CLI does this for you in bundled mode).
+- The **bridge** must initialize before your code — list `@ragemp-fivem-bridge/server.js`
+  (and `client.js`) first.
 - A file that defines something another file uses *at load time* must be listed first.
   Code inside event handlers runs later, so handler-registration order rarely matters.
 

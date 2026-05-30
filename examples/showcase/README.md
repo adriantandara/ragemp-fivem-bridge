@@ -19,11 +19,9 @@ via `@`-imports, and each file is a plain RAGE:MP-style script using the global 
 
 ## Install
 
-1. Build & pack the bridge as a standalone resource:
-   ```bash
-   pnpm install && pnpm run build
-   npx mp-fivem pack-bridge --out /path/to/server/resources
-   ```
+1. Get the `ragemp-fivem-bridge` resource into your server's `resources/` — download a
+   release zip, or build from source and assemble it manually (see
+   [docs/02-server-structure](../../docs/02-server-structure.md#where-the-bridge-files-come-from)).
 2. Copy this `showcase/` folder into the same `resources/` directory.
 3. Copy the bridge's NUI runtime next to the UI so the relative `<script src="_bridge.js">` resolves:
    ```bash

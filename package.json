@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "turbo run build --filter=!.",
-    "build:dev": "cross-env DEV=1 turbo run build --filter=!.",
-    "build:resource": "node packages/cli/bin/mp-fivem.js build",
-    "pack-bridge": "node packages/cli/bin/mp-fivem.js pack-bridge"
+    "build:dev": "cross-env DEV=1 turbo run build --filter=!."
   },
   "license": "ISC",
   "packageManager": "pnpm@10.28.2",

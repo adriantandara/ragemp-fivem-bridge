@@ -1,9 +1,0 @@
-{
-  "name": "basic",
-  "server": "src/server/index.js",
-  "client": "src/client/index.js",
-  "cef": "src/cef",
-  "assets": [],
-  "output": "dist",
-  "minify": true
-}

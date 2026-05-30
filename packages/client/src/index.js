@@ -27,59 +27,49 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
     headOverlays: new Map(),
     decorations: [],
   };
-  let _appearanceTick = null;
-  let _appearanceDeadline = 0;
-  let _appearanceApplied = false;
+  let _clothesTick = null;
+  let _clothesDeadline = 0;
 
-  function isFreemodeModel(model) {
-    const m = model >>> 0;
-    return m === (GetHashKey("mp_m_freemode_01") >>> 0) || m === (GetHashKey("mp_f_freemode_01") >>> 0);
+  function applyHeadBlend(ped) {
+    const b = _appearance.headBlend;
+    if (!b) return;
+    SetPedHeadBlendData(
+      ped,
+      b.shapeFirst | 0, b.shapeSecond | 0, b.shapeThird | 0,
+      b.skinFirst | 0, b.skinSecond | 0, b.skinThird | 0,
+      b.shapeMix || 0, b.skinMix || 0, b.thirdMix || 0,
+      false
+    );
+  }
+
+  function applyFaceFeatures(ped) {
+    for (const [index, scale] of _appearance.faceFeatures) SetPedFaceFeature(ped, index | 0, scale);
+  }
+
+  function applyHeadOverlay(ped, overlay, p) {
+    SetPedHeadOverlay(ped, overlay | 0, p.value | 0, p.opacity ?? 1.0);
+    if (p.color !== undefined && p.color !== null) {
+      SetPedHeadOverlayColor(ped, overlay | 0, p.colorType ?? 1, p.color | 0, (p.secondColor ?? p.color) | 0);
+    }
+  }
+
+  function applyDecorations(ped) {
+    ClearPedDecorations(ped);
+    for (const d of _appearance.decorations) {
+      const c = typeof d.collection === "string" ? GetHashKey(d.collection) : d.collection;
+      const o = typeof d.overlay === "string" ? GetHashKey(d.overlay) : d.overlay;
+      AddPedDecorationFromHashes(ped, c, o);
+    }
   }
 
   function applyAppearance(ped) {
     const a = _appearance;
-    if (a.headBlend) {
-      const b = a.headBlend;
-      SetPedHeadBlendData(
-        ped,
-        b.shapeFirst | 0, b.shapeSecond | 0, b.shapeThird | 0,
-        b.skinFirst | 0, b.skinSecond | 0, b.skinThird | 0,
-        b.shapeMix || 0, b.skinMix || 0, b.thirdMix || 0,
-        false
-      );
-    }
+    if (a.headBlend) applyHeadBlend(ped);
     if (a.eyeColor != null) SetPedEyeColor(ped, a.eyeColor | 0);
     if (a.hairColor) SetPedHairColor(ped, a.hairColor.color | 0, (a.hairColor.highlight ?? a.hairColor.color) | 0);
-    for (const [index, scale] of a.faceFeatures) SetPedFaceFeature(ped, index | 0, scale);
-    for (const [overlay, p] of a.headOverlays) {
-      SetPedHeadOverlay(ped, overlay | 0, p.value | 0, p.opacity ?? 1.0);
-      if (p.color !== undefined && p.color !== null) {
-        SetPedHeadOverlayColor(ped, overlay | 0, p.colorType ?? 1, p.color | 0, (p.secondColor ?? p.color) | 0);
-      }
-    }
-    if (a.decorations.length) {
-      ClearPedDecorations(ped);
-      for (const d of a.decorations) {
-        const c = typeof d.collection === "string" ? GetHashKey(d.collection) : d.collection;
-        const o = typeof d.overlay === "string" ? GetHashKey(d.overlay) : d.overlay;
-        AddPedDecorationFromHashes(ped, c, o);
-      }
-    }
-  }
-
-  function hasAppearance() {
-    const a = _appearance;
-    return !!(a.headBlend || a.eyeColor != null || a.hairColor || a.faceFeatures.size || a.headOverlays.size || a.decorations.length);
-  }
-
-  function applyAppearanceOnce() {
-    if (!hasAppearance()) return true;
-    const ped = PlayerPedId();
-    if (!ped || ped === 0) return false;
-    if (_appearance.headBlend && !isFreemodeModel(GetEntityModel(ped))) return false;
-    applyAppearance(ped);
-    _appearanceApplied = true;
-    return true;
+    applyFaceFeatures(ped);
+    for (const [overlay, p] of a.headOverlays) applyHeadOverlay(ped, overlay, p);
+    if (a.decorations.length) applyDecorations(ped);
   }
 
   function applyOneClothes(ped, component, c) {
@@ -118,23 +108,27 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
     return true;
   }
 
-  function ensureAppearance() {
-    _appearanceApplied = false;
-    _appearanceDeadline = GetGameTimer() + 10000;
-    if (_appearanceTick !== null) return;
-    _appearanceTick = setTick(() => {
-      const faceOk = _appearanceApplied || applyAppearanceOnce();
-      const clothesOk = !_clothesState.size || applyAllClothes();
-      const propsOk = !_propsState.size || applyAllProps();
-      if ((faceOk && clothesOk && propsOk) || GetGameTimer() > _appearanceDeadline) {
-        clearTick(_appearanceTick);
-        _appearanceTick = null;
+  function ensureClothesApplied() {
+    _clothesDeadline = GetGameTimer() + 10000;
+    if (_clothesTick !== null) return;
+    _clothesTick = setTick(() => {
+      if (!_clothesState.size || applyAllClothes() || GetGameTimer() > _clothesDeadline) {
+        clearTick(_clothesTick);
+        _clothesTick = null;
       }
     });
   }
 
+  function reapplyAppearance() {
+    const ped = PlayerPedId();
+    if (!ped || ped === 0) return;
+    applyAppearance(ped);
+    applyAllProps();
+    ensureClothesApplied();
+  }
+
   globalThis.mp.events.add("playerSpawn", () => {
-    ensureAppearance();
+    reapplyAppearance();
   });
 
   onNet("ragemp:setDimension", (dimension) => {
@@ -155,7 +149,7 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
 
   onNet("ragemp:setClothes", (component, drawable, texture, palette) => {
     _clothesState.set(component, [drawable, texture, palette]);
-    ensureAppearance();
+    ensureClothesApplied();
   });
 
   onNet("ragemp:setModel", (model) => {
@@ -168,7 +162,8 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
         SetPlayerModel(PlayerId(), model);
         SetModelAsNoLongerNeeded(model);
         SetPedDefaultComponentVariation(PlayerPedId());
-        ensureAppearance();
+        reapplyAppearance();
+        setTimeout(reapplyAppearance, 250);
       } else if (++tries > 100) {
         clearInterval(timer);
       }
@@ -177,22 +172,29 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
 
   onNet("ragemp:setProp", (prop, drawable, texture) => {
     _propsState.set(prop, [drawable, texture]);
-    ensureAppearance();
+    const ped = PlayerPedId();
+    if (ped && ped !== 0) {
+      if (drawable < 0) ClearPedProp(ped, prop);
+      else SetPedPropIndex(ped, prop, drawable, texture, true);
+    }
   });
 
   onNet("ragemp:setEyeColor", (index) => {
     _appearance.eyeColor = index;
-    ensureAppearance();
+    const ped = PlayerPedId();
+    if (ped && ped !== 0) SetPedEyeColor(ped, index | 0);
   });
 
   onNet("ragemp:setHairColor", (color, highlight) => {
     _appearance.hairColor = { color, highlight: highlight ?? color };
-    ensureAppearance();
+    const ped = PlayerPedId();
+    if (ped && ped !== 0) SetPedHairColor(ped, color | 0, (highlight ?? color) | 0);
   });
 
   onNet("ragemp:setFaceFeature", (index, scale) => {
     _appearance.faceFeatures.set(index, scale);
-    ensureAppearance();
+    const ped = PlayerPedId();
+    if (ped && ped !== 0) SetPedFaceFeature(ped, index | 0, scale);
   });
 
   onNet("ragemp:setHeadBlend", (sf, ss, st, kf, ks, kt, shapeMix, skinMix, thirdMix) => {
@@ -201,7 +203,11 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
       skinFirst: kf, skinSecond: ks, skinThird: kt ?? 0,
       shapeMix: shapeMix ?? 0, skinMix: skinMix ?? 0, thirdMix: thirdMix ?? 0,
     };
-    ensureAppearance();
+    const ped = PlayerPedId();
+    if (ped && ped !== 0) {
+      applyHeadBlend(ped);
+      applyFaceFeatures(ped);
+    }
   });
 
   onNet("ragemp:updateHeadBlend", (shapeMix, skinMix, thirdMix) => {
@@ -215,17 +221,31 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
     _appearance.headBlend.shapeMix = shapeMix ?? 0;
     _appearance.headBlend.skinMix = skinMix ?? 0;
     _appearance.headBlend.thirdMix = thirdMix ?? 0;
-    ensureAppearance();
+    const ped = PlayerPedId();
+    if (ped && ped !== 0) {
+      if (typeof UpdatePedHeadBlendData === "function") {
+        UpdatePedHeadBlendData(ped, shapeMix ?? 0, skinMix ?? 0, thirdMix ?? 0);
+      } else {
+        applyHeadBlend(ped);
+      }
+    }
   });
 
   onNet("ragemp:setHeadOverlay", (overlay, params) => {
-    _appearance.headOverlays.set(overlay, params || {});
-    ensureAppearance();
+    const p = params || {};
+    _appearance.headOverlays.set(overlay, p);
+    const ped = PlayerPedId();
+    if (ped && ped !== 0) applyHeadOverlay(ped, overlay, p);
   });
 
   onNet("ragemp:setDecoration", (collection, overlay) => {
     _appearance.decorations.push({ collection, overlay });
-    ensureAppearance();
+    const ped = PlayerPedId();
+    if (ped && ped !== 0) {
+      const c = typeof collection === "string" ? GetHashKey(collection) : collection;
+      const o = typeof overlay === "string" ? GetHashKey(overlay) : overlay;
+      AddPedDecorationFromHashes(ped, c, o);
+    }
   });
 
   onNet("ragemp:clearDecorations", () => {
@@ -250,7 +270,8 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
         _appearance.faceFeatures.set(i, params.faceFeatures[i] ?? 0);
       }
     }
-    ensureAppearance();
+    const ped = PlayerPedId();
+    if (ped && ped !== 0) applyAppearance(ped);
   });
 
   onNet("ragemp:setWeapon", (weapon) => {

@@ -1,6 +1,17 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
+import { ensureNuiPauseGuard } from "../utils/nuiFocus";
 
 let _procCounter = 0;
+
+function postFocusState(browserId, active) {
+  if (typeof SendNuiMessage !== "function") return;
+  SendNuiMessage(
+    JSON.stringify({
+      type: active ? "__ragemp:browser:focus" : "__ragemp:browser:blur",
+      browserId,
+    })
+  );
+}
 const _pendingProcs = new Map();
 
 if (typeof RegisterNuiCallbackType === "function") {
@@ -59,6 +70,8 @@ export class BrowserMp extends Entity {
   set active(value) {
     this._active = !!value;
     SetNuiFocus(this._active, this._active);
+    postFocusState(this.id, this._active);
+    if (this._active) ensureNuiPauseGuard();
   }
 
   execute(code) {
@@ -127,6 +140,7 @@ export class BrowserMp extends Entity {
       this._active = false;
       SetNuiFocus(false, false);
     }
+    postFocusState(this.id, false);
     const pool = globalThis.mp?.browsers;
     if (pool && pool._chatBrowser === this) pool._chatBrowser = null;
     SendNuiMessage(JSON.stringify({ type: "__ragemp:browser:destroy", browserId: this.id }));

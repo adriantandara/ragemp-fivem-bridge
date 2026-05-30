@@ -5,6 +5,23 @@ export function startManager() {
   const { handlePayload } = createRuntime();
   const frames = new Map();
   const HOST_RESOURCE = resourceName();
+  let focusedBrowserId = null;
+
+  function focusFrame(browserId) {
+    const entry = frames.get(browserId);
+    if (!entry || !entry.iframe) return;
+    try {
+      if (entry.iframe.contentWindow) entry.iframe.contentWindow.focus();
+    } catch (e) {}
+    try {
+      entry.iframe.focus();
+    } catch (e) {}
+  }
+
+  function setFocusedBrowser(browserId) {
+    focusedBrowserId = browserId;
+    if (browserId !== null && browserId !== undefined) focusFrame(browserId);
+  }
 
   log(
     "manager ready on",
@@ -136,7 +153,10 @@ export function startManager() {
 
     iframe.addEventListener("load", () => {
       log("iframe loaded", browserId);
-      tryInjectBridge(iframe, browserId, () => flush(entry, browserId));
+      tryInjectBridge(iframe, browserId, () => {
+        flush(entry, browserId);
+        if (focusedBrowserId === browserId) focusFrame(browserId);
+      });
     });
 
     const inlineHtml = /^data:text\/html/i.test(url)
@@ -178,6 +198,7 @@ export function startManager() {
       frames.delete(browserId);
       log("destroyed browser", browserId);
     }
+    if (focusedBrowserId === browserId) focusedBrowserId = null;
   }
 
   function forward(browserId, inner) {
@@ -258,15 +279,20 @@ export function startManager() {
   );
 
   window.addEventListener("message", (nativeEvent) => {
+    const data = nativeEvent.data;
+    if (!data || typeof data !== "object") return;
+
+    if (data.type === "__ragemp:keyFromFrame") {
+      toClient("ragemp:__keyEvent", { code: data.code, down: !!data.down });
+      return;
+    }
+
     const src = nativeEvent.source;
     if (src) {
       for (const entry of frames.values()) {
         if (entry.iframe && entry.iframe.contentWindow === src) return;
       }
     }
-
-    const data = nativeEvent.data;
-    if (!data || typeof data !== "object") return;
 
     if (
       typeof data.type === "string" &&
@@ -278,6 +304,12 @@ export function startManager() {
     switch (data.type) {
       case "__ragemp:browser:create":
         createBrowser(data.browserId, data.url);
+        return;
+      case "__ragemp:browser:focus":
+        setFocusedBrowser(data.browserId);
+        return;
+      case "__ragemp:browser:blur":
+        if (focusedBrowserId === data.browserId) focusedBrowserId = null;
         return;
       case "__ragemp:browser:destroy":
         destroyBrowser(data.browserId);

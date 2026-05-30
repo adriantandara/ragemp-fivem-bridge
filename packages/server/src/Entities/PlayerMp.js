@@ -506,24 +506,18 @@ export class PlayerMp extends Entity {
     emitNet(eventName, this.id, ...(Array.isArray(args) ? args : args == null ? [] : [args]));
   }
 
-  _ensureProcListener(procName) {
-    if (!this._procListeners) this._procListeners = new Set();
-    if (this._procListeners.has(procName)) return;
-    this._procListeners.add(procName);
-    onNet(`ragemp:procResult:${procName}`, (resultReqId, error, result) => {
-      const entry = this._pendingProcs?.get(resultReqId);
-      if (!entry || entry.procName !== procName) return;
-      if (entry.timer) clearTimeout(entry.timer);
-      this._pendingProcs.delete(resultReqId);
-      if (error) entry.reject(new Error(error));
-      else entry.resolve(result);
-    });
+  _resolveProc(reqId, error, result) {
+    const entry = this._pendingProcs?.get(reqId);
+    if (!entry) return;
+    if (entry.timer) clearTimeout(entry.timer);
+    this._pendingProcs.delete(reqId);
+    if (error) entry.reject(new Error(error));
+    else entry.resolve(result);
   }
 
   callProc(procName, ...args) {
     if (!this._pendingProcs) this._pendingProcs = new Map();
     if (this._procCounter === undefined) this._procCounter = 0;
-    this._ensureProcListener(procName);
     return new Promise((resolve, reject) => {
       const reqId = ++this._procCounter;
       const timer = setTimeout(() => {

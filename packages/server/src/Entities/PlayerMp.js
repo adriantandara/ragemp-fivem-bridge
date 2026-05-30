@@ -523,8 +523,22 @@ export class PlayerMp extends Entity {
     emitNet(eventName, this.id, ...(Array.isArray(args) ? args : args == null ? [] : [args]));
   }
 
-  callToStreamed(eventName, args) {
-    emitNet(eventName, this.id, ...(Array.isArray(args) ? args : args == null ? [] : [args]));
+  callToStreamed(includeSelf, eventName, args) {
+    if (typeof includeSelf === "string") {
+      args = eventName;
+      eventName = includeSelf;
+      includeSelf = false;
+    }
+    const argArray = Array.isArray(args) ? args : args == null ? [] : [args];
+    globalThis.mp.players.forEach((other) => {
+      if (other === this) {
+        if (includeSelf) emitNet(eventName, other.id, ...argArray);
+        return;
+      }
+      if (this.isStreamed(other)) {
+        emitNet(eventName, other.id, ...argArray);
+      }
+    });
   }
 
   _resolveProc(reqId, error, result) {

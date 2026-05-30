@@ -118,7 +118,7 @@ export interface PlayerMp extends EntityMp {
 
   call(eventName: string, ...args: any[]): void;
   callUnreliable(eventName: string, ...args: any[]): void;
-  callToStreamed(eventName: string, ...args: any[]): void;
+  callToStreamed(includeSelf: boolean, eventName: string, args?: any[]): void;
   callProc<T = any>(procName: string, ...args: any[]): Promise<T>;
   cancelPendingProc(): void;
   hasPendingProc(): boolean;

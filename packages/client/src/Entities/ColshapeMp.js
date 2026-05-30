@@ -4,6 +4,8 @@ export class ColshapeMp extends Entity {
   _position;
   _shapeType;
   _params;
+  _dimension = 0;
+  _origin = "local";
 
   constructor(id, shapeType, position, params) {
     super(id, "colshape");
@@ -22,6 +24,14 @@ export class ColshapeMp extends Entity {
 
   set position(value) {
     this._position = value;
+  }
+
+  get dimension() {
+    return this._dimension;
+  }
+
+  set dimension(value) {
+    this._dimension = value;
   }
 
   isPointWithin(point) {

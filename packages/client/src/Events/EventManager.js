@@ -373,9 +373,11 @@ export class EventManager extends EventEmitter {
       if (isInside && !this._insideCheckpoints.has(checkpoint.id)) {
         this._insideCheckpoints.add(checkpoint.id);
         this._fire("playerEnterCheckpoint", localPlayer, checkpoint);
+        if (checkpoint._origin === "server") emitNet("ragemp:checkpoint:enter", checkpoint.id);
       } else if (!isInside && this._insideCheckpoints.has(checkpoint.id)) {
         this._insideCheckpoints.delete(checkpoint.id);
         this._fire("playerExitCheckpoint", localPlayer, checkpoint);
+        if (checkpoint._origin === "server") emitNet("ragemp:checkpoint:exit", checkpoint.id);
       }
     }
 

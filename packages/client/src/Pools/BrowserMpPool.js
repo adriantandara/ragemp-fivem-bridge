@@ -50,7 +50,7 @@ export class BrowserMpPool extends Pool {
   _execCommand(raw) {
     const text = typeof raw === "string" ? raw.trim() : "";
     const command = text.charAt(0) === "/" ? text.slice(1) : text;
-    if (command) ExecuteCommand(command);
+    if (command) emitNet("ragemp:command", command);
   }
 
   _setupNuiListeners() {

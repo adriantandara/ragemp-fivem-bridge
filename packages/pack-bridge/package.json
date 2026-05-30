@@ -1,0 +1,14 @@
+{
+  "name": "@ragemp-fivem-bridge/pack-bridge",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Assembles the built bridge packages into a drop-in standalone FiveM resource.",
+  "bin": {
+    "pack-bridge": "./pack-bridge.mjs"
+  },
+  "scripts": {
+    "pack": "node pack-bridge.mjs"
+  },
+  "license": "ISC"
+}

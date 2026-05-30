@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "build": "turbo run build --filter=!.",
-    "build:dev": "cross-env DEV=1 turbo run build --filter=!."
+    "build:dev": "cross-env DEV=1 turbo run build --filter=!.",
+    "pack-bridge": "node packages/pack-bridge/pack-bridge.mjs",
+    "build:resource": "pnpm run build && node packages/pack-bridge/pack-bridge.mjs"
   },
   "license": "ISC",
   "packageManager": "pnpm@10.28.2",

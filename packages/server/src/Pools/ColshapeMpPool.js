@@ -3,7 +3,7 @@ import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { ColshapeMp } from "../Entities/ColshapeMp";
 import { dimensionsMatch } from "@ragemp-fivem-bridge/shared";
 
-const ENTER_VALIDATION_MARGIN = 2.5;
+const ENTER_VALIDATION_MARGIN = 5.0;
 
 export class ColshapeMpPool extends Pool {
   _inside = new Map();
@@ -52,13 +52,14 @@ export class ColshapeMpPool extends Pool {
       if (inside && inside.has(playerSource)) return;
       if (!dimensionsMatch(colshape.dimension, player.dimension)) return;
 
-      let position;
+      let position = null;
       try {
         position = player.position;
       } catch (e) {
-        return;
+        position = null;
       }
-      if (!position || !colshape.isPointWithin(position, ENTER_VALIDATION_MARGIN)) return;
+      const posKnown = position && (position.x !== 0 || position.y !== 0 || position.z !== 0);
+      if (posKnown && !colshape.isPointWithin(position, ENTER_VALIDATION_MARGIN)) return;
 
       if (!inside) {
         inside = new Set();

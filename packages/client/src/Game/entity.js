@@ -1,4 +1,5 @@
 import { createUnkProxy, toVec3 } from "./_helpers.js";
+import { gtaPedHealthToRage, rageHealthToGtaPed } from "@ragemp-fivem-bridge/shared";
 
 export class GameEntityNs {
   unk = createUnkProxy();
@@ -42,10 +43,20 @@ export class GameEntityNs {
   }
   setHasGravity(entity, toggle) { SetEntityHasGravity(entity, toggle); }
 
-  getHealth(entity) { return GetEntityHealth(entity); }
-  setHealth(entity, health) { SetEntityHealth(entity, health); }
-  getMaxHealth(entity) { return GetEntityMaxHealth(entity); }
-  setMaxHealth(entity, value) { SetEntityMaxHealth(entity, value); }
+  getHealth(entity) {
+    const h = GetEntityHealth(entity);
+    return IsEntityAPed(entity) ? gtaPedHealthToRage(h) : h;
+  }
+  setHealth(entity, health) {
+    SetEntityHealth(entity, IsEntityAPed(entity) ? rageHealthToGtaPed(health) : health);
+  }
+  getMaxHealth(entity) {
+    const h = GetEntityMaxHealth(entity);
+    return IsEntityAPed(entity) ? gtaPedHealthToRage(h) : h;
+  }
+  setMaxHealth(entity, value) {
+    SetEntityMaxHealth(entity, IsEntityAPed(entity) ? rageHealthToGtaPed(value) : value);
+  }
   setCanBeDamaged(entity, toggle) { SetEntityCanBeDamaged(entity, toggle); }
   setProofs(entity, bulletProof, fireProof, explosionProof, collisionProof, meleeProof, p6, p7, drownProof) {
     SetEntityProofs(entity, bulletProof, fireProof, explosionProof, collisionProof, meleeProof, p6 ?? false, p7 ?? false, drownProof ?? false);

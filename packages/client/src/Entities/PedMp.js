@@ -1,4 +1,5 @@
 import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
+import { gtaPedHealthToRage, rageHealthToGtaPed } from "@ragemp-fivem-bridge/shared";
 import { withEntityNatives } from "../utils/native";
 
 export class PedMp extends Entity {
@@ -46,10 +47,17 @@ export class PedMp extends Entity {
   }
 
   get health() {
-    return GetEntityHealth(this._handle);
+    return gtaPedHealthToRage(GetEntityHealth(this._handle));
   }
   set health(value) {
-    SetEntityHealth(this._handle, value);
+    SetEntityHealth(this._handle, rageHealthToGtaPed(value));
+  }
+
+  getHealth() {
+    return gtaPedHealthToRage(GetEntityHealth(this._handle));
+  }
+  setHealth(value) {
+    SetEntityHealth(this._handle, rageHealthToGtaPed(value));
   }
 
   get armour() {

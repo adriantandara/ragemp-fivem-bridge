@@ -1,5 +1,6 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { gtaPedHealthToRage } from "@ragemp-fivem-bridge/shared";
 
 export class PlayerMp extends Entity {
   constructor(source) {
@@ -87,10 +88,18 @@ export class PlayerMp extends Entity {
   }
 
   get health() {
-    return GetEntityHealth(this.ped);
+    return gtaPedHealthToRage(GetEntityHealth(this.ped));
   }
 
   set health(value) {
+    emitNet("ragemp:setHealth", this.id, value);
+  }
+
+  getHealth() {
+    return gtaPedHealthToRage(GetEntityHealth(this.ped));
+  }
+
+  setHealth(value) {
     emitNet("ragemp:setHealth", this.id, value);
   }
 

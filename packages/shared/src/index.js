@@ -4,3 +4,4 @@ export { HandlePool } from "./HandlePool";
 export { EventEmitter } from "./EventEmitter";
 export { Entity } from "./Entity";
 export { StorageMp } from "./Storage";
+export { RAGE_HEALTH_OFFSET, gtaPedHealthToRage, rageHealthToGtaPed } from "./health";

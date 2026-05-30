@@ -1,4 +1,5 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
+import { rageHealthToGtaPed } from "@ragemp-fivem-bridge/shared";
 import { PlayerMp } from "../Entities/PlayerMp";
 import { onWorldScan } from "../utils/worldScan";
 
@@ -62,7 +63,7 @@ export class PlayerMpPool extends Pool {
 
   _setupServerSync() {
     onNet("ragemp:setHealth", (value) => {
-      SetEntityHealth(PlayerPedId(), value);
+      SetEntityHealth(PlayerPedId(), rageHealthToGtaPed(value));
     });
 
     onNet("ragemp:setArmour", (value) => {

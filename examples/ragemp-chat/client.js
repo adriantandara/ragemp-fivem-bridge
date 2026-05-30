@@ -57,7 +57,7 @@ on("__cfx_nui:chatResult", (data, cb) => {
   if (!data || !data.canceled) {
     if (message.length > 0) {
       if (message.charAt(0) === "/") {
-        ExecuteCommand(message.substring(1));
+        emitNet("ragemp:command", message.substring(1));
       } else {
         emitNet("ragemp:chat:message", message);
       }

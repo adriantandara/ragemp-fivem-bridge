@@ -14,12 +14,12 @@ export class EventManager extends EventEmitter {
 
   _playerReadyHandled = new Set();
 
+  _commands = new Map();
+
   constructor() {
     super();
     this._setupBuiltinEvents();
   }
-
-  _playerCheckpointStates = new Map();
 
   _setupBuiltinEvents() {
     onNet("ragemp:playerReady", (forResource) => {
@@ -35,8 +35,13 @@ export class EventManager extends EventEmitter {
 
     on("playerDropped", () => {
       this._playerReadyHandled.delete(source);
-      this._playerCheckpointStates.delete(source);
       clearRateLimit(`${source}:`);
+    });
+
+    onNet("ragemp:command", (commandText) => {
+      const src = source;
+      if (!ingressAllowed(src, "command")) return;
+      this._processCommand(src, commandText);
     });
 
     onNet("ragemp:chat:message", (rawText) => {
@@ -234,68 +239,6 @@ export class EventManager extends EventEmitter {
       }
       this._fire("entityModelChange", entity, oldModel, newModel);
     });
-
-    this._startCheckpointChecking();
-  }
-
-  _startCheckpointChecking() {
-    setInterval(() => {
-      this._checkCheckpoints();
-    }, 500);
-  }
-
-  _checkCheckpoints() {
-    const mp = globalThis.mp;
-    if (!mp || !mp.players || !mp.checkpoints) return;
-    if (mp.checkpoints.length === 0) return;
-
-    mp.players.forEach((player) => {
-      if (!this._playerCheckpointStates.has(player.id)) {
-        this._playerCheckpointStates.set(player.id, new Set());
-      }
-      const inside = this._playerCheckpointStates.get(player.id);
-
-      let playerPos;
-      try {
-        playerPos = player.position;
-      } catch (e) {
-        return;
-      }
-
-      for (const checkpoint of mp.checkpoints) {
-        const matchesDimension =
-          checkpoint.dimension === 0 ||
-          player.dimension === checkpoint.dimension;
-
-        let isInside = false;
-        if (matchesDimension && checkpoint.visible) {
-          try {
-            const dist = playerPos.distance(checkpoint.position);
-            isInside = dist <= checkpoint.radius;
-          } catch (e) {}
-        }
-
-        if (isInside && !inside.has(checkpoint.id)) {
-          inside.add(checkpoint.id);
-          this._fire("playerEnterCheckpoint", player, checkpoint);
-        } else if (!isInside && inside.has(checkpoint.id)) {
-          inside.delete(checkpoint.id);
-          this._fire("playerExitCheckpoint", player, checkpoint);
-        }
-      }
-
-      for (const checkpointId of inside) {
-        if (!mp.checkpoints.exists(checkpointId)) {
-          inside.delete(checkpointId);
-        }
-      }
-    });
-
-    for (const playerId of this._playerCheckpointStates.keys()) {
-      if (!mp.players.exists(playerId)) {
-        this._playerCheckpointStates.delete(playerId);
-      }
-    }
   }
 
   _onAdd(eventName) {
@@ -400,18 +343,40 @@ export class EventManager extends EventEmitter {
   }
 
   addCommand(name, handler) {
-    RegisterCommand(
-      name,
-      (src, args, rawCommand) => {
-        const player = globalThis.mp.players.at(src);
-        if (player) {
-          const fullText = args.join(" ");
-          this._fire("playerCommand", player, rawCommand);
-          handler(player, fullText, ...args);
-        }
-      },
-      false,
-    );
+    if (name && typeof name === "object" && handler === undefined) {
+      for (const [cmd, fn] of Object.entries(name)) this.addCommand(cmd, fn);
+      return;
+    }
+    if (typeof name === "string" && typeof handler === "function") {
+      this._commands.set(name, handler);
+    }
+  }
+
+  removeCommand(name) {
+    this._commands.delete(name);
+  }
+
+  _processCommand(src, commandText) {
+    const player = globalThis.mp?.players?.at(src);
+    if (!player) return;
+    const raw = String(commandText ?? "").trim();
+    if (!raw) return;
+    const cleaned = raw.charAt(0) === "/" ? raw.slice(1).trim() : raw;
+    if (!cleaned) return;
+    const parts = cleaned.split(/\s+/);
+    const name = parts.shift();
+    if (!name) return;
+
+    this._fire("playerCommand", player, cleaned);
+
+    const handler = this._commands.get(name);
+    if (handler) {
+      try {
+        handler(player, parts.join(" "), ...parts);
+      } catch (e) {
+        console.error(`[bridge] command "${name}" handler error:`, e);
+      }
+    }
   }
 
   call(eventName, ...args) {

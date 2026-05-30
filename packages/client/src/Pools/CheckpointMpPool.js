@@ -36,6 +36,7 @@ export class CheckpointMpPool extends Pool {
       SetCheckpointRgba(handle, 0, 0, 0, 0);
     }
 
+    cp._origin = "server";
     this._add(cp);
     return cp;
   }
@@ -102,6 +103,7 @@ export class CheckpointMpPool extends Pool {
       SetCheckpointRgba(handle, 0, 0, 0, 0);
     }
 
+    cp._origin = "local";
     this._add(cp);
     return cp;
   }

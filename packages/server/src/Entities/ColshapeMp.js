@@ -1,5 +1,4 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
-import { Vector3 } from "@ragemp-fivem-bridge/shared";
 
 export class ColshapeMp extends Entity {
   _position;
@@ -24,6 +23,7 @@ export class ColshapeMp extends Entity {
 
   set position(value) {
     this._position = value;
+    globalThis.mp?.colshapes?._onColshapeChanged?.(this);
   }
 
   get dimension() {
@@ -32,6 +32,17 @@ export class ColshapeMp extends Entity {
 
   set dimension(value) {
     this._dimension = value;
+    globalThis.mp?.colshapes?._onColshapeChanged?.(this);
+  }
+
+  toData() {
+    return {
+      id: this.id,
+      shapeType: this._shapeType,
+      position: { x: this._position.x, y: this._position.y, z: this._position.z },
+      params: this._params,
+      dimension: this._dimension,
+    };
   }
 
   isPointWithin(point) {

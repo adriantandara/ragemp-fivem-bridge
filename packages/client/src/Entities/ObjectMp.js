@@ -10,7 +10,7 @@ export class ObjectMp extends Entity {
   constructor(id, handle) {
     super(id, "object");
     this._handle = handle;
-    return withEntityNatives(this, (t) => t._handle, ["Object", "Entity", ""]);
+    return withEntityNatives(this, (t) => t._handle, ["Entity", "Object"]);
   }
 
   _stateBag() {

@@ -1,11 +1,9 @@
-import { Pool } from "@ragemp-fivem-bridge/shared";
+import { HandlePool } from "@ragemp-fivem-bridge/shared";
 import { PedMp } from "../Entities/PedMp";
 
 let pedIdCounter = 0;
 
-export class PedMpPool extends Pool {
-  _handleToEntity = new Map();
-
+export class PedMpPool extends HandlePool {
   new(model, position, options = {}) {
     const modelHash = typeof model === "string" ? GetHashKey(model) : model;
     const heading = options.heading ?? 0;
@@ -34,17 +32,5 @@ export class PedMpPool extends Pool {
     this._handleToEntity.set(handle, ped);
 
     return ped;
-  }
-
-  atHandle(handle) {
-    return this._handleToEntity.get(handle) ?? null;
-  }
-
-  _remove(id) {
-    const entity = this._entities.get(id);
-    if (entity) {
-      this._handleToEntity.delete(entity._handle);
-    }
-    super._remove(id);
   }
 }

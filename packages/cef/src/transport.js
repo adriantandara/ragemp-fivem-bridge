@@ -12,7 +12,20 @@ export function log(...args) {
   if (DEBUG) console.log("[cef]", ...args);
 }
 
+let RESOURCE_OVERRIDE = null;
+
+export function setResourceName(name) {
+  if (name && typeof name === "string") RESOURCE_OVERRIDE = name;
+}
+
 export function resourceName() {
+  if (RESOURCE_OVERRIDE) return RESOURCE_OVERRIDE;
+  if (typeof GetParentResourceName === "function") {
+    try {
+      const owner = GetParentResourceName();
+      if (owner) return owner;
+    } catch (e) {}
+  }
   if (
     typeof window !== "undefined" &&
     window.location &&
@@ -22,9 +35,7 @@ export function resourceName() {
     if (host.indexOf("cfx-nui-") === 0) return host.slice(8);
     if (host && host !== "localhost") return host;
   }
-  if (typeof GetParentResourceName === "function")
-    return GetParentResourceName();
-  return "ragemp-fivem-bridge";
+  return "";
 }
 
 export async function toClient(channel, body) {

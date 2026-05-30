@@ -1,4 +1,5 @@
 import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
+import { withEntityNatives } from "../utils/native";
 
 export class CameraMp extends Entity {
   _handle;
@@ -6,6 +7,15 @@ export class CameraMp extends Entity {
   constructor(id, handle) {
     super(id, "camera");
     this._handle = handle;
+    return withEntityNatives(this, (t) => t._handle, ["Cam"]);
+  }
+
+  getDirection() {
+    const r = GetCamRot(this._handle, 2);
+    const z = (r[2] * Math.PI) / 180;
+    const x = (r[0] * Math.PI) / 180;
+    const num = Math.abs(Math.cos(x));
+    return new Vector3(-Math.sin(z) * num, Math.cos(z) * num, Math.sin(x));
   }
 
   get handle() {
@@ -20,20 +30,12 @@ export class CameraMp extends Entity {
     SetCamCoord(this._handle, value.x, value.y, value.z);
   }
 
-  setCoord(x, y, z) {
-    SetCamCoord(this._handle, x, y, z);
-  }
-
   get rotation() {
     const rot = GetCamRot(this._handle, 2);
     return new Vector3(rot[0], rot[1], rot[2]);
   }
   set rotation(value) {
     SetCamRot(this._handle, value.x, value.y, value.z, 2);
-  }
-
-  setRot(x, y, z) {
-    SetCamRot(this._handle, x, y, z, 2);
   }
 
   get fov() {

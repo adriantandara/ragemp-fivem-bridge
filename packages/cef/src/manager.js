@@ -1,5 +1,5 @@
 import { createRuntime } from "./core.js";
-import { log, resourceName } from "./transport.js";
+import { log, resourceName, toClient } from "./transport.js";
 
 export function startManager() {
   const { handlePayload } = createRuntime();
@@ -78,7 +78,11 @@ export function startManager() {
       entry.iframe.contentWindow.postMessage(
         {
           __ragempForward: true,
-          inner: { type: "__ragemp:assignId", browserId },
+          inner: {
+            type: "__ragemp:assignId",
+            browserId,
+            resource: HOST_RESOURCE,
+          },
         },
         "*",
       );
@@ -194,7 +198,32 @@ export function startManager() {
     }
   }
 
+  function forwardKey(e, down) {
+    if (down && e.repeat) return;
+    const t = e.target;
+    if (
+      t &&
+      (t.tagName === "INPUT" ||
+        t.tagName === "TEXTAREA" ||
+        t.tagName === "SELECT" ||
+        t.isContentEditable)
+    ) {
+      return;
+    }
+    const code = e.keyCode || e.which;
+    if (code) toClient("ragemp:__keyEvent", { code, down });
+  }
+  window.addEventListener("keydown", (e) => forwardKey(e, true), true);
+  window.addEventListener("keyup", (e) => forwardKey(e, false), true);
+
   window.addEventListener("message", (nativeEvent) => {
+    const src = nativeEvent.source;
+    if (src) {
+      for (const entry of frames.values()) {
+        if (entry.iframe && entry.iframe.contentWindow === src) return;
+      }
+    }
+
     const data = nativeEvent.data;
     if (!data || typeof data !== "object") return;
 

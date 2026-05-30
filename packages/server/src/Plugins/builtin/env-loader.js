@@ -45,11 +45,7 @@ export default function setup({ mp, plugin }) {
     }
   }
 
-  const numResources = GetNumResources();
-  for (let i = 0; i < numResources; i++) {
-    const resName = GetResourceByFindIndex(i);
-    if (resName) loadEnvForResource(resName);
-  }
+  loadEnvForResource(GetCurrentResourceName());
 
   mp.environment = {
     loadEnv(resourceName) {

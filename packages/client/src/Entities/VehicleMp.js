@@ -7,7 +7,7 @@ export class VehicleMp extends Entity {
   constructor(id, handle) {
     super(id, "vehicle");
     this._handle = handle;
-    return withEntityNatives(this, (t) => t._handle, ["Vehicle", "Entity", ""]);
+    return withEntityNatives(this, (t) => t._handle, ["Entity", "Vehicle"]);
   }
 
   _stateBag() {
@@ -199,8 +199,8 @@ export class VehicleMp extends Entity {
   }
 
   getHandling(fieldName) {
-    const type = typeof GetVehicleHandlingFloat(this._handle, "CHandlingData", fieldName);
-    if (type === "number") return GetVehicleHandlingFloat(this._handle, "CHandlingData", fieldName);
+    const v = GetVehicleHandlingFloat(this._handle, "CHandlingData", fieldName);
+    if (typeof v === "number") return v;
     return GetVehicleHandlingInt(this._handle, "CHandlingData", fieldName);
   }
 
@@ -471,6 +471,18 @@ export class VehicleMp extends Entity {
 
   getNumberPlateText() {
     return GetVehicleNumberPlateText(this._handle);
+  }
+  
+  getIsEngineRunning() {
+    return GetIsVehicleEngineRunning(this._handle);
+  }
+
+  setEngineHealth(health) {
+    SetVehicleEngineHealth(this._handle, health);
+  }
+
+  setPetrolTankHealth(health) {
+    SetVehiclePetrolTankHealth(this._handle, health);
   }
 
   destroy() {

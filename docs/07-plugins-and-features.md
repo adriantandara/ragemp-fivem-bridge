@@ -14,18 +14,23 @@ These load automatically when the bridge initializes:
 
 ## Disabling built-in plugins
 
-Built-in plugins load automatically, but you can turn any of them off per resource by
-adding `disable_plugin` lines to **your gamemode's** `fxmanifest.lua` (the consuming
-resource, not the bridge resource). Use the plugin name from the table above:
+Built-in plugins load automatically, but you can turn any of them off by adding
+`disable_plugin` lines to a `fxmanifest.lua`. Use the plugin name from the table above:
 
 ```lua
 disable_plugin 'rage-rpc'
 disable_plugin 'vehicle-sync'
 ```
 
-List it once per name, as many lines as you need. On startup the bridge logs each skipped
-plugin (`[bridge:plugins] 'rage-rpc' disabled via fxmanifest`). The same names also disable
-third-party plugins (matched against `bridge_plugin_name`).
+The flag is read from **two** places (union), so it works wherever you put it:
+- your **gamemode** resource's `fxmanifest.lua` — disables the plugin for that gamemode;
+- the **bridge** resource's `fxmanifest.lua` — disables it globally for every consumer.
+
+List it once per name, as many lines as you need. On startup the bridge logs the disabled
+set (`[bridge:plugins] disabled: rage-rpc`) so you can confirm it was picked up — if you
+don't see your plugin there, the line is in neither manifest (or the resource wasn't
+restarted). The same names also disable third-party plugins (matched against
+`bridge_plugin_name`).
 
 Disable a plugin when you ship your own implementation (your own RPC layer or spawn system)
 and don't want the built-in one installing conflicting handlers.

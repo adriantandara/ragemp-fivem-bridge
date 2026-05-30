@@ -1,10 +1,9 @@
-import { Pool } from "@ragemp-fivem-bridge/shared";
+import { HandlePool } from "@ragemp-fivem-bridge/shared";
 import { VehicleMp } from "../Entities/VehicleMp";
 
 let vehicleIdCounter = 0;
 
-export class VehicleMpPool extends Pool {
-  _handleToEntity = new Map();
+export class VehicleMpPool extends HandlePool {
   _netIdToEntity = new Map();
 
   new(model, position, options = {}) {
@@ -52,29 +51,30 @@ export class VehicleMpPool extends Pool {
     return vehicle;
   }
 
-  atHandle(handle) {
-    return this._handleToEntity.get(handle) ?? null;
-  }
-
   atNetId(netId) {
     if (!netId) return null;
     const cached = this._netIdToEntity.get(netId);
     if (cached && this._handleToEntity.has(cached._handle)) return cached;
-    if (typeof NetworkGetEntityFromNetworkId === "function") {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      const entity = handle ? this._handleToEntity.get(handle) : null;
-      if (entity) {
-        this._netIdToEntity.set(netId, entity);
-        return entity;
-      }
+    if (typeof NetworkGetEntityFromNetworkId !== "function") return null;
+    const handle = NetworkGetEntityFromNetworkId(netId);
+    if (!handle) return null;
+    const existing = this._handleToEntity.get(handle);
+    if (existing) {
+      this._netIdToEntity.set(netId, existing);
+      return existing;
     }
-    return null;
+    if (typeof DoesEntityExist === "function" && !DoesEntityExist(handle)) return null;
+    if (typeof GetEntityType === "function" && GetEntityType(handle) !== 2) return null;
+    const vehicle = new VehicleMp(++vehicleIdCounter, handle);
+    this._add(vehicle);
+    this._handleToEntity.set(handle, vehicle);
+    this._netIdToEntity.set(netId, vehicle);
+    return vehicle;
   }
 
   _remove(id) {
     const entity = this._entities.get(id);
     if (entity) {
-      this._handleToEntity.delete(entity._handle);
       for (const [netId, e] of this._netIdToEntity) {
         if (e === entity) this._netIdToEntity.delete(netId);
       }

@@ -1,6 +1,6 @@
 import rpc from "@ragemp-fivem-bridge/rage-rpc";
 import { EventManager } from "./events.js";
-import { toClient, log, setDebug, isDebug } from "./transport.js";
+import { toClient, log, setDebug, isDebug, setResourceName } from "./transport.js";
 
 export function createRuntime() {
   let selfId = "host";
@@ -14,6 +14,14 @@ export function createRuntime() {
       toClient("ragemp:browserEvent", { browserId: selfId, event: eventName, args });
     },
     invoke(eventName, ...args) {
+      if (eventName === "command") {
+        toClient("ragemp:cef:command", { command: args[0] });
+        return;
+      }
+      if (eventName === "chatMessage" || eventName === "chat:message") {
+        toClient("ragemp:cef:chatMessage", { message: args[0] });
+        return;
+      }
       mp.trigger(eventName, ...args);
     },
     events,
@@ -47,6 +55,7 @@ export function createRuntime() {
 
     if (data.type === "__ragemp:assignId") {
       setSelfId(data.browserId);
+      if (data.resource) setResourceName(data.resource);
       log("assigned id", data.browserId);
       return;
     }

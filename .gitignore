@@ -19,3 +19,7 @@ examples/*/node_modules
 
 # Local test FiveM server (not for git)
 .test/
+
+# Native generator input (2.6MB; regenerate locally) + generated report
+scripts/assets/
+NATIVE_GAPS.md

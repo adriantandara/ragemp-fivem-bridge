@@ -1,5 +1,6 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
 import { BlipMp } from "../Entities/BlipMp";
+import { applyBlipName } from "../utils/blipName";
 
 let localBlipIdCounter = 100000;
 
@@ -20,18 +21,22 @@ export class BlipMpPool extends Pool {
     SetBlipScale(handle, data.scale);
     SetBlipAlpha(handle, data.alpha);
     SetBlipAsShortRange(handle, data.shortRange);
-
-    if (data.name) {
-      BeginTextCommandSetBlipName("STRING");
-      AddTextComponentSubstringPlayerName(data.name);
-      EndTextCommandSetBlipName(handle);
-    }
+    applyBlipName(handle, data.name);
 
     const blip = new BlipMp(data.id, handle);
     blip._name = data.name;
     blip._shortRange = data.shortRange;
     blip._scale = data.scale;
     this._add(blip);
+
+    if (data.name) {
+      setTimeout(() => {
+        if (blip._handle && DoesBlipExist(blip._handle)) {
+          applyBlipName(blip._handle, blip._name);
+        }
+      }, 1500);
+    }
+
     return blip;
   }
 
@@ -86,11 +91,7 @@ export class BlipMpPool extends Pool {
     if (options.alpha !== undefined) SetBlipAlpha(handle, options.alpha);
     if (options.shortRange !== undefined) SetBlipAsShortRange(handle, options.shortRange);
 
-    if (options.name) {
-      BeginTextCommandSetBlipName("STRING");
-      AddTextComponentSubstringPlayerName(options.name);
-      EndTextCommandSetBlipName(handle);
-    }
+    applyBlipName(handle, options.name);
 
     const blip = new BlipMp(id, handle);
     blip._name = options.name ?? "";

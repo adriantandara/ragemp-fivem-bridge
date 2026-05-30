@@ -1,3 +1,6 @@
+import { EventEmitter } from "@ragemp-fivem-bridge/shared";
+import { ingressAllowed, clearRateLimit } from "../utils/guard";
+
 const RAGEMP_TO_FIVEM_EVENTS = {
   playerJoin: "playerJoining",
   playerQuit: "playerDropped",
@@ -6,22 +9,22 @@ const RAGEMP_TO_FIVEM_EVENTS = {
   incomingConnection: "playerConnecting",
 };
 
-export class EventManager {
-  _handlers = new Map();
-
+export class EventManager extends EventEmitter {
   _procs = new Map();
 
   _playerReadyHandled = new Set();
 
+  _commands = new Map();
+
   constructor() {
+    super();
     this._setupBuiltinEvents();
   }
-
-  _playerCheckpointStates = new Map();
 
   _setupBuiltinEvents() {
     onNet("ragemp:playerReady", (forResource) => {
       const src = source;
+      if (!ingressAllowed(src, "playerReady")) return;
       const player = globalThis.mp.players.at(src);
       if (!player) return;
       emitNet("ragemp:playerReady", src, forResource);
@@ -32,6 +35,13 @@ export class EventManager {
 
     on("playerDropped", () => {
       this._playerReadyHandled.delete(source);
+      clearRateLimit(`${source}:`);
+    });
+
+    onNet("ragemp:command", (commandText) => {
+      const src = source;
+      if (!ingressAllowed(src, "command")) return;
+      this._processCommand(src, commandText);
     });
 
     onNet("ragemp:chat:message", (rawText) => {
@@ -55,6 +65,7 @@ export class EventManager {
     });
 
     onNet("ragemp:playerDeath", (reason, killerId) => {
+      if (!ingressAllowed(source, "playerDeath")) return;
       const player = globalThis.mp.players.at(source);
       const killer = killerId ? globalThis.mp.players.at(killerId) : null;
       if (player) this._fire("playerDeath", player, reason, killer);
@@ -68,13 +79,22 @@ export class EventManager {
     if (typeof AddStateBagChangeHandler === "function") {
       AddStateBagChangeHandler(null, null, (bagName, key, value) => {
         const mp = globalThis.mp;
-        if (!mp || typeof bagName !== "string") return;
+        if (!mp || typeof bagName !== "string" || typeof key !== "string") return;
         let entity = null;
         if (bagName.indexOf("player:") === 0) {
           entity = mp.players?.at?.(parseInt(bagName.slice(7), 10)) ?? null;
         } else if (bagName.indexOf("entity:") === 0) {
-          entity =
-            mp.vehicles?.atNetId?.(parseInt(bagName.slice(7), 10)) ?? null;
+          const handle =
+            typeof GetEntityFromStateBagName === "function"
+              ? GetEntityFromStateBagName(bagName)
+              : 0;
+          if (handle && handle !== 0) {
+            entity =
+              mp.vehicles?.atHandle?.(handle) ??
+              mp.objects?.atHandle?.(handle) ??
+              mp.peds?.atHandle?.(handle) ??
+              null;
+          }
         }
         if (entity) {
           entity._variables.set(key, value);
@@ -173,6 +193,18 @@ export class EventManager {
       if (observer && left) this._fire("playerStreamOut", left, observer);
     });
 
+    on("entityRemoved", (handle) => {
+      const mp = globalThis.mp;
+      if (!mp) return;
+      for (const pool of [mp.vehicles, mp.peds, mp.objects]) {
+        const entity = pool?.atHandle?.(handle);
+        if (entity) {
+          pool._remove(entity.id);
+          break;
+        }
+      }
+    });
+
     onNet("ragemp:vehicleHorn", (vehicleNetId, state) => {
       const vehicle = globalThis.mp?.vehicles?.atNetId?.(vehicleNetId);
       if (vehicle) this._fire("vehicleHornToggle", vehicle, !!state);
@@ -207,96 +239,9 @@ export class EventManager {
       }
       this._fire("entityModelChange", entity, oldModel, newModel);
     });
-
-    this._startCheckpointChecking();
   }
 
-  _startCheckpointChecking() {
-    setInterval(() => {
-      this._checkCheckpoints();
-    }, 500);
-  }
-
-  _checkCheckpoints() {
-    const mp = globalThis.mp;
-    if (!mp || !mp.players || !mp.checkpoints) return;
-    if (mp.checkpoints.length === 0) return;
-
-    mp.players.forEach((player) => {
-      if (!this._playerCheckpointStates.has(player.id)) {
-        this._playerCheckpointStates.set(player.id, new Set());
-      }
-      const inside = this._playerCheckpointStates.get(player.id);
-
-      let playerPos;
-      try {
-        playerPos = player.position;
-      } catch (e) {
-        return;
-      }
-
-      for (const checkpoint of mp.checkpoints) {
-        const matchesDimension =
-          checkpoint.dimension === 0 ||
-          player.dimension === checkpoint.dimension;
-
-        let isInside = false;
-        if (matchesDimension && checkpoint.visible) {
-          try {
-            const dist = playerPos.distance(checkpoint.position);
-            isInside = dist <= checkpoint.radius;
-          } catch (e) {}
-        }
-
-        if (isInside && !inside.has(checkpoint.id)) {
-          inside.add(checkpoint.id);
-          this._fire("playerEnterCheckpoint", player, checkpoint);
-        } else if (!isInside && inside.has(checkpoint.id)) {
-          inside.delete(checkpoint.id);
-          this._fire("playerExitCheckpoint", player, checkpoint);
-        }
-      }
-
-      for (const checkpointId of inside) {
-        if (!mp.checkpoints.exists(checkpointId)) {
-          inside.delete(checkpointId);
-        }
-      }
-    });
-
-    for (const playerId of this._playerCheckpointStates.keys()) {
-      if (!mp.players.exists(playerId)) {
-        this._playerCheckpointStates.delete(playerId);
-      }
-    }
-  }
-
-  _getHandlers(eventName) {
-    if (!this._handlers.has(eventName)) {
-      this._handlers.set(eventName, new Set());
-    }
-    return this._handlers.get(eventName);
-  }
-
-  _fire(eventName, ...args) {
-    const handlers = this._handlers.get(eventName);
-    if (!handlers) return;
-    for (const handler of handlers) {
-      handler(...args);
-    }
-  }
-
-  add(eventNameOrObject, handler) {
-    if (typeof eventNameOrObject === "object" && handler === undefined) {
-      for (const [name, fn] of Object.entries(eventNameOrObject)) {
-        this.add(name, fn);
-      }
-      return;
-    }
-
-    const eventName = eventNameOrObject;
-    this._getHandlers(eventName).add(handler);
-
+  _onAdd(eventName) {
     const fivemEvent = RAGEMP_TO_FIVEM_EVENTS[eventName];
     if (fivemEvent && !this._handlers.get(`__fivem_${eventName}`)) {
       this._handlers.set(`__fivem_${eventName}`, new Set([true]));
@@ -319,8 +264,16 @@ export class EventManager {
         on("playerConnecting", (name, setKickReason, deferrals) => {
           const playerSrc = source;
           const ip = GetPlayerEndpoint(String(playerSrc)) ?? "";
-          const serial = "";
-          const rgscId = "";
+          let serial = "";
+          let rgscId = "";
+          try {
+            const count = GetNumPlayerIdentifiers(String(playerSrc));
+            for (let i = 0; i < count; i++) {
+              const ident = GetPlayerIdentifier(String(playerSrc), i) || "";
+              if (!serial && ident.indexOf("license:") === 0) serial = ident.slice(8);
+              else if (!rgscId && ident.indexOf("steam:") === 0) rgscId = ident.slice(6);
+            }
+          } catch (e) {}
           const cancel = (reason) => {
             setKickReason(reason ?? "Connection rejected");
             CancelEvent();
@@ -332,8 +285,11 @@ export class EventManager {
 
     if (!fivemEvent && !this._handlers.get(`__net_${eventName}`)) {
       this._handlers.set(`__net_${eventName}`, new Set([true]));
+      const isFrameworkEvent = eventName.indexOf("__rpc:") === 0;
       onNet(eventName, (...args) => {
-        const player = globalThis.mp.players.at(source);
+        const src = source;
+        if (!isFrameworkEvent && !ingressAllowed(src, eventName)) return;
+        const player = globalThis.mp.players.at(src);
         if (player) {
           this._fire(eventName, player, ...args);
         }
@@ -362,12 +318,11 @@ export class EventManager {
     });
   }
 
-  getAllOf(eventName) {
-    return [...(this._handlers.get(eventName) ?? [])];
-  }
-
   reset() {
-    this._handlers.clear();
+    for (const key of this._handlers.keys()) {
+      if (key.indexOf("__fivem_") === 0 || key.indexOf("__net_") === 0) continue;
+      this._handlers.delete(key);
+    }
   }
 
   get binded() {
@@ -388,18 +343,40 @@ export class EventManager {
   }
 
   addCommand(name, handler) {
-    RegisterCommand(
-      name,
-      (src, args, rawCommand) => {
-        const player = globalThis.mp.players.at(src);
-        if (player) {
-          const fullText = args.join(" ");
-          this._fire("playerCommand", player, rawCommand);
-          handler(player, fullText, ...args);
-        }
-      },
-      false,
-    );
+    if (name && typeof name === "object" && handler === undefined) {
+      for (const [cmd, fn] of Object.entries(name)) this.addCommand(cmd, fn);
+      return;
+    }
+    if (typeof name === "string" && typeof handler === "function") {
+      this._commands.set(name, handler);
+    }
+  }
+
+  removeCommand(name) {
+    this._commands.delete(name);
+  }
+
+  _processCommand(src, commandText) {
+    const player = globalThis.mp?.players?.at(src);
+    if (!player) return;
+    const raw = String(commandText ?? "").trim();
+    if (!raw) return;
+    const cleaned = raw.charAt(0) === "/" ? raw.slice(1).trim() : raw;
+    if (!cleaned) return;
+    const parts = cleaned.split(/\s+/);
+    const name = parts.shift();
+    if (!name) return;
+
+    this._fire("playerCommand", player, cleaned);
+
+    const handler = this._commands.get(name);
+    if (handler) {
+      try {
+        handler(player, parts.join(" "), ...parts);
+      } catch (e) {
+        console.error(`[bridge] command "${name}" handler error:`, e);
+      }
+    }
   }
 
   call(eventName, ...args) {
@@ -407,8 +384,8 @@ export class EventManager {
     this._fire(eventName, ...args);
   }
 
-  callRemote(player, eventName, ...args) {
-    emitNet(eventName, player.id, ...args);
+  callRemote(player, eventName, args) {
+    emitNet(eventName, player.id, ...(Array.isArray(args) ? args : args === undefined ? [] : [args]));
   }
 
   get delayShutdown() {
@@ -423,14 +400,4 @@ export class EventManager {
     return false;
   }
   set delayInitialization(_v) {}
-
-  remove(eventName, handler) {
-    const handlers = this._handlers.get(eventName);
-    if (!handlers) return;
-    if (handler) {
-      handlers.delete(handler);
-    } else {
-      handlers.clear();
-    }
-  }
 }

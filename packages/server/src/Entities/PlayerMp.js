@@ -99,7 +99,7 @@ export class PlayerMp extends Entity {
   }
 
   set armour(value) {
-    SetPedArmour(this.ped, value);
+    emitNet("ragemp:setArmour", this.id, value);
   }
 
   get heading() {
@@ -128,11 +128,12 @@ export class PlayerMp extends Entity {
   }
 
   get model() {
-    return GetEntityModel(this.ped);
+    return this._model || GetEntityModel(this.ped);
   }
 
   set model(value) {
-    emitNet("ragemp:setModel", this.id, typeof value === "string" ? GetHashKey(value) : value);
+    this._model = typeof value === "string" ? GetHashKey(value) : value;
+    emitNet("ragemp:setModel", this.id, this._model);
   }
 
   get weapon() {
@@ -288,8 +289,8 @@ export class PlayerMp extends Entity {
     this.position = position;
   }
 
-  call(eventName, ...args) {
-    emitNet(eventName, this.id, ...args);
+  call(eventName, args) {
+    emitNet(eventName, this.id, ...(Array.isArray(args) ? args : args == null ? [] : [args]));
   }
 
   notify(message) {
@@ -303,10 +304,10 @@ export class PlayerMp extends Entity {
   giveWeapon(weaponOrArray, ammo) {
     if (Array.isArray(weaponOrArray)) {
       for (const [hash, amt] of weaponOrArray) {
-        this.call("ragemp:giveWeapon", hash, amt);
+        this.call("ragemp:giveWeapon", [hash, amt]);
       }
     } else {
-      this.call("ragemp:giveWeapon", weaponOrArray, ammo);
+      this.call("ragemp:giveWeapon", [weaponOrArray, ammo]);
     }
   }
 
@@ -319,7 +320,8 @@ export class PlayerMp extends Entity {
   }
 
   setClothes(component, drawable, texture, palette) {
-    this.call("ragemp:setClothes", component, drawable, texture, palette ?? 0);
+    this._clothes[component] = { drawable, texture, palette: palette ?? 0 };
+    this.call("ragemp:setClothes", [component, drawable, texture, palette ?? 0]);
   }
 
   putIntoVehicle(vehicle, seat) {
@@ -360,6 +362,7 @@ export class PlayerMp extends Entity {
   }
 
   setProp(prop, drawable, texture) {
+    this._props[prop] = { drawable, texture };
     emitNet("ragemp:setProp", this.id, prop, drawable, texture);
   }
 
@@ -461,10 +464,16 @@ export class PlayerMp extends Entity {
   }
 
   eval(code) {
+    if (!globalThis.mp?.config?.security?.allowRemoteEval) {
+      console.warn("[mp] player.eval() will be ignored by the client unless the replicated convar `ragemp_allow_remote_eval 1` is set");
+    }
     emitNet("ragemp:eval", this.id, code);
   }
 
   invoke(hash, ...args) {
+    if (!globalThis.mp?.config?.security?.allowRemoteInvoke) {
+      console.warn("[mp] player.invoke() will be ignored by the client unless the replicated convar `ragemp_allow_remote_invoke 1` is set");
+    }
     emitNet("ragemp:invoke", this.id, hash, ...args);
   }
 
@@ -480,27 +489,41 @@ export class PlayerMp extends Entity {
     return (dx * dx + dy * dy + dz * dz) <= 300 * 300;
   }
 
-  callUnreliable(eventName, ...args) {
-    emitNet(eventName, this.id, ...args);
+  callUnreliable(eventName, args) {
+    emitNet(eventName, this.id, ...(Array.isArray(args) ? args : args == null ? [] : [args]));
   }
 
-  callToStreamed(eventName, ...args) {
-    emitNet(eventName, this.id, ...args);
+  callToStreamed(eventName, args) {
+    emitNet(eventName, this.id, ...(Array.isArray(args) ? args : args == null ? [] : [args]));
+  }
+
+  _ensureProcListener(procName) {
+    if (!this._procListeners) this._procListeners = new Set();
+    if (this._procListeners.has(procName)) return;
+    this._procListeners.add(procName);
+    onNet(`ragemp:procResult:${procName}`, (resultReqId, error, result) => {
+      const entry = this._pendingProcs?.get(resultReqId);
+      if (!entry || entry.procName !== procName) return;
+      if (entry.timer) clearTimeout(entry.timer);
+      this._pendingProcs.delete(resultReqId);
+      if (error) entry.reject(new Error(error));
+      else entry.resolve(result);
+    });
   }
 
   callProc(procName, ...args) {
     if (!this._pendingProcs) this._pendingProcs = new Map();
+    if (this._procCounter === undefined) this._procCounter = 0;
+    this._ensureProcListener(procName);
     return new Promise((resolve, reject) => {
-      const reqId = Date.now() + Math.random();
-      const handler = (resultReqId, error, result) => {
-        if (resultReqId !== reqId) return;
-        removeEventListener(`ragemp:procResult:${procName}`, handler);
-        this._pendingProcs.delete(reqId);
-        if (error) reject(new Error(error));
-        else resolve(result);
-      };
-      this._pendingProcs.set(reqId, { procName, handler, reject });
-      onNet(`ragemp:procResult:${procName}`, handler);
+      const reqId = ++this._procCounter;
+      const timer = setTimeout(() => {
+        if (this._pendingProcs.has(reqId)) {
+          this._pendingProcs.delete(reqId);
+          reject(new Error(`callProc timeout (${procName})`));
+        }
+      }, 30000);
+      this._pendingProcs.set(reqId, { procName, resolve, reject, timer });
       emitNet("ragemp:callProc", this.id, procName, reqId, ...args);
     });
   }
@@ -509,7 +532,7 @@ export class PlayerMp extends Entity {
     if (!this._pendingProcs) return;
     for (const [reqId, entry] of this._pendingProcs) {
       if (procName != null && entry.procName !== procName) continue;
-      removeEventListener(`ragemp:procResult:${entry.procName}`, entry.handler);
+      if (entry.timer) clearTimeout(entry.timer);
       entry.reject(new Error("Cancelled"));
       this._pendingProcs.delete(reqId);
     }

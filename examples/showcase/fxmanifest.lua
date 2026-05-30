@@ -28,6 +28,7 @@ client_scripts {
     'client/05-rpc.js',
     'client/06-prototype.js',
     'client/07-browsers.js',
+    'client/08-natives-test.js',
 }
 
 -- The NUI root is the bridge's host shell; individual pages load as browser iframes.

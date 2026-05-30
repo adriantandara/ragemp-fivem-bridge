@@ -5,97 +5,107 @@ import { ColshapeMp } from "../Entities/ColshapeMp";
 let colshapeIdCounter = 0;
 
 export class ColshapeMpPool extends Pool {
-  _playerStates = new Map();
+  _inside = new Map();
 
   constructor() {
     super();
-    this._startChecking();
+    this._setupSync();
   }
 
-  _startChecking() {
-    setInterval(() => {
-      this._checkAll();
-    }, 500);
+  _setupSync() {
+    onNet("ragemp:playerReady", () => {
+      const playerSource = source;
+      const shapes = [];
+      this.forEach((cs) => shapes.push(cs.toData()));
+      if (shapes.length > 0) {
+        emitNet("ragemp:colshapeSyncAll", playerSource, shapes);
+      }
+    });
+
+    onNet("ragemp:colshape:enter", (id) => {
+      this._handleTransition(source, id, true);
+    });
+
+    onNet("ragemp:colshape:exit", (id) => {
+      this._handleTransition(source, id, false);
+    });
+
+    on("playerDropped", () => {
+      const dropped = source;
+      for (const set of this._inside.values()) set.delete(dropped);
+    });
   }
 
-  _checkAll() {
+  _handleTransition(playerSource, id, entering) {
     const mp = globalThis.mp;
-    if (!mp || !mp.players || this.length === 0) return;
+    const player = mp?.players?.at(playerSource);
+    const colshape = this.at(id);
+    if (!player || !colshape) return;
 
-    for (const colshape of this) {
-      if (!this._playerStates.has(colshape.id)) {
-        this._playerStates.set(colshape.id, new Set());
+    let inside = this._inside.get(id);
+    if (!inside) {
+      inside = new Set();
+      this._inside.set(id, inside);
+    }
+
+    if (entering) {
+      if (inside.has(playerSource)) return;
+      if (colshape.dimension !== 0 && player.dimension !== colshape.dimension) return;
+      let position;
+      try {
+        position = player.position;
+      } catch (e) {
+        return;
       }
-      const inside = this._playerStates.get(colshape.id);
-
-      mp.players.forEach((player) => {
-        const matchesDimension =
-          colshape.dimension === 0 || player.dimension === colshape.dimension;
-
-        let isInside = false;
-        if (matchesDimension) {
-          try {
-            isInside = colshape.isPointWithin(player.position);
-          } catch (e) {
-          }
-        }
-
-        if (isInside && !inside.has(player.id)) {
-          inside.add(player.id);
-          mp.events._fire("playerEnterColshape", player, colshape);
-        } else if (!isInside && inside.has(player.id)) {
-          inside.delete(player.id);
-          mp.events._fire("playerExitColshape", player, colshape);
-        }
-      });
-
-      for (const playerId of inside) {
-        if (!mp.players.exists(playerId)) {
-          inside.delete(playerId);
-        }
-      }
+      if (!colshape.isPointWithin(position)) return;
+      inside.add(playerSource);
+      mp.events._fire("playerEnterColshape", player, colshape);
+    } else {
+      if (!inside.has(playerSource)) return;
+      inside.delete(playerSource);
+      mp.events._fire("playerExitColshape", player, colshape);
     }
   }
 
-  newSphere(position, radius) {
+  _broadcast(event, ...args) {
+    if (typeof emitNet === "function") emitNet(event, -1, ...args);
+  }
+
+  _onColshapeChanged(colshape) {
+    this._broadcast("ragemp:colshapeUpdate", colshape.id, colshape.toData());
+  }
+
+  _create(shapeType, position, params) {
     const id = ++colshapeIdCounter;
-    const colshape = new ColshapeMp(id, "sphere", position, { radius });
+    const colshape = new ColshapeMp(id, shapeType, position, params);
     this._add(colshape);
+    this._broadcast("ragemp:colshapeCreate", colshape.toData());
     return colshape;
+  }
+
+  newSphere(position, radius) {
+    return this._create("sphere", position, { radius });
   }
 
   newTube(position, radius, height) {
-    const id = ++colshapeIdCounter;
-    const colshape = new ColshapeMp(id, "tube", position, { radius, height });
-    this._add(colshape);
-    return colshape;
+    return this._create("tube", position, { radius, height });
   }
 
   newCircle(x, y, radius) {
-    const id = ++colshapeIdCounter;
-    const position = new Vector3(x, y, 0);
-    const colshape = new ColshapeMp(id, "circle", position, { radius });
-    this._add(colshape);
-    return colshape;
+    return this._create("circle", new Vector3(x, y, 0), { radius });
   }
 
   newRectangle(x, y, width, height) {
-    const id = ++colshapeIdCounter;
-    const position = new Vector3(x, y, 0);
-    const colshape = new ColshapeMp(id, "rectangle", position, { width, height });
-    this._add(colshape);
-    return colshape;
+    return this._create("rectangle", new Vector3(x, y, 0), { width, height });
   }
 
   newCuboid(position, width, depth, height) {
-    const id = ++colshapeIdCounter;
-    const colshape = new ColshapeMp(id, "cuboid", position, { width, depth, height });
-    this._add(colshape);
-    return colshape;
+    return this._create("cuboid", position, { width, depth, height });
   }
 
   _remove(id) {
-    this._playerStates.delete(id);
+    this._inside.delete(id);
+    this._broadcast("ragemp:colshapeDestroy", id);
     super._remove(id);
   }
 }

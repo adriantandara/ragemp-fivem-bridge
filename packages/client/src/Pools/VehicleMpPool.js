@@ -23,6 +23,7 @@ const VEHICLE_DISPATCH = {
   "ragemp:vehicleTrimColor": (h, v) => applyVehicleProp(h, "trimColor", v),
   "ragemp:vehicleWheelColor": (h, v) => applyVehicleProp(h, "wheelColor", v),
   "ragemp:vehicleNeonColor": (h, r, g, b) => applyVehicleProp(h, "neonColor", [r, g, b]),
+  "ragemp:vehicleColorRGB": (h, value) => applyVehicleProp(h, "colorRGB", value),
   "ragemp:vehicleMod": (h, modType, modIndex) => applyVehicleMod(h, modType, modIndex),
   "ragemp:vehicleExtra": (h, extraId, invertedState) => SetVehicleExtra(h, extraId, invertedState),
   "ragemp:vehicleExplode": (h) => NetworkExplodeVehicle(h, true, false, false),

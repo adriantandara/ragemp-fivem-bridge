@@ -1,3 +1,5 @@
+import { ingressAllowed } from "../../utils/guard";
+
 export const name = "vehicle-sync";
 
 export default function setup({ mp, plugin }) {
@@ -22,6 +24,7 @@ export default function setup({ mp, plugin }) {
     const neon = vehicle._neonColor;
     if (neon && (neon[0] || neon[1] || neon[2])) snap.neonColor = neon;
 
+    if (vehicle._numberPlate != null) snap.numberPlate = vehicle._numberPlate;
     if (vehicle._mods && Object.keys(vehicle._mods).length) snap.mods = vehicle._mods;
     if (vehicle._extras && Object.keys(vehicle._extras).length) snap.extras = vehicle._extras;
     if (vehicle._colorRGB) snap.colorRGB = vehicle._colorRGB;
@@ -31,6 +34,7 @@ export default function setup({ mp, plugin }) {
 
   onNet("ragemp:vehicleSync:request", (netId) => {
     const src = source;
+    if (!ingressAllowed(src, "vehicleSync:request")) return;
     const vehicle = mp.vehicles.atNetId(netId);
     if (!vehicle) return;
     const snap = buildSnapshot(vehicle);

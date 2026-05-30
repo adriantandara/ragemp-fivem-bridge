@@ -87,8 +87,13 @@ export class BrowserMp extends Entity {
   }
 
   markAsChat(flag) {
-    this._isChatBrowser = flag;
-    if (flag) SetNuiFocusKeepInput(true);
+    const enabled = flag === undefined ? true : !!flag;
+    this._isChatBrowser = enabled;
+    const pool = globalThis.mp?.browsers;
+    if (pool) {
+      if (enabled) pool._chatBrowser = this;
+      else if (pool._chatBrowser === this) pool._chatBrowser = null;
+    }
   }
 
   reload(ignoreCache) {
@@ -122,7 +127,9 @@ export class BrowserMp extends Entity {
       this._active = false;
       SetNuiFocus(false, false);
     }
+    const pool = globalThis.mp?.browsers;
+    if (pool && pool._chatBrowser === this) pool._chatBrowser = null;
     SendNuiMessage(JSON.stringify({ type: "__ragemp:browser:destroy", browserId: this.id }));
-    globalThis.mp?.browsers?._remove(this.id);
+    pool?._remove(this.id);
   }
 }

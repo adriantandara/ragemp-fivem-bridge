@@ -10,6 +10,18 @@ const MpTypes = {
   Vehicle: "v",
 };
 
+const TYPE_TO_MP = {
+  blip: { code: MpTypes.Blip, pool: "blips" },
+  checkpoint: { code: MpTypes.Checkpoint, pool: "checkpoints" },
+  colshape: { code: MpTypes.Colshape, pool: "colshapes" },
+  textlabel: { code: MpTypes.Label, pool: "labels" },
+  marker: { code: MpTypes.Marker, pool: "markers" },
+  object: { code: MpTypes.Object, pool: "objects" },
+  pickup: { code: MpTypes.Pickup, pool: "pickups" },
+  player: { code: MpTypes.Player, pool: "players" },
+  vehicle: { code: MpTypes.Vehicle, pool: "vehicles" },
+};
+
 let DEBUG_MODE = false;
 
 export function setDebugMode(state) {
@@ -51,51 +63,21 @@ export function generateId() {
   return ("000" + first.toString(36)).slice(-3) + ("000" + second.toString(36)).slice(-3);
 }
 
-function isObjectMpType(value, type) {
-  const env = getEnvironment();
-  const mp = globalThis.mp;
-  if (!value || typeof value !== "object" || typeof value.id === "undefined") return false;
-  if (env === "client") {
-    switch (type) {
-      case MpTypes.Blip: return value.type === "blip" && mp.blips?.at(value.id) === value;
-      case MpTypes.Checkpoint: return value.type === "checkpoint" && mp.checkpoints?.at(value.id) === value;
-      case MpTypes.Colshape: return value.type === "colshape" && mp.colshapes?.at(value.id) === value;
-      case MpTypes.Label: return value.type === "textlabel" && mp.labels?.at(value.id) === value;
-      case MpTypes.Marker: return value.type === "marker" && mp.markers?.at(value.id) === value;
-      case MpTypes.Object: return value.type === "object" && mp.objects?.at(value.id) === value;
-      case MpTypes.Pickup: return value.type === "pickup" && mp.pickups?.at(value.id) === value;
-      case MpTypes.Player: return value.type === "player" && mp.players?.at(value.id) === value;
-      case MpTypes.Vehicle: return value.type === "vehicle" && mp.vehicles?.at(value.id) === value;
-    }
-  } else if (env === "server") {
-    switch (type) {
-      case MpTypes.Blip: return value.type === "blip" && mp.blips?.at(value.id) === value;
-      case MpTypes.Checkpoint: return value.type === "checkpoint" && mp.checkpoints?.at(value.id) === value;
-      case MpTypes.Colshape: return value.type === "colshape" && mp.colshapes?.at(value.id) === value;
-      case MpTypes.Label: return value.type === "textlabel" && mp.labels?.at(value.id) === value;
-      case MpTypes.Marker: return value.type === "marker" && mp.markers?.at(value.id) === value;
-      case MpTypes.Object: return value.type === "object" && mp.objects?.at(value.id) === value;
-      case MpTypes.Pickup: return value.type === "pickup" && mp.pickups?.at(value.id) === value;
-      case MpTypes.Player: return value.type === "player" && mp.players?.at(value.id) === value;
-      case MpTypes.Vehicle: return value.type === "vehicle" && mp.vehicles?.at(value.id) === value;
-    }
-  }
-  return false;
+function mpTypeOf(value, mp) {
+  if (!mp || !value || typeof value !== "object" || typeof value.id === "undefined") return null;
+  const entry = TYPE_TO_MP[value.type];
+  if (!entry) return null;
+  const pool = mp[entry.pool];
+  if (pool && typeof pool.at === "function" && pool.at(value.id) === value) return entry.code;
+  return null;
 }
 
 export function stringifyData(data) {
   const env = getEnvironment();
+  const mp = globalThis.mp;
   return JSON.stringify(data, (_, value) => {
     if ((env === "client" || env === "server") && value && typeof value === "object") {
-      let type = null;
-      if (isObjectMpType(value, MpTypes.Blip)) type = MpTypes.Blip;
-      else if (isObjectMpType(value, MpTypes.Checkpoint)) type = MpTypes.Checkpoint;
-      else if (isObjectMpType(value, MpTypes.Colshape)) type = MpTypes.Colshape;
-      else if (isObjectMpType(value, MpTypes.Marker)) type = MpTypes.Marker;
-      else if (isObjectMpType(value, MpTypes.Object)) type = MpTypes.Object;
-      else if (isObjectMpType(value, MpTypes.Pickup)) type = MpTypes.Pickup;
-      else if (isObjectMpType(value, MpTypes.Player)) type = MpTypes.Player;
-      else if (isObjectMpType(value, MpTypes.Vehicle)) type = MpTypes.Vehicle;
+      const type = mpTypeOf(value, mp);
       if (type) return { __t: type, i: typeof value.remoteId === "number" ? value.remoteId : value.id };
     }
     return value;

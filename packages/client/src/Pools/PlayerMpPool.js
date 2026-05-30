@@ -65,6 +65,10 @@ export class PlayerMpPool extends Pool {
       SetEntityHealth(PlayerPedId(), value);
     });
 
+    onNet("ragemp:setArmour", (value) => {
+      SetPedArmour(PlayerPedId(), value);
+    });
+
     onNet("ragemp:setAlpha", (value) => {
       SetEntityAlpha(PlayerPedId(), value, false);
     });
@@ -80,10 +84,13 @@ export class PlayerMpPool extends Pool {
     });
   }
 
+  _activePlayerSet = new Set();
+
   _setupStreaming() {
     onWorldScan((cache) => {
       const activePlayers = cache.players;
-      const activeSet = new Set();
+      const activeSet = this._activePlayerSet;
+      activeSet.clear();
 
       for (const playerIndex of activePlayers) {
         const serverId = GetPlayerServerId(playerIndex);

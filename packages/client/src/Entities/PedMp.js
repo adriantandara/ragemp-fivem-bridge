@@ -7,7 +7,7 @@ export class PedMp extends Entity {
   constructor(id, handle) {
     super(id, "ped");
     this._handle = handle;
-    return withEntityNatives(this, (t) => t._handle, ["Ped", "Entity", ""]);
+    return withEntityNatives(this, (t) => t._handle, ["Entity", "Ped"]);
   }
 
   _stateBag() {

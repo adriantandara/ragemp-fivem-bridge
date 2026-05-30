@@ -2,6 +2,9 @@ import * as util from "./util.js";
 
 const ERR_NOT_FOUND = "PROCEDURE_NOT_FOUND";
 const MAX_DATA_SIZE = 32000;
+const MAX_PARTIAL_CHUNKS = 1024;
+const PARTIAL_TTL_MS = 10000;
+const PENDING_TTL_MS = 60000;
 
 const IDENTIFIER = "__rpc:id";
 const PROCESS_EVENT = "__rpc:process";
@@ -16,6 +19,21 @@ let environment = null;
 
 function getMp() {
   return globalThis.mp;
+}
+
+function rpcNameAllowed(name) {
+  if (typeof name === "string" && name.indexOf("__rpc:") === 0) return true;
+  const list = globalThis.mp?.config?.security?.rpcAllowlist;
+  if (!list) return true;
+  return list.indexOf(name) !== -1;
+}
+
+function addPending(id, entry) {
+  const g = globalThis;
+  entry.timer = setTimeout(() => {
+    delete g.__rpcPending[id];
+  }, PENDING_TTL_MS);
+  g.__rpcPending[id] = entry;
 }
 
 function ensureInitialized() {
@@ -39,24 +57,41 @@ function ensureInitialized() {
   g.__rpcPartialData = g.__rpcPartialData || {};
 
   g[PROCESS_EVENT_PARTIAL] = (player, id, index, size, rawData) => {
+    let owner = player;
     if (environment !== "server") {
       rawData = size;
       size = index;
       index = id;
       id = player;
+      owner = null;
     }
 
-    if (!g.__rpcPartialData[id]) {
-      g.__rpcPartialData[id] = new Array(size);
+    size = Number(size);
+    index = Number(index);
+    if (!Number.isInteger(size) || size <= 0 || size > MAX_PARTIAL_CHUNKS) return;
+    if (!Number.isInteger(index) || index < 0 || index >= size) return;
+    if (typeof rawData !== "string" || rawData.length > MAX_DATA_SIZE) return;
+
+    const key = owner != null ? `${owner}:${id}` : String(id);
+    let entry = g.__rpcPartialData[key];
+    if (!entry) {
+      entry = { chunks: new Array(size), received: 0, size, timer: null };
+      entry.timer = setTimeout(() => {
+        delete g.__rpcPartialData[key];
+      }, PARTIAL_TTL_MS);
+      g.__rpcPartialData[key] = entry;
     }
+    if (entry.size !== size || entry.chunks[index] !== undefined) return;
 
-    g.__rpcPartialData[id][index] = rawData;
+    entry.chunks[index] = rawData;
+    entry.received++;
 
-    if (!g.__rpcPartialData[id].includes(undefined)) {
-      const full = g.__rpcPartialData[id].join("");
+    if (entry.received >= entry.size) {
+      if (entry.timer) clearTimeout(entry.timer);
+      delete g.__rpcPartialData[key];
+      const full = entry.chunks.join("");
       if (environment === "server") g[PROCESS_EVENT](player, full);
       else g[PROCESS_EVENT](full);
-      delete g.__rpcPartialData[id];
     }
   };
 
@@ -92,17 +127,26 @@ function ensureInitialized() {
       }
 
       if (ret) {
-        const promise = callProcedure(data.name, data.args, info);
+        let promise;
+        if (environment === "server" && !rpcNameAllowed(data.name)) {
+          util.log(`Blocked RPC "${data.name}" (not in ragemp_rpc_allowlist)`, "warn");
+          promise = util.promiseReject(`${ERR_NOT_FOUND} (${data.name})`);
+        } else {
+          promise = callProcedure(data.name, data.args, info);
+        }
         if (!data.noRet) {
           promise
             .then((res) => ret({ ...part, res }))
             .catch((err) => ret({ ...part, err: err == null ? null : err }));
+        } else {
+          promise.catch(() => {});
         }
       }
     } else if (data.ret) {
       const info = g.__rpcPending[data.id];
       if (environment === "server" && info && info.player !== player) return;
       if (info) {
+        if (info.timer) clearTimeout(info.timer);
         info.resolve(
           Object.prototype.hasOwnProperty.call(data, "err")
             ? Promise.reject(data.err)
@@ -250,7 +294,7 @@ function _callServer(name, args, extraData = {}) {
     case "client": {
       const id = util.generateId();
       return new Promise((resolve) => {
-        if (!extraData.noRet) g.__rpcPending[id] = { resolve };
+        if (!extraData.noRet) addPending(id, { resolve });
         sendEventData({ req: 1, id, name, env: environment, args, ...extraData });
       });
     }
@@ -277,14 +321,14 @@ function _callClient(player, name, args, extraData = {}) {
     case "server": {
       const id = util.generateId();
       return new Promise((resolve) => {
-        if (!extraData.noRet) g.__rpcPending[id] = { resolve, player };
+        if (!extraData.noRet) addPending(id, { resolve, player });
         sendEventData({ req: 1, id, name, env: environment, args, ...extraData }, player);
       });
     }
     case "cef": {
       const id = util.generateId();
       return g[IDENTIFIER].then((browserId) => new Promise((resolve) => {
-        if (!extraData.noRet) g.__rpcPending[id] = { resolve };
+        if (!extraData.noRet) addPending(id, { resolve });
         getMp().trigger(PROCESS_EVENT, util.stringifyData({ b: browserId, req: 1, id, name, env: environment, args, ...extraData }));
       }));
     }
@@ -317,7 +361,7 @@ function _callBrowser(browser, name, args, extraData = {}) {
   const g = globalThis;
   return new Promise((resolve) => {
     const id = util.generateId();
-    if (!extraData.noRet) g.__rpcPending[id] = { resolve };
+    if (!extraData.noRet) addPending(id, { resolve });
     passEventToBrowser(browser, { req: 1, id, name, env: environment, args, ...extraData }, false);
   });
 }

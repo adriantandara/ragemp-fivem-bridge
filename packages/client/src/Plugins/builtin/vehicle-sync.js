@@ -20,6 +20,16 @@ export default function setup({ mp, plugin }) {
     }
 
     applyVehicleSnapshot(handle, snapshot);
+
+    if (snapshot && snapshot.vars) {
+      const vehicle = mp.vehicles?.atHandle?.(handle);
+      if (vehicle && vehicle._variables) {
+        for (const key in snapshot.vars) {
+          if (!vehicle._variables.has(key)) vehicle._variables.set(key, snapshot.vars[key]);
+        }
+      }
+    }
+
     requested.delete(netId);
   });
 

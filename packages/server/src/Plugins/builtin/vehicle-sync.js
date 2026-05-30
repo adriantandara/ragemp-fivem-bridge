@@ -29,6 +29,14 @@ export default function setup({ mp, plugin }) {
     if (vehicle._extras && Object.keys(vehicle._extras).length) snap.extras = vehicle._extras;
     if (vehicle._colorRGB) snap.colorRGB = vehicle._colorRGB;
 
+    if (vehicle._variables && vehicle._variables.size) {
+      const vars = {};
+      for (const [k, v] of vehicle._variables) {
+        if (v !== undefined && v !== null) vars[k] = v;
+      }
+      if (Object.keys(vars).length) snap.vars = vars;
+    }
+
     return snap;
   }
 

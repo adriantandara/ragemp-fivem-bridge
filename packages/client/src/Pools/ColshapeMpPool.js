@@ -107,7 +107,6 @@ export class ColshapeMpPool extends Pool {
     try {
       globalThis.mp.events._fire(
         entering ? "playerEnterColshape" : "playerExitColshape",
-        local,
         colshape
       );
     } catch (e) {

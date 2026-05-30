@@ -80,6 +80,8 @@ class ChatMp {
 
 class CursorMp {
   _visible = false;
+  _freeze = false;
+  _freezeTick = null;
 
   get visible() {
     return this._visible;
@@ -91,7 +93,21 @@ class CursorMp {
 
   show(freezeControls, state) {
     this._visible = !!state;
+    this._freeze = !!freezeControls;
     SetNuiFocus(!!state, !!state);
+    this._updateFreezeTick();
+  }
+
+  _updateFreezeTick() {
+    const shouldFreeze = this._visible && this._freeze;
+    if (shouldFreeze && this._freezeTick === null) {
+      this._freezeTick = setTick(() => {
+        DisableAllControlActions(0);
+      });
+    } else if (!shouldFreeze && this._freezeTick !== null) {
+      clearTick(this._freezeTick);
+      this._freezeTick = null;
+    }
   }
 
   get position() {

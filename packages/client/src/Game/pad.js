@@ -36,4 +36,8 @@ export class GamePadNs {
   isInputDisabled(padIndex) { return IsInputDisabled(padIndex); }
   isUsingKeyboard(padIndex) { return IsUsingKeyboard(padIndex); }
   isLookInverted() { return IsLookInverted(); }
+  
+  getControlActionName(inputGroup, control, includeDeviceName) {
+    return Citizen.invokeNative('0x8290252FFF36ACB5', Citizen.resultAsString(), inputGroup, control, includeDeviceName ?? true);
+  }
 }

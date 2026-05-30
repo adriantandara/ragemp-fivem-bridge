@@ -39,6 +39,8 @@ function candidates(name, words) {
 const _aliases = {
   setRagdollFlag: "SetRagdollBlockingFlags",
   setResetRagdollFlag: "ClearRagdollBlockingFlags",
+  setAsMission: "SetEntityAsMissionEntity",
+  setAsMissionEntity: "SetEntityAsMissionEntity",
 };
 
 export function findNative(name, words) {

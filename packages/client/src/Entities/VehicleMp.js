@@ -474,27 +474,15 @@ export class VehicleMp extends Entity {
   }
   
   getIsEngineRunning() {
-    return GetIsVehicleEngineRunning(this.handle);
-  }
-  
-  getClass() {
-    return GetVehicleClass(this.handle);
+    return GetIsVehicleEngineRunning(this._handle);
   }
 
   setEngineHealth(health) {
-    SetVehicleEngineHealth(this.handle, health);
+    SetVehicleEngineHealth(this._handle, health);
   }
-  
-  setEngineOn(toggle, instantly, disableAutoStart) {
-    SetVehicleEngineOn(this.handle, toggle, instantly ?? true, disableAutoStart ?? false);
-  }
-  
+
   setPetrolTankHealth(health) {
-    SetVehiclePetrolTankHealth(this.handle, health);
-  }
-  
-  setUndriveable(toggle) {
-    SetVehicleUndriveable(this.handle, toggle);
+    SetVehiclePetrolTankHealth(this._handle, health);
   }
 
   destroy() {

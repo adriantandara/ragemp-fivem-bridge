@@ -39,6 +39,7 @@ class ChatMp {
   activate(state) {
     this._active = state;
     emit("chat:toggleActive", state);
+    globalThis.mp?.browsers?._chatBrowser?.call("chat:activate", state);
   }
 
   get colors() {
@@ -62,15 +63,18 @@ class ChatMp {
       ? text
       : String(text).replace(/!\{#[0-9a-fA-F]{3,6}\}/g, "").replace(/\^[0-9]/g, "");
     emit("chat:addMessage", { args: [out] });
+    globalThis.mp?.browsers?._chatBrowser?.call("chat:push", out);
   }
 
   show(state) {
     this._visible = state;
     emit("chat:toggleVisibility", state);
+    globalThis.mp?.browsers?._chatBrowser?.call("chat:show", state);
   }
 
   clear() {
     emit("chat:clear");
+    globalThis.mp?.browsers?._chatBrowser?.call("chat:clear");
   }
 }
 

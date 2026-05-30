@@ -188,6 +188,18 @@ export class EventManager extends EventEmitter {
       if (observer && left) this._fire("playerStreamOut", left, observer);
     });
 
+    on("entityRemoved", (handle) => {
+      const mp = globalThis.mp;
+      if (!mp) return;
+      for (const pool of [mp.vehicles, mp.peds, mp.objects]) {
+        const entity = pool?.atHandle?.(handle);
+        if (entity) {
+          pool._remove(entity.id);
+          break;
+        }
+      }
+    });
+
     onNet("ragemp:vehicleHorn", (vehicleNetId, state) => {
       const vehicle = globalThis.mp?.vehicles?.atNetId?.(vehicleNetId);
       if (vehicle) this._fire("vehicleHornToggle", vehicle, !!state);

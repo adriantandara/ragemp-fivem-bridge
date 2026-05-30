@@ -18,6 +18,10 @@ export function createRuntime() {
         toClient("ragemp:cef:command", { command: args[0] });
         return;
       }
+      if (eventName === "chatMessage" || eventName === "chat:message") {
+        toClient("ragemp:cef:chatMessage", { message: args[0] });
+        return;
+      }
       mp.trigger(eventName, ...args);
     },
     events,

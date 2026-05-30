@@ -210,6 +210,7 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
 
   onNet("ragemp:chatMessage", (message) => {
     emit("chat:addMessage", { args: [message] });
+    globalThis.mp?.browsers?._chatBrowser?.call("chat:push", message);
   });
 
   onNet("ragemp:requestVehicleControl", (targetServerId, netId) => {

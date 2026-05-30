@@ -4,9 +4,21 @@ import { BrowserMp } from "../Entities/BrowserMp";
 let _browserIdCounter = 0;
 
 export class BrowserMpPool extends Pool {
+  _chatBrowser = null;
+
   constructor() {
     super();
     this._setupNuiListeners();
+  }
+
+  _sendChatMessage(message) {
+    const text = typeof message === "string" ? message.trim() : "";
+    if (!text) return;
+    if (text.charAt(0) === "/") {
+      this._execCommand(text);
+      return;
+    }
+    emitNet("ragemp:chat:message", text);
   }
 
   new(url) {
@@ -49,6 +61,8 @@ export class BrowserMpPool extends Pool {
       const { event, args } = data;
       if (event === "command") {
         this._execCommand((args ?? [])[0]);
+      } else if (event === "chatMessage" || event === "chat:message") {
+        this._sendChatMessage((args ?? [])[0]);
       } else if (event && globalThis.mp?.events) {
         globalThis.mp.events._fire(event, ...(args ?? []));
       }
@@ -58,6 +72,12 @@ export class BrowserMpPool extends Pool {
     RegisterNuiCallbackType("ragemp:cef:command");
     on("__cfx_nui:ragemp:cef:command", (data, cb) => {
       this._execCommand(data && data.command);
+      cb({});
+    });
+
+    RegisterNuiCallbackType("ragemp:cef:chatMessage");
+    on("__cfx_nui:ragemp:cef:chatMessage", (data, cb) => {
+      this._sendChatMessage(data && data.message);
       cb({});
     });
   }

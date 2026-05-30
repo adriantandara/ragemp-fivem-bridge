@@ -282,6 +282,7 @@ export class EventManager extends EventEmitter {
           break;
         }
       }
+      this._lastVehicleSeat = seatIndex;
 
       const vehicleNetId = safeGetNetworkId(vehicleHandle);
 
@@ -317,7 +318,8 @@ export class EventManager extends EventEmitter {
       }
 
       const vehicleNetId = safeGetNetworkId(tryingToEnterVehicle);
-      this._fire("playerStartEnterVehicle", localPlayer, tryingToEnterVehicle, seatIndex);
+      const startVehicle = globalThis.mp?.vehicles?.atHandle?.(tryingToEnterVehicle) ?? null;
+      this._fire("playerStartEnterVehicle", startVehicle, seatIndex);
       emitNet("ragemp:playerStartEnterVehicle", vehicleNetId, seatIndex);
     } else if (tryingToEnterVehicle === 0 && this._isTryingToEnterVehicle) {
       this._isTryingToEnterVehicle = false;
@@ -329,7 +331,8 @@ export class EventManager extends EventEmitter {
       this._isTryingToExitVehicle = true;
       const vehicleHandle = GetVehiclePedIsIn(ped, false);
       const vehicleNetId = safeGetNetworkId(vehicleHandle);
-      this._fire("playerStartExitVehicle", localPlayer, vehicleHandle);
+      const exitVehicle = globalThis.mp?.vehicles?.atHandle?.(vehicleHandle) ?? null;
+      this._fire("playerStartExitVehicle", exitVehicle);
       emitNet("ragemp:playerStartExitVehicle", vehicleNetId);
     } else if (!isTryingToExit && this._isTryingToExitVehicle) {
       this._isTryingToExitVehicle = false;

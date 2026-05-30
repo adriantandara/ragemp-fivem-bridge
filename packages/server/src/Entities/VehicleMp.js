@@ -214,6 +214,7 @@ export class VehicleMp extends Entity {
   }
 
   get velocity() {
+    if (!DoesEntityExist(this._handle)) return new Vector3(0, 0, 0);
     const v = GetEntityVelocity(this._handle);
     return new Vector3(v[0], v[1], v[2]);
   }

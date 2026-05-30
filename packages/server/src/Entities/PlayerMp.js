@@ -274,8 +274,18 @@ export class PlayerMp extends Entity {
     return this._hairColor;
   }
 
+  set hairColor(value) {
+    this._hairColor = value;
+    emitNet("ragemp:setHairColor", this.id, this._hairColor, this._hairHighlightColor);
+  }
+
   get hairHighlightColor() {
     return this._hairHighlightColor;
+  }
+
+  set hairHighlightColor(value) {
+    this._hairHighlightColor = value;
+    emitNet("ragemp:setHairColor", this.id, this._hairColor, this._hairHighlightColor);
   }
 
   get vehicle() {

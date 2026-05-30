@@ -19,6 +19,28 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
   const _clothesState = new Map();
   let _clothesTick = null;
   let _clothesDeadline = 0;
+  let _customization = null;
+
+  function applyCustomization() {
+    const ped = PlayerPedId();
+    if (!ped || ped === 0 || !_customization) return false;
+    const p = _customization;
+    SetPedHeadBlendData(
+      ped,
+      p.shapeFirst ?? 0, p.shapeSecond ?? 0, p.shapeThird ?? 0,
+      p.skinFirst ?? 0, p.skinSecond ?? 0, p.skinThird ?? 0,
+      p.shapeMix ?? 0, p.skinMix ?? 0, p.thirdMix ?? 0,
+      false
+    );
+    if (p.eyeColor !== undefined) SetPedEyeColor(ped, p.eyeColor);
+    if (p.hairColor !== undefined) SetPedHairColor(ped, p.hairColor, p.highlightColor ?? p.hairColor);
+    if (Array.isArray(p.faceFeatures)) {
+      for (let i = 0; i < p.faceFeatures.length && i < 20; i++) {
+        SetPedFaceFeature(ped, i, p.faceFeatures[i] ?? 0);
+      }
+    }
+    return true;
+  }
 
   function applyOneClothes(ped, component, c) {
     let d = c[0] | 0;
@@ -56,6 +78,7 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
 
   globalThis.mp.events.add("playerSpawn", () => {
     if (_clothesState.size) ensureClothesApplied();
+    if (_customization) applyCustomization();
   });
 
   onNet("ragemp:giveWeapon", (weaponHash, ammo) => {
@@ -84,6 +107,7 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
         clearInterval(timer);
         SetPlayerModel(PlayerId(), model);
         SetModelAsNoLongerNeeded(model);
+        if (_customization) applyCustomization();
         if (_clothesState.size) ensureClothesApplied();
       } else if (++tries > 100) {
         clearInterval(timer);
@@ -136,12 +160,8 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
 
   onNet("ragemp:setCustomization", (params) => {
     if (!params || typeof params !== "object") return;
-    const ped = PlayerPedId();
-    if (params.shapeFirst !== undefined) {
-      SetPedHeadBlendData(ped, params.shapeFirst, params.shapeSecond ?? 0, params.shapeThird ?? 0, params.skinFirst ?? 0, params.skinSecond ?? 0, params.skinThird ?? 0, params.shapeMix ?? 0, params.skinMix ?? 0, params.thirdMix ?? 0, false);
-    }
-    if (params.eyeColor !== undefined) SetPedEyeColor(ped, params.eyeColor);
-    if (params.hairColor !== undefined) SetPedHairColor(ped, params.hairColor, params.highlightColor ?? params.hairColor);
+    _customization = params;
+    applyCustomization();
   });
 
   onNet("ragemp:setWeapon", (weapon) => {
@@ -229,8 +249,15 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
     SetWeatherTypePersist(weather);
   });
 
-  onNet("ragemp:setWeatherTransition", (from, to) => {
-    if (typeof to === "string") SetWeatherTypeNowPersist(to);
+  onNet("ragemp:setWeatherTransition", (weather, easeTime) => {
+    if (typeof weather !== "string") return;
+    const ms = typeof easeTime === "number" ? easeTime : 0;
+    if (ms > 0 && typeof SetWeatherTypeOvertimePersist === "function") {
+      SetWeatherTypeOvertimePersist(weather, ms / 1000);
+    } else {
+      SetWeatherTypeNowPersist(weather);
+      SetWeatherTypePersist(weather);
+    }
   });
 
   onNet("ragemp:requestIpl", (name) => {

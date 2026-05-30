@@ -36,6 +36,13 @@ export class PlayerMpPool extends Pool {
       }
       this._remove(playerSource);
     });
+
+    onNet("ragemp:callProcResult", (reqId, error, result) => {
+      const player = this._entities.get(source);
+      if (player && typeof player._resolveProc === "function") {
+        player._resolveProc(reqId, error, result);
+      }
+    });
   }
 
   broadcast(text) {

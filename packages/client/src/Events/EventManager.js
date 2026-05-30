@@ -53,6 +53,7 @@ export class EventManager extends EventEmitter {
     this._setupGlobalErrorHandlers();
     this._setupStateBags();
     this._setupMainTick();
+    this._setupProcChannel();
 
     onNet("ragemp:playerReady", (forResource) => {
       if (forResource && forResource !== GetCurrentResourceName()) return;
@@ -597,24 +598,41 @@ export class EventManager extends EventEmitter {
     this._procs.set(procName, handler);
   }
 
-  _ensureProcListener(procName) {
-    if (!this._procListeners) this._procListeners = new Set();
-    if (this._procListeners.has(procName)) return;
-    this._procListeners.add(procName);
-    onNet(`ragemp:procResult:${procName}`, (reqId, result, error) => {
-      const entry = this._pendingProcs?.get(reqId);
-      if (!entry || entry.procName !== procName) return;
+  removeProc(procName) {
+    this._procs?.delete(procName);
+  }
+
+  _setupProcChannel() {
+    if (!this._pendingProcs) this._pendingProcs = new Map();
+    if (!this._procs) this._procs = new Map();
+
+    onNet("ragemp:procResult", (reqId, error, result) => {
+      const entry = this._pendingProcs.get(reqId);
+      if (!entry) return;
       if (entry.timer) clearTimeout(entry.timer);
       this._pendingProcs.delete(reqId);
       if (error) entry.reject(new Error(error));
       else entry.resolve(result);
+    });
+
+    onNet("ragemp:callProc", async (procName, reqId, ...args) => {
+      const handler = this._procs.get(procName);
+      if (!handler) {
+        emitNet("ragemp:callProcResult", reqId, `Proc not found: ${procName}`, null);
+        return;
+      }
+      try {
+        const result = await handler(...args);
+        emitNet("ragemp:callProcResult", reqId, null, result);
+      } catch (err) {
+        emitNet("ragemp:callProcResult", reqId, String(err), null);
+      }
     });
   }
 
   callRemoteProc(procName, ...args) {
     if (!this._pendingProcs) this._pendingProcs = new Map();
     if (!this._procCounter) this._procCounter = 0;
-    this._ensureProcListener(procName);
     const requestId = ++this._procCounter;
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
@@ -624,7 +642,7 @@ export class EventManager extends EventEmitter {
         }
       }, 30000);
       this._pendingProcs.set(requestId, { procName, resolve, reject, timer });
-      emitNet(`ragemp:proc:${procName}`, requestId, ...args);
+      emitNet("ragemp:proc", procName, requestId, ...args);
     });
   }
 

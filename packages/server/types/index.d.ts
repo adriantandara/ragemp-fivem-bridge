@@ -118,7 +118,7 @@ export interface PlayerMp extends EntityMp {
 
   call(eventName: string, ...args: any[]): void;
   callUnreliable(eventName: string, ...args: any[]): void;
-  callToStreamed(eventName: string, ...args: any[]): void;
+  callToStreamed(includeSelf: boolean, eventName: string, args?: any[]): void;
   callProc<T = any>(procName: string, ...args: any[]): Promise<T>;
   cancelPendingProc(): void;
   hasPendingProc(): boolean;
@@ -153,7 +153,22 @@ export interface PlayerMp extends EntityMp {
   getFaceFeature(index: number): number;
   setHeadOverlay(overlay: number, params: { index: number; opacity: number; color?: number; secondaryColor?: number }): void;
   getHeadOverlay(overlay: number): { index: number; opacity: number; color: number; secondaryColor: number };
-  setCustomization(params: Record<string, any>): void;
+  setCustomization(
+    gender: boolean,
+    shapeFirst: number,
+    shapeSecond: number,
+    shapeThird: number,
+    skinFirst: number,
+    skinSecond: number,
+    skinThird: number,
+    shapeMix: number,
+    skinMix: number,
+    thirdMix: number,
+    eyeColor: number,
+    hairColor: number,
+    highlightColor: number,
+    faceFeatures: number[]
+  ): void;
   setDecoration(collection: HashOrString, overlay: HashOrString): void;
   getDecoration(collection: HashOrString, overlay: HashOrString): boolean;
   clearDecorations(): void;
@@ -415,7 +430,7 @@ export interface ColshapeMp extends EntityMp {
 
 export interface ColshapeMpPool extends EntityMpPool<ColshapeMp> {
   newSphere(x: number, y: number, z: number, range: number, dimension?: number): ColshapeMp;
-  newTube(x: number, y: number, z: number, range: number, height: number, dimension?: number): ColshapeMp;
+  newTube(x: number, y: number, z: number, height: number, range: number, dimension?: number): ColshapeMp;
   newCircle(x: number, y: number, range: number, dimension?: number): ColshapeMp;
   newRectangle(x: number, y: number, width: number, height: number, dimension?: number): ColshapeMp;
   newCuboid(x: number, y: number, z: number, width: number, depth: number, height: number, dimension?: number): ColshapeMp;
@@ -478,7 +493,7 @@ export interface WorldMp {
   };
   removeIpl(name: string): void;
   requestIpl(name: string): void;
-  setWeatherTransition(from: string, to: string, duration?: number): void;
+  setWeatherTransition(weather: string, easeTime?: number): void;
 }
 
 export interface ConfigMp {

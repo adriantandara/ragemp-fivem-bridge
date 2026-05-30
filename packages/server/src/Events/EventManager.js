@@ -44,6 +44,24 @@ export class EventManager extends EventEmitter {
       this._processCommand(src, commandText);
     });
 
+    onNet("ragemp:proc", async (procName, requestId, ...args) => {
+      const src = source;
+      if (!ingressAllowed(src, "proc")) return;
+      const player = globalThis.mp.players.at(src);
+      if (!player) return;
+      const handler = this._procs.get(procName);
+      if (!handler) {
+        emitNet("ragemp:procResult", src, requestId, `Proc not found: ${procName}`, null);
+        return;
+      }
+      try {
+        const result = await handler(player, ...args);
+        emitNet("ragemp:procResult", src, requestId, null, result);
+      } catch (err) {
+        emitNet("ragemp:procResult", src, requestId, String(err), null);
+      }
+    });
+
     onNet("ragemp:chat:message", (rawText) => {
       const player = globalThis.mp.players.at(source);
       if (!player || typeof rawText !== "string") return;
@@ -299,23 +317,10 @@ export class EventManager extends EventEmitter {
 
   addProc(procName, handler) {
     this._procs.set(procName, handler);
-    onNet(`ragemp:proc:${procName}`, async (requestId, ...args) => {
-      const src = source;
-      const player = globalThis.mp.players.at(src);
-      if (!player) return;
-      try {
-        const result = await handler(player, ...args);
-        emitNet(`ragemp:procResult:${procName}`, src, requestId, result, null);
-      } catch (err) {
-        emitNet(
-          `ragemp:procResult:${procName}`,
-          src,
-          requestId,
-          null,
-          String(err),
-        );
-      }
-    });
+  }
+
+  removeProc(procName) {
+    this._procs.delete(procName);
   }
 
   reset() {

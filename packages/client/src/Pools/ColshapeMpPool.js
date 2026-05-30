@@ -84,32 +84,42 @@ export class ColshapeMpPool extends Pool {
     });
   }
 
-  _createLocal(shapeType, position, params) {
+  _createLocal(shapeType, position, params, dimension = 0) {
     const id = ++localColshapeIdCounter;
     const colshape = new ColshapeMp(id, shapeType, position, params);
     colshape._origin = "local";
+    if (dimension) colshape._dimension = dimension;
     this._add(colshape);
     return colshape;
   }
 
-  newSphere(position, radius) {
-    return this._createLocal("sphere", position, { radius });
+  newSphere(x, y, z, range, dimension = 0) {
+    if (x !== null && typeof x === "object") {
+      return this._createLocal("sphere", new Vector3(x.x, x.y, x.z), { radius: y }, z ?? 0);
+    }
+    return this._createLocal("sphere", new Vector3(x, y, z), { radius: range }, dimension);
   }
 
-  newTube(position, radius, height) {
-    return this._createLocal("tube", position, { radius, height });
+  newTube(x, y, z, height, range, dimension = 0) {
+    if (x !== null && typeof x === "object") {
+      return this._createLocal("tube", new Vector3(x.x, x.y, x.z), { radius: y, height: z }, 0);
+    }
+    return this._createLocal("tube", new Vector3(x, y, z), { radius: range, height }, dimension);
   }
 
-  newCircle(x, y, radius) {
-    return this._createLocal("circle", new Vector3(x, y, 0), { radius });
+  newCircle(x, y, range, dimension = 0) {
+    return this._createLocal("circle", new Vector3(x, y, 0), { radius: range }, dimension);
   }
 
-  newRectangle(x, y, width, height) {
-    return this._createLocal("rectangle", new Vector3(x, y, 0), { width, height });
+  newRectangle(x, y, width, height, dimension = 0) {
+    return this._createLocal("rectangle", new Vector3(x, y, 0), { width, height }, dimension);
   }
 
-  newCuboid(position, width, depth, height) {
-    return this._createLocal("cuboid", position, { width, depth, height });
+  newCuboid(x, y, z, width, depth, height, dimension = 0) {
+    if (x !== null && typeof x === "object") {
+      return this._createLocal("cuboid", new Vector3(x.x, x.y, x.z), { width: y, depth: z, height: width }, 0);
+    }
+    return this._createLocal("cuboid", new Vector3(x, y, z), { width, depth, height }, dimension);
   }
 
   _remove(id) {

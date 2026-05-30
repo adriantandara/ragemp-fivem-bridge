@@ -22,11 +22,19 @@ export class KeyManager {
   }
 
   isDown(keyCode) {
-    return this._pressedKeys.has(keyCode);
+    const code = typeof keyCode === "number" ? keyCode : parseInt(keyCode, 10);
+    const focused = typeof IsNuiFocused === "function" && IsNuiFocused();
+    if (focused) {
+      return this._nuiPressed.has(code);
+    }
+    if (typeof IsDisabledRawKeyDown === "function") {
+      return IsDisabledRawKeyDown(code) || IsRawKeyDown(code);
+    }
+    return this._pressedKeys.has(code);
   }
 
   isUp(keyCode) {
-    return !this._pressedKeys.has(keyCode);
+    return !this.isDown(keyCode);
   }
 
   _setNuiKey(code, down) {
@@ -80,7 +88,7 @@ export class KeyManager {
         const keyCode = this._keyCodeCache.get(key);
         const isDown = focused
           ? this._nuiPressed.has(keyCode)
-          : IsDisabledRawKeyPressed(keyCode) || IsRawKeyPressed(keyCode);
+          : IsDisabledRawKeyDown(keyCode) || IsRawKeyDown(keyCode);
         const wasDown = this._pressedKeys.has(keyCode);
         if (isDown && !wasDown) {
           this._pressedKeys.add(keyCode);

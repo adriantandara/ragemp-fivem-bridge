@@ -32,7 +32,49 @@ export class ObjectMp extends Entity {
   }
 
   get model() {
-    return GetEntityModel(this._handle);
+    return this._model || GetEntityModel(this._handle);
+  }
+
+  set model(value) {
+    const modelHash = typeof value === "string" ? GetHashKey(value) : value;
+
+    if (!DoesEntityExist(this._handle)) {
+      this._model = modelHash;
+      return;
+    }
+
+    const coords = GetEntityCoords(this._handle);
+    const rot = GetEntityRotation(this._handle, 2);
+    const dimension = GetEntityRoutingBucket(this._handle);
+    const alpha = this._alpha;
+
+    const pool = globalThis.mp.objects;
+    pool._handleToEntity.delete(this._handle);
+    DeleteEntity(this._handle);
+
+    const handle = CreateObjectNoOffset(modelHash, coords[0], coords[1], coords[2], true, true, false);
+    this._handle = handle;
+    this._model = modelHash;
+    pool._handleToEntity.set(handle, this);
+
+    SetEntityRotation(handle, rot[0], rot[1], rot[2], 2, false);
+
+    if (dimension !== 0) {
+      SetEntityRoutingBucket(handle, dimension);
+    }
+
+    if (alpha !== 255) {
+      emitNet("ragemp:objectAlpha", -1, NetworkGetNetworkIdFromEntity(handle), alpha);
+    }
+
+    const bag = this._stateBag();
+    if (bag) {
+      for (const [key, val] of this._variables) {
+        try {
+          bag.set(key, val, true);
+        } catch (e) {  }
+      }
+    }
   }
 
   get alpha() {

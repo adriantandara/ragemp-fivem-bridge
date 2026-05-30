@@ -1,5 +1,6 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { gtaPedHealthToRage } from "@ragemp-fivem-bridge/shared";
 
 export class PlayerMp extends Entity {
   constructor(source) {
@@ -87,10 +88,18 @@ export class PlayerMp extends Entity {
   }
 
   get health() {
-    return GetEntityHealth(this.ped);
+    return gtaPedHealthToRage(GetEntityHealth(this.ped));
   }
 
   set health(value) {
+    emitNet("ragemp:setHealth", this.id, value);
+  }
+
+  getHealth() {
+    return gtaPedHealthToRage(GetEntityHealth(this.ped));
+  }
+
+  setHealth(value) {
     emitNet("ragemp:setHealth", this.id, value);
   }
 
@@ -265,8 +274,18 @@ export class PlayerMp extends Entity {
     return this._hairColor;
   }
 
+  set hairColor(value) {
+    this._hairColor = value;
+    emitNet("ragemp:setHairColor", this.id, this._hairColor, this._hairHighlightColor);
+  }
+
   get hairHighlightColor() {
     return this._hairHighlightColor;
+  }
+
+  set hairHighlightColor(value) {
+    this._hairHighlightColor = value;
+    emitNet("ragemp:setHairColor", this.id, this._hairColor, this._hairHighlightColor);
   }
 
   get vehicle() {
@@ -443,7 +462,18 @@ export class PlayerMp extends Entity {
     return this._headOverlays[overlay] ?? { value: 0, opacity: 1.0, color: 0, secondColor: 0 };
   }
 
-  setCustomization(params) {
+  setCustomization(gender, shapeFirst, shapeSecond, shapeThird, skinFirst, skinSecond, skinThird, shapeMix, skinMix, thirdMix, eyeColor, hairColor, highlightColor, faceFeatures) {
+    const params =
+      gender !== null && typeof gender === "object"
+        ? gender
+        : {
+            gender,
+            shapeFirst, shapeSecond, shapeThird,
+            skinFirst, skinSecond, skinThird,
+            shapeMix, skinMix, thirdMix,
+            eyeColor, hairColor, highlightColor, faceFeatures,
+          };
+    this._customization = params;
     emitNet("ragemp:setCustomization", this.id, params);
   }
 
@@ -493,28 +523,36 @@ export class PlayerMp extends Entity {
     emitNet(eventName, this.id, ...(Array.isArray(args) ? args : args == null ? [] : [args]));
   }
 
-  callToStreamed(eventName, args) {
-    emitNet(eventName, this.id, ...(Array.isArray(args) ? args : args == null ? [] : [args]));
+  callToStreamed(includeSelf, eventName, args) {
+    if (typeof includeSelf === "string") {
+      args = eventName;
+      eventName = includeSelf;
+      includeSelf = false;
+    }
+    const argArray = Array.isArray(args) ? args : args == null ? [] : [args];
+    globalThis.mp.players.forEach((other) => {
+      if (other === this) {
+        if (includeSelf) emitNet(eventName, other.id, ...argArray);
+        return;
+      }
+      if (this.isStreamed(other)) {
+        emitNet(eventName, other.id, ...argArray);
+      }
+    });
   }
 
-  _ensureProcListener(procName) {
-    if (!this._procListeners) this._procListeners = new Set();
-    if (this._procListeners.has(procName)) return;
-    this._procListeners.add(procName);
-    onNet(`ragemp:procResult:${procName}`, (resultReqId, error, result) => {
-      const entry = this._pendingProcs?.get(resultReqId);
-      if (!entry || entry.procName !== procName) return;
-      if (entry.timer) clearTimeout(entry.timer);
-      this._pendingProcs.delete(resultReqId);
-      if (error) entry.reject(new Error(error));
-      else entry.resolve(result);
-    });
+  _resolveProc(reqId, error, result) {
+    const entry = this._pendingProcs?.get(reqId);
+    if (!entry) return;
+    if (entry.timer) clearTimeout(entry.timer);
+    this._pendingProcs.delete(reqId);
+    if (error) entry.reject(new Error(error));
+    else entry.resolve(result);
   }
 
   callProc(procName, ...args) {
     if (!this._pendingProcs) this._pendingProcs = new Map();
     if (this._procCounter === undefined) this._procCounter = 0;
-    this._ensureProcListener(procName);
     return new Promise((resolve, reject) => {
       const reqId = ++this._procCounter;
       const timer = setTimeout(() => {

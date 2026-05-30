@@ -54,9 +54,9 @@ export class WorldMp {
     emitNet("ragemp:setTime", -1, this._time.hour, this._time.minute, this._time.second);
   }
 
-  setWeatherTransition(from, to) {
-    this._weather = to;
-    emitNet("ragemp:setWeatherTransition", -1, from, to);
+  setWeatherTransition(weather, easeTime = 0) {
+    this._weather = weather;
+    emitNet("ragemp:setWeatherTransition", -1, weather, easeTime);
   }
 
   removeIpl(name) {

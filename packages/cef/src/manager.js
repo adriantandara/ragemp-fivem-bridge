@@ -213,8 +213,49 @@ export function startManager() {
     const code = e.keyCode || e.which;
     if (code) toClient("ragemp:__keyEvent", { code, down });
   }
-  window.addEventListener("keydown", (e) => forwardKey(e, true), true);
-  window.addEventListener("keyup", (e) => forwardKey(e, false), true);
+
+  function forwardKeyToFrames(e, down) {
+    const init = {
+      key: e.key,
+      code: e.code,
+      keyCode: e.keyCode || e.which || 0,
+      which: e.which || e.keyCode || 0,
+      location: e.location || 0,
+      altKey: !!e.altKey,
+      ctrlKey: !!e.ctrlKey,
+      shiftKey: !!e.shiftKey,
+      metaKey: !!e.metaKey,
+      repeat: !!e.repeat,
+    };
+    for (const entry of frames.values()) {
+      if (!entry.ready || !entry.iframe.contentWindow) continue;
+      try {
+        entry.iframe.contentWindow.postMessage(
+          { __ragempForward: true, inner: { type: "__ragemp:key", down, init } },
+          "*",
+        );
+      } catch (err) {
+        log("key forward failed", String(err));
+      }
+    }
+  }
+
+  window.addEventListener(
+    "keydown",
+    (e) => {
+      forwardKey(e, true);
+      forwardKeyToFrames(e, true);
+    },
+    true,
+  );
+  window.addEventListener(
+    "keyup",
+    (e) => {
+      forwardKey(e, false);
+      forwardKeyToFrames(e, false);
+    },
+    true,
+  );
 
   window.addEventListener("message", (nativeEvent) => {
     const src = nativeEvent.source;

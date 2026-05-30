@@ -2,6 +2,40 @@ import rpc from "@ragemp-fivem-bridge/rage-rpc";
 import { EventManager } from "./events.js";
 import { toClient, log, setDebug, isDebug, setResourceName } from "./transport.js";
 
+function dispatchSyntheticKey(down, init) {
+  if (typeof document === "undefined") return;
+  const type = down ? "keydown" : "keyup";
+  let event;
+  try {
+    event = new KeyboardEvent(type, {
+      key: init.key,
+      code: init.code,
+      location: init.location || 0,
+      altKey: !!init.altKey,
+      ctrlKey: !!init.ctrlKey,
+      shiftKey: !!init.shiftKey,
+      metaKey: !!init.metaKey,
+      repeat: !!init.repeat,
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+    });
+  } catch (e) {
+    event = document.createEvent("Event");
+    event.initEvent(type, true, true);
+  }
+  const kc = init.keyCode || init.which || 0;
+  try {
+    Object.defineProperty(event, "keyCode", { configurable: true, get: () => kc });
+    Object.defineProperty(event, "which", { configurable: true, get: () => kc });
+    Object.defineProperty(event, "key", { configurable: true, get: () => init.key });
+    Object.defineProperty(event, "code", { configurable: true, get: () => init.code });
+  } catch (e) {  }
+  const target =
+    document.activeElement || document.body || document.documentElement || document;
+  target.dispatchEvent(event);
+}
+
 export function createRuntime() {
   let selfId = "host";
   const getSelfId = () => selfId;
@@ -50,6 +84,11 @@ export function createRuntime() {
 
     if (data.type === "__ragemp:reload") {
       location.reload();
+      return;
+    }
+
+    if (data.type === "__ragemp:key") {
+      dispatchSyntheticKey(data.down, data.init || {});
       return;
     }
 

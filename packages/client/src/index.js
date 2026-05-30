@@ -18,28 +18,67 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
   emitNet("ragemp:playerReady", GetCurrentResourceName());
 
   const _clothesState = new Map();
-  let _clothesTick = null;
-  let _clothesDeadline = 0;
-  let _customization = null;
+  const _propsState = new Map();
+  const _appearance = {
+    headBlend: null,
+    eyeColor: null,
+    hairColor: null,
+    faceFeatures: new Map(),
+    headOverlays: new Map(),
+    decorations: [],
+  };
+  let _appearanceTick = null;
+  let _appearanceDeadline = 0;
+  let _appearanceApplied = false;
 
-  function applyCustomization() {
-    const ped = PlayerPedId();
-    if (!ped || ped === 0 || !_customization) return false;
-    const p = _customization;
-    SetPedHeadBlendData(
-      ped,
-      p.shapeFirst ?? 0, p.shapeSecond ?? 0, p.shapeThird ?? 0,
-      p.skinFirst ?? 0, p.skinSecond ?? 0, p.skinThird ?? 0,
-      p.shapeMix ?? 0, p.skinMix ?? 0, p.thirdMix ?? 0,
-      false
-    );
-    if (p.eyeColor !== undefined) SetPedEyeColor(ped, p.eyeColor);
-    if (p.hairColor !== undefined) SetPedHairColor(ped, p.hairColor, p.highlightColor ?? p.hairColor);
-    if (Array.isArray(p.faceFeatures)) {
-      for (let i = 0; i < p.faceFeatures.length && i < 20; i++) {
-        SetPedFaceFeature(ped, i, p.faceFeatures[i] ?? 0);
+  function isFreemodeModel(model) {
+    const m = model >>> 0;
+    return m === (GetHashKey("mp_m_freemode_01") >>> 0) || m === (GetHashKey("mp_f_freemode_01") >>> 0);
+  }
+
+  function applyAppearance(ped) {
+    const a = _appearance;
+    if (a.headBlend) {
+      const b = a.headBlend;
+      SetPedHeadBlendData(
+        ped,
+        b.shapeFirst | 0, b.shapeSecond | 0, b.shapeThird | 0,
+        b.skinFirst | 0, b.skinSecond | 0, b.skinThird | 0,
+        b.shapeMix || 0, b.skinMix || 0, b.thirdMix || 0,
+        false
+      );
+    }
+    if (a.eyeColor != null) SetPedEyeColor(ped, a.eyeColor | 0);
+    if (a.hairColor) SetPedHairColor(ped, a.hairColor.color | 0, (a.hairColor.highlight ?? a.hairColor.color) | 0);
+    for (const [index, scale] of a.faceFeatures) SetPedFaceFeature(ped, index | 0, scale);
+    for (const [overlay, p] of a.headOverlays) {
+      SetPedHeadOverlay(ped, overlay | 0, p.value | 0, p.opacity ?? 1.0);
+      if (p.color !== undefined && p.color !== null) {
+        SetPedHeadOverlayColor(ped, overlay | 0, p.colorType ?? 1, p.color | 0, (p.secondColor ?? p.color) | 0);
       }
     }
+    if (a.decorations.length) {
+      ClearPedDecorations(ped);
+      for (const d of a.decorations) {
+        const c = typeof d.collection === "string" ? GetHashKey(d.collection) : d.collection;
+        const o = typeof d.overlay === "string" ? GetHashKey(d.overlay) : d.overlay;
+        AddPedDecorationFromHashes(ped, c, o);
+      }
+    }
+  }
+
+  function hasAppearance() {
+    const a = _appearance;
+    return !!(a.headBlend || a.eyeColor != null || a.hairColor || a.faceFeatures.size || a.headOverlays.size || a.decorations.length);
+  }
+
+  function applyAppearanceOnce() {
+    if (!hasAppearance()) return true;
+    const ped = PlayerPedId();
+    if (!ped || ped === 0) return false;
+    if (_appearance.headBlend && !isFreemodeModel(GetEntityModel(ped))) return false;
+    applyAppearance(ped);
+    _appearanceApplied = true;
     return true;
   }
 
@@ -66,20 +105,36 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
     return allDone;
   }
 
-  function ensureClothesApplied() {
-    _clothesDeadline = GetGameTimer() + 10000;
-    if (_clothesTick !== null) return;
-    _clothesTick = setTick(() => {
-      if (!_clothesState.size || applyAllClothes() || GetGameTimer() > _clothesDeadline) {
-        clearTick(_clothesTick);
-        _clothesTick = null;
+  function applyAllProps() {
+    const ped = PlayerPedId();
+    if (!ped || ped === 0) return false;
+    for (const [prop, v] of _propsState) {
+      if (v[0] < 0) {
+        ClearPedProp(ped, prop);
+      } else {
+        SetPedPropIndex(ped, prop, v[0], v[1], true);
+      }
+    }
+    return true;
+  }
+
+  function ensureAppearance() {
+    _appearanceApplied = false;
+    _appearanceDeadline = GetGameTimer() + 10000;
+    if (_appearanceTick !== null) return;
+    _appearanceTick = setTick(() => {
+      const faceOk = _appearanceApplied || applyAppearanceOnce();
+      const clothesOk = !_clothesState.size || applyAllClothes();
+      const propsOk = !_propsState.size || applyAllProps();
+      if ((faceOk && clothesOk && propsOk) || GetGameTimer() > _appearanceDeadline) {
+        clearTick(_appearanceTick);
+        _appearanceTick = null;
       }
     });
   }
 
   globalThis.mp.events.add("playerSpawn", () => {
-    if (_clothesState.size) ensureClothesApplied();
-    if (_customization) applyCustomization();
+    ensureAppearance();
   });
 
   onNet("ragemp:setDimension", (dimension) => {
@@ -100,7 +155,7 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
 
   onNet("ragemp:setClothes", (component, drawable, texture, palette) => {
     _clothesState.set(component, [drawable, texture, palette]);
-    ensureClothesApplied();
+    ensureAppearance();
   });
 
   onNet("ragemp:setModel", (model) => {
@@ -112,8 +167,8 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
         clearInterval(timer);
         SetPlayerModel(PlayerId(), model);
         SetModelAsNoLongerNeeded(model);
-        if (_customization) applyCustomization();
-        if (_clothesState.size) ensureClothesApplied();
+        SetPedDefaultComponentVariation(PlayerPedId());
+        ensureAppearance();
       } else if (++tries > 100) {
         clearInterval(timer);
       }
@@ -121,52 +176,81 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
   });
 
   onNet("ragemp:setProp", (prop, drawable, texture) => {
-    SetPedPropIndex(PlayerPedId(), prop, drawable, texture, true);
+    _propsState.set(prop, [drawable, texture]);
+    ensureAppearance();
   });
 
   onNet("ragemp:setEyeColor", (index) => {
-    SetPedEyeColor(PlayerPedId(), index);
+    _appearance.eyeColor = index;
+    ensureAppearance();
   });
 
   onNet("ragemp:setHairColor", (color, highlight) => {
-    SetPedHairColor(PlayerPedId(), color, highlight ?? color);
+    _appearance.hairColor = { color, highlight: highlight ?? color };
+    ensureAppearance();
   });
 
   onNet("ragemp:setFaceFeature", (index, scale) => {
-    SetPedFaceFeature(PlayerPedId(), index, scale);
+    _appearance.faceFeatures.set(index, scale);
+    ensureAppearance();
   });
 
   onNet("ragemp:setHeadBlend", (sf, ss, st, kf, ks, kt, shapeMix, skinMix, thirdMix) => {
-    SetPedHeadBlendData(PlayerPedId(), sf, ss, st ?? 0, kf, ks, kt ?? 0, shapeMix ?? 0, skinMix ?? 0, thirdMix ?? 0, false);
+    _appearance.headBlend = {
+      shapeFirst: sf, shapeSecond: ss, shapeThird: st ?? 0,
+      skinFirst: kf, skinSecond: ks, skinThird: kt ?? 0,
+      shapeMix: shapeMix ?? 0, skinMix: skinMix ?? 0, thirdMix: thirdMix ?? 0,
+    };
+    ensureAppearance();
   });
 
   onNet("ragemp:updateHeadBlend", (shapeMix, skinMix, thirdMix) => {
-    UpdatePedHeadBlendData(PlayerPedId(), shapeMix ?? 0, skinMix ?? 0, thirdMix ?? 0);
+    if (!_appearance.headBlend) {
+      _appearance.headBlend = {
+        shapeFirst: 0, shapeSecond: 0, shapeThird: 0,
+        skinFirst: 0, skinSecond: 0, skinThird: 0,
+        shapeMix: 0, skinMix: 0, thirdMix: 0,
+      };
+    }
+    _appearance.headBlend.shapeMix = shapeMix ?? 0;
+    _appearance.headBlend.skinMix = skinMix ?? 0;
+    _appearance.headBlend.thirdMix = thirdMix ?? 0;
+    ensureAppearance();
   });
 
   onNet("ragemp:setHeadOverlay", (overlay, params) => {
-    const ped = PlayerPedId();
-    const p = params || {};
-    SetPedHeadOverlay(ped, overlay, p.value ?? 0, p.opacity ?? 1.0);
-    if (p.color !== undefined) {
-      SetPedHeadOverlayColor(ped, overlay, p.colorType ?? 1, p.color ?? 0, p.secondColor ?? p.color ?? 0);
-    }
+    _appearance.headOverlays.set(overlay, params || {});
+    ensureAppearance();
   });
 
   onNet("ragemp:setDecoration", (collection, overlay) => {
-    const c = typeof collection === "string" ? GetHashKey(collection) : collection;
-    const o = typeof overlay === "string" ? GetHashKey(overlay) : overlay;
-    AddPedDecorationFromHashes(PlayerPedId(), c, o);
+    _appearance.decorations.push({ collection, overlay });
+    ensureAppearance();
   });
 
   onNet("ragemp:clearDecorations", () => {
-    ClearPedDecorations(PlayerPedId());
+    _appearance.decorations = [];
+    const ped = PlayerPedId();
+    if (ped && ped !== 0) ClearPedDecorations(ped);
   });
 
   onNet("ragemp:setCustomization", (params) => {
     if (!params || typeof params !== "object") return;
-    _customization = params;
-    applyCustomization();
+    _appearance.headBlend = {
+      shapeFirst: params.shapeFirst ?? 0, shapeSecond: params.shapeSecond ?? 0, shapeThird: params.shapeThird ?? 0,
+      skinFirst: params.skinFirst ?? 0, skinSecond: params.skinSecond ?? 0, skinThird: params.skinThird ?? 0,
+      shapeMix: params.shapeMix ?? 0, skinMix: params.skinMix ?? 0, thirdMix: params.thirdMix ?? 0,
+    };
+    if (params.eyeColor !== undefined) _appearance.eyeColor = params.eyeColor;
+    if (params.hairColor !== undefined) {
+      _appearance.hairColor = { color: params.hairColor, highlight: params.highlightColor ?? params.hairColor };
+    }
+    if (Array.isArray(params.faceFeatures)) {
+      for (let i = 0; i < params.faceFeatures.length && i < 20; i++) {
+        _appearance.faceFeatures.set(i, params.faceFeatures[i] ?? 0);
+      }
+    }
+    ensureAppearance();
   });
 
   onNet("ragemp:setWeapon", (weapon) => {

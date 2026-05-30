@@ -35,8 +35,23 @@ export class Entity {
     return null;
   }
 
+  _stateBagReady() {
+    return true;
+  }
+
+  _onVariableDeferred() {}
+
+  _safeStateBag() {
+    if (!this._stateBagReady()) return null;
+    try {
+      return this._stateBag();
+    } catch (e) {
+      return null;
+    }
+  }
+
   getVariable(key) {
-    const bag = this._stateBag();
+    const bag = this._safeStateBag();
     if (bag) {
       try {
         const value = bag[key];
@@ -48,10 +63,14 @@ export class Entity {
 
   setVariable(key, value) {
     this._variables.set(key, value);
-    const bag = this._stateBag();
+    const bag = this._safeStateBag();
     if (bag) {
-      try { bag.set(key, value, true); } catch (e) {  }
+      try {
+        bag.set(key, value, true);
+        return;
+      } catch (e) {  }
     }
+    this._onVariableDeferred();
   }
 
   hasVariable(key) {

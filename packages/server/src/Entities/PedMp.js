@@ -1,6 +1,7 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { gtaPedHealthToRage, rageHealthToGtaPed } from "@ragemp-fivem-bridge/shared";
+import { scheduleStateBagFlush } from "../utils/stateBagDefer";
 
 export class PedMp extends Entity {
   constructor(id, handle) {
@@ -12,6 +13,14 @@ export class PedMp extends Entity {
 
   _stateBag() {
     return globalThis.Entity(this._handle).state;
+  }
+
+  _stateBagReady() {
+    return this._netIdReady === true;
+  }
+
+  _onVariableDeferred() {
+    scheduleStateBagFlush(this);
   }
 
   get position() {

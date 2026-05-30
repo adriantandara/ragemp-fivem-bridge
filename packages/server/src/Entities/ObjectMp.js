@@ -1,5 +1,6 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { scheduleStateBagFlush } from "../utils/stateBagDefer";
 
 export class ObjectMp extends Entity {
   _alpha = 255;
@@ -11,6 +12,14 @@ export class ObjectMp extends Entity {
 
   _stateBag() {
     return globalThis.Entity(this._handle).state;
+  }
+
+  _stateBagReady() {
+    return this._netIdReady === true;
+  }
+
+  _onVariableDeferred() {
+    scheduleStateBagFlush(this);
   }
 
   get position() {
@@ -67,14 +76,7 @@ export class ObjectMp extends Entity {
       emitNet("ragemp:objectAlpha", -1, NetworkGetNetworkIdFromEntity(handle), alpha);
     }
 
-    const bag = this._stateBag();
-    if (bag) {
-      for (const [key, val] of this._variables) {
-        try {
-          bag.set(key, val, true);
-        } catch (e) {  }
-      }
-    }
+    if (this._variables.size) scheduleStateBagFlush(this);
   }
 
   get alpha() {

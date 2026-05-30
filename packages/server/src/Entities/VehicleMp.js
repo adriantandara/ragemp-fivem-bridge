@@ -1,6 +1,7 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { EntitySyncQueue } from "../utils/EntitySyncQueue";
+import { scheduleStateBagFlush } from "../utils/stateBagDefer";
 
 export class VehicleMp extends Entity {
   _neonEnabled = false;
@@ -43,6 +44,14 @@ export class VehicleMp extends Entity {
 
   _stateBag() {
     return globalThis.Entity(this._handle).state;
+  }
+
+  _stateBagReady() {
+    return this._netIdReady === true;
+  }
+
+  _onVariableDeferred() {
+    scheduleStateBagFlush(this);
   }
 
   setDistanceCullingRadius(radius) {

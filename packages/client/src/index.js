@@ -229,8 +229,15 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
     SetWeatherTypePersist(weather);
   });
 
-  onNet("ragemp:setWeatherTransition", (from, to) => {
-    if (typeof to === "string") SetWeatherTypeNowPersist(to);
+  onNet("ragemp:setWeatherTransition", (weather, easeTime) => {
+    if (typeof weather !== "string") return;
+    const ms = typeof easeTime === "number" ? easeTime : 0;
+    if (ms > 0 && typeof SetWeatherTypeOvertimePersist === "function") {
+      SetWeatherTypeOvertimePersist(weather, ms / 1000);
+    } else {
+      SetWeatherTypeNowPersist(weather);
+      SetWeatherTypePersist(weather);
+    }
   });
 
   onNet("ragemp:requestIpl", (name) => {

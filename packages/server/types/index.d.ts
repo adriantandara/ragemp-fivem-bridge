@@ -478,7 +478,7 @@ export interface WorldMp {
   };
   removeIpl(name: string): void;
   requestIpl(name: string): void;
-  setWeatherTransition(from: string, to: string, duration?: number): void;
+  setWeatherTransition(weather: string, easeTime?: number): void;
 }
 
 export interface ConfigMp {

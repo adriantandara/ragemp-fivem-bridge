@@ -33,8 +33,6 @@ my-gamemode/ui/
 > - The bridge runtime is served at `ui/_bridge.js`, and relative browser URLs
 >   (`mp.browsers.new("index.html")`) resolve **relative to `host.html`** — i.e. against
 >   `cfx-nui-<resource>/ui/`. Put pages elsewhere and relative URLs point at the wrong path.
-> - In **bundled / CLI** mode the build writes your UI to `ui/` and injects `_bridge.js`
->   there; the generated `fxmanifest.lua` references `ui/index.html`.
 >
 > If you skip the `ui/` folder, the host shell and your pages won't load correctly. Keep
 > everything under `ui/`.
@@ -91,8 +89,6 @@ files {
 > - **Auto-injection** — the NUI runtime injects `_bridge.js` into pages that don't load it themselves, so a page with no `<script>` at all often still works. Referencing it explicitly (above) is more reliable.
 >
 > `<script src="@ragemp-fivem-bridge/ui/_bridge.js">` does **not** work — the `@resource/path` syntax is for `mp.browsers.new(...)` and FiveM scripts, **not** valid in HTML. Use the full `https://cfx-nui-…` URL in `<script>` tags.
->
-> The CLI handles all of this for you in bundled mode.
 
 ## Using browsers
 

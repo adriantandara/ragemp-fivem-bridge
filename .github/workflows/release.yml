@@ -67,8 +67,32 @@ jobs:
             echo "No existing release for ${{ steps.ver.outputs.tag }} -> creating a new one."
           fi
 
-      - name: Pack standalone bridge resource
-        run: pnpm run pack-bridge
+      - name: Assemble standalone bridge resource
+        run: |
+          OUT=dist/ragemp-fivem-bridge
+          mkdir -p "$OUT/ui"
+          cp packages/server/dist/index.js "$OUT/server.js"
+          cp packages/client/dist/index.js "$OUT/client.js"
+          cp packages/cef/dist/index.js "$OUT/ui/_bridge.js"
+          printf "%s\n" \
+            "fx_version 'cerulean'" \
+            "game 'gta5'" \
+            "" \
+            "name 'ragemp-fivem-bridge'" \
+            "description 'Standalone RAGE:MP -> FiveM bridge. Exposes mp.* to other resources via @-imports.'" \
+            "version '${{ steps.ver.outputs.version }}'" \
+            "" \
+            "ragemp_bridge 'library'" \
+            "" \
+            "server_script 'server.js'" \
+            "client_script 'client.js'" \
+            "" \
+            "files {" \
+            "    'ui/_bridge.js'" \
+            "}" \
+            > "$OUT/fxmanifest.lua"
+          echo "Assembled $OUT:"
+          ls -la "$OUT"
 
       - name: Zip release artifact
         run: |

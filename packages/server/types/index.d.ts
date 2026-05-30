@@ -196,6 +196,7 @@ export interface PlayerMpPool extends EntityMpPool<PlayerMp> {
 
 export interface VehicleMp extends EntityMp {
   readonly type: "vehicle";
+  readonly driver: PlayerMp | null;
   readonly heading: number;
   readonly engineHealth: number;
   readonly velocity: Vector3;

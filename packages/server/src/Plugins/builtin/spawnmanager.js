@@ -19,6 +19,7 @@ export default function setup({ mp }) {
   }
 
   PlayerMp.prototype.spawn = function spawn(position) {
+    if (typeof this._resetWeaponState === "function") this._resetWeaponState();
     spawnPlayer(this, buildSpawnInfo(this, position));
   };
 

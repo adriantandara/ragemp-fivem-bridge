@@ -70,35 +70,6 @@ bridge_client_script 'dist/client.js'
 It runs inside the bridge context with `mp` and `plugin` in scope. See
 [07-plugins-and-features](07-plugins-and-features.md#third-party-plugins).
 
-## bridge.config.json (bundled / CLI mode)
-
-```json
-{
-  "name": "my-server",
-  "server": "src/server/index.js",
-  "client": "src/client/index.js",
-  "cef": "src/cef",
-  "assets": [],
-  "output": "dist",
-  "minify": true,
-  "serverPath": "/optional/path/to/fivem/resources"
-}
-```
-
-| Field | Meaning |
-| --- | --- |
-| `name` | Output resource (folder) name |
-| `server` / `client` | Entry points the bundler starts from |
-| `cef` | NUI source folder (copied to `ui/`, `_bridge.js` injected) |
-| `assets` | Extra files/globs copied into the output |
-| `output` | Build output directory |
-| `minify` | Minify output (default `true`) |
-| `serverPath` | If set, builds auto-deploy here |
-
-In bundled mode the CLI writes `fxmanifest.lua`, sets `ui_page` to `ui/index.html`, and
-inlines the bridge — there is no separate bridge resource. Full walkthrough in
-[04-cli-tutorial](04-cli-tutorial.md).
-
 ## Quick troubleshooting
 
 | Symptom | Likely cause |

@@ -459,6 +459,21 @@ export class VehicleMp extends Entity {
     this._emit("ragemp:vehicleNeonColor", r, g, b);
   }
 
+  get driver() {
+    const occupant = this.getOccupant(0);
+    if (occupant) return occupant;
+    const players = globalThis.mp?.players;
+    if (players) {
+      let found = null;
+      players.forEach((p) => {
+        if (found) return;
+        if (p._vehicle === this && p.seat === 0) found = p;
+      });
+      if (found) return found;
+    }
+    return null;
+  }
+
   getOccupant(seat) {
     const ped = GetPedInVehicleSeat(this._handle, seat - 1);
     if (!ped || ped === 0) return null;

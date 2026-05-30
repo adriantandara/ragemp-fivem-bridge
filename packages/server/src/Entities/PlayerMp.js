@@ -306,6 +306,7 @@ export class PlayerMp extends Entity {
 
   spawn(position) {
     this.position = position;
+    this.removeAllWeapons();
   }
 
   call(eventName, args) {
@@ -335,7 +336,14 @@ export class PlayerMp extends Entity {
   }
 
   removeAllWeapons() {
+    this._resetWeaponState();
     this.call("ragemp:removeAllWeapons");
+  }
+
+  _resetWeaponState() {
+    this._weapons = [];
+    this._weapon = 0;
+    this._weaponAmmo = {};
   }
 
   setClothes(component, drawable, texture, palette) {

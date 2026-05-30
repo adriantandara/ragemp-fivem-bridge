@@ -6,11 +6,9 @@ and the `fivem-test/resources/ragemp` test gamemode are set up.
 
 ## 1. Get the bridge resource
 
-```bash
-# from the bridge monorepo
-pnpm install && pnpm run build
-npx mp-fivem pack-bridge --out /path/to/server/resources
-```
+Download `ragemp-fivem-bridge-<version>.zip` from the GitHub releases page and extract the
+`ragemp-fivem-bridge/` folder into your server's `resources/`. (Or build it from source and
+assemble the folder manually — see [02-server-structure](02-server-structure.md#where-the-bridge-files-come-from).)
 
 You now have `resources/ragemp-fivem-bridge/`.
 

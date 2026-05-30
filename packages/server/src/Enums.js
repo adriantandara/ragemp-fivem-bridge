@@ -38,6 +38,12 @@ export const VehicleNumberPlateType = Object.freeze({
   BlueOnWhite2: 3, BlueOnWhite3: 4, Yankton: 5
 });
 
+export const EntityOrphanMode = Object.freeze({
+  DeleteWhenNotRelevant: 0,
+  DeleteOnOwnerDisconnect: 1,
+  KeepEntity: 2
+});
+
 export const VehicleSeat = Object.freeze({
   Driver: 0, Passenger1: 1, Passenger2: 2, Passenger3: 3,
   Passenger4: 4, Passenger5: 5, Passenger6: 6, Passenger7: 7,

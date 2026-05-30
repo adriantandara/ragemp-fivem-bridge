@@ -23,6 +23,10 @@ export class VehicleMpPool extends HandlePool {
       vehicle.dimension = dimension;
     }
 
+    if (options.orphanMode !== undefined) {
+      vehicle.setOrphanMode(options.orphanMode);
+    }
+
     if (options.alpha !== undefined) {
       vehicle._alpha = options.alpha;
       vehicle._emit("ragemp:vehicleAlpha", options.alpha);

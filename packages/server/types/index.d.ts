@@ -232,7 +232,9 @@ export interface VehicleMp extends EntityMp {
   taxiLights: boolean;
   trimColor: number;
   wheelColor: number;
+  orphanMode: EntityOrphanMode | number;
 
+  setOrphanMode(mode: EntityOrphanMode | number): void;
   explode(): void;
   repair(): void;
   spawn(position: Vector3Like, heading: number): void;
@@ -270,6 +272,7 @@ export interface VehicleMpPool extends EntityMpPool<VehicleMp> {
       numberPlate?: string;
       dimension?: number;
       heading?: number;
+      orphanMode?: EntityOrphanMode | number;
     }
   ): VehicleMp;
   atHandle(handle: number): VehicleMp | null;
@@ -513,10 +516,17 @@ export interface NetworkMp {
   endBatch(): void;
 }
 
+export enum EntityOrphanMode {
+  DeleteWhenNotRelevant = 0,
+  DeleteOnOwnerDisconnect = 1,
+  KeepEntity = 2
+}
+
 export interface ServerEnums {
   ClothesComponent: Record<string, number>;
   ColshapeType: Record<string, number>;
   EntityType: Record<string, number>;
+  EntityOrphanMode: typeof EntityOrphanMode;
   HeadOverlay: Record<string, number>;
   Marker: Record<string, number>;
   PlayerProp: Record<string, number>;

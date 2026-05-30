@@ -102,6 +102,19 @@ export class VehicleMp extends Entity {
     SetEntityRoutingBucket(this._handle, value);
   }
 
+  get orphanMode() {
+    return this._orphanMode ?? 0;
+  }
+
+  set orphanMode(value) {
+    this._orphanMode = value;
+    SetEntityOrphanMode(this._handle, value);
+  }
+
+  setOrphanMode(mode) {
+    this.orphanMode = mode;
+  }
+
   get locked() {
     return GetVehicleDoorLockStatus(this._handle) === 2;
   }

@@ -139,9 +139,9 @@ export class BlipMp extends Entity {
     this._sync();
   }
 
-  routeFor(player) {
+  routeFor(player, color, scale) {
     const target = player?.id ?? player;
-    emitNet("ragemp:blipRoute", target, this.id, true);
+    emitNet("ragemp:blipRoute", target, this.id, true, color, scale);
   }
 
   unrouteFor(player) {

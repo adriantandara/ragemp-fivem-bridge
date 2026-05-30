@@ -1,4 +1,5 @@
 import { EventEmitter } from "@ragemp-fivem-bridge/shared";
+import { sanitizeArgsForNet } from "@ragemp-fivem-bridge/shared";
 import { ingressAllowed, clearRateLimit } from "../utils/guard";
 
 const RAGEMP_TO_FIVEM_EVENTS = {
@@ -390,7 +391,8 @@ export class EventManager extends EventEmitter {
   }
 
   callRemote(player, eventName, args) {
-    emitNet(eventName, player.id, ...(Array.isArray(args) ? args : args === undefined ? [] : [args]));
+    const list = Array.isArray(args) ? args : args === undefined ? [] : [args];
+    emitNet(eventName, player.id, ...sanitizeArgsForNet(list));
   }
 
   get delayShutdown() {

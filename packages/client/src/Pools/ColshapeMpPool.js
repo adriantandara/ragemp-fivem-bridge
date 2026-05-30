@@ -4,10 +4,12 @@ import { ColshapeMp } from "../Entities/ColshapeMp";
 import { onWorldScan } from "../utils/worldScan";
 import { isVisibleHere } from "../utils/dimension";
 
-let localColshapeIdCounter = 100000;
+const LOCAL_ID_BASE = 1000000000;
 
 export class ColshapeMpPool extends Pool {
-  _insideSet = new Set();
+  _inside = new Set();
+  _nextLocalId = LOCAL_ID_BASE + 1;
+  _warned = false;
 
   constructor() {
     super();
@@ -21,32 +23,32 @@ export class ColshapeMpPool extends Pool {
 
   _createFromData(data) {
     const position = new Vector3(data.position.x, data.position.y, data.position.z);
-    const colshape = new ColshapeMp(data.id, data.shapeType, position, data.params);
+    const colshape = new ColshapeMp(data.id, data.shapeType, position, data.params, data.dimension ?? 0);
     colshape._origin = "server";
-    colshape._dimension = data.dimension ?? 0;
     this._add(colshape);
     return colshape;
   }
 
   _setupServerSync() {
     onNet("ragemp:colshapeCreate", (data) => {
-      if (!this.exists(data.id)) this._createFromData(data);
+      if (data && !this.exists(data.id)) this._createFromData(data);
     });
 
     onNet("ragemp:colshapeSyncAll", (shapes) => {
+      if (!Array.isArray(shapes)) return;
       for (const data of shapes) {
-        if (!this.exists(data.id)) this._createFromData(data);
+        if (data && !this.exists(data.id)) this._createFromData(data);
       }
     });
 
     onNet("ragemp:colshapeUpdate", (id, data) => {
       const existing = this.at(id);
       if (!existing) {
-        this._createFromData(data);
+        if (data) this._createFromData(data);
         return;
       }
       existing._position = new Vector3(data.position.x, data.position.y, data.position.z);
-      existing._params = data.params;
+      existing._params = data.params ?? {};
       existing._dimension = data.dimension ?? 0;
     });
 
@@ -56,40 +58,67 @@ export class ColshapeMpPool extends Pool {
   }
 
   _startChecking() {
-    onWorldScan(() => {
-      const mp = globalThis.mp;
-      if (!mp || !mp.players || !mp.players.local) return;
+    onWorldScan(() => this._scan());
+  }
 
-      const localPos = mp.players.local.position;
+  _scan() {
+    const mp = globalThis.mp;
+    const local = mp?.players?.local;
+    if (!local) return;
 
-      for (const colshape of this) {
-        const isInside = isVisibleHere(colshape._dimension) && colshape.isPointWithin(localPos);
-        const wasInside = this._insideSet.has(colshape.id);
+    let localPos;
+    try {
+      localPos = local.position;
+    } catch (e) {
+      return;
+    }
+    if (!localPos) return;
 
-        if (isInside && !wasInside) {
-          this._insideSet.add(colshape.id);
-          if (colshape._origin === "server") {
-            emitNet("ragemp:colshape:enter", colshape.id);
-          } else {
-            mp.events._fire("playerEnterColshape", mp.players.local, colshape);
-          }
-        } else if (!isInside && wasInside) {
-          this._insideSet.delete(colshape.id);
-          if (colshape._origin === "server") {
-            emitNet("ragemp:colshape:exit", colshape.id);
-          } else {
-            mp.events._fire("playerExitColshape", mp.players.local, colshape);
-          }
+    for (const colshape of this.toArray()) {
+      let inside;
+      try {
+        inside = isVisibleHere(colshape._dimension) && colshape.isPointWithin(localPos);
+      } catch (e) {
+        if (!this._warned) {
+          this._warned = true;
+          console.error(`[bridge:colshape] check failed for #${colshape?.id} (${colshape?._shapeType}):`, e);
         }
+        continue;
       }
-    });
+
+      const wasInside = this._inside.has(colshape.id);
+      if (inside === wasInside) continue;
+
+      if (inside) {
+        this._inside.add(colshape.id);
+        this._report(colshape, local, true);
+      } else {
+        this._inside.delete(colshape.id);
+        this._report(colshape, local, false);
+      }
+    }
+  }
+
+  _report(colshape, local, entering) {
+    if (colshape._origin === "server") {
+      emitNet(entering ? "ragemp:colshape:enter" : "ragemp:colshape:exit", colshape.id);
+      return;
+    }
+    try {
+      globalThis.mp.events._fire(
+        entering ? "playerEnterColshape" : "playerExitColshape",
+        local,
+        colshape
+      );
+    } catch (e) {
+      console.error(`[bridge:colshape] handler error (${entering ? "enter" : "exit"} #${colshape.id}):`, e);
+    }
   }
 
   _createLocal(shapeType, position, params, dimension = 0) {
-    const id = ++localColshapeIdCounter;
-    const colshape = new ColshapeMp(id, shapeType, position, params);
+    const id = this._nextLocalId++;
+    const colshape = new ColshapeMp(id, shapeType, position, params, dimension);
     colshape._origin = "local";
-    if (dimension) colshape._dimension = dimension;
     this._add(colshape);
     return colshape;
   }
@@ -103,7 +132,7 @@ export class ColshapeMpPool extends Pool {
 
   newTube(x, y, z, height, range, dimension = 0) {
     if (x !== null && typeof x === "object") {
-      return this._createLocal("tube", new Vector3(x.x, x.y, x.z), { radius: y, height: z }, 0);
+      return this._createLocal("tube", new Vector3(x.x, x.y, x.z), { radius: y, height: z }, height ?? 0);
     }
     return this._createLocal("tube", new Vector3(x, y, z), { radius: range, height }, dimension);
   }
@@ -118,13 +147,13 @@ export class ColshapeMpPool extends Pool {
 
   newCuboid(x, y, z, width, depth, height, dimension = 0) {
     if (x !== null && typeof x === "object") {
-      return this._createLocal("cuboid", new Vector3(x.x, x.y, x.z), { width: y, depth: z, height: width }, 0);
+      return this._createLocal("cuboid", new Vector3(x.x, x.y, x.z), { width: y, depth: z, height: width }, depth ?? 0);
     }
     return this._createLocal("cuboid", new Vector3(x, y, z), { width, depth, height }, dimension);
   }
 
   _remove(id) {
-    this._insideSet.delete(id);
+    this._inside.delete(id);
     super._remove(id);
   }
 }

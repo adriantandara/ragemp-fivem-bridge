@@ -1,7 +1,9 @@
 import { EventEmitter } from "@ragemp-fivem-bridge/shared";
+import { sanitizeArgsForNet, rehydrateArgsFromNet } from "@ragemp-fivem-bridge/shared";
 import { safeGetNetworkId } from "../utils/netId";
 import { onWorldScan } from "../utils/worldScan";
 import { isVisibleHere } from "../utils/dimension";
+import { resolveNetEntity } from "../utils/netEntity";
 
 export class EventManager extends EventEmitter {
   _renderTick = null;
@@ -664,7 +666,7 @@ export class EventManager extends EventEmitter {
     if (!this._handlers.get(`__net_${eventName}`)) {
       this._handlers.set(`__net_${eventName}`, new Set([true]));
       onNet(eventName, (...args) => {
-        this._fire(eventName, ...args);
+        this._fire(eventName, ...rehydrateArgsFromNet(args, resolveNetEntity));
       });
     }
   }
@@ -675,7 +677,7 @@ export class EventManager extends EventEmitter {
   }
 
   callRemote(eventName, ...args) {
-    emitNet(eventName, ...args);
+    emitNet(eventName, ...sanitizeArgsForNet(args));
   }
 
   addProc(procName, handler) {

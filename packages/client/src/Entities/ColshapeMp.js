@@ -1,17 +1,16 @@
-import { Entity } from "@ragemp-fivem-bridge/shared";
+import { Entity, colshapeContains } from "@ragemp-fivem-bridge/shared";
 
 export class ColshapeMp extends Entity {
-  _position;
   _shapeType;
   _params;
-  _dimension = 0;
   _origin = "local";
 
-  constructor(id, shapeType, position, params) {
+  constructor(id, shapeType, position, params, dimension = 0) {
     super(id, "colshape");
     this._shapeType = shapeType;
     this._position = position;
-    this._params = params;
+    this._params = params ?? {};
+    this._dimension = dimension;
   }
 
   get shapeType() {
@@ -34,56 +33,12 @@ export class ColshapeMp extends Entity {
     this._dimension = value;
   }
 
-  isPointWithin(point) {
-    switch (this._shapeType) {
-      case "sphere":
-        return this._position.distance(point) <= this._params.radius;
-
-      case "tube": {
-        const dx = point.x - this._position.x;
-        const dy = point.y - this._position.y;
-        const dz = point.z - this._position.z;
-        const horizontalDist = Math.sqrt(dx * dx + dy * dy);
-        return horizontalDist <= this._params.radius && dz >= 0 && dz <= this._params.height;
-      }
-
-      case "circle": {
-        const dx = point.x - this._position.x;
-        const dy = point.y - this._position.y;
-        return Math.sqrt(dx * dx + dy * dy) <= this._params.radius;
-      }
-
-      case "rectangle": {
-        const halfW = this._params.width / 2;
-        const halfH = this._params.height / 2;
-        return (
-          point.x >= this._position.x - halfW &&
-          point.x <= this._position.x + halfW &&
-          point.y >= this._position.y - halfH &&
-          point.y <= this._position.y + halfH
-        );
-      }
-
-      case "cuboid": {
-        const halfW = this._params.width / 2;
-        const halfD = this._params.depth / 2;
-        const halfH = this._params.height / 2;
-        return (
-          point.x >= this._position.x - halfW &&
-          point.x <= this._position.x + halfW &&
-          point.y >= this._position.y - halfD &&
-          point.y <= this._position.y + halfD &&
-          point.z >= this._position.z - halfH &&
-          point.z <= this._position.z + halfH
-        );
-      }
-
-      default:
-        return false;
-    }
+  isPointWithin(point, margin = 0) {
+    return colshapeContains(this._shapeType, this._position, this._params, point, margin);
   }
 
   destroy() {
-    globalThis.mp.colshapes._remove(this.id);
+    if (this._origin === "server") return;
+    globalThis.mp?.colshapes?._remove(this.id);
   }
 }

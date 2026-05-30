@@ -2,6 +2,7 @@ import { Entity } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { gtaPedHealthToRage } from "@ragemp-fivem-bridge/shared";
 import { normalizeDimension } from "@ragemp-fivem-bridge/shared";
+import { sanitizeArgsForNet } from "@ragemp-fivem-bridge/shared";
 
 export class PlayerMp extends Entity {
   constructor(source) {
@@ -313,7 +314,8 @@ export class PlayerMp extends Entity {
   }
 
   call(eventName, args) {
-    emitNet(eventName, this.id, ...(Array.isArray(args) ? args : args == null ? [] : [args]));
+    const list = Array.isArray(args) ? args : args == null ? [] : [args];
+    emitNet(eventName, this.id, ...sanitizeArgsForNet(list));
   }
 
   notify(message) {
@@ -531,7 +533,8 @@ export class PlayerMp extends Entity {
   }
 
   callUnreliable(eventName, args) {
-    emitNet(eventName, this.id, ...(Array.isArray(args) ? args : args == null ? [] : [args]));
+    const list = Array.isArray(args) ? args : args == null ? [] : [args];
+    emitNet(eventName, this.id, ...sanitizeArgsForNet(list));
   }
 
   callToStreamed(includeSelf, eventName, args) {
@@ -540,7 +543,7 @@ export class PlayerMp extends Entity {
       eventName = includeSelf;
       includeSelf = false;
     }
-    const argArray = Array.isArray(args) ? args : args == null ? [] : [args];
+    const argArray = sanitizeArgsForNet(Array.isArray(args) ? args : args == null ? [] : [args]);
     globalThis.mp.players.forEach((other) => {
       if (other === this) {
         if (includeSelf) emitNet(eventName, other.id, ...argArray);
@@ -573,7 +576,7 @@ export class PlayerMp extends Entity {
         }
       }, 30000);
       this._pendingProcs.set(reqId, { procName, resolve, reject, timer });
-      emitNet("ragemp:callProc", this.id, procName, reqId, ...args);
+      emitNet("ragemp:callProc", this.id, procName, reqId, ...sanitizeArgsForNet(args));
     });
   }
 

@@ -452,7 +452,18 @@ export class PlayerMp extends Entity {
     return this._headOverlays[overlay] ?? { value: 0, opacity: 1.0, color: 0, secondColor: 0 };
   }
 
-  setCustomization(params) {
+  setCustomization(gender, shapeFirst, shapeSecond, shapeThird, skinFirst, skinSecond, skinThird, shapeMix, skinMix, thirdMix, eyeColor, hairColor, highlightColor, faceFeatures) {
+    const params =
+      gender !== null && typeof gender === "object"
+        ? gender
+        : {
+            gender,
+            shapeFirst, shapeSecond, shapeThird,
+            skinFirst, skinSecond, skinThird,
+            shapeMix, skinMix, thirdMix,
+            eyeColor, hairColor, highlightColor, faceFeatures,
+          };
+    this._customization = params;
     emitNet("ragemp:setCustomization", this.id, params);
   }
 

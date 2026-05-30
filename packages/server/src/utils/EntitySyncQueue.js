@@ -15,22 +15,30 @@ export class EntitySyncQueue {
   }
 
   _flush(tries) {
-    const handle = this._getHandle();
-    if (!DoesEntityExist(handle)) {
+    try {
+      const handle = this._getHandle();
+      if (!handle || !DoesEntityExist(handle)) {
+        this._scheduled = false;
+        this._queue = null;
+        return;
+      }
+      const netId = NetworkGetNetworkIdFromEntity(handle);
+      if (!netId && tries < 50) {
+        setTimeout(() => this._flush(tries + 1), 50);
+        return;
+      }
+      const queue = this._queue;
+      this._queue = null;
+      this._scheduled = false;
+      if (netId && queue && queue.length) {
+        emitNet(this._batchEvent, -1, netId, queue);
+      } else if (!netId && queue && queue.length) {
+        console.warn(`[EntitySyncQueue] dropped ${queue.length} "${this._batchEvent}" update(s): no netId after ${tries} tries`);
+      }
+    } catch (err) {
+      console.error(`[EntitySyncQueue] flush failed for "${this._batchEvent}":`, err);
       this._scheduled = false;
       this._queue = null;
-      return;
-    }
-    const netId = NetworkGetNetworkIdFromEntity(handle);
-    if (!netId && tries < 50) {
-      setTimeout(() => this._flush(tries + 1), 50);
-      return;
-    }
-    const queue = this._queue;
-    this._queue = null;
-    this._scheduled = false;
-    if (netId && queue && queue.length) {
-      emitNet(this._batchEvent, -1, netId, queue);
     }
   }
 }

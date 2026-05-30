@@ -430,7 +430,7 @@ export interface ColshapeMp extends EntityMp {
 
 export interface ColshapeMpPool extends EntityMpPool<ColshapeMp> {
   newSphere(x: number, y: number, z: number, range: number, dimension?: number): ColshapeMp;
-  newTube(x: number, y: number, z: number, range: number, height: number, dimension?: number): ColshapeMp;
+  newTube(x: number, y: number, z: number, height: number, range: number, dimension?: number): ColshapeMp;
   newCircle(x: number, y: number, range: number, dimension?: number): ColshapeMp;
   newRectangle(x: number, y: number, width: number, height: number, dimension?: number): ColshapeMp;
   newCuboid(x: number, y: number, z: number, width: number, depth: number, height: number, dimension?: number): ColshapeMp;

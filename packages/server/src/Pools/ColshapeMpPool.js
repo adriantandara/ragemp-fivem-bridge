@@ -75,32 +75,42 @@ export class ColshapeMpPool extends Pool {
     this._broadcast("ragemp:colshapeUpdate", colshape.id, colshape.toData());
   }
 
-  _create(shapeType, position, params) {
+  _create(shapeType, position, params, dimension = 0) {
     const id = ++colshapeIdCounter;
     const colshape = new ColshapeMp(id, shapeType, position, params);
+    if (dimension) colshape._dimension = dimension;
     this._add(colshape);
     this._broadcast("ragemp:colshapeCreate", colshape.toData());
     return colshape;
   }
 
-  newSphere(position, radius) {
-    return this._create("sphere", position, { radius });
+  newSphere(x, y, z, range, dimension = 0) {
+    if (x !== null && typeof x === "object") {
+      return this._create("sphere", new Vector3(x.x, x.y, x.z), { radius: y }, z ?? 0);
+    }
+    return this._create("sphere", new Vector3(x, y, z), { radius: range }, dimension);
   }
 
-  newTube(position, radius, height) {
-    return this._create("tube", position, { radius, height });
+  newTube(x, y, z, height, range, dimension = 0) {
+    if (x !== null && typeof x === "object") {
+      return this._create("tube", new Vector3(x.x, x.y, x.z), { radius: y, height: z }, 0);
+    }
+    return this._create("tube", new Vector3(x, y, z), { radius: range, height }, dimension);
   }
 
-  newCircle(x, y, radius) {
-    return this._create("circle", new Vector3(x, y, 0), { radius });
+  newCircle(x, y, range, dimension = 0) {
+    return this._create("circle", new Vector3(x, y, 0), { radius: range }, dimension);
   }
 
-  newRectangle(x, y, width, height) {
-    return this._create("rectangle", new Vector3(x, y, 0), { width, height });
+  newRectangle(x, y, width, height, dimension = 0) {
+    return this._create("rectangle", new Vector3(x, y, 0), { width, height }, dimension);
   }
 
-  newCuboid(position, width, depth, height) {
-    return this._create("cuboid", position, { width, depth, height });
+  newCuboid(x, y, z, width, depth, height, dimension = 0) {
+    if (x !== null && typeof x === "object") {
+      return this._create("cuboid", new Vector3(x.x, x.y, x.z), { width: y, depth: z, height: width }, 0);
+    }
+    return this._create("cuboid", new Vector3(x, y, z), { width, depth, height }, dimension);
   }
 
   _remove(id) {

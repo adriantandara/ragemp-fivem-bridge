@@ -13,6 +13,28 @@ export default function setup({ mp, plugin }) {
   let isSpawning = false;
   let firstSpawn = true;
   let spawnInfo = { ...DEFAULT_SPAWN };
+  let autoRespawnAfterDeath = true;
+  let respawnSuppressTick = null;
+
+  function startRespawnSuppress() {
+    if (respawnSuppressTick !== null) return;
+    if (typeof SetFadeOutAfterDeath === "function") SetFadeOutAfterDeath(false);
+    respawnSuppressTick = setTick(() => {
+      const ped = PlayerPedId();
+      if (IsEntityDead(ped)) {
+        IgnoreNextRestart(true);
+        PauseDeathArrestRestart(true);
+      }
+    });
+  }
+
+  function stopRespawnSuppress() {
+    if (respawnSuppressTick === null) return;
+    clearTick(respawnSuppressTick);
+    respawnSuppressTick = null;
+    if (typeof SetFadeOutAfterDeath === "function") SetFadeOutAfterDeath(true);
+    if (typeof PauseDeathArrestRestart === "function") PauseDeathArrestRestart(false);
+  }
 
   async function loadModel(model) {
     const hash = typeof model === "string" ? GetHashKey(model) : model;
@@ -130,6 +152,12 @@ export default function setup({ mp, plugin }) {
 
   onNet("ragemp:spawnmanager:spawn", (info) => {
     doSpawn(info);
+  });
+
+  onNet("ragemp:setAutoRespawn", (state) => {
+    autoRespawnAfterDeath = state !== false;
+    if (autoRespawnAfterDeath) stopRespawnSuppress();
+    else startRespawnSuppress();
   });
 
   mp.spawnmanager = {

@@ -114,7 +114,10 @@ export interface PlayerMp extends EntityMp {
   kick(reason?: string): void;
   ban(reason?: string): void;
   kickSilent(reason?: string): void;
-  spawn(position: Vector3Like): void;
+  spawn(position: Vector3Like, heading?: number): void;
+
+  readonly autoRespawnAfterDeath: boolean;
+  setAutoRespawnAfterDeath(state: boolean): void;
 
   call(eventName: string, ...args: any[]): void;
   callUnreliable(eventName: string, ...args: any[]): void;

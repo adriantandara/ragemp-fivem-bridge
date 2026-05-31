@@ -9,6 +9,7 @@ export class PlayerMp extends Entity {
     super(source, "player");
 
     this._ready = true;
+    this._autoRespawnAfterDeath = true;
     this._weapon = 0;
     this._isAiming = false;
     this._isJumping = false;
@@ -308,9 +309,20 @@ export class PlayerMp extends Entity {
     DropPlayer(this.id.toString(), reason ?? "Kicked");
   }
 
-  spawn(position) {
-    this.position = position;
-    this.removeAllWeapons();
+  spawn(position, heading) {
+    const pos = position ?? this.position;
+    const info = { x: pos.x, y: pos.y, z: pos.z, heading: heading ?? 0 };
+    if (this._model) info.model = this._model;
+    emitNet("ragemp:spawnmanager:spawn", this.id, info);
+  }
+
+  get autoRespawnAfterDeath() {
+    return this._autoRespawnAfterDeath;
+  }
+
+  setAutoRespawnAfterDeath(state) {
+    this._autoRespawnAfterDeath = state !== false;
+    emitNet("ragemp:setAutoRespawn", this.id, this._autoRespawnAfterDeath);
   }
 
   call(eventName, args) {

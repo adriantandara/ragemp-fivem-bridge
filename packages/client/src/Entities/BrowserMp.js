@@ -83,12 +83,24 @@ export class BrowserMp extends Entity {
     this.execute(code);
   }
 
+  _applyPointerEvents() {
+    if (this._destroyed || typeof SendNuiMessage !== "function") return;
+    SendNuiMessage(
+      JSON.stringify({
+        type: "__ragemp:browser:pointerEvents",
+        browserId: this.id,
+        enabled: this._inputEnabled && this._mouseInputEnabled,
+      })
+    );
+  }
+
   get inputEnabled() {
     return this._inputEnabled;
   }
 
   set inputEnabled(value) {
     this._inputEnabled = !!value;
+    this._applyPointerEvents();
   }
 
   get mouseInputEnabled() {
@@ -97,6 +109,7 @@ export class BrowserMp extends Entity {
 
   set mouseInputEnabled(value) {
     this._mouseInputEnabled = !!value;
+    this._applyPointerEvents();
   }
 
   markAsChat(flag) {

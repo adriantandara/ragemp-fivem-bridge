@@ -38,6 +38,21 @@ export function resourceName() {
   return "";
 }
 
+export function isReloadKey(e) {
+  const code = e.keyCode || e.which;
+  if (code === 116) return true;
+  if (e.ctrlKey && code === 82) return true;
+  return false;
+}
+
+export function blockReloadKey(e) {
+  if (!isReloadKey(e)) return false;
+  if (typeof e.preventDefault === "function") e.preventDefault();
+  if (typeof e.stopPropagation === "function") e.stopPropagation();
+  if (typeof e.stopImmediatePropagation === "function") e.stopImmediatePropagation();
+  return true;
+}
+
 export async function toClient(channel, body) {
   const url = `https://${resourceName()}/${channel}`;
   return fetch(url, {

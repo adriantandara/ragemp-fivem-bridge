@@ -1,5 +1,5 @@
 import { createRuntime } from "./core.js";
-import { log, resourceName } from "./transport.js";
+import { log, resourceName, blockReloadKey } from "./transport.js";
 
 export function startView() {
   const { handlePayload } = createRuntime();
@@ -8,6 +8,7 @@ export function startView() {
 
   function forwardNativeKey(e, down) {
     if (!e.isTrusted) return;
+    if (blockReloadKey(e)) return;
     const t = e.target;
     if (
       t &&

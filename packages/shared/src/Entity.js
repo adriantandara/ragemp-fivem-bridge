@@ -1,3 +1,5 @@
+export const STATE_KEY_PREFIX = "rmp:";
+
 export class Entity {
   _variables = new Map();
 
@@ -54,7 +56,7 @@ export class Entity {
     const bag = this._safeStateBag();
     if (bag) {
       try {
-        const value = bag[key];
+        const value = bag[STATE_KEY_PREFIX + key];
         if (value !== undefined && value !== null) return value;
       } catch (e) {  }
     }
@@ -66,7 +68,7 @@ export class Entity {
     const bag = this._safeStateBag();
     if (bag) {
       try {
-        bag.set(key, value, true);
+        bag.set(STATE_KEY_PREFIX + key, value, true);
         return;
       } catch (e) {  }
     }

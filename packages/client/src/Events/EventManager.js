@@ -1,5 +1,5 @@
 import { EventEmitter } from "@ragemp-fivem-bridge/shared";
-import { sanitizeArgsForNet, rehydrateArgsFromNet } from "@ragemp-fivem-bridge/shared";
+import { sanitizeArgsForNet, rehydrateArgsFromNet, STATE_KEY_PREFIX } from "@ragemp-fivem-bridge/shared";
 import { safeGetNetworkId } from "../utils/netId";
 import { onWorldScan } from "../utils/worldScan";
 import { isVisibleHere } from "../utils/dimension";
@@ -7,6 +7,7 @@ import { resolveNetEntity } from "../utils/netEntity";
 
 export class EventManager extends EventEmitter {
   _renderTick = null;
+  _lifecycleTick = null;
 
   _wasAlive = true;
   _wasInVehicle = false;
@@ -190,7 +191,9 @@ export class EventManager extends EventEmitter {
     if (typeof AddStateBagChangeHandler !== "function") return;
     AddStateBagChangeHandler(null, null, (bagName, key, value) => {
       const mp = globalThis.mp;
-      if (!mp || typeof bagName !== "string") return;
+      if (!mp || typeof bagName !== "string" || typeof key !== "string") return;
+      if (key.indexOf(STATE_KEY_PREFIX) !== 0) return;
+      const realKey = key.slice(STATE_KEY_PREFIX.length);
       let entity = null;
       if (bagName.indexOf("player:") === 0) {
         entity =
@@ -208,8 +211,8 @@ export class EventManager extends EventEmitter {
         }
       }
       if (entity) {
-        entity._variables.set(key, value);
-        this._fire("entityDataChange", entity, key, value);
+        entity._variables.set(realKey, value);
+        this._fire("entityDataChange", entity, realKey, value);
       }
     });
   }
@@ -241,15 +244,26 @@ export class EventManager extends EventEmitter {
       const localPlayer = globalThis.mp?.players?.local;
       if (!localPlayer) return;
 
-      this._tickLifecycle(ped, localPlayer);
-      this._tickVehicleState(ped, localPlayer);
-      this._tickWeapon(ped, localPlayer);
-      this._tickCheckpoints(ped, localPlayer);
-      this._tickWaypoint(ped, localPlayer);
-      this._tickVehicleAudio(ped);
+      const playerCoords = GetEntityCoords(ped, true);
+
+      this._tickCheckpoints(ped, localPlayer, playerCoords);
+      this._tickWaypoint(ped, localPlayer, playerCoords);
+      this._tickVehicleAudio();
       this._tickModelAndHealth(ped);
       this._tickActions(ped, localPlayer);
       this._tickStreaming(cache, localPlayer);
+    });
+
+    this._lifecycleTick = setTick(() => {
+      if (!this._builtinTickStarted) return;
+      const ped = PlayerPedId();
+      if (ped === 0) return;
+      const localPlayer = globalThis.mp?.players?.local;
+      if (!localPlayer) return;
+
+      this._tickLifecycle(ped, localPlayer);
+      this._tickVehicleState(ped, localPlayer);
+      this._tickWeapon(ped, localPlayer);
     });
   }
 
@@ -266,6 +280,7 @@ export class EventManager extends EventEmitter {
     this._lastHornState = false;
     this._lastSirenState = false;
     this._lastTrailerNetId = 0;
+    this._lastAudioVehHandle = 0;
     this._lastPedModel = GetEntityModel(ped);
     this._waypointActive = IsWaypointActive();
     if (this._waypointActive) {
@@ -277,7 +292,12 @@ export class EventManager extends EventEmitter {
         this._waypointZ = coords[2];
       }
     }
-    for (const p of cache.players) this._connectedPlayers.add(p);
+    const localPlayerId = PlayerId();
+    for (const p of cache.players) {
+      if (p === localPlayerId) continue;
+      const serverId = GetPlayerServerId(p);
+      if (serverId && serverId !== -1) this._connectedPlayers.add(serverId);
+    }
   }
 
   _tickLifecycle(ped, localPlayer) {
@@ -407,11 +427,10 @@ export class EventManager extends EventEmitter {
     }
   }
 
-  _tickCheckpoints(ped, localPlayer) {
+  _tickCheckpoints(ped, localPlayer, playerCoords) {
     const checkpointPool = globalThis.mp?.checkpoints;
     if (!checkpointPool) return;
 
-    const playerCoords = GetEntityCoords(ped, true);
     const px = playerCoords[0];
     const py = playerCoords[1];
     const pz = playerCoords[2];
@@ -448,7 +467,7 @@ export class EventManager extends EventEmitter {
     }
   }
 
-  _tickWaypoint(ped, localPlayer) {
+  _tickWaypoint(ped, localPlayer, playerCoords) {
     const waypointNowActive = IsWaypointActive();
 
     if (waypointNowActive) {
@@ -473,9 +492,8 @@ export class EventManager extends EventEmitter {
         }
 
         if (!this._waypointReached) {
-          const playerCoords2 = GetEntityCoords(ped, true);
-          const dxW = playerCoords2[0] - wx;
-          const dyW = playerCoords2[1] - wy;
+          const dxW = playerCoords[0] - wx;
+          const dyW = playerCoords[1] - wy;
           const dist2D = Math.sqrt(dxW * dxW + dyW * dyW);
           if (dist2D <= 5.0) {
             this._waypointReached = true;
@@ -491,35 +509,43 @@ export class EventManager extends EventEmitter {
     this._waypointActive = waypointNowActive;
   }
 
-  _tickVehicleAudio(ped) {
-    const vehPed = GetVehiclePedIsIn(ped, false);
-    if (vehPed !== 0) {
-      const isHornActive = IsVehicleHornActive(vehPed);
+  _tickVehicleAudio() {
+    const vehHandle = this._wasInVehicle ? this._lastVehicleHandle : 0;
+    if (vehHandle !== 0) {
+      const isHornActive = IsVehicleHornActive(vehHandle);
       if (isHornActive !== this._lastHornState) {
         this._lastHornState = isHornActive;
-        emitNet("ragemp:vehicleHorn", safeGetNetworkId(vehPed), isHornActive);
+        emitNet("ragemp:vehicleHorn", safeGetNetworkId(vehHandle), isHornActive);
       }
-      const isSirenActive = IsVehicleSirenOn(vehPed);
+      const isSirenActive = IsVehicleSirenOn(vehHandle);
       if (isSirenActive !== this._lastSirenState) {
         this._lastSirenState = isSirenActive;
-        emitNet("ragemp:vehicleSiren", safeGetNetworkId(vehPed), isSirenActive);
+        emitNet("ragemp:vehicleSiren", safeGetNetworkId(vehHandle), isSirenActive);
       }
-      const [hasTrailer, trailerHandle] = GetVehicleTrailerVehicle(vehPed);
+      const [hasTrailer, trailerHandle] = GetVehicleTrailerVehicle(vehHandle);
       const trailerNetId = hasTrailer ? safeGetNetworkId(trailerHandle) : 0;
       if (trailerNetId !== (this._lastTrailerNetId ?? 0)) {
         this._lastTrailerNetId = trailerNetId;
         if (trailerNetId !== 0) {
           emitNet(
             "ragemp:trailerAttached",
-            safeGetNetworkId(vehPed),
+            safeGetNetworkId(vehHandle),
             trailerNetId,
           );
         }
       }
+      this._lastAudioVehHandle = vehHandle;
     } else {
+      const lastHandle = this._lastAudioVehHandle ?? 0;
+      if (lastHandle !== 0 && (this._lastHornState || this._lastSirenState)) {
+        const netId = safeGetNetworkId(lastHandle);
+        if (this._lastHornState) emitNet("ragemp:vehicleHorn", netId, false);
+        if (this._lastSirenState) emitNet("ragemp:vehicleSiren", netId, false);
+      }
       this._lastHornState = false;
       this._lastSirenState = false;
       this._lastTrailerNetId = 0;
+      this._lastAudioVehHandle = 0;
     }
   }
 
@@ -576,67 +602,55 @@ export class EventManager extends EventEmitter {
     const activePlayers = cache.players;
     const activeSet = this._activeSet;
     activeSet.clear();
-    for (const p of activePlayers) activeSet.add(p);
     const localPlayerId = PlayerId();
-    for (const p of activePlayers) {
-      if (p === localPlayerId) continue;
-      const pPed = GetPlayerPed(p);
-      const isStreamed = pPed !== 0 && DoesEntityExist(pPed);
-      if (isStreamed && !this._streamedPlayers.has(p)) {
-        this._streamedPlayers.add(p);
-        const remoteMp = globalThis.mp?.players?.atRemoteId?.(
-          GetPlayerServerId(p),
-        );
-        this._fire("playerStreamIn", remoteMp ?? p);
-      } else if (!isStreamed && this._streamedPlayers.has(p)) {
-        this._streamedPlayers.delete(p);
-        const remoteMp = globalThis.mp?.players?.atRemoteId?.(
-          GetPlayerServerId(p),
-        );
-        this._fire("playerStreamOut", remoteMp ?? p);
-      }
-    }
-    for (const p of this._streamedPlayers) {
-      if (!activeSet.has(p)) this._streamedPlayers.delete(p);
-    }
+    const pool = globalThis.mp?.players;
 
     for (const p of activePlayers) {
-      if (!this._connectedPlayers.has(p)) {
-        this._connectedPlayers.add(p);
-        const joinedMp = globalThis.mp?.players?.atRemoteId?.(
-          GetPlayerServerId(p),
-        );
-        this._fire("playerJoin", joinedMp ?? p);
-      }
-    }
-    for (const p of this._connectedPlayers) {
-      if (!activeSet.has(p)) {
-        this._connectedPlayers.delete(p);
-        const quitMp = globalThis.mp?.players?.atRemoteId?.(
-          GetPlayerServerId(p),
-        );
-        this._fire("playerQuit", quitMp ?? p, "quit", "");
-      }
-    }
+      const serverId = GetPlayerServerId(p);
+      if (!serverId || serverId === -1) continue;
+      activeSet.add(serverId);
+      const remoteMp = pool?.atRemoteId?.(serverId) ?? p;
+      const isLocal = p === localPlayerId;
 
-    for (const p of activePlayers) {
+      if (!isLocal) {
+        const pPed = GetPlayerPed(p);
+        const isStreamed = pPed !== 0 && DoesEntityExist(pPed);
+        if (isStreamed && !this._streamedPlayers.has(serverId)) {
+          this._streamedPlayers.add(serverId);
+          this._fire("playerStreamIn", remoteMp);
+        } else if (!isStreamed && this._streamedPlayers.has(serverId)) {
+          this._streamedPlayers.delete(serverId);
+          this._fire("playerStreamOut", remoteMp);
+        }
+
+        if (!this._connectedPlayers.has(serverId)) {
+          this._connectedPlayers.add(serverId);
+          this._fire("playerJoin", remoteMp);
+        }
+      }
+
       const isTalking = NetworkIsPlayerTalking(p);
-      if (isTalking && !this._talkingPlayers.has(p)) {
-        this._talkingPlayers.add(p);
-        const talkingMp = globalThis.mp?.players?.atRemoteId?.(
-          GetPlayerServerId(p),
-        );
-        this._fire("playerStartTalking", talkingMp ?? p);
-      } else if (!isTalking && this._talkingPlayers.has(p)) {
-        this._talkingPlayers.delete(p);
-        const talkingMp = globalThis.mp?.players?.atRemoteId?.(
-          GetPlayerServerId(p),
-        );
-        this._fire("playerStopTalking", talkingMp ?? p);
+      if (isTalking && !this._talkingPlayers.has(serverId)) {
+        this._talkingPlayers.add(serverId);
+        this._fire("playerStartTalking", remoteMp);
+      } else if (!isTalking && this._talkingPlayers.has(serverId)) {
+        this._talkingPlayers.delete(serverId);
+        this._fire("playerStopTalking", remoteMp);
       }
     }
-    for (const p of this._talkingPlayers) {
-      if (!activeSet.has(p)) this._talkingPlayers.delete(p);
+
+    for (const id of this._streamedPlayers) {
+      if (!activeSet.has(id)) this._streamedPlayers.delete(id);
+    }
+    for (const id of this._connectedPlayers) {
+      if (!activeSet.has(id)) {
+        this._connectedPlayers.delete(id);
+        const quitMp = pool?.atRemoteId?.(id) ?? id;
+        this._fire("playerQuit", quitMp, "quit", "");
+      }
+    }
+    for (const id of this._talkingPlayers) {
+      if (!activeSet.has(id)) this._talkingPlayers.delete(id);
     }
 
     const vehPool = cache.vehicles;

@@ -500,7 +500,11 @@ export class VehicleMp extends Entity {
     const ped = GetPedInVehicleSeat(this._handle, seat - 1);
     if (!ped || ped === 0) return null;
     const owner = NetworkGetEntityOwner(ped);
-    return owner ? globalThis.mp.players.at(owner) : null;
+    if (owner) {
+      const player = globalThis.mp.players.at(owner);
+      if (player && player.ped === ped) return player;
+    }
+    return globalThis.mp.peds?.atHandle?.(ped) ?? null;
   }
 
   getOccupants() {

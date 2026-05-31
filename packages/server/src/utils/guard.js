@@ -1,26 +1,25 @@
-const _buckets = new Map();
+const _bySource = new Map();
 
-export function rateLimit(key, max = 30, windowMs = 1000) {
+export function ingressAllowed(source, name) {
+  const max = globalThis.mp?.config?.security?.ingressRateLimit ?? 30;
   if (!(max > 0)) return true;
   const now = Date.now();
-  let b = _buckets.get(key);
-  if (!b || now - b.start >= windowMs) {
+  let byName = _bySource.get(source);
+  if (!byName) {
+    byName = new Map();
+    _bySource.set(source, byName);
+  }
+  let b = byName.get(name);
+  if (!b || now - b.start >= 1000) {
     b = { start: now, count: 0 };
-    _buckets.set(key, b);
+    byName.set(name, b);
   }
   b.count++;
   return b.count <= max;
 }
 
-export function clearRateLimit(prefix) {
-  for (const k of _buckets.keys()) {
-    if (k.indexOf(prefix) === 0) _buckets.delete(k);
-  }
-}
-
-export function ingressAllowed(source, name) {
-  const max = globalThis.mp?.config?.security?.ingressRateLimit ?? 30;
-  return rateLimit(`${source}:${name}`, max, 1000);
+export function clearRateLimit(source) {
+  _bySource.delete(source);
 }
 
 export function isFiniteNumber(v) {

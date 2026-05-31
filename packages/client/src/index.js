@@ -29,6 +29,9 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
   };
   let _clothesTick = null;
   let _clothesDeadline = 0;
+  let _modelTimer = null;
+  let _animTimer = null;
+  let _putVehTimer = null;
 
   function applyHeadBlend(ped) {
     const b = _appearance.headBlend;
@@ -158,11 +161,13 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
 
   onNet("ragemp:setModel", (model) => {
     if (!model) return;
+    if (_modelTimer) clearInterval(_modelTimer);
     RequestModel(model);
     let tries = 0;
     const timer = setInterval(() => {
       if (HasModelLoaded(model)) {
         clearInterval(timer);
+        if (_modelTimer === timer) _modelTimer = null;
         SetPlayerModel(PlayerId(), model);
         SetModelAsNoLongerNeeded(model);
         SetPedDefaultComponentVariation(PlayerPedId());
@@ -170,8 +175,10 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
         setTimeout(reapplyAppearance, 250);
       } else if (++tries > 100) {
         clearInterval(timer);
+        if (_modelTimer === timer) _modelTimer = null;
       }
     }, 50);
+    _modelTimer = timer;
   });
 
   onNet("ragemp:setProp", (prop, drawable, texture) => {
@@ -294,16 +301,20 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
 
   onNet("ragemp:playAnimation", (dict, name, speed, flag) => {
     if (typeof dict !== "string" || typeof name !== "string") return;
+    if (_animTimer) clearInterval(_animTimer);
     RequestAnimDict(dict);
     let tries = 0;
     const timer = setInterval(() => {
       if (HasAnimDictLoaded(dict)) {
         clearInterval(timer);
+        if (_animTimer === timer) _animTimer = null;
         TaskPlayAnim(PlayerPedId(), dict, name, speed ?? 8.0, -8.0, -1, flag ?? 0, 0, false, false, false);
       } else if (++tries > 100) {
         clearInterval(timer);
+        if (_animTimer === timer) _animTimer = null;
       }
     }, 50);
+    _animTimer = timer;
   });
 
   onNet("ragemp:stopAnimation", () => {
@@ -383,12 +394,14 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
   });
 
   onNet("ragemp:putIntoVehicle", (netId, seat) => {
+    if (_putVehTimer) clearInterval(_putVehTimer);
     let tries = 0;
     const timer = setInterval(() => {
       tries++;
       const handle = NetworkGetEntityFromNetworkId(netId);
       if (handle && DoesEntityExist(handle)) {
         clearInterval(timer);
+        if (_putVehTimer === timer) _putVehTimer = null;
         if (!NetworkHasControlOfNetworkId || !NetworkHasControlOfNetworkId(netId)) {
           NetworkRequestControlOfNetworkId(netId);
         }
@@ -396,7 +409,18 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
         SetPedIntoVehicle(PlayerPedId(), handle, gtaSeat);
       } else if (tries > 100) {
         clearInterval(timer);
+        if (_putVehTimer === timer) _putVehTimer = null;
       }
     }, 50);
+    _putVehTimer = timer;
+  });
+
+  on("onResourceStop", (name) => {
+    if (name !== GetCurrentResourceName()) return;
+    if (_modelTimer) clearInterval(_modelTimer);
+    if (_animTimer) clearInterval(_animTimer);
+    if (_putVehTimer) clearInterval(_putVehTimer);
+    if (_clothesTick) clearInterval(_clothesTick);
+    _modelTimer = _animTimer = _putVehTimer = _clothesTick = null;
   });
 }

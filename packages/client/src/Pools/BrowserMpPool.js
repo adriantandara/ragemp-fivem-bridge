@@ -30,6 +30,8 @@ export class BrowserMpPool extends Pool {
       SendNuiMessage(JSON.stringify({ type: "__ragemp:browser:create", browserId: id, url }));
     }
 
+    browser.orderId = id;
+
     globalThis.mp?.events?._fire("browserCreated", browser);
 
     setTimeout(() => {

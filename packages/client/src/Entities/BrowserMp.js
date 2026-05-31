@@ -52,7 +52,7 @@ export class BrowserMp extends Entity {
   _destroyed = false;
   _inputEnabled = true;
   _mouseInputEnabled = true;
-  orderId = 0;
+  _orderId = 0;
 
   constructor(id, url) {
     super(id, "browser");
@@ -110,6 +110,22 @@ export class BrowserMp extends Entity {
   set mouseInputEnabled(value) {
     this._mouseInputEnabled = !!value;
     this._applyPointerEvents();
+  }
+
+  get orderId() {
+    return this._orderId;
+  }
+
+  set orderId(value) {
+    this._orderId = value | 0;
+    if (this._destroyed || typeof SendNuiMessage !== "function") return;
+    SendNuiMessage(
+      JSON.stringify({
+        type: "__ragemp:browser:orderId",
+        browserId: this.id,
+        orderId: this._orderId,
+      })
+    );
   }
 
   markAsChat(flag) {

@@ -1,7 +1,29 @@
+const _queue = [];
+let _running = false;
+
+function _run() {
+    if (_running) return;
+    _running = true;
+    const step = () => {
+        const job = _queue.shift();
+        if (job && job.handle != null && DoesBlipExist(job.handle)) {
+            BeginTextCommandSetBlipName("STRING");
+            AddTextComponentSubstringPlayerName(job.text);
+            EndTextCommandSetBlipName(job.handle);
+        }
+        if (_queue.length) {
+            setTimeout(step, 0);
+        } else {
+            _running = false;
+        }
+    };
+    setTimeout(step, 0);
+}
+
 export function applyBlipName(handle, name) {
-  if (handle == null || name == null || name === "") return;
-  const text = String(name);
-  BeginTextCommandSetBlipName("STRING");
-  AddTextComponentSubstringPlayerName(text);
-  EndTextCommandSetBlipName(handle);
+    if (handle == null || name == null || name === "") return;
+    const existing = _queue.find((j) => j.handle === handle);
+    if (existing) existing.text = String(name);
+    else _queue.push({ handle, text: String(name) });
+    _run();
 }

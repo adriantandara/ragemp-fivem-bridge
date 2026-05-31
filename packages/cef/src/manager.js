@@ -4,8 +4,24 @@ import { log, resourceName, toClient } from "./transport.js";
 export function startManager() {
   const { handlePayload } = createRuntime();
   const frames = new Map();
+  const pointerState = new Map();
+  const orderState = new Map();
   const HOST_RESOURCE = resourceName();
   let focusedBrowserId = null;
+
+  function applyPointer(browserId) {
+    const entry = frames.get(browserId);
+    if (!entry || !entry.iframe) return;
+    entry.iframe.style.pointerEvents =
+      pointerState.get(browserId) === false ? "none" : "auto";
+  }
+
+  function applyOrder(browserId) {
+    const entry = frames.get(browserId);
+    if (!entry || !entry.iframe) return;
+    const z = orderState.get(browserId);
+    entry.iframe.style.zIndex = z == null ? "" : String(z);
+  }
 
   function focusFrame(browserId) {
     const entry = frames.get(browserId);
@@ -185,6 +201,8 @@ export function startManager() {
 
     ensureContainer().appendChild(iframe);
     frames.set(browserId, entry);
+    applyPointer(browserId);
+    applyOrder(browserId);
 
     setTimeout(() => {
       if (!entry.ready) log("iframe still not loaded after 5s", browserId);
@@ -312,7 +330,17 @@ export function startManager() {
         if (focusedBrowserId === data.browserId) focusedBrowserId = null;
         return;
       case "__ragemp:browser:destroy":
+        pointerState.delete(data.browserId);
+        orderState.delete(data.browserId);
         destroyBrowser(data.browserId);
+        return;
+      case "__ragemp:browser:pointerEvents":
+        pointerState.set(data.browserId, data.enabled !== false);
+        applyPointer(data.browserId);
+        return;
+      case "__ragemp:browser:orderId":
+        orderState.set(data.browserId, data.orderId | 0);
+        applyOrder(data.browserId);
         return;
       case "__ragemp:browser:exec":
         forward(data.browserId, { type: "__ragemp:exec", code: data.code });

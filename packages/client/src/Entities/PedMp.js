@@ -3,141 +3,209 @@ import { gtaPedHealthToRage, rageHealthToGtaPed } from "@ragemp-fivem-bridge/sha
 import { withEntityNatives } from "../utils/native";
 
 export class PedMp extends Entity {
-  _handle;
+    _handle;
 
-  constructor(id, handle) {
-    super(id, "ped");
-    this._handle = handle;
-    return withEntityNatives(this, (t) => t._handle, ["Entity", "Ped"]);
-  }
+    constructor(id, handle) {
+        super(id, "ped");
+        this._handle = handle;
+        return withEntityNatives(this, (t) => t._handle, ["Entity", "Ped"]);
+    }
 
-  _stateBag() {
-    return globalThis.Entity(this._handle).state;
-  }
+    _stateBag() {
+        return globalThis.Entity(this._handle).state;
+    }
 
-  get handle() {
-    return this._handle;
-  }
+    get handle() {
+        return this._handle;
+    }
 
-  get position() {
-    const coords = GetEntityCoords(this._handle, true);
-    return new Vector3(coords[0], coords[1], coords[2]);
-  }
-  set position(value) {
-    SetEntityCoords(this._handle, value.x, value.y, value.z, false, false, false, false);
-  }
+    get position() {
+        const coords = GetEntityCoords(this._handle, true);
+        return new Vector3(coords[0], coords[1], coords[2]);
+    }
+    set position(value) {
+        SetEntityCoords(this._handle, value.x, value.y, value.z, false, false, false, false);
+    }
 
-  get rotation() {
-    const rot = GetEntityRotation(this._handle, 2);
-    return new Vector3(rot[0], rot[1], rot[2]);
-  }
-  set rotation(value) {
-    SetEntityRotation(this._handle, value.x, value.y, value.z, 2, false);
-  }
+    get rotation() {
+        const rot = GetEntityRotation(this._handle, 2);
+        return new Vector3(rot[0], rot[1], rot[2]);
+    }
+    set rotation(value) {
+        SetEntityRotation(this._handle, value.x, value.y, value.z, 2, false);
+    }
 
-  get heading() {
-    return GetEntityHeading(this._handle);
-  }
-  set heading(value) {
-    SetEntityHeading(this._handle, value);
-  }
+    get heading() {
+        return GetEntityHeading(this._handle);
+    }
+    set heading(value) {
+        SetEntityHeading(this._handle, value);
+    }
 
-  get model() {
-    return GetEntityModel(this._handle);
-  }
+    get model() {
+        return GetEntityModel(this._handle);
+    }
 
-  get health() {
-    return gtaPedHealthToRage(GetEntityHealth(this._handle));
-  }
-  set health(value) {
-    SetEntityHealth(this._handle, rageHealthToGtaPed(value));
-  }
+    get health() {
+        return gtaPedHealthToRage(GetEntityHealth(this._handle));
+    }
+    set health(value) {
+        SetEntityHealth(this._handle, rageHealthToGtaPed(value));
+    }
 
-  getHealth() {
-    return gtaPedHealthToRage(GetEntityHealth(this._handle));
-  }
-  setHealth(value) {
-    SetEntityHealth(this._handle, rageHealthToGtaPed(value));
-  }
+    getHealth() {
+        return gtaPedHealthToRage(GetEntityHealth(this._handle));
+    }
+    setHealth(value) {
+        SetEntityHealth(this._handle, rageHealthToGtaPed(value));
+    }
 
-  get armour() {
-    return GetPedArmour(this._handle);
-  }
-  set armour(value) {
-    SetPedArmour(this._handle, value);
-  }
+    get armour() {
+        return GetPedArmour(this._handle);
+    }
+    set armour(value) {
+        SetPedArmour(this._handle, value);
+    }
 
-  get frozen() {
-    return IsEntityPositionFrozen(this._handle);
-  }
-  set frozen(value) {
-    FreezeEntityPosition(this._handle, value);
-  }
+    get frozen() {
+        return IsEntityPositionFrozen(this._handle);
+    }
+    set frozen(value) {
+        FreezeEntityPosition(this._handle, value);
+    }
 
-  _invincible = false;
-  get invincible() {
-    return this._invincible;
-  }
-  set invincible(value) {
-    this._invincible = value;
-    SetEntityInvincible(this._handle, value);
-  }
+    _invincible = false;
+    get invincible() {
+        return this._invincible;
+    }
+    set invincible(value) {
+        this._invincible = value;
+        SetEntityInvincible(this._handle, value);
+    }
 
-  setConfigFlag(flagId, value) {
-    SetPedConfigFlag(this._handle, flagId, !!value);
-  }
+    _dynamic = false;
+    get dynamic() {
+        return this._dynamic;
+    }
+    set dynamic(value) {
+        this._dynamic = !!value;
+    }
 
-  getConfigFlag(flagId) {
-    return GetPedConfigFlag(this._handle, flagId, true);
-  }
+    freezePosition(toggle) {
+        FreezeEntityPosition(this._handle, !!toggle);
+    }
 
-  resetConfigFlag(flagId) {
-    SetPedResetFlag(this._handle, flagId, true);
-  }
+    setInvincible(toggle) {
+        this._invincible = !!toggle;
+        SetEntityInvincible(this._handle, !!toggle);
+    }
 
-  taskPlayAnim(dict, name, speed, speedMultiplier, duration, flag, playbackRate, lockX, lockY, lockZ) {
-    TaskPlayAnim(this._handle, dict, name, speed, speedMultiplier ?? -1, duration ?? -1, flag ?? 0, playbackRate ?? 0, !!lockX, !!lockY, !!lockZ);
-  }
+    setProofs(bulletProof, fireProof, explosionProof, collisionProof, meleeProof, steamProof, p7, drownProof) {
+        SetEntityProofs(
+            this._handle,
+            !!bulletProof,
+            !!fireProof,
+            !!explosionProof,
+            !!collisionProof,
+            !!meleeProof,
+            !!steamProof,
+            !!p7,
+            !!drownProof
+        );
+    }
 
-  setComponentVariation(component, drawable, texture, palette) {
-    SetPedComponentVariation(this._handle, component, drawable, texture, palette ?? 0);
-  }
+    setConfigFlag(flagId, value) {
+        SetPedConfigFlag(this._handle, flagId, !!value);
+    }
 
-  setAlpha(alpha) {
-    SetEntityAlpha(this._handle, alpha, false);
-  }
+    getConfigFlag(flagId) {
+        return GetPedConfigFlag(this._handle, flagId, true);
+    }
 
-  setHairColor(firstColor, secondColor) {
-    SetPedHairColor(this._handle, firstColor, secondColor ?? 0);
-  }
+    resetConfigFlag(flagId) {
+        SetPedResetFlag(this._handle, flagId, true);
+    }
 
-  setEyeColor(index) {
-    SetPedEyeColor(this._handle, index);
-  }
+    taskPlayAnim(dict, name, speed, speedMultiplier, duration, flag, playbackRate, lockX, lockY, lockZ) {
+        TaskPlayAnim(
+            this._handle,
+            dict,
+            name,
+            speed,
+            speedMultiplier ?? -1,
+            duration ?? -1,
+            flag ?? 0,
+            playbackRate ?? 0,
+            !!lockX,
+            !!lockY,
+            !!lockZ
+        );
+    }
 
-  setHeadOverlay(overlayId, index, opacity) {
-    SetPedHeadOverlay(this._handle, overlayId, index, opacity ?? 1.0);
-  }
+    setComponentVariation(component, drawable, texture, palette) {
+        SetPedComponentVariation(this._handle, component, drawable, texture, palette ?? 0);
+    }
 
-  setHeadOverlayColor(overlayId, colorType, colorId, secondColorId) {
-    SetPedHeadOverlayColor(this._handle, overlayId, colorType, colorId, secondColorId ?? 0);
-  }
+    setAlpha(alpha) {
+        SetEntityAlpha(this._handle, alpha, false);
+    }
 
-  setHeadBlendData(shapeFirst, shapeSecond, shapeThird, skinFirst, skinSecond, skinThird, shapeMix, skinMix, thirdMix, isParent) {
-    SetPedHeadBlendData(this._handle, shapeFirst, shapeSecond, shapeThird ?? 0, skinFirst, skinSecond, skinThird ?? 0, shapeMix, skinMix, thirdMix ?? 0, !!isParent);
-  }
+    setHairColor(firstColor, secondColor) {
+        SetPedHairColor(this._handle, firstColor, secondColor ?? 0);
+    }
 
-  setFaceFeature(index, scale) {
-    SetPedFaceFeature(this._handle, index, scale);
-  }
+    setEyeColor(index) {
+        SetPedEyeColor(this._handle, index);
+    }
 
-  isPositionFrozen() {
-    return IsEntityPositionFrozen(this._handle);
-  }
+    setHeadOverlay(overlayId, index, opacity) {
+        SetPedHeadOverlay(this._handle, overlayId, index, opacity ?? 1.0);
+    }
 
-  destroy() {
-    SetEntityAsMissionEntity(this._handle, false, true);
-    DeleteEntity(this._handle);
-    globalThis.mp.peds._remove(this.id);
-  }
+    setHeadOverlayColor(overlayId, colorType, colorId, secondColorId) {
+        SetPedHeadOverlayColor(this._handle, overlayId, colorType, colorId, secondColorId ?? 0);
+    }
+
+    setHeadBlendData(
+        shapeFirst,
+        shapeSecond,
+        shapeThird,
+        skinFirst,
+        skinSecond,
+        skinThird,
+        shapeMix,
+        skinMix,
+        thirdMix,
+        isParent
+    ) {
+        SetPedHeadBlendData(
+            this._handle,
+            shapeFirst,
+            shapeSecond,
+            shapeThird ?? 0,
+            skinFirst,
+            skinSecond,
+            skinThird ?? 0,
+            shapeMix,
+            skinMix,
+            thirdMix ?? 0,
+            !!isParent
+        );
+    }
+
+    setFaceFeature(index, scale) {
+        SetPedFaceFeature(this._handle, index, scale);
+    }
+
+    isPositionFrozen() {
+        return IsEntityPositionFrozen(this._handle);
+    }
+
+    destroy() {
+        if (this._handle && DoesEntityExist(this._handle)) {
+            SetEntityAsMissionEntity(this._handle, false, true);
+            DeleteEntity(this._handle);
+        }
+        globalThis.mp.peds._remove(this.id);
+    }
 }

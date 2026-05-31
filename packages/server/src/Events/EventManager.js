@@ -1,5 +1,5 @@
 import { EventEmitter } from "@ragemp-fivem-bridge/shared";
-import { sanitizeArgsForNet } from "@ragemp-fivem-bridge/shared";
+import { sanitizeArgsForNet, STATE_KEY_PREFIX } from "@ragemp-fivem-bridge/shared";
 import { ingressAllowed, clearRateLimit } from "../utils/guard";
 
 const RAGEMP_TO_FIVEM_EVENTS = {
@@ -99,6 +99,8 @@ export class EventManager extends EventEmitter {
       AddStateBagChangeHandler(null, null, (bagName, key, value) => {
         const mp = globalThis.mp;
         if (!mp || typeof bagName !== "string" || typeof key !== "string") return;
+        if (key.indexOf(STATE_KEY_PREFIX) !== 0) return;
+        const realKey = key.slice(STATE_KEY_PREFIX.length);
         let entity = null;
         if (bagName.indexOf("player:") === 0) {
           entity = mp.players?.at?.(parseInt(bagName.slice(7), 10)) ?? null;
@@ -116,8 +118,8 @@ export class EventManager extends EventEmitter {
           }
         }
         if (entity) {
-          entity._variables.set(key, value);
-          this._fire("entityDataChange", entity, key, value);
+          entity._variables.set(realKey, value);
+          this._fire("entityDataChange", entity, realKey, value);
         }
       });
     }

@@ -29,6 +29,12 @@ export class GameMiscNs {
   setMissionFlag(toggle) { SetMissionFlag(toggle); }
   getMissionFlag() { return GetMissionFlag(); }
   setGamePaused(toggle) { SetGamePaused(toggle); }
+  setFadeOutAfterDeath(toggle) { SetFadeOutAfterDeath(toggle); }
+  setFadeOutAfterArrest(toggle) { SetFadeOutAfterArrest(toggle); }
+  disableAutomaticRespawn(disableRespawn) { DisableAutomaticRespawn(disableRespawn); }
+  ignoreNextRestart(toggle) { IgnoreNextRestart(toggle); }
+  pauseDeathArrestRestart(toggle) { PauseDeathArrestRestart(toggle); }
+  forceGameStatePlaying() { ForceGameStatePlaying(); }
 
   shootSingleBulletBetweenCoords(fromX, fromY, fromZ, toX, toY, toZ, damage, pureAccuracy, weaponHash, ownerPed, isAudible, isInvisible, speed) {
     ShootSingleBulletBetweenCoords(fromX, fromY, fromZ, toX, toY, toZ, damage, pureAccuracy ?? true, weaponHash, ownerPed, isAudible ?? true, isInvisible ?? false, speed ?? 1.0);

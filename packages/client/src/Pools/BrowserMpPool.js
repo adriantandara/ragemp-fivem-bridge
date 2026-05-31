@@ -1,7 +1,7 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
 import { BrowserMp, setBrowserProcTimeout, getBrowserProcTimeout } from "../Entities/BrowserMp";
 
-let _browserIdCounter = 0;
+let _browserIdCounter = -1;
 
 export class BrowserMpPool extends Pool {
   _chatBrowser = null;

@@ -18,6 +18,22 @@ export default function setup({ mp, plugin }) {
   let defaultSpawnTimer = null;
   let serverSpawnRequested = false;
   let defaultSpawnGrace = 2000;
+  let pendingTarget = null;
+  let pendingHeading = null;
+
+  function applyPending() {
+    const ped = PlayerPedId();
+    if (pendingTarget) {
+      const t = pendingTarget;
+      pendingTarget = null;
+      SetEntityCoordsNoOffset(ped, t.x, t.y, t.z, false, false, false);
+    }
+    if (pendingHeading !== null) {
+      const h = pendingHeading;
+      pendingHeading = null;
+      SetEntityHeading(ped, h);
+    }
+  }
 
   function cancelDefaultSpawn() {
     if (defaultSpawnTimer === null) return;
@@ -154,6 +170,7 @@ export default function setup({ mp, plugin }) {
       mp.events.call("playerSpawn", firstSpawn);
       emitNet("ragemp:playerSpawn");
       firstSpawn = false;
+      applyPending();
     } catch (err) {
       plugin.log("spawn failed:", err);
     } finally {
@@ -188,15 +205,21 @@ export default function setup({ mp, plugin }) {
     if (firstSpawn) {
       serverSpawnRequested = true;
       cancelDefaultSpawn();
+      if (isSpawning) {
+        pendingTarget = { x: pos.x, y: pos.y, z: pos.z };
+        return;
+      }
       doSpawn({ x: pos.x, y: pos.y, z: pos.z });
       return;
     }
-    const ped = PlayerPedId();
-    SetEntityCoordsNoOffset(ped, pos.x, pos.y, pos.z, false, false, false);
+    SetEntityCoordsNoOffset(PlayerPedId(), pos.x, pos.y, pos.z, false, false, false);
   });
 
   onNet("ragemp:setHeading", (id, heading) => {
-    if (firstSpawn) return;
+    if (firstSpawn) {
+      if (isSpawning) pendingHeading = heading;
+      return;
+    }
     SetEntityHeading(PlayerPedId(), heading);
   });
 

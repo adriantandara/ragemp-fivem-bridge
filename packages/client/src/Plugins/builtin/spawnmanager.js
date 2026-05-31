@@ -15,42 +15,6 @@ export default function setup({ mp, plugin }) {
   let spawnInfo = { ...DEFAULT_SPAWN };
   let autoRespawnAfterDeath = true;
   let respawnSuppressTick = null;
-  let defaultSpawnTimer = null;
-  let serverSpawnRequested = false;
-  let defaultSpawnGrace = 2000;
-  let pendingTarget = null;
-  let pendingHeading = null;
-
-  function applyPending() {
-    const ped = PlayerPedId();
-    if (pendingTarget) {
-      const t = pendingTarget;
-      pendingTarget = null;
-      SetEntityCoordsNoOffset(ped, t.x, t.y, t.z, false, false, false);
-    }
-    if (pendingHeading !== null) {
-      const h = pendingHeading;
-      pendingHeading = null;
-      SetEntityHeading(ped, h);
-    }
-  }
-
-  function cancelDefaultSpawn() {
-    if (defaultSpawnTimer === null) return;
-    clearTimeout(defaultSpawnTimer);
-    defaultSpawnTimer = null;
-  }
-
-  function scheduleDefaultSpawn() {
-    if (!autoSpawnEnabled) return;
-    if (serverSpawnRequested || !firstSpawn) return;
-    if (defaultSpawnTimer !== null) return;
-    defaultSpawnTimer = setTimeout(() => {
-      defaultSpawnTimer = null;
-      if (serverSpawnRequested || !firstSpawn || !autoSpawnEnabled) return;
-      doSpawn();
-    }, defaultSpawnGrace);
-  }
 
   function startRespawnSuppress() {
     if (respawnSuppressTick !== null) return;
@@ -90,14 +54,18 @@ export default function setup({ mp, plugin }) {
     }
   }
 
-  async function doSpawn(info) {
+  async function doSpawn(info, isAuto) {
     if (isSpawning) return;
-    cancelDefaultSpawn();
     isSpawning = true;
     const data = { ...spawnInfo, ...(info && typeof info === "object" ? info : {}) };
 
     try {
       await waitForGameReady();
+
+      if (isAuto && !autoSpawnEnabled) {
+        isSpawning = false;
+        return;
+      }
 
       const modelHash = await loadModel(data.model);
       if (modelHash !== null) {
@@ -170,7 +138,6 @@ export default function setup({ mp, plugin }) {
       mp.events.call("playerSpawn", firstSpawn);
       emitNet("ragemp:playerSpawn");
       firstSpawn = false;
-      applyPending();
     } catch (err) {
       plugin.log("spawn failed:", err);
     } finally {
@@ -184,31 +151,21 @@ export default function setup({ mp, plugin }) {
       ShutdownLoadingScreen();
       if (typeof ShutdownLoadingScreenNui === "function")
         ShutdownLoadingScreenNui();
-      scheduleDefaultSpawn();
+      doSpawn(undefined, true);
     }
   });
 
   onNet("ragemp:spawnmanager:spawn", (id, info) => {
-    serverSpawnRequested = true;
-    cancelDefaultSpawn();
     doSpawn(info);
   });
 
   onNet("ragemp:spawnmanager:setAutoSpawn", (id, state) => {
     autoSpawnEnabled = state !== false;
-    if (!autoSpawnEnabled) cancelDefaultSpawn();
-    else scheduleDefaultSpawn();
   });
 
   onNet("ragemp:setPosition", (id, pos) => {
     if (!pos || typeof pos !== "object") return;
     if (firstSpawn) {
-      serverSpawnRequested = true;
-      cancelDefaultSpawn();
-      if (isSpawning) {
-        pendingTarget = { x: pos.x, y: pos.y, z: pos.z };
-        return;
-      }
       doSpawn({ x: pos.x, y: pos.y, z: pos.z });
       return;
     }
@@ -216,10 +173,7 @@ export default function setup({ mp, plugin }) {
   });
 
   onNet("ragemp:setHeading", (id, heading) => {
-    if (firstSpawn) {
-      if (isSpawning) pendingHeading = heading;
-      return;
-    }
+    if (firstSpawn) return;
     SetEntityHeading(PlayerPedId(), heading);
   });
 
@@ -232,13 +186,9 @@ export default function setup({ mp, plugin }) {
   mp.spawnmanager = {
     setAutoSpawn(state) {
       autoSpawnEnabled = !!state;
-      if (!autoSpawnEnabled) cancelDefaultSpawn();
     },
     get autoSpawn() {
       return autoSpawnEnabled;
-    },
-    setDefaultSpawnGrace(ms) {
-      if (typeof ms === "number" && ms >= 0) defaultSpawnGrace = ms;
     },
     setSpawnPoint(info) {
       spawnInfo = { ...spawnInfo, ...(info ?? {}) };
@@ -247,7 +197,6 @@ export default function setup({ mp, plugin }) {
       return { ...spawnInfo };
     },
     spawn(info) {
-      serverSpawnRequested = true;
       return doSpawn(info);
     },
     forceRespawn() {

@@ -40,18 +40,15 @@ export function sanitizeForNet(value, seen) {
 
 export function sanitizeArgsForNet(args) {
   if (!Array.isArray(args)) return args;
-  let changed = false;
-  const out = new Array(args.length);
+  let out = null;
   for (let i = 0; i < args.length; i++) {
     const value = args[i];
     if (value !== null && typeof value === "object") {
+      if (!out) out = args.slice();
       out[i] = sanitizeForNet(value);
-      changed = true;
-    } else {
-      out[i] = value;
     }
   }
-  return changed ? out : args;
+  return out ?? args;
 }
 
 export function isNetRef(value) {

@@ -1,5 +1,5 @@
 import { createRuntime } from "./core.js";
-import { log, resourceName, toClient, blockReloadKey } from "./transport.js";
+import { log, resourceName, toClient, preventReload } from "./transport.js";
 
 export function startManager() {
   const { handlePayload } = createRuntime();
@@ -282,7 +282,7 @@ export function startManager() {
   window.addEventListener(
     "keydown",
     (e) => {
-      if (blockReloadKey(e)) return;
+      preventReload(e);
       forwardKey(e, true);
       forwardKeyToFrames(e, true);
     },
@@ -291,7 +291,7 @@ export function startManager() {
   window.addEventListener(
     "keyup",
     (e) => {
-      if (blockReloadKey(e)) return;
+      preventReload(e);
       forwardKey(e, false);
       forwardKeyToFrames(e, false);
     },

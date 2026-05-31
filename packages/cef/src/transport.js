@@ -45,11 +45,10 @@ export function isReloadKey(e) {
   return false;
 }
 
-export function blockReloadKey(e) {
+export function preventReload(e) {
+  if (e.isTrusted === false) return false;
   if (!isReloadKey(e)) return false;
   if (typeof e.preventDefault === "function") e.preventDefault();
-  if (typeof e.stopPropagation === "function") e.stopPropagation();
-  if (typeof e.stopImmediatePropagation === "function") e.stopImmediatePropagation();
   return true;
 }
 

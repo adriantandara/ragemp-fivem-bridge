@@ -18,6 +18,26 @@ export class ObjectMpPool extends Pool {
         SetEntityAlpha(handle, value, false);
       }
     });
+
+    if (typeof AddStateBagChangeHandler === "function") {
+      AddStateBagChangeHandler("ragemp:staticObject", null, (bagName, _key, value) => {
+        if (!value || typeof bagName !== "string" || bagName.indexOf("entity:") !== 0) return;
+        const netId = parseInt(bagName.slice(7), 10);
+        if (!netId) return;
+        this._freezeStaticObject(netId, 0);
+      });
+    }
+  }
+
+  _freezeStaticObject(netId, tries) {
+    const handle = NetworkGetEntityFromNetworkId(netId);
+    if (handle && DoesEntityExist(handle)) {
+      FreezeEntityPosition(handle, true);
+      return;
+    }
+    if (tries < 20) {
+      setTimeout(() => this._freezeStaticObject(netId, tries + 1), 100);
+    }
   }
 
   atRemoteId(remoteId) {

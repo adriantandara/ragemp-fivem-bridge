@@ -401,7 +401,7 @@ export class VehicleMp extends Entity {
   }
 
   setEngineTorqueMultiplier(value) {
-    SetVehicleEngineTorqueMultiplier(this._handle, value);
+    SetVehicleCheatPowerIncrease(this._handle, value);
   }
 
   setGravity(toggle) {
@@ -483,6 +483,30 @@ export class VehicleMp extends Entity {
 
   setPetrolTankHealth(health) {
     SetVehiclePetrolTankHealth(this._handle, health);
+  }
+
+  get throttle() {
+    return GetVehicleThrottleOffset(this._handle);
+  }
+
+  setTyreFixed(wheelIndex) {
+    SetVehicleTyreFixed(this._handle, wheelIndex);
+  }
+
+  getTyreHealth(wheelIndex) {
+    return GetTyreHealth(this._handle, wheelIndex);
+  }
+
+  setTyreHealth(wheelIndex, health) {
+    SetTyreHealth(this._handle, wheelIndex, health);
+  }
+
+  getTyresCanBurst() {
+    return GetVehicleTyresCanBurst(this._handle);
+  }
+
+  setTyresCanBurst(toggle) {
+    SetVehicleTyresCanBurst(this._handle, !!toggle);
   }
 
   destroy() {

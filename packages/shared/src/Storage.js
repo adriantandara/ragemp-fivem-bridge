@@ -1,4 +1,5 @@
-const PREFIX = "rmp_storage:";
+const BLOB_KEY = "rmp_store_v2";
+const LEGACY_PREFIX = "rmp_storage:";
 
 function kvpGet(key) {
   return typeof GetResourceKvpString === "function"
@@ -6,7 +7,7 @@ function kvpGet(key) {
     : null;
 }
 
-function kvpWrite(key, value) {
+function kvpSet(key, value) {
   if (typeof SetResourceKvpNoSync === "function") {
     SetResourceKvpNoSync(key, value);
   } else if (typeof SetResourceKvp === "function") {
@@ -26,16 +27,45 @@ function kvpFlush() {
   if (typeof FlushResourceKvp === "function") FlushResourceKvp();
 }
 
+function stringify(obj) {
+  try {
+    const json = JSON.stringify(obj === undefined ? {} : obj);
+    return json === undefined ? "{}" : json;
+  } catch {
+    return "{}";
+  }
+}
+
 export class StorageMp {
   constructor() {
     this._sessionData = {};
-    this._cache = this._hydrate();
+    this._cache = null;
+    this._hydrated = false;
+    this._proxy = null;
+    this._subProxies = null;
     this._flushScheduled = false;
-    this._topProxy = null;
+  }
+
+  _ensureHydrated() {
+    if (this._hydrated) return;
+    this._hydrated = true;
     this._subProxies = new WeakMap();
+    this._cache = this._hydrate();
   }
 
   _hydrate() {
+    const raw = kvpGet(BLOB_KEY);
+    if (raw !== null && raw !== undefined) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") return parsed;
+      } catch {}
+      return {};
+    }
+    return this._migrateLegacy();
+  }
+
+  _migrateLegacy() {
     const out = {};
     if (
       typeof StartFindKvp !== "function" ||
@@ -46,16 +76,18 @@ export class StorageMp {
     }
     let handle;
     try {
-      handle = StartFindKvp(PREFIX);
+      handle = StartFindKvp(LEGACY_PREFIX);
     } catch {
       return out;
     }
     if (handle === undefined || handle === null || handle === -1) return out;
+    const legacyKeys = [];
     try {
       for (;;) {
         const fullKey = FindKvp(handle);
         if (fullKey === null || fullKey === undefined || fullKey === "") break;
-        const shortKey = fullKey.slice(PREFIX.length);
+        legacyKeys.push(fullKey);
+        const shortKey = fullKey.slice(LEGACY_PREFIX.length);
         const raw = kvpGet(fullKey);
         if (raw !== null && raw !== undefined) {
           try {
@@ -68,6 +100,11 @@ export class StorageMp {
     } finally {
       EndFindKvp(handle);
     }
+    if (legacyKeys.length) {
+      kvpSet(BLOB_KEY, stringify(out));
+      for (const key of legacyKeys) kvpDelete(key);
+      kvpFlush();
+    }
     return out;
   }
 
@@ -76,6 +113,7 @@ export class StorageMp {
     this._flushScheduled = true;
     const run = () => {
       this._flushScheduled = false;
+      kvpSet(BLOB_KEY, stringify(this._cache));
       kvpFlush();
     };
     if (typeof queueMicrotask === "function") queueMicrotask(run);
@@ -83,17 +121,7 @@ export class StorageMp {
     else run();
   }
 
-  _persistKey(key) {
-    const value = this._cache[key];
-    if (value === undefined) {
-      kvpDelete(PREFIX + key);
-    } else {
-      kvpWrite(PREFIX + key, JSON.stringify(value));
-    }
-    this._scheduleFlush();
-  }
-
-  _wrap(obj, rootKey) {
+  _wrap(obj) {
     if (!obj || typeof obj !== "object") return obj;
     const cached = this._subProxies.get(obj);
     if (cached) return cached;
@@ -102,18 +130,18 @@ export class StorageMp {
       get(target, prop, receiver) {
         const value = Reflect.get(target, prop, receiver);
         if (value && typeof value === "object" && typeof prop === "string") {
-          return self._wrap(value, rootKey);
+          return self._wrap(value);
         }
         return value;
       },
       set(target, prop, value, receiver) {
         Reflect.set(target, prop, value, receiver);
-        self._persistKey(rootKey);
+        self._scheduleFlush();
         return true;
       },
       deleteProperty(target, prop) {
         Reflect.deleteProperty(target, prop);
-        self._persistKey(rootKey);
+        self._scheduleFlush();
         return true;
       },
     });
@@ -122,43 +150,16 @@ export class StorageMp {
   }
 
   get data() {
-    if (this._topProxy) return this._topProxy;
-    const self = this;
-    this._topProxy = new Proxy(this._cache, {
-      get(target, prop, receiver) {
-        if (typeof prop !== "string") return Reflect.get(target, prop, receiver);
-        const value = target[prop];
-        return value && typeof value === "object"
-          ? self._wrap(value, prop)
-          : value;
-      },
-      set(target, prop, value) {
-        if (typeof prop !== "string") return false;
-        target[prop] = value;
-        self._persistKey(prop);
-        return true;
-      },
-      deleteProperty(target, prop) {
-        if (typeof prop !== "string") return false;
-        const existed = prop in target;
-        delete target[prop];
-        if (existed) self._persistKey(prop);
-        return true;
-      },
-    });
-    return this._topProxy;
+    this._ensureHydrated();
+    if (!this._proxy) this._proxy = this._wrap(this._cache);
+    return this._proxy;
   }
 
   set data(value) {
-    for (const key of Object.keys(this._cache)) {
-      kvpDelete(PREFIX + key);
-    }
+    this._ensureHydrated();
     this._cache = value && typeof value === "object" ? { ...value } : {};
-    this._topProxy = null;
     this._subProxies = new WeakMap();
-    for (const key of Object.keys(this._cache)) {
-      kvpWrite(PREFIX + key, JSON.stringify(this._cache[key]));
-    }
+    this._proxy = null;
     this._scheduleFlush();
   }
 
@@ -171,6 +172,9 @@ export class StorageMp {
   }
 
   flush() {
+    this._ensureHydrated();
+    this._flushScheduled = false;
+    kvpSet(BLOB_KEY, stringify(this._cache));
     kvpFlush();
   }
 }

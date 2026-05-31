@@ -65,6 +65,7 @@ export class VehicleMpPool extends HandlePool {
     const existing = this._handleToEntity.get(handle);
     if (existing) {
       this._netIdToEntity.set(netId, existing);
+      existing._cachedNetId = netId;
       return existing;
     }
     if (typeof DoesEntityExist === "function" && !DoesEntityExist(handle)) return null;
@@ -73,15 +74,15 @@ export class VehicleMpPool extends HandlePool {
     this._add(vehicle);
     this._handleToEntity.set(handle, vehicle);
     this._netIdToEntity.set(netId, vehicle);
+    vehicle._cachedNetId = netId;
     return vehicle;
   }
 
   _remove(id) {
     const entity = this._entities.get(id);
-    if (entity) {
-      for (const [netId, e] of this._netIdToEntity) {
-        if (e === entity) this._netIdToEntity.delete(netId);
-      }
+    if (entity && entity._cachedNetId !== undefined) {
+      this._netIdToEntity.delete(entity._cachedNetId);
+      entity._cachedNetId = undefined;
     }
     super._remove(id);
   }

@@ -232,6 +232,14 @@ export class CameraMp extends Entity {
   isInterpolating() {
     return IsCamInterpolating(this._handle);
   }
+  
+  pointAt(entity, offsetX = 0, offsetY = 0, offsetZ = 0, isRelative = true) {
+    const handle =
+      entity && typeof entity === "object" && "handle" in entity
+        ? entity.handle
+        : entity;
+    PointCamAtEntity(this._handle, handle, offsetX, offsetY, offsetZ, isRelative);
+  }
 
   destroy() {
     SetCamActive(this._handle, false);

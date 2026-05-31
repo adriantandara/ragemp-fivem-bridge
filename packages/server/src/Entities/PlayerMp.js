@@ -8,6 +8,7 @@ export class PlayerMp extends Entity {
   constructor(source) {
     super(source, "player");
 
+    this._ready = true;
     this._weapon = 0;
     this._isAiming = false;
     this._isJumping = false;
@@ -524,6 +525,7 @@ export class PlayerMp extends Entity {
     if (!target) return false;
     const other = typeof target === "number" ? globalThis.mp.players.at(target) : target;
     if (!other) return false;
+    if (this._ready === false || other._ready === false) return false;
     if (this.dimension !== other.dimension) return false;
     const a = this.position;
     const b = other.position;

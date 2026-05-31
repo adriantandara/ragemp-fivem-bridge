@@ -11,7 +11,9 @@ export class PlayerMpPool extends Pool {
     on("playerConnecting", (name, setKickReason, deferrals) => {
       const playerSource = source;
       if (!this._entities.has(playerSource)) {
-        this._add(new PlayerMp(playerSource));
+        const player = new PlayerMp(playerSource);
+        player._ready = false;
+        this._add(player);
       }
     });
 
@@ -22,9 +24,15 @@ export class PlayerMpPool extends Pool {
       if (existing && old !== realSource) {
         this._entities.delete(old);
         existing.id = realSource;
+        existing._ready = true;
         this._entities.set(realSource, existing);
-      } else if (!this._entities.has(realSource)) {
-        this._add(new PlayerMp(realSource));
+      } else {
+        const existingAtReal = this._entities.get(realSource);
+        if (existingAtReal) {
+          existingAtReal._ready = true;
+        } else {
+          this._add(new PlayerMp(realSource));
+        }
       }
     });
 
@@ -59,6 +67,7 @@ export class PlayerMpPool extends Pool {
     const dimension = hasDimension ? dimensionOrText : null;
     const text = hasDimension ? maybeText : dimensionOrText;
     this.forEach((player) => {
+      if (player._ready === false) return;
       if (hasDimension && player.dimension !== dimension) return;
       if (player.position.distance(position) <= range) player.outputChatBox(text);
     });
@@ -88,6 +97,7 @@ export class PlayerMpPool extends Pool {
 
   callInRange(position, range, eventName, args) {
     this.forEach((player) => {
+      if (player._ready === false) return;
       if (player.position.distance(position) <= range) player.call(eventName, args);
     });
   }

@@ -243,11 +243,13 @@ export class EventManager extends EventEmitter {
       const localPlayer = globalThis.mp?.players?.local;
       if (!localPlayer) return;
 
+      const playerCoords = GetEntityCoords(ped, true);
+
       this._tickLifecycle(ped, localPlayer);
       this._tickVehicleState(ped, localPlayer);
       this._tickWeapon(ped, localPlayer);
-      this._tickCheckpoints(ped, localPlayer);
-      this._tickWaypoint(ped, localPlayer);
+      this._tickCheckpoints(ped, localPlayer, playerCoords);
+      this._tickWaypoint(ped, localPlayer, playerCoords);
       this._tickVehicleAudio();
       this._tickModelAndHealth(ped);
       this._tickActions(ped, localPlayer);
@@ -415,11 +417,10 @@ export class EventManager extends EventEmitter {
     }
   }
 
-  _tickCheckpoints(ped, localPlayer) {
+  _tickCheckpoints(ped, localPlayer, playerCoords) {
     const checkpointPool = globalThis.mp?.checkpoints;
     if (!checkpointPool) return;
 
-    const playerCoords = GetEntityCoords(ped, true);
     const px = playerCoords[0];
     const py = playerCoords[1];
     const pz = playerCoords[2];
@@ -456,7 +457,7 @@ export class EventManager extends EventEmitter {
     }
   }
 
-  _tickWaypoint(ped, localPlayer) {
+  _tickWaypoint(ped, localPlayer, playerCoords) {
     const waypointNowActive = IsWaypointActive();
 
     if (waypointNowActive) {
@@ -481,9 +482,8 @@ export class EventManager extends EventEmitter {
         }
 
         if (!this._waypointReached) {
-          const playerCoords2 = GetEntityCoords(ped, true);
-          const dxW = playerCoords2[0] - wx;
-          const dyW = playerCoords2[1] - wy;
+          const dxW = playerCoords[0] - wx;
+          const dyW = playerCoords[1] - wy;
           const dist2D = Math.sqrt(dxW * dxW + dyW * dyW);
           if (dist2D <= 5.0) {
             this._waypointReached = true;

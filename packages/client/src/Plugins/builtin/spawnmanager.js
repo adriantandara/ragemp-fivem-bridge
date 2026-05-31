@@ -15,6 +15,26 @@ export default function setup({ mp, plugin }) {
   let spawnInfo = { ...DEFAULT_SPAWN };
   let autoRespawnAfterDeath = true;
   let respawnSuppressTick = null;
+  let defaultSpawnTimer = null;
+  let serverSpawnRequested = false;
+  let defaultSpawnGrace = 2000;
+
+  function cancelDefaultSpawn() {
+    if (defaultSpawnTimer === null) return;
+    clearTimeout(defaultSpawnTimer);
+    defaultSpawnTimer = null;
+  }
+
+  function scheduleDefaultSpawn() {
+    if (!autoSpawnEnabled) return;
+    if (serverSpawnRequested || !firstSpawn) return;
+    if (defaultSpawnTimer !== null) return;
+    defaultSpawnTimer = setTimeout(() => {
+      defaultSpawnTimer = null;
+      if (serverSpawnRequested || !firstSpawn || !autoSpawnEnabled) return;
+      doSpawn();
+    }, defaultSpawnGrace);
+  }
 
   function startRespawnSuppress() {
     if (respawnSuppressTick !== null) return;
@@ -56,8 +76,9 @@ export default function setup({ mp, plugin }) {
 
   async function doSpawn(info) {
     if (isSpawning) return;
+    cancelDefaultSpawn();
     isSpawning = true;
-    const data = { ...spawnInfo, ...(info ?? {}) };
+    const data = { ...spawnInfo, ...(info && typeof info === "object" ? info : {}) };
 
     try {
       await waitForGameReady();
@@ -146,12 +167,37 @@ export default function setup({ mp, plugin }) {
       ShutdownLoadingScreen();
       if (typeof ShutdownLoadingScreenNui === "function")
         ShutdownLoadingScreenNui();
-      doSpawn();
+      scheduleDefaultSpawn();
     }
   });
 
-  onNet("ragemp:spawnmanager:spawn", (info) => {
+  onNet("ragemp:spawnmanager:spawn", (id, info) => {
+    serverSpawnRequested = true;
+    cancelDefaultSpawn();
     doSpawn(info);
+  });
+
+  onNet("ragemp:spawnmanager:setAutoSpawn", (id, state) => {
+    autoSpawnEnabled = state !== false;
+    if (!autoSpawnEnabled) cancelDefaultSpawn();
+    else scheduleDefaultSpawn();
+  });
+
+  onNet("ragemp:setPosition", (id, pos) => {
+    if (!pos || typeof pos !== "object") return;
+    if (firstSpawn) {
+      serverSpawnRequested = true;
+      cancelDefaultSpawn();
+      doSpawn({ x: pos.x, y: pos.y, z: pos.z });
+      return;
+    }
+    const ped = PlayerPedId();
+    SetEntityCoordsNoOffset(ped, pos.x, pos.y, pos.z, false, false, false);
+  });
+
+  onNet("ragemp:setHeading", (id, heading) => {
+    if (firstSpawn) return;
+    SetEntityHeading(PlayerPedId(), heading);
   });
 
   onNet("ragemp:setAutoRespawn", (state) => {
@@ -163,9 +209,13 @@ export default function setup({ mp, plugin }) {
   mp.spawnmanager = {
     setAutoSpawn(state) {
       autoSpawnEnabled = !!state;
+      if (!autoSpawnEnabled) cancelDefaultSpawn();
     },
     get autoSpawn() {
       return autoSpawnEnabled;
+    },
+    setDefaultSpawnGrace(ms) {
+      if (typeof ms === "number" && ms >= 0) defaultSpawnGrace = ms;
     },
     setSpawnPoint(info) {
       spawnInfo = { ...spawnInfo, ...(info ?? {}) };
@@ -174,6 +224,7 @@ export default function setup({ mp, plugin }) {
       return { ...spawnInfo };
     },
     spawn(info) {
+      serverSpawnRequested = true;
       return doSpawn(info);
     },
     forceRespawn() {

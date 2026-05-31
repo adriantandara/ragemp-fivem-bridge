@@ -313,7 +313,12 @@ export class PlayerMp extends Entity {
     const pos = position ?? this.position;
     const info = { x: pos.x, y: pos.y, z: pos.z, heading: heading ?? 0 };
     if (this._model) info.model = this._model;
+    this._position = new Vector3(pos.x, pos.y, pos.z);
     emitNet("ragemp:spawnmanager:spawn", this.id, info);
+  }
+
+  setAutoSpawn(state) {
+    emitNet("ragemp:spawnmanager:setAutoSpawn", this.id, state !== false);
   }
 
   get autoRespawnAfterDeath() {

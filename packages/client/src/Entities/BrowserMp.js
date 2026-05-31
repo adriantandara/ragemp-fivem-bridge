@@ -2,6 +2,15 @@ import { Entity } from "@ragemp-fivem-bridge/shared";
 import { ensureNuiPauseGuard } from "../utils/nuiFocus";
 
 let _procCounter = 0;
+let _procTimeout = 10000;
+
+export function setBrowserProcTimeout(ms) {
+  if (typeof ms === "number" && ms > 0) _procTimeout = ms;
+}
+
+export function getBrowserProcTimeout() {
+  return _procTimeout;
+}
 
 function postFocusState(browserId, active) {
   if (typeof SendNuiMessage !== "function") return;
@@ -156,9 +165,9 @@ export class BrowserMp extends Entity {
       setTimeout(() => {
         if (_pendingProcs.has(requestId)) {
           _pendingProcs.delete(requestId);
-          reject(new Error("Proc timeout"));
+          reject(new Error(`Proc "${procName}" timed out after ${_procTimeout}ms`));
         }
-      }, 10000);
+      }, _procTimeout);
     });
   }
 

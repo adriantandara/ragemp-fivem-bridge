@@ -1,6 +1,7 @@
 import rpc from "@ragemp-fivem-bridge/rage-rpc";
 import { EventManager } from "./events.js";
 import { toClient, log, setDebug, isDebug, setResourceName } from "./transport.js";
+import { installErrorCapture, serializeError, report } from "./errors.js";
 
 function dispatchSyntheticKey(down, init) {
   if (typeof document === "undefined") return;
@@ -70,6 +71,11 @@ export function createRuntime() {
   mp.rpc = rpc;
   rpc.register("__rpc:noop", () => true);
 
+  installErrorCapture(
+    (info) => toClient("ragemp:browserError", info),
+    getSelfId,
+  );
+
   function setSelfId(id) {
     selfId = id;
   }
@@ -78,7 +84,13 @@ export function createRuntime() {
     if (!data || typeof data !== "object") return;
 
     if (data.type === "__ragemp:exec" && data.code) {
-      try { (0, eval)(data.code); } catch (e) { log("exec error", String(e)); console.error("[ragemp:exec]", e); }
+      try {
+        (0, eval)(data.code);
+      } catch (e) {
+        log("exec error", String(e));
+        console.error("[ragemp:exec]", e);
+        report({ kind: "exec", ...serializeError(e) });
+      }
       return;
     }
 

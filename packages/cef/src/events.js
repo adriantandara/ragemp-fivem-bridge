@@ -1,4 +1,5 @@
 import { toClient, log } from "./transport.js";
+import { report, serializeError } from "./errors.js";
 
 export class EventManager {
   _handlers = new Map();
@@ -19,7 +20,15 @@ export class EventManager {
   _fire(eventName, ...args) {
     const handlers = this._handlers.get(eventName);
     if (!handlers) return;
-    for (const handler of handlers) handler(...args);
+    for (const handler of handlers) {
+      try {
+        handler(...args);
+      } catch (e) {
+        log("handler error", eventName, String(e));
+        console.error(`[ragemp] error in handler for "${eventName}":`, e);
+        report({ kind: "handler", event: eventName, ...serializeError(e) });
+      }
+    }
   }
 
   add(eventNameOrObject, handler) {

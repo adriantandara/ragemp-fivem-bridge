@@ -106,6 +106,7 @@ export function startManager() {
   }
 
   function flush(entry, browserId) {
+    if (entry.ready) return;
     entry.ready = true;
     try {
       entry.iframe.contentWindow.postMessage(
@@ -170,7 +171,10 @@ export function startManager() {
     iframe.addEventListener("load", () => {
       log("iframe loaded", browserId);
       tryInjectBridge(iframe, browserId, () => {
-        flush(entry, browserId);
+        if (!entry.ready) {
+          flush(entry, browserId);
+          toClient("ragemp:browserLifecycle", { browserId, event: "domReady" });
+        }
         if (focusedBrowserId === browserId) focusFrame(browserId);
       });
     });
@@ -186,16 +190,26 @@ export function startManager() {
         "sandbox",
         "allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-pointer-lock allow-downloads allow-top-navigation-by-user-activation",
       );
-      iframe.addEventListener("error", () =>
-        log("iframe error", browserId, "srcdoc"),
-      );
+      iframe.addEventListener("error", () => {
+        log("iframe error", browserId, "srcdoc");
+        toClient("ragemp:browserLifecycle", {
+          browserId,
+          event: "loadError",
+          url: "srcdoc",
+        });
+      });
       iframe.srcdoc = inlineHtml;
     } else {
       const resolved = resolveUrl(url);
       log("create browser", browserId, url, "->", resolved);
-      iframe.addEventListener("error", () =>
-        log("iframe error", browserId, resolved),
-      );
+      iframe.addEventListener("error", () => {
+        log("iframe error", browserId, resolved);
+        toClient("ragemp:browserLifecycle", {
+          browserId,
+          event: "loadError",
+          url: resolved,
+        });
+      });
       iframe.src = resolved;
     }
 
@@ -205,7 +219,16 @@ export function startManager() {
     applyOrder(browserId);
 
     setTimeout(() => {
-      if (!entry.ready) log("iframe still not loaded after 5s", browserId);
+      if (!entry.ready) {
+        log("iframe still not ready after 5s", browserId);
+        toClient("ragemp:browserLifecycle", {
+          browserId,
+          event: "loadError",
+          url: url,
+          message:
+            "Browser did not signal ready within 5s. If it is a cross-origin page (e.g. a dev server or another resource), include _bridge.js in that page so it can talk to the client.",
+        });
+      }
     }, 5000);
   }
 
@@ -308,6 +331,21 @@ export function startManager() {
     }
 
     const src = nativeEvent.source;
+
+    if (data.type === "__ragemp:viewReady" && src) {
+      for (const [bid, entry] of frames) {
+        if (entry.iframe && entry.iframe.contentWindow === src) {
+          if (!entry.ready) {
+            flush(entry, bid);
+            toClient("ragemp:browserLifecycle", { browserId: bid, event: "domReady" });
+            if (focusedBrowserId === bid) focusFrame(bid);
+          }
+          return;
+        }
+      }
+      return;
+    }
+
     if (src) {
       for (const entry of frames.values()) {
         if (entry.iframe && entry.iframe.contentWindow === src) return;

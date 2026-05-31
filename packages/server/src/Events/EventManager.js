@@ -36,7 +36,7 @@ export class EventManager extends EventEmitter {
 
     on("playerDropped", () => {
       this._playerReadyHandled.delete(source);
-      clearRateLimit(`${source}:`);
+      clearRateLimit(source);
     });
 
     onNet("ragemp:command", (commandText) => {

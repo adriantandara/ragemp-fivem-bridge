@@ -2,6 +2,8 @@ import { Pool } from "@ragemp-fivem-bridge/shared";
 import { onWorldScan } from "../utils/worldScan";
 import { safeGetNetworkId } from "../utils/netId";
 
+const LOCAL_STREAM_ID_BASE = 2_000_000_000;
+
 export class StreamingPool extends Pool {
   _handleToEntity = new Map();
   _activeSet = new Set();
@@ -14,17 +16,23 @@ export class StreamingPool extends Pool {
 
       for (const handle of handles) {
         if (filter && !filter(handle)) continue;
-        const netId = safeGetNetworkId(handle);
-        if (netId === 0) continue;
-        activeSet.add(netId);
+        if (!handle || !DoesEntityExist(handle)) continue;
 
-        if (!this._handleToEntity.has(handle)) {
-          const entity = makeEntity(netId, handle);
-          this._add(entity);
-          this._handleToEntity.set(handle, entity);
-          globalThis.mp?.events?._fire("entityStreamIn", entity);
-          this._onStreamIn(entity, handle, netId);
+        const existing = this._handleToEntity.get(handle);
+        if (existing) {
+          activeSet.add(existing.id);
+          continue;
         }
+
+        const netId = safeGetNetworkId(handle);
+        const id = netId !== 0 ? netId : LOCAL_STREAM_ID_BASE + handle;
+        activeSet.add(id);
+
+        const entity = makeEntity(id, handle);
+        this._add(entity);
+        this._handleToEntity.set(handle, entity);
+        globalThis.mp?.events?._fire("entityStreamIn", entity);
+        this._onStreamIn(entity, handle, netId);
       }
 
       for (const [handle, entity] of this._handleToEntity) {

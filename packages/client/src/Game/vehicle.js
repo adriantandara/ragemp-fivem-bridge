@@ -114,4 +114,16 @@ export class GameVehicleNs {
   getWindowTint(vehicle) { return GetVehicleWindowTint(vehicle); }
   setNumberPlateTextIndex(vehicle, plateIndex) { SetVehicleNumberPlateTextIndex(vehicle, plateIndex); }
   getNumberPlateTextIndex(vehicle) { return GetVehicleNumberPlateTextIndex(vehicle); }
+
+  getTyreHealth(vehicle, wheelIndex) { return GetTyreHealth(vehicle, wheelIndex); }
+  setTyreHealth(vehicle, wheelIndex, health) { SetTyreHealth(vehicle, wheelIndex, health); }
+
+  getTyreWearMultiplier(vehicle, wheelIndex) { return GetTyreWearMultiplier(vehicle, wheelIndex); }
+  setTyreWearMultiplier(vehicle, wheelIndex, multiplier) { SetTyreWearMultiplier(vehicle, wheelIndex, multiplier); }
+
+  getTyreSoftnessMultiplier(vehicle, wheelIndex) { return 1.0; /*GetTyreSoftnessMultiplier(vehicle, wheelIndex) is not implemented in FiveM*/ }
+  setTyreSoftnessMultiplier(vehicle, wheelIndex, multiplier) { SetTyreSoftnessMultiplier(vehicle, wheelIndex, multiplier); }
+
+  getTyreTractionLossMultiplier(vehicle, wheelIndex) { return 1.0; /*GetTyreTractionLossMultiplier(vehicle, wheelIndex) is not implemented in FiveM*/ }
+  setTyreTractionLossMultiplier(vehicle, wheelIndex, multiplier) { SetTyreTractionLossMultiplier(vehicle, wheelIndex, multiplier); }
 }

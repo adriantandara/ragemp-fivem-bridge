@@ -31,7 +31,10 @@ export class CheckpointMpPool extends Pool {
 
     on("playerDropped", () => {
       const dropped = source;
-      for (const set of this._inside.values()) set.delete(dropped);
+      for (const [id, set] of this._inside) {
+        set.delete(dropped);
+        if (set.size === 0) this._inside.delete(id);
+      }
     });
   }
 
@@ -62,6 +65,7 @@ export class CheckpointMpPool extends Pool {
     } else {
       if (!inside.has(playerSource)) return;
       inside.delete(playerSource);
+      if (inside.size === 0) this._inside.delete(id);
       mp.events._fire("playerExitCheckpoint", player, checkpoint);
     }
   }

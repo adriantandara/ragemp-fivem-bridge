@@ -7,6 +7,7 @@ import { resolveNetEntity } from "../utils/netEntity";
 
 export class EventManager extends EventEmitter {
   _renderTick = null;
+  _lifecycleTick = null;
 
   _wasAlive = true;
   _wasInVehicle = false;
@@ -245,15 +246,24 @@ export class EventManager extends EventEmitter {
 
       const playerCoords = GetEntityCoords(ped, true);
 
-      this._tickLifecycle(ped, localPlayer);
-      this._tickVehicleState(ped, localPlayer);
-      this._tickWeapon(ped, localPlayer);
       this._tickCheckpoints(ped, localPlayer, playerCoords);
       this._tickWaypoint(ped, localPlayer, playerCoords);
       this._tickVehicleAudio();
       this._tickModelAndHealth(ped);
       this._tickActions(ped, localPlayer);
       this._tickStreaming(cache, localPlayer);
+    });
+
+    this._lifecycleTick = setTick(() => {
+      if (!this._builtinTickStarted) return;
+      const ped = PlayerPedId();
+      if (ped === 0) return;
+      const localPlayer = globalThis.mp?.players?.local;
+      if (!localPlayer) return;
+
+      this._tickLifecycle(ped, localPlayer);
+      this._tickVehicleState(ped, localPlayer);
+      this._tickWeapon(ped, localPlayer);
     });
   }
 

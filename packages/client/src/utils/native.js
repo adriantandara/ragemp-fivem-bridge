@@ -41,6 +41,8 @@ const _aliases = {
   setResetRagdollFlag: "ClearRagdollBlockingFlags",
   setAsMission: "SetEntityAsMissionEntity",
   setAsMissionEntity: "SetEntityAsMissionEntity",
+  getOffsetFromInWorldCoords: "GetOffsetFromEntityInWorldCoords",
+  getOffsetFromWorldCoords: "GetOffsetFromEntityGivenWorldCoords",
 };
 
 export function findNative(name, words) {

@@ -180,11 +180,10 @@ export class PlayerMp extends Entity {
   }
 
   get streamedPlayers() {
-    const dim = this.dimension;
     const result = [];
     const pool = globalThis.mp.players;
     pool.forEach((player) => {
-      if (player.id !== this.id && player.dimension === dim) {
+      if (player.id !== this.id && this.isStreamed(player)) {
         result.push(player);
       }
     });
@@ -362,6 +361,7 @@ export class PlayerMp extends Entity {
     const targetSeat = typeof seat === "number" ? seat : 0;
     const playerId = this.id;
     const send = (tries) => {
+      if (!globalThis.mp?.players?.at?.(playerId)) return;
       if (!DoesEntityExist(vehicle._handle)) return;
       const netId = NetworkGetNetworkIdFromEntity(vehicle._handle);
       if (netId) {

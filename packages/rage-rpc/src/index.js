@@ -31,7 +31,10 @@ function rpcNameAllowed(name) {
 function addPending(id, entry) {
   const g = globalThis;
   entry.timer = setTimeout(() => {
-    delete g.__rpcPending[id];
+    if (g.__rpcPending[id] === entry) {
+      delete g.__rpcPending[id];
+      entry.resolve(util.promiseReject("RPC_TIMEOUT"));
+    }
   }, PENDING_TTL_MS);
   g.__rpcPending[id] = entry;
 }

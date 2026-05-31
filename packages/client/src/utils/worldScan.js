@@ -21,6 +21,17 @@ export function startWorldScan(ms) {
   started = true;
   scan();
   handle = setInterval(scan, intervalMs);
+  if (typeof on === "function") {
+    on("onResourceStop", (name) => {
+      if (typeof GetCurrentResourceName === "function" && name !== GetCurrentResourceName()) return;
+      if (handle !== null) {
+        clearInterval(handle);
+        handle = null;
+      }
+      started = false;
+      subscribers.clear();
+    });
+  }
 }
 
 export function onWorldScan(cb) {

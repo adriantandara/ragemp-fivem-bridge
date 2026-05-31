@@ -265,6 +265,22 @@ export class EventManager extends EventEmitter {
       this._tickVehicleState(ped, localPlayer);
       this._tickWeapon(ped, localPlayer);
     });
+
+    on("onResourceStop", (name) => {
+      if (name !== GetCurrentResourceName()) return;
+      if (this._lifecycleTick != null) {
+        clearTick(this._lifecycleTick);
+        this._lifecycleTick = null;
+      }
+      if (this._renderTick != null) {
+        clearTick(this._renderTick);
+        this._renderTick = null;
+      }
+      if (typeof this._builtinTick === "function") {
+        this._builtinTick();
+        this._builtinTick = null;
+      }
+    });
   }
 
   _initTick(ped, cache) {

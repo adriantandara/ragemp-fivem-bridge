@@ -71,7 +71,7 @@ export class TextLabelMpPool extends Pool {
   }
 
   _startRendering() {
-    setTick(() => {
+    this._renderTick = setTick(() => {
       if (this._entities.size === 0) return;
       const playerPed = PlayerPedId();
       const playerCoords = GetEntityCoords(playerPed, true);
@@ -106,6 +106,16 @@ export class TextLabelMpPool extends Pool {
         ClearDrawOrigin();
       });
     });
+
+    if (typeof on === "function") {
+      on("onResourceStop", (name) => {
+        if (typeof GetCurrentResourceName === "function" && name !== GetCurrentResourceName()) return;
+        if (this._renderTick != null) {
+          clearTick(this._renderTick);
+          this._renderTick = null;
+        }
+      });
+    }
   }
 
   new(text, position, options = {}) {

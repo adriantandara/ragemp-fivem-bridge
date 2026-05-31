@@ -82,7 +82,7 @@ export class MarkerMpPool extends Pool {
 
   _startRendering() {
     const MAX_DIST = 150.0;
-    setTick(() => {
+    this._renderTick = setTick(() => {
       if (this._entities.size === 0) return;
 
       const coords = GetEntityCoords(PlayerPedId(), true);
@@ -109,6 +109,16 @@ export class MarkerMpPool extends Pool {
         );
       });
     });
+
+    if (typeof on === "function") {
+      on("onResourceStop", (name) => {
+        if (typeof GetCurrentResourceName === "function" && name !== GetCurrentResourceName()) return;
+        if (this._renderTick != null) {
+          clearTick(this._renderTick);
+          this._renderTick = null;
+        }
+      });
+    }
   }
 
   new(type, position, scale, options = {}) {

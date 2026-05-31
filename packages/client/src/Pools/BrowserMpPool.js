@@ -91,6 +91,7 @@ export class BrowserMpPool extends Pool {
         return;
       }
       if (data.event === "domReady") {
+        if (typeof browser._onDomReady === "function") browser._onDomReady();
         globalThis.mp?.events?._fire("browserDomReady", browser);
       } else if (data.event === "loadError") {
         console.error(

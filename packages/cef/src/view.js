@@ -15,7 +15,14 @@ export function startView() {
     } catch (e) {}
     if (attempt < 40) setTimeout(() => announceReady(attempt + 1), 100);
   }
-  announceReady(0);
+  function beginAnnounce() {
+    announceReady(0);
+  }
+  if (typeof document === "undefined" || document.readyState !== "loading") {
+    beginAnnounce();
+  } else {
+    document.addEventListener("DOMContentLoaded", beginAnnounce, { once: true });
+  }
 
   function forwardNativeKey(e, down) {
     if (!e.isTrusted) return;

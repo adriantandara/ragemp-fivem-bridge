@@ -385,9 +385,12 @@ export function startManager() {
       case "__ragemp:browser:exec":
         forward(data.browserId, { type: "__ragemp:exec", code: data.code });
         return;
-      case "__ragemp:browser:reload":
+      case "__ragemp:browser:reload": {
         forward(data.browserId, { type: "__ragemp:reload" });
+        const entry = frames.get(data.browserId);
+        if (entry) entry.ready = false;
         return;
+      }
       case "__ragemp:browser:event":
         forward(data.browserId, { event: data.event, args: data.args });
         return;

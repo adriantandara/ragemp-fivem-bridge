@@ -62,6 +62,8 @@ export class BrowserMp extends Entity {
   _inputEnabled = true;
   _mouseInputEnabled = true;
   _orderId = 0;
+  _domReady = false;
+  _cachedExec = [];
 
   constructor(id, url) {
     super(id, "browser");
@@ -89,7 +91,15 @@ export class BrowserMp extends Entity {
   }
 
   executeCached(code) {
-    this.execute(code);
+    if (this._destroyed) return;
+    this._cachedExec.push(code);
+    if (this._domReady) this.execute(code);
+  }
+
+  _onDomReady() {
+    this._domReady = true;
+    if (this._cachedExec.length === 0) return;
+    for (const code of this._cachedExec) this.execute(code);
   }
 
   _applyPointerEvents() {

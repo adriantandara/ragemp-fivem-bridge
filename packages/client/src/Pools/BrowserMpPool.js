@@ -1,5 +1,5 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
-import { BrowserMp } from "../Entities/BrowserMp";
+import { BrowserMp, setBrowserProcTimeout, getBrowserProcTimeout } from "../Entities/BrowserMp";
 
 let _browserIdCounter = 0;
 
@@ -34,15 +34,19 @@ export class BrowserMpPool extends Pool {
 
     globalThis.mp?.events?._fire("browserCreated", browser);
 
-    setTimeout(() => {
-      globalThis.mp?.events?._fire("browserDomReady", browser);
-    }, 0);
-
     return browser;
   }
 
   newHeadless(url) {
     return this.new(url);
+  }
+
+  setProcTimeout(ms) {
+    setBrowserProcTimeout(ms);
+  }
+
+  get procTimeout() {
+    return getBrowserProcTimeout();
   }
 
   atRemoteId(remoteId) {
@@ -55,8 +59,47 @@ export class BrowserMpPool extends Pool {
     if (command) emitNet("ragemp:command", command);
   }
 
+  _formatError(info) {
+    const id = info && info.browserId;
+    const kind = (info && info.kind) || "error";
+    const where = info && info.event ? ` [event: ${info.event}]` : "";
+    const loc =
+      info && info.source
+        ? ` (${info.source}:${info.lineno ?? "?"}:${info.colno ?? "?"})`
+        : "";
+    const msg = (info && info.message) || "Unknown error";
+    return `[browser ${id}] ${kind}${where}: ${msg}${loc}`;
+  }
+
   _setupNuiListeners() {
     if (typeof RegisterNuiCallbackType !== "function") return;
+
+    RegisterNuiCallbackType("ragemp:browserError");
+    on("__cfx_nui:ragemp:browserError", (data, cb) => {
+      const browser = this.at(data && data.browserId);
+      console.error(this._formatError(data));
+      if (data && data.stack) console.error(data.stack);
+      globalThis.mp?.events?._fire("browserError", browser ?? null, data);
+      cb({});
+    });
+
+    RegisterNuiCallbackType("ragemp:browserLifecycle");
+    on("__cfx_nui:ragemp:browserLifecycle", (data, cb) => {
+      const browser = this.at(data && data.browserId);
+      if (!browser) {
+        cb({});
+        return;
+      }
+      if (data.event === "domReady") {
+        globalThis.mp?.events?._fire("browserDomReady", browser);
+      } else if (data.event === "loadError") {
+        console.error(
+          `[browser ${data.browserId}] failed to load: ${data.url ?? "(unknown url)"}`,
+        );
+        globalThis.mp?.events?._fire("browserLoadError", browser, data);
+      }
+      cb({});
+    });
 
     RegisterNuiCallbackType("ragemp:browserEvent");
     on("__cfx_nui:ragemp:browserEvent", (data, cb) => {

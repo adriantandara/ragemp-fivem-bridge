@@ -686,7 +686,7 @@ export class EventManager extends EventEmitter {
   }
 
   _onAdd(eventName) {
-     if (eventName === "render" && this._renderTick === null) {
+	if (eventName === "render" && this._renderTick === null) {
        this._renderTick = setTick(() => {
          this._fire("render");
        });

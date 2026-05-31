@@ -19,15 +19,16 @@ export function colshapeContains(shapeType, position, params, point, margin = 0)
       const r = (params.radius ?? 0) + m;
       return dx * dx + dy * dy <= r * r;
     }
-
-    case "tube": {
-      const dx = point.x - position.x;
-      const dy = point.y - position.y;
-      const r = (params.radius ?? 0) + m;
-      if (dx * dx + dy * dy > r * r) return false;
-      const dz = point.z - position.z;
-      return dz >= -m && dz <= (params.height ?? 0) + m;
-    }
+		
+	case "tube": {
+	  const dx = point.x - position.x;
+	  const dy = point.y - position.y;
+	  const r = (params.radius ?? 0) + m;
+	  if (dx * dx + dy * dy > r * r) return false;
+	  const half = (params.height ?? 0) / 2;
+	  const dz = point.z - position.z;
+	  return dz >= -half - m && dz <= half + m;
+	}
 
     case "rectangle": {
       const w = params.width ?? 0;

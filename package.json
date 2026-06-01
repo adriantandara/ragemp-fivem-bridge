@@ -14,5 +14,11 @@
   "devDependencies": {
     "cross-env": "^10.1.0",
     "turbo": "^2.8.9"
+  },
+  "type": "module",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }

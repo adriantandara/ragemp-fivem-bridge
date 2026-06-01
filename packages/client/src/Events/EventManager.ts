@@ -715,7 +715,6 @@ export class EventManager extends EventEmitter {
   }
 
   call(eventName: string, ...args: any[]): void {
-    emit(eventName, ...args);
     this._fire(eventName, ...args);
   }
 

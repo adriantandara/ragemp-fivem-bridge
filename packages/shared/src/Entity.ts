@@ -10,6 +10,7 @@ interface StateBag {
 export class Entity {
   [key: string]: unknown;
   id: number;
+  _handle: number;
   _kind: string;
   _variables: Map<string, unknown> = new Map();
 
@@ -21,9 +22,14 @@ export class Entity {
   _dataProxy: Record<string | symbol, unknown> | null = null;
   _ownVariables: Map<string, unknown> | null = null;
 
-  constructor(id: number, type: string) {
+  constructor(id: number, type: string, handle: number) {
     this.id = id;
     this._kind = type;
+    this._handle = handle;
+  }
+
+  get handle() {
+    return this._handle;
   }
 
   get type(): string {

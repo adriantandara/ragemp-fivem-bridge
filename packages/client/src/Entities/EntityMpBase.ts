@@ -6,7 +6,7 @@ export class EntityMpBase extends Entity {
   _handle: number;
 
   constructor(id: number, type: string, handle: number) {
-    super(id, type);
+    super(id, type, handle);
     this._handle = handle;
   }
 

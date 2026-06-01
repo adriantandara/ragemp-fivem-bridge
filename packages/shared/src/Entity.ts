@@ -118,11 +118,13 @@ export class Entity {
   }
 
   dist(position: Vector3Like): number {
-    return this._position!.distance(position);
+    const pos = this.position;
+    return pos ? pos.distance(position) : Infinity;
   }
 
   distSquared(position: Vector3Like): number {
-    return this._position!.distanceSqr(position);
+    const pos = this.position;
+    return pos ? pos.distanceSqr(position) : Infinity;
   }
 
   setOwnVariable(key: string, value: unknown): void {

@@ -384,7 +384,7 @@ export class EventManager extends EventEmitter {
       const vehicleNetId = safeGetNetworkId(vehicleHandle);
 
       const enteredVehicle =
-        globalThis.mp?.vehicles?.atHandle?.(vehicleHandle) ?? null;
+        globalThis.mp?.vehicles?._resolveHandle?.(vehicleHandle) ?? null;
       this._fire("playerEnterVehicle", enteredVehicle, seatIndex);
 
       emitNet("ragemp:playerEnterVehicle", vehicleNetId, seatIndex);
@@ -393,7 +393,7 @@ export class EventManager extends EventEmitter {
       const vehicleNetId = safeGetNetworkId(lastVehicle);
 
       const leftVehicle =
-        globalThis.mp?.vehicles?.atHandle?.(lastVehicle) ?? null;
+        globalThis.mp?.vehicles?._resolveHandle?.(lastVehicle) ?? null;
       this._fire(
         "playerLeaveVehicle",
         leftVehicle,
@@ -422,7 +422,7 @@ export class EventManager extends EventEmitter {
 
       const vehicleNetId = safeGetNetworkId(tryingToEnterVehicle);
       const startVehicle =
-        globalThis.mp?.vehicles?.atHandle?.(tryingToEnterVehicle) ?? null;
+        globalThis.mp?.vehicles?._resolveHandle?.(tryingToEnterVehicle) ?? null;
       this._fire("playerStartEnterVehicle", startVehicle, seatIndex);
       emitNet("ragemp:playerStartEnterVehicle", vehicleNetId, seatIndex);
     } else if (tryingToEnterVehicle === 0 && this._isTryingToEnterVehicle) {
@@ -436,7 +436,7 @@ export class EventManager extends EventEmitter {
       const vehicleHandle = GetVehiclePedIsIn(ped, false);
       const vehicleNetId = safeGetNetworkId(vehicleHandle);
       const exitVehicle =
-        globalThis.mp?.vehicles?.atHandle?.(vehicleHandle) ?? null;
+        globalThis.mp?.vehicles?._resolveHandle?.(vehicleHandle) ?? null;
       this._fire("playerStartExitVehicle", exitVehicle);
       emitNet("ragemp:playerStartExitVehicle", vehicleNetId);
     } else if (!isTryingToExit && this._isTryingToExitVehicle) {

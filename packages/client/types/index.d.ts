@@ -112,6 +112,7 @@ export interface PlayerMp extends EntityMp {
   voice3d: boolean;
 
   call(eventName: string, ...args: any[]): void;
+  getVehicleIsTryingToEnter(): number;
   setModel(model: HashOrString): void;
   setControl(state: boolean): void;
   setEveryoneIgnore(state: boolean): void;
@@ -223,6 +224,7 @@ export interface PedMp extends EntityMp {
   controller: PlayerMp | null;
   frozen: boolean;
   invincible: boolean;
+  getVehicleIsTryingToEnter(): number;
 }
 
 export interface PedMpPool extends EntityMpPool<PedMp> {

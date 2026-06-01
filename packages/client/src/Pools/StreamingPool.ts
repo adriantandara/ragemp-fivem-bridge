@@ -132,40 +132,40 @@ export class StreamingPool extends Pool {
     return entity;
   }
 
+  _resolveHandle(handle: number) {
+    if (this._filter && !this._filter(handle)) return null;
+    if (!handle || !DoesEntityExist(handle)) return null;
+
+    const existing = this._handleToEntity.get(handle);
+    if (existing) return existing;
+
+    const netId = safeGetNetworkId(handle);
+    const remoteId = netId ? this._netIdToRemote.get(netId) : undefined;
+
+    if (remoteId !== undefined) {
+      return this._bindHandle(remoteId, handle, netId);
+    }
+
+    const id = netId !== 0 ? netId : LOCAL_STREAM_ID_BASE + handle;
+    let entity = this._entities.get(id);
+    if (!entity) {
+      entity = this._makeEntity(id, handle);
+      this._add(entity);
+      this._handleToEntity.set(handle, entity);
+      globalThis.mp?.events?._fire("entityStreamIn", entity);
+      this._onStreamIn(entity, handle, netId);
+    }
+    return entity;
+  }
+
   _scan(getHandles: () => number[]) {
     const handles = getHandles();
     const activeSet = this._activeSet;
     activeSet.clear();
 
     for (const handle of handles) {
-      if (this._filter && !this._filter(handle)) continue;
-      if (!handle || !DoesEntityExist(handle)) continue;
-
-      const existing = this._handleToEntity.get(handle);
-      if (existing) {
-        activeSet.add(existing.id);
-        continue;
-      }
-
-      const netId = safeGetNetworkId(handle);
-      const remoteId = netId ? this._netIdToRemote.get(netId) : undefined;
-
-      if (remoteId !== undefined) {
-        const entity = this._bindHandle(remoteId, handle, netId);
-        activeSet.add(entity.id);
-        continue;
-      }
-
-      const id = netId !== 0 ? netId : LOCAL_STREAM_ID_BASE + handle;
-      activeSet.add(id);
-      let entity = this._entities.get(id);
-      if (!entity) {
-        entity = this._makeEntity(id, handle);
-        this._add(entity);
-        this._handleToEntity.set(handle, entity);
-        globalThis.mp?.events?._fire("entityStreamIn", entity);
-        this._onStreamIn(entity, handle, netId);
-      }
+      const entity = this._resolveHandle(handle);
+      if (entity) activeSet.add(entity.id);
     }
 
     for (const [handle, entity] of this._handleToEntity) {

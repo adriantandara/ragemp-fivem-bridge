@@ -11,13 +11,17 @@
   ],
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "catalog:",
     "@rollup/plugin-terser": "catalog:",
     "rimraf": "catalog:",
-    "rollup": "catalog:"
+    "rollup": "catalog:",
+    "rollup-plugin-esbuild": "catalog:",
+    "tslib": "catalog:",
+    "typescript": "catalog:"
   },
   "license": "MIT",
   "packageManager": "pnpm@10.28.2"

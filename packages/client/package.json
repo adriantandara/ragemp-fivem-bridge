@@ -11,7 +11,8 @@
   ],
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@ragemp-fivem-bridge/plugin-manager": "workspace:*",
@@ -23,7 +24,10 @@
     "@rollup/plugin-node-resolve": "catalog:",
     "@rollup/plugin-terser": "catalog:",
     "rimraf": "catalog:",
-    "rollup": "catalog:"
+    "rollup": "catalog:",
+    "rollup-plugin-esbuild": "catalog:",
+    "tslib": "catalog:",
+    "typescript": "catalog:"
   },
   "license": "ISC",
   "packageManager": "pnpm@10.28.2"

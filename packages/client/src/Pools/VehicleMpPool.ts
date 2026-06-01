@@ -32,6 +32,7 @@ const VEHICLE_DISPATCH: Record<string, (h: number, ...args: any[]) => void> = {
 
 export class VehicleMpPool extends StreamingPool {
   _streamInHandlers: Set<(entity: VehicleMp, handle: number, netId: number) => void> = new Set();
+  _netType = "vehicle";
 
   constructor() {
     super();

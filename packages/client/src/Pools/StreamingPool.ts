@@ -1,12 +1,15 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
 import { onWorldScan } from "../utils/worldScan";
 import { safeGetNetworkId } from "../utils/netId";
+import { netIdForRemote } from "../utils/netMap";
 
 const LOCAL_STREAM_ID_BASE = 2_000_000_000;
 
 export class StreamingPool extends Pool {
   _handleToEntity: Map<number, any> = new Map();
   _activeSet: Set<number> = new Set();
+  _netType: string | null = null;
+  _makeEntity: null | ((id: number, handle: number) => any) = null;
   _entities!: Map<number, any>;
   _add!: (entity: any) => void;
   at!: (id: number) => any;
@@ -15,6 +18,7 @@ export class StreamingPool extends Pool {
   toArray!: () => any[];
 
   _startStreaming(getHandles: () => number[], makeEntity: (id: number, handle: number) => any, filter?: (handle: number) => boolean): void {
+    this._makeEntity = makeEntity;
     onWorldScan(() => {
       const handles = getHandles();
       const activeSet = this._activeSet;
@@ -61,7 +65,26 @@ export class StreamingPool extends Pool {
   }
 
   atRemoteId(remoteId: number): any {
-    return this.at(remoteId);
+    const direct = this.at(remoteId);
+    if (direct) return direct;
+    if (!this._netType) return null;
+    const netId = netIdForRemote(this._netType, remoteId);
+    if (!netId) return null;
+    return this._resolveByNetId(netId);
+  }
+
+  _resolveByNetId(netId: number) {
+    const existing = this.at(netId);
+    if (existing) return existing;
+    if (typeof NetworkGetEntityFromNetworkId !== "function" || !this._makeEntity) return null;
+    const handle = NetworkGetEntityFromNetworkId(netId);
+    if (!handle || (typeof DoesEntityExist === "function" && !DoesEntityExist(handle))) return null;
+    const byHandle = this._handleToEntity.get(handle);
+    if (byHandle) return byHandle;
+    const entity = this._makeEntity(netId, handle);
+    this._add(entity);
+    this._handleToEntity.set(handle, entity);
+    return entity;
   }
 
   _remove(id: number): void {

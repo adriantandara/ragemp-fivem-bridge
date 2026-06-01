@@ -1,5 +1,6 @@
 import { EventEmitter } from "@ragemp-fivem-bridge/shared";
 import { sanitizeArgsForNet, STATE_KEY_PREFIX } from "@ragemp-fivem-bridge/shared";
+import { sendNetMapSnapshot } from "../utils/netMap";
 
 const RAGEMP_TO_FIVEM_EVENTS: Record<string, string> = {
   playerJoin: "playerJoining",
@@ -27,6 +28,7 @@ export class EventManager extends EventEmitter {
       const player = globalThis.mp.players.at(src);
       if (!player) return;
       emitNet("ragemp:playerReady", src, forResource);
+      sendNetMapSnapshot(src);
       if (this._playerReadyHandled.has(src)) return;
       this._playerReadyHandled.add(src);
       this._fire("playerReady", player);

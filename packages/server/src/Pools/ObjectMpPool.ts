@@ -2,6 +2,7 @@ import { HandlePool, Vector3 } from "@ragemp-fivem-bridge/shared";
 import { ObjectMp } from "../Entities/ObjectMp";
 import { whenNetworked } from "../utils/whenNetworked";
 import { STATIC_OBJECT_FLAG } from "../Entities/objectFlags";
+import { registerNetMap, unregisterNetMap } from "../utils/netMap";
 
 let objectIdCounter = 0;
 
@@ -56,6 +57,7 @@ export class ObjectMpPool extends HandlePool {
       this._netIdToEntity.set(netId, obj);
       obj._cachedNetId = netId;
       obj._netIdReady = true;
+      registerNetMap("object", obj.id, netId);
 
       try {
         globalThis.Entity(handle).state.set(STATIC_OBJECT_FLAG, true, true);
@@ -101,6 +103,7 @@ export class ObjectMpPool extends HandlePool {
       this._netIdToEntity.delete(entity._cachedNetId);
       entity._cachedNetId = undefined;
     }
+    unregisterNetMap("object", id);
     super._remove(id);
   }
 }

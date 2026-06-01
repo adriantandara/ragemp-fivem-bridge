@@ -1,5 +1,6 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
 import { ObjectMp } from "../Entities/ObjectMp";
+import { netIdForRemote } from "../utils/netMap";
 
 let objectIdCounter = 0;
 
@@ -47,7 +48,18 @@ export class ObjectMpPool extends Pool {
   }
 
   atRemoteId(remoteId: number): ObjectMp | null {
-    return this.at(remoteId);
+    const direct = this.at(remoteId);
+    if (direct) return direct;
+    const netId = netIdForRemote("object", remoteId);
+    if (!netId || typeof NetworkGetEntityFromNetworkId !== "function") return null;
+    const handle = NetworkGetEntityFromNetworkId(netId);
+    if (!handle || !DoesEntityExist(handle)) return null;
+    const byHandle = this._handleToEntity.get(handle);
+    if (byHandle) return byHandle;
+    const obj = new ObjectMp(netId, handle);
+    obj._isWeak = true;
+    this._handleToEntity.set(handle, obj);
+    return obj;
   }
 
   new(model: number | string, position: { x: number; y: number; z: number }, options: any = {}): ObjectMp {

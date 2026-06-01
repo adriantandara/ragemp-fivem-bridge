@@ -5,6 +5,7 @@ import { getPedPool } from "../utils/worldScan";
 let localPedIdCounter = 1000000;
 
 export class PedMpPool extends StreamingPool {
+    _netType = "ped";
     _add!: (entity: PedMp) => void;
 
     constructor() {

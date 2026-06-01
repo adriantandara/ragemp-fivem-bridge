@@ -126,4 +126,7 @@ export class GameVehicleNs {
 
   getTyreTractionLossMultiplier(vehicle, wheelIndex) { return 1.0; /*GetTyreTractionLossMultiplier(vehicle, wheelIndex) is not implemented in FiveM*/ }
   setTyreTractionLossMultiplier(vehicle, wheelIndex, multiplier) { SetTyreTractionLossMultiplier(vehicle, wheelIndex, multiplier); }
+
+  get passengerMassMultiplier() { return GetGlobalPassengerMassMultiplier(); }
+  set passengerMassMultiplier(massMul) { SetGlobalPassengerMassMultiplier(massMul); }
 }

@@ -22,9 +22,8 @@ export default function setup({ mp, plugin }: { mp: any; plugin: PluginContext }
     model: "mp_m_freemode_01",
   };
 
-  let autoSpawnEnabled = true;
   let isSpawning = false;
-  let firstSpawn = true;
+  let hasSpawned = false;
   let spawnInfo: SpawnInfo = { ...DEFAULT_SPAWN };
   let autoRespawnAfterDeath = true;
   let respawnSuppressTick: number | null = null;
@@ -67,18 +66,13 @@ export default function setup({ mp, plugin }: { mp: any; plugin: PluginContext }
     }
   }
 
-  async function doSpawn(info?: Partial<SpawnInfo> | null, isAuto?: boolean): Promise<void> {
+  async function doSpawn(info?: Partial<SpawnInfo> | null): Promise<void> {
     if (isSpawning) return;
     isSpawning = true;
     const data = { ...spawnInfo, ...(info && typeof info === "object" ? info : {}) };
 
     try {
       await waitForGameReady();
-
-      if (isAuto && !autoSpawnEnabled) {
-        isSpawning = false;
-        return;
-      }
 
       const modelHash = await loadModel(data.model);
       if (modelHash !== null) {
@@ -148,9 +142,10 @@ export default function setup({ mp, plugin }: { mp: any; plugin: PluginContext }
       SetPlayerControl(PlayerId(), true, 0);
 
       if (globalThis.mp?.events) globalThis.mp.events._wasAlive = true;
-      mp.events.call("playerSpawn", firstSpawn);
+      const wasFirstSpawn = !hasSpawned;
+      mp.events.call("playerSpawn", wasFirstSpawn);
+      hasSpawned = true;
       emitNet("ragemp:playerSpawn");
-      firstSpawn = false;
     } catch (err) {
       plugin.log("spawn failed:", err);
     } finally {
@@ -160,34 +155,12 @@ export default function setup({ mp, plugin }: { mp: any; plugin: PluginContext }
 
   on("onClientResourceStart", (resName: string) => {
     if (resName !== GetCurrentResourceName()) return;
-    if (autoSpawnEnabled) {
-      ShutdownLoadingScreen();
-      if (typeof ShutdownLoadingScreenNui === "function")
-        ShutdownLoadingScreenNui();
-      doSpawn(undefined, true);
-    }
+    if (typeof ShutdownLoadingScreenNui === "function")
+      ShutdownLoadingScreenNui();
   });
 
-  onNet("ragemp:spawnmanager:spawn", (_id: number, info: Partial<SpawnInfo>) => {
+  onNet("ragemp:spawnmanager:spawn", (info: Partial<SpawnInfo>) => {
     doSpawn(info);
-  });
-
-  onNet("ragemp:spawnmanager:setAutoSpawn", (_id: number, state: boolean) => {
-    autoSpawnEnabled = state !== false;
-  });
-
-  onNet("ragemp:setPosition", (_id: number, pos: { x: number; y: number; z: number }) => {
-    if (!pos || typeof pos !== "object") return;
-    if (firstSpawn) {
-      doSpawn({ x: pos.x, y: pos.y, z: pos.z });
-      return;
-    }
-    SetEntityCoordsNoOffset(PlayerPedId(), pos.x, pos.y, pos.z, false, false, false);
-  });
-
-  onNet("ragemp:setHeading", (_id: number, heading: number) => {
-    if (firstSpawn) return;
-    SetEntityHeading(PlayerPedId(), heading);
   });
 
   onNet("ragemp:setAutoRespawn", (state: boolean) => {
@@ -197,12 +170,6 @@ export default function setup({ mp, plugin }: { mp: any; plugin: PluginContext }
   });
 
   mp.spawnmanager = {
-    setAutoSpawn(state: boolean): void {
-      autoSpawnEnabled = !!state;
-    },
-    get autoSpawn(): boolean {
-      return autoSpawnEnabled;
-    },
     setSpawnPoint(info: Partial<SpawnInfo>): void {
       spawnInfo = { ...spawnInfo, ...(info ?? {}) };
     },
@@ -213,14 +180,13 @@ export default function setup({ mp, plugin }: { mp: any; plugin: PluginContext }
       return doSpawn(info);
     },
     forceRespawn(): Promise<void> {
-      firstSpawn = true;
       return doSpawn();
     },
     get isSpawning(): boolean {
       return isSpawning;
     },
     get hasSpawned(): boolean {
-      return !firstSpawn;
+      return hasSpawned;
     },
   };
 }

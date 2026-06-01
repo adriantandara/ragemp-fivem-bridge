@@ -1,4 +1,4 @@
-import type { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { PlayerMp } from "../../Entities/PlayerMp";
 
 export const name = "spawnmanager";
@@ -12,37 +12,16 @@ interface SpawnInfo {
 }
 
 export default function setup({ mp }: { mp: any }): void {
-  function buildSpawnInfo(player: PlayerMp, position: Vector3): SpawnInfo {
-    return {
-      x: position.x,
-      y: position.y,
-      z: position.z,
-      heading: (player as any).heading ?? 0,
-      model: (player as any).model || undefined,
-    };
-  }
-
-  function spawnPlayer(player: PlayerMp, info: SpawnInfo): void {
-    if (!player) return;
-    (player as any).call("ragemp:spawnmanager:spawn", info);
-  }
-
-  PlayerMp.prototype.spawn = function spawn(position: Vector3): void {
-    if (typeof (this as any)._resetWeaponState === "function") (this as any)._resetWeaponState();
-    spawnPlayer(this, buildSpawnInfo(this, position));
-  };
-
+  const DEFAULT_SPAWN = { x: 0, y: 0, z: 72, heading: 0 };
+  
   mp.spawnmanager = {
     spawnPlayer(player: PlayerMp, info: SpawnInfo): void {
       if (!player || !info) return;
-      const data: SpawnInfo = {
-        x: info.x,
-        y: info.y,
-        z: info.z,
-        heading: info.heading ?? (player as any).heading ?? 0,
-        model: info.model ?? (player as any).model,
-      };
-      spawnPlayer(player, data);
+      player.spawn(new Vector3(info.x, info.y, info.z), info.heading);
     },
+    _maybeAutoSpawn(player: PlayerMp) {
+      if (!player || player._autoSpawn === false || player._spawnIssued) return;
+      player.spawn(new Vector3(DEFAULT_SPAWN.x, DEFAULT_SPAWN.y, DEFAULT_SPAWN.z), DEFAULT_SPAWN.heading);
+    }
   };
 }

@@ -46,6 +46,8 @@ export class PlayerMp extends Entity {
 
     this._ready = true;
     this._autoRespawnAfterDeath = true;
+    this._spawnIssued = false;
+    this._autoSpawn = true;
     this._weapon = 0;
     this._isAiming = false;
     this._isJumping = false;
@@ -349,11 +351,18 @@ export class PlayerMp extends Entity {
     const pos = position ?? this.position;
     const info: any = { x: pos.x, y: pos.y, z: pos.z, heading: heading ?? 0 };
     if (this._model) info.model = this._model;
+    this._spawnIssued = true;
+    if (typeof this._resetWeaponState === "function")
+      this._resetWeaponState();
     emitNet("ragemp:spawnmanager:spawn", this.id, info);
   }
 
+  get autoSpawn() {
+    return this._autoSpawn;
+  }
+
   setAutoSpawn(state: boolean): void {
-    emitNet("ragemp:spawnmanager:setAutoSpawn", this.id, state !== false);
+    this._autoSpawn = state !== false;
   }
 
   get autoRespawnAfterDeath(): boolean {

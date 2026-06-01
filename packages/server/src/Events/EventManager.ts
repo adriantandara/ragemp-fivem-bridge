@@ -32,6 +32,7 @@ export class EventManager extends EventEmitter {
       if (this._playerReadyHandled.has(src)) return;
       this._playerReadyHandled.add(src);
       this._fire("playerReady", player);
+      globalThis.mp?.spawnmanager?._maybeAutoSpawn?.(player);
     });
 
     on("playerDropped", () => {

@@ -43,7 +43,10 @@ export class VehicleMp extends Entity {
   constructor(id: number, handle: number) {
     super(id, "vehicle");
     this._handle = handle;
-    this._sync = new EntitySyncQueue(() => this._handle, "ragemp:vehicle:batch");
+	this._sync = new EntitySyncQueue(() => this._handle, "ragemp:vehicle:batch", {
+	   range: 250, /* Streaming Distance */
+	   useRoutingBucket: true,
+	});
   }
 
   get netId(): number {

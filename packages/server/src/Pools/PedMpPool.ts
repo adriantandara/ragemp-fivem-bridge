@@ -1,7 +1,7 @@
 import { HandlePool, Vector3 } from "@ragemp-fivem-bridge/shared";
 import { PedMp } from "../Entities/PedMp";
 import { whenNetworked } from "../utils/whenNetworked";
-import { registerNetMap, unregisterNetMap } from "../utils/netMap";
+import { entityCreated, entityBindNetId, entityDestroyed } from "../utils/entityRegistry";
 
 let pedIdCounter = 0;
 
@@ -40,16 +40,28 @@ export class PedMpPool extends HandlePool {
     this._add(ped as any);
     this._handleToEntity.set(handle, ped as any);
 
-    whenNetworked(handle, (netId) => {
-      ped._cachedNetId = netId;
-      registerNetMap("ped", ped.id, netId);
+    entityCreated("ped", ped.id, {
+      model: modelHash,
+      x: position.x,
+      y: position.y,
+      z: position.z,
+      dimension,
     });
+
+    whenNetworked(
+      handle,
+      (netId) => {
+        ped._cachedNetId = netId;
+        entityBindNetId("ped", ped.id, netId);
+      },
+      () => this._entities.has(ped.id),
+    );
 
     return ped;
   }
 
   _remove(id: number) {
-    unregisterNetMap("ped", id);
+    entityDestroyed("ped", id);
     super._remove(id);
   }
 }

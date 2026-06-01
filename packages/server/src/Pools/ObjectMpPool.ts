@@ -2,7 +2,7 @@ import { HandlePool, Vector3 } from "@ragemp-fivem-bridge/shared";
 import { ObjectMp } from "../Entities/ObjectMp";
 import { whenNetworked } from "../utils/whenNetworked";
 import { STATIC_OBJECT_FLAG } from "../Entities/objectFlags";
-import { registerNetMap, unregisterNetMap } from "../utils/netMap";
+import { entityCreated, entityBindNetId, entityDestroyed } from "../utils/entityRegistry";
 
 let objectIdCounter = 0;
 
@@ -53,20 +53,32 @@ export class ObjectMpPool extends HandlePool {
     this._add(obj as any);
     this._handleToEntity.set(handle, obj as any);
 
-    whenNetworked(handle, (netId: number) => {
-      this._netIdToEntity.set(netId, obj);
-      obj._cachedNetId = netId;
-      obj._netIdReady = true;
-      registerNetMap("object", obj.id, netId);
-
-      try {
-        globalThis.Entity(handle).state.set(STATIC_OBJECT_FLAG, true, true);
-      } catch (e) {}
-
-      if (obj._alpha !== 255) {
-        emitNet("ragemp:objectAlpha", -1, netId, obj._alpha);
-      }
+    entityCreated("object", obj.id, {
+      model: modelHash,
+      x: position.x,
+      y: position.y,
+      z: position.z,
+      dimension,
     });
+
+    whenNetworked(
+      handle,
+      (netId) => {
+        this._netIdToEntity.set(netId, obj);
+        obj._cachedNetId = netId;
+        obj._netIdReady = true;
+        entityBindNetId("object", obj.id, netId);
+
+        try {
+          globalThis.Entity(handle).state.set(STATIC_OBJECT_FLAG, true, true);
+        } catch (e) {}
+
+        if (obj._alpha !== 255) {
+          emitNet("ragemp:objectAlpha", -1, netId, obj._alpha);
+        }
+      },
+      () => this._entities.has(obj.id),
+    );
 
     return obj;
   }
@@ -103,7 +115,7 @@ export class ObjectMpPool extends HandlePool {
       this._netIdToEntity.delete(entity._cachedNetId);
       entity._cachedNetId = undefined;
     }
-    unregisterNetMap("object", id);
+    entityDestroyed("object", id);
     super._remove(id);
   }
 }

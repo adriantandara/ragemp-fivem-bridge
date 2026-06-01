@@ -1,8 +1,13 @@
-export function whenNetworked(handle: number, cb: (netId: number) => void, maxTries: number = 60, intervalMs: number = 50): void {
+export function whenNetworked(handle: number, cb: (netId: number) => void, isAlive: () => boolean): void {
+  const stillThere = () => {
+    if (!handle) return false;
+    if (typeof DoesEntityExist === "function" && !DoesEntityExist(handle)) return false;
+    if (typeof isAlive === "function" && !isAlive()) return false;
+    return true;
+  };
+  
   const attempt = (tries: number): void => {
-    if (!handle || (typeof DoesEntityExist === "function" && !DoesEntityExist(handle))) {
-      return;
-    }
+    if (!stillThere()) return;
 
     let netId = 0;
     try {
@@ -25,9 +30,8 @@ export function whenNetworked(handle: number, cb: (netId: number) => void, maxTr
       return;
     }
 
-    if (tries < maxTries) {
-      setTimeout(() => attempt(tries + 1), intervalMs);
-    }
+    const delay = tries < 20 ? 50 : tries < 60 ? 250 : 1000;
+    setTimeout(() => attempt(tries + 1), delay);
   };
 
   setTimeout(() => attempt(0), 0);

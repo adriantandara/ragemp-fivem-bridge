@@ -44,6 +44,7 @@ export class PedMpPool extends StreamingPool {
                 false
             );
             ped._handle = handle;
+            this._handleToEntity.set(handle, ped);
 
             SetEntityAsMissionEntity(handle, true, true);
 

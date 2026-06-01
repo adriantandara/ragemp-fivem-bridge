@@ -1,10 +1,15 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
 import { ObjectMp } from "../Entities/ObjectMp";
-import { netIdForRemote } from "../utils/netMap";
+import { StreamingPool, LOCAL_STREAM_ID_BASE } from "./StreamingPool";
 
-let objectIdCounter = 0;
+let localObjectCounter = 0;
 
-export class ObjectMpPool extends Pool {
+function nextLocalId() {
+  return LOCAL_STREAM_ID_BASE + ++localObjectCounter;
+}
+
+export class ObjectMpPool extends StreamingPool  {
+  _netType = "object";
   _handleToEntity: Map<number, ObjectMp> = new Map();
   _entities!: Map<number, ObjectMp>;
   _add!: (entity: ObjectMp) => void;
@@ -15,6 +20,7 @@ export class ObjectMpPool extends Pool {
 
   constructor() {
     super();
+    this._startNetworked((id, handle) => new ObjectMp(id, handle));
     this._setupServerSync();
   }
 
@@ -47,26 +53,11 @@ export class ObjectMpPool extends Pool {
     }
   }
 
-  atRemoteId(remoteId: number): ObjectMp | null {
-    const direct = this.at(remoteId);
-    if (direct) return direct;
-    const netId = netIdForRemote("object", remoteId);
-    if (!netId || typeof NetworkGetEntityFromNetworkId !== "function") return null;
-    const handle = NetworkGetEntityFromNetworkId(netId);
-    if (!handle || !DoesEntityExist(handle)) return null;
-    const byHandle = this._handleToEntity.get(handle);
-    if (byHandle) return byHandle;
-    const obj = new ObjectMp(netId, handle);
-    obj._isWeak = true;
-    this._handleToEntity.set(handle, obj);
-    return obj;
-  }
-
   new(model: number | string, position: { x: number; y: number; z: number }, options: any = {}): ObjectMp {
     const modelHash = typeof model === "string" ? GetHashKey(model) : model;
 
     const handle = CreateObject(modelHash, position.x, position.y, position.z, true, true, false);
-    const id = ++objectIdCounter;
+    const id = nextLocalId();
     const obj = new ObjectMp(id, handle);
 
     if (options.rotation) {
@@ -88,7 +79,7 @@ export class ObjectMpPool extends Pool {
   }
 
   newWeak(handle: number): ObjectMp {
-    const id = ++objectIdCounter;
+    const id = nextLocalId();
     const obj = new ObjectMp(id, handle);
     obj._isWeak = true;
 
@@ -116,7 +107,7 @@ export class ObjectMpPool extends Pool {
       customModelHash
     );
 
-    const id = ++objectIdCounter;
+    const id = nextLocalId();
     const obj = new ObjectMp(id, handle);
 
     if (options.rotation) {
@@ -137,18 +128,10 @@ export class ObjectMpPool extends Pool {
     const modelHash = typeof hash === "string" ? GetHashKey(hash) : hash;
     const result: ObjectMp[] = [];
     this._entities.forEach((entity: ObjectMp) => {
-      if (GetEntityModel(entity._handle) === modelHash) {
+      if (entity._handle && GetEntityModel(entity._handle) === modelHash) {
         result.push(entity);
       }
     });
     return result;
-  }
-
-  _remove(id: number): void {
-    const entity = this._entities.get(id);
-    if (entity) {
-      this._handleToEntity.delete(entity._handle);
-    }
-    super._remove(id);
   }
 }

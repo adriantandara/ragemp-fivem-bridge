@@ -1,7 +1,7 @@
 import { HandlePool, Vector3 } from "@ragemp-fivem-bridge/shared";
 import { VehicleMp } from "../Entities/VehicleMp";
 import { whenNetworked } from "../utils/whenNetworked";
-import { registerNetMap, unregisterNetMap } from "../utils/netMap";
+import { entityCreated, entityBindNetId, entityDestroyed } from "../utils/entityRegistry";
 
 let vehicleIdCounter = 0;
 
@@ -63,11 +63,23 @@ export class VehicleMpPool extends HandlePool {
     this._add(vehicle as any);
     this._handleToEntity.set(handle, vehicle as any);
 
-    whenNetworked(handle, (netId) => {
-      this._netIdToEntity.set(netId, vehicle);
-      vehicle._cachedNetId = netId;
-      registerNetMap("vehicle", vehicle.id, netId);
+    entityCreated("vehicle", vehicle.id, {
+      model: modelHash,
+      x: position.x,
+      y: position.y,
+      z: position.z,
+      dimension,
     });
+
+    whenNetworked(
+      handle,
+      (netId) => {
+        this._netIdToEntity.set(netId, vehicle);
+        vehicle._cachedNetId = netId;
+        entityBindNetId("vehicle", vehicle.id, netId);
+      },
+      () => this._entities.has(vehicle.id),
+    );
 
     return vehicle;
   }
@@ -92,7 +104,8 @@ export class VehicleMpPool extends HandlePool {
     this._handleToEntity.set(handle, vehicle as any);
     this._netIdToEntity.set(netId, vehicle);
     vehicle._cachedNetId = netId;
-    registerNetMap("vehicle", vehicle.id, netId);
+    entityCreated("vehicle", vehicle.id, { model: GetEntityModel(handle) });
+    entityBindNetId("vehicle", vehicle.id, netId);
     return vehicle;
   }
 
@@ -102,7 +115,7 @@ export class VehicleMpPool extends HandlePool {
       this._netIdToEntity.delete(entity._cachedNetId);
       entity._cachedNetId = undefined;
     }
-    unregisterNetMap("vehicle", id);
+    entityDestroyed("vehicle", id);
     super._remove(id);
   }
 }

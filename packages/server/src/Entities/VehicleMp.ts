@@ -1,6 +1,7 @@
 import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
 import { EntitySyncQueue } from "../utils/EntitySyncQueue";
 import { scheduleStateBagFlush } from "../utils/stateBagDefer";
+import { safeGetNetworkId } from "../utils/netId";
 
 type Quaternion = { x: number; y: number; z: number; w: number };
 
@@ -46,7 +47,7 @@ export class VehicleMp extends Entity {
   }
 
   get netId(): number {
-    return NetworkGetNetworkIdFromEntity(this._handle);
+    return this._cachedNetId || safeGetNetworkId(this._handle);
   }
 
   _stateBag(): any {
@@ -357,7 +358,7 @@ export class VehicleMp extends Entity {
   set controller(value: any) {
     const targetId: number | null =
       value == null ? null : typeof value === "number" ? value : value.id;
-    const netId = NetworkGetNetworkIdFromEntity(this._handle);
+    const netId = this.netId;
     emitNet("ragemp:requestVehicleControl", targetId ?? -1, netId);
   }
 

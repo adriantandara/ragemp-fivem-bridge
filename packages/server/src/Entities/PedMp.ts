@@ -1,6 +1,7 @@
 import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
 import { gtaPedHealthToRage, rageHealthToGtaPed } from "@ragemp-fivem-bridge/shared";
 import { scheduleStateBagFlush } from "../utils/stateBagDefer";
+import { safeGetNetworkId } from "../utils/netId";
 
 export class PedMp extends Entity {
   _handle: number;
@@ -114,7 +115,7 @@ export class PedMp extends Entity {
 
   set invincible(value: boolean) {
     this._invincible = value;
-    emitNet("ragemp:pedInvincible", -1, NetworkGetNetworkIdFromEntity(this._handle), value);
+    emitNet("ragemp:pedInvincible", -1, this._cachedNetId || safeGetNetworkId(this._handle), value);
   }
 
   destroy(): void {

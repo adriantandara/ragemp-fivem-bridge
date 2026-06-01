@@ -2,6 +2,7 @@ import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
 import { gtaPedHealthToRage } from "@ragemp-fivem-bridge/shared";
 import { normalizeDimension } from "@ragemp-fivem-bridge/shared";
 import { sanitizeArgsForNet } from "@ragemp-fivem-bridge/shared";
+import { safeGetNetworkId } from "../utils/netId";
 
 export class PlayerMp extends Entity {
   _ready: boolean;
@@ -425,7 +426,7 @@ export class PlayerMp extends Entity {
     const send = (tries: number): void => {
       if (!globalThis.mp?.players?.at?.(playerId)) return;
       if (!DoesEntityExist(vehicle._handle)) return;
-      const netId = NetworkGetNetworkIdFromEntity(vehicle._handle);
+      const netId = vehicle._cachedNetId || safeGetNetworkId(vehicle._handle);
       if (netId) {
         emitNet("ragemp:putIntoVehicle", playerId, netId, targetSeat);
       } else if (tries < 50) {

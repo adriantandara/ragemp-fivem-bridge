@@ -1,11 +1,13 @@
-export function whenNetworked(handle: number, cb: (netId: number) => void, isAlive: () => boolean): void {
+export function whenNetworked(handle: number, cb: (netId: number) => void, isAlive?: () => boolean): void {
   const stillThere = () => {
     if (!handle) return false;
     if (typeof DoesEntityExist === "function" && !DoesEntityExist(handle)) return false;
     if (typeof isAlive === "function" && !isAlive()) return false;
     return true;
   };
-  
+
+  let lastNetId = 0;
+
   const attempt = (tries: number): void => {
     if (!stillThere()) return;
 
@@ -16,18 +18,26 @@ export function whenNetworked(handle: number, cb: (netId: number) => void, isAli
       netId = 0;
     }
 
-    const resolved =
-      netId && typeof NetworkGetEntityFromNetworkId === "function"
-        ? NetworkGetEntityFromNetworkId(netId)
-        : 0;
-
-    if (netId && resolved === handle) {
+    if (netId) {
+      let resolved = 0;
       try {
-        cb(netId);
+        resolved =
+          typeof NetworkGetEntityFromNetworkId === "function"
+            ? NetworkGetEntityFromNetworkId(netId) || 0
+            : 0;
       } catch (e) {
-        console.error("[bridge] whenNetworked callback failed:", e);
+        resolved = 0;
       }
-      return;
+
+      if (resolved === handle || netId === lastNetId) {
+        try {
+          cb(netId);
+        } catch (e) {
+          console.error("[bridge] whenNetworked callback failed:", e);
+        }
+        return;
+      }
+      lastNetId = netId;
     }
 
     const delay = tries < 20 ? 50 : tries < 60 ? 250 : 1000;

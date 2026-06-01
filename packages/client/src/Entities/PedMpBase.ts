@@ -111,7 +111,7 @@ export class PedMpBase extends EntityMpBase {
 
   isActiveInScenario(): boolean { return IsPedActiveInScenario(this.handle); }
   isAimingFromCover(): boolean { return IsPedAimingFromCover(this.handle); }
-  isBeingArrested(atArresting?: boolean): boolean { return IsPedBeingArrested(this.handle); }
+  isBeingArrested(): boolean { return IsPedBeingArrested(this.handle); }
   isBeingJacked(): boolean { return IsPedBeingJacked(this.handle); }
   isBeingStealthKilled(): boolean { return IsPedBeingStealthKilled(this.handle); }
   isBeingStunned(p1: number): boolean { return IsPedBeingStunned(this.handle, p1 ?? 0); }

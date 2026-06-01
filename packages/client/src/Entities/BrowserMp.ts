@@ -1,5 +1,5 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
-import { ensureNuiPauseGuard } from "../utils/nuiFocus";
+import { acquireNuiPauseGuard, releaseNuiPauseGuard } from "../utils/nuiFocus";
 
 let _procCounter: number = 0;
 let _procTimeout: number = 10000;
@@ -83,7 +83,8 @@ export class BrowserMp extends Entity {
     this._active = !!value;
     SetNuiFocus(this._active, this._active);
     postFocusState(this.id, this._active);
-    if (this._active) ensureNuiPauseGuard();
+    if (this._active) acquireNuiPauseGuard("browser:" + this.id);
+    else releaseNuiPauseGuard("browser:" + this.id);
   }
 
   execute(code: string): void {
@@ -190,6 +191,7 @@ export class BrowserMp extends Entity {
       this._active = false;
       SetNuiFocus(false, false);
     }
+    releaseNuiPauseGuard("browser:" + this.id);
     postFocusState(this.id, false);
     const pool = globalThis.mp?.browsers;
     if (pool && pool._chatBrowser === this) pool._chatBrowser = null;

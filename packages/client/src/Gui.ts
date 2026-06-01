@@ -1,3 +1,5 @@
+import { acquireNuiPauseGuard, releaseNuiPauseGuard } from "./utils/nuiFocus";
+
 export class GuiMp {
   chat: ChatMp;
   cursor: CursorMp;
@@ -98,6 +100,8 @@ class CursorMp {
     this._visible = !!state;
     this._freeze = !!freezeControls;
     SetNuiFocus(!!state, !!state);
+    if (this._visible) acquireNuiPauseGuard("cursor");
+    else releaseNuiPauseGuard("cursor");
     this._updateFreezeTick();
   }
 

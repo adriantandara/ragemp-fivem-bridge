@@ -1,9 +1,3 @@
-// AUTO-GENERATED. Natives referenced by the bridge but absent from the pinned
-// @citizenfx/server typings (build 2.0.25839-1) — i.e. not exposed by this FiveM
-// runtime. We install a throwing fallback for any that are genuinely missing so
-// calls fail loudly with NotImplementedError instead of "undefined is not a
-// function", and declare them for the type-checker. If the runtime DOES provide
-// one, the real native is used untouched.
 import { NotImplementedError } from "@ragemp-fivem-bridge/shared";
 
 const MAYBE_MISSING_NATIVES = [

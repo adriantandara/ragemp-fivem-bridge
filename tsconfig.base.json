@@ -13,8 +13,6 @@
     "allowJs": true,
     "checkJs": false,
     "noEmit": true,
-
-    "baseUrl": ".",
     "paths": {
       "@ragemp-fivem-bridge/shared": ["packages/shared/src/index.ts"],
       "@ragemp-fivem-bridge/plugin-manager": ["packages/plugin-manager/src/index.ts"],

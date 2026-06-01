@@ -1,5 +1,3 @@
-import { Vector3 } from "@ragemp-fivem-bridge/shared";
-
 export class WorldMp {
   _weather: string = "CLEAR";
   _time: { hour: number; minute: number; second: number } = { hour: 12, minute: 0, second: 0 };

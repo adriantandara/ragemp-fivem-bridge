@@ -7,8 +7,8 @@ export class GameTaskNs {
   goStraightToCoord(ped: number, x: number, y: number, z: number, speed: number, timeout: number): void {
     TaskGoStraightToCoord(ped, x, y, z, speed ?? 1.0, timeout ?? -1, 0, 0);
   }
-  goToCoordAnyMeans(ped: number, x: number, y: number, z: number, speed: number, p5: number, p6: boolean, walkingStyle: number): void {
-    TaskGoToCoordAnyMeans(ped, x, y, z, speed ?? 1.0, 0, walkingStyle ?? 0);
+  goToCoordAnyMeans(ped: number, x: number, y: number, z: number, fMoveBlendRatio: number, vehicle: number, bUseLongRangeVehiclePathing: boolean, drivingFlags: number, fMaxRangeToShootTargets: number): void {
+    TaskGoToCoordAnyMeans(ped, x, y, z, fMoveBlendRatio, vehicle, bUseLongRangeVehiclePathing, drivingFlags, fMaxRangeToShootTargets);
   }
   followNavMeshToCoord(ped: number, x: number, y: number, z: number, speed: number, p5: number, p6: number, p7: boolean, p8: number): void {
     TaskFollowNavMeshToCoord(ped, x, y, z, speed ?? 1.0, p5 ?? -1, p6 ?? 0.1, (p7 ?? 0) as number, p8 ?? 0);
@@ -67,8 +67,8 @@ export class GameTaskNs {
   vehicleGotoNavmesh(ped: number, vehicle: number, x: number, y: number, z: number, speed: number, behaviour: number, stopRange: number): void {
     TaskVehicleGotoNavmesh(ped, vehicle, x, y, z, speed ?? 10.0, behaviour ?? 786603, stopRange ?? 4.0);
   }
-  driveBy(ped: number, targetPed: number, targetVehicle: number, x: number, y: number, z: number, distanceToLeadVehicle: number, speed: number, drivingStyle: number, weaponHash: number): void {
-    TaskDriveBy(ped, targetPed ?? 0, targetVehicle ?? 0, x ?? 0, y ?? 0, z ?? 0, distanceToLeadVehicle ?? 0, speed ?? 10.0, drivingStyle ?? 786603, true, weaponHash ?? 0);
+  driveBy(ped: number, targetPed: number, targetVehicle: number, x: number, y: number, z: number, distanceToLeadVehicle: number, speed: number, drivingStyle: boolean): void {
+    TaskDriveBy(ped, targetPed ?? 0, targetVehicle ?? 0, x ?? 0, y ?? 0, z ?? 0, distanceToLeadVehicle ?? 0, speed ?? 10.0, drivingStyle, 1);
   }
 
   startScenarioInPlace(ped: number, scenario: string, p2: number, p3: boolean): void {
@@ -105,7 +105,7 @@ export class GameTaskNs {
 
   taskPause(ped: number, ms: number): void { TaskPause(ped, ms); }
   taskStandStill(ped: number, time: number): void { TaskStandStill(ped, time); }
-  taskJump(ped: number, unused: boolean, p2: number, p3: number): void { TaskJump(ped, unused, p2, p3); }
+  taskJump(ped: number, unused: boolean): void { TaskJump(ped, unused); }
   taskCower(ped: number, duration: number): void { TaskCower(ped, duration); }
   taskHandsUp(ped: number, duration: number, facingPed: number, p3: number, p4: boolean): void { TaskHandsUp(ped, duration, facingPed, p3, p4); }
   updateTaskHandsUpDuration(ped: number, duration: number): void { UpdateTaskHandsUpDuration(ped, duration); }
@@ -113,8 +113,8 @@ export class GameTaskNs {
   taskEnterVehicle(ped: number, vehicle: number, timeout: number, seat: number, speed: number, flag: number, p6: number): void { TaskEnterVehicle(ped, vehicle, timeout, seat, speed, flag, p6); }
   taskLeaveVehicle(ped: number, vehicle: number, flags: number): void { TaskLeaveVehicle(ped, vehicle, flags); }
   taskGetOffBoat(ped: number, boat: number): void { TaskGetOffBoat(ped, boat); }
-  taskSkyDive(ped: number, p1: boolean): void { TaskSkyDive(ped, p1); }
-  taskParachute(ped: number, p1: boolean, p2: boolean): void { TaskParachute(ped, p1, p2); }
+  taskSkyDive(ped: number): void { TaskSkyDive(ped); }
+  taskParachute(ped: number, p1: boolean): void { TaskParachute(ped, p1); }
   taskParachuteToTarget(ped: number, x: number, y: number, z: number): void { TaskParachuteToTarget(ped, x, y, z); }
   setParachuteTaskTarget(ped: number, x: number, y: number, z: number): void { SetParachuteTaskTarget(ped, x, y, z); }
   setParachuteTaskThrust(ped: number, thrust: number): void { SetParachuteTaskThrust(ped, thrust); }
@@ -128,7 +128,7 @@ export class GameTaskNs {
   taskWanderStandard(ped: number, p1: number, p2: number): void { TaskWanderStandard(ped, p1, p2); }
   taskStealthKill(killer: number, target: number, actionType: number, p3: number, p4: number): void { TaskStealthKill(killer, target, actionType, p3, p4); }
   taskPlantBomb(ped: number, x: number, y: number, z: number, heading: number): void { TaskPlantBomb(ped, x, y, z, heading); }
-  taskStopPhoneGestureAnimation(ped: number, p1: number): void { TaskStopPhoneGestureAnimation(ped, p1); }
+  taskStopPhoneGestureAnimation(ped: number): void { TaskStopPhoneGestureAnimation(ped); }
   taskClearLookAt(ped: number): void { TaskClearLookAt(ped); }
   taskPerformSequence(ped: number, taskSequenceId: number): void { TaskPerformSequence(ped, taskSequenceId); }
   getIsTaskActive(ped: number, taskIndex: number): boolean { return GetIsTaskActive(ped, taskIndex); }
@@ -138,7 +138,7 @@ export class GameTaskNs {
   updateTaskAimGunScriptedTarget(p0: number, p1: number, p2: number, p3: number, p4: number, p5: boolean): void { UpdateTaskAimGunScriptedTarget(p0, p1, p2, p3, p4, p5); }
   taskAimGunAtCoord(ped: number, x: number, y: number, z: number, time: number, p5: boolean, p6: boolean): void { TaskAimGunAtCoord(ped, x, y, z, time, p5, p6); }
   taskShootAtCoord(ped: number, x: number, y: number, z: number, duration: number, firingPattern: number): void { TaskShootAtCoord(ped, x, y, z, duration, firingPattern); }
-  taskShuffleToNextVehicleSeat(ped: number, vehicle: number, p2: number): void { TaskShuffleToNextVehicleSeat(ped, vehicle, p2); }
+  taskShuffleToNextVehicleSeat(ped: number, vehicle: number): void { TaskShuffleToNextVehicleSeat(ped, vehicle); }
   clearPedSecondaryTask(ped: number): void { ClearPedSecondaryTask(ped); }
   taskGotoEntityOffset(ped: number, p1: number, p2: number, x: number, y: number, z: number, duration: number): void { TaskGotoEntityOffset(ped, p1, p2, x, y, z, duration); }
   taskVehicleTempAction(driver: number, vehicle: number, action: number, time: number): void { TaskVehicleTempAction(driver, vehicle, action, time); }
@@ -151,7 +151,7 @@ export class GameTaskNs {
   clearDrivebyTaskUnderneathDrivingTask(ped: number): void { ClearDrivebyTaskUnderneathDrivingTask(ped); }
   isDrivebyTaskUnderneathDrivingTask(ped: number): boolean { return IsDrivebyTaskUnderneathDrivingTask(ped); }
   isMountedWeaponTaskUnderneathDrivingTask(ped: number): boolean { return IsMountedWeaponTaskUnderneathDrivingTask(ped); }
-  taskUseMobilePhone(ped: number, p1: number, p2: number): void { TaskUseMobilePhone(ped, p1, p2); }
+  taskUseMobilePhone(ped: number, p1: number): void { TaskUseMobilePhone(ped, p1); }
   taskUseMobilePhoneTimed(ped: number, duration: number): void { TaskUseMobilePhoneTimed(ped, duration); }
   taskClimb(ped: number, unused: boolean): void { TaskClimb(ped, unused); }
   taskClimbLadder(ped: number, p1: number): void { TaskClimbLadder(ped, p1); }
@@ -168,7 +168,7 @@ export class GameTaskNs {
   taskCombatHatedTargetsInArea(ped: number, x: number, y: number, z: number, radius: number, p5: number): void { TaskCombatHatedTargetsInArea(ped, x, y, z, radius, p5); }
   taskSwapWeapon(ped: number, p1: boolean): void { TaskSwapWeapon(ped, p1); }
   taskReloadWeapon(ped: number, unused: boolean): void { TaskReloadWeapon(ped, unused); }
-  taskWrithe(ped: number, target: number, time: number, p3: number, p4: number, p5: number): void { TaskWrithe(ped, target, time, p3, p4, p5); }
+  taskWrithe(ped: number, target: number, time: number, p3: number): void { TaskWrithe(ped, target, time, p3); }
   taskPatrol(ped: number, p1: string, p2: number, p3: boolean, p4: boolean): void { TaskPatrol(ped, p1, p2, p3, p4); }
   taskStayInCover(ped: number): void { TaskStayInCover(ped); }
   taskVehicleShootAtPed(ped: number, target: number, p2: number): void { TaskVehicleShootAtPed(ped, target, p2); }
@@ -214,14 +214,14 @@ export class GameTaskNs {
   setPedDesiredMoveBlendRatio(ped: number, p1: number): void { SetPedDesiredMoveBlendRatio(ped, p1); }
   getPedDesiredMoveBlendRatio(ped: number): number { return GetPedDesiredMoveBlendRatio(ped); }
   setDecisionMaker(ped: number, p1: number): void { SetDecisionMaker(ped, p1); }
-  setSphereDefensiveArea(p0: number, p1: number, p2: number, p3: number, p4: number): void { SetPedSphereDefensiveArea(p0, p1, p2, p3, p4); }
+  setSphereDefensiveArea(ped: number, x: number, y: number, z: number, radius: number, p5: boolean, p6: boolean): void { SetPedSphereDefensiveArea(ped, x, y, z, radius, p5, p6); }
   addCoverPoint(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: number, p7: boolean): number { return AddCoverPoint(p0, p1, p2, p3, p4, p5, p6, p7); }
   removeCoverPoint(coverpoint: number): void { RemoveCoverPoint(coverpoint); }
   doesScriptedCoverPointExistAtCoords(x: number, y: number, z: number): boolean { return DoesScriptedCoverPointExistAtCoords(x, y, z); }
   getScriptedCoverPointCoords(coverpoint: number): Vector3 { return toVec3(GetScriptedCoverPointCoords(coverpoint)); }
   removeAllCoverBlockingAreas(): void { RemoveAllCoverBlockingAreas(); }
   doesScenarioExistInArea(x: number, y: number, z: number, radius: number, b: boolean): boolean { return DoesScenarioExistInArea(x, y, z, radius, b); }
-  doesScenarioOfTypeExistInArea(p0: number, p1: number, p2: number, p4: number, p5: boolean): number { return DoesScenarioOfTypeExistInArea(p0, p1, p2, p4, p5) as any; } // NOTE: native returns boolean per typings
+  doesScenarioOfTypeExistInArea(p0: number, p1: number, p2: number, p3: string, p4: number, p5: boolean): number { return DoesScenarioOfTypeExistInArea(p0, p1, p2, p3, p4, p5) as any; } // NOTE: native returns boolean per typings
   isScenarioOccupied(p0: number, p1: number, p2: number, p3: number, p4: boolean): boolean { return IsScenarioOccupied(p0, p1, p2, p3, p4); }
   pedHasUseScenario(ped: number): boolean { return PedHasUseScenarioTask(ped); }
   playAnimOnRunningScenario(ped: number, animDict: string, animName: string): void { PlayAnimOnRunningScenario(ped, animDict, animName); }
@@ -315,8 +315,8 @@ export class GameTaskNs {
   taskFollowNavMeshToCoord(ped: number, x: number, y: number, z: number, speed: number, timeout: number, stoppingRange: number, persistFollowing: boolean, unk: number): void { TaskFollowNavMeshToCoord(ped, x, y, z, speed, timeout, stoppingRange, persistFollowing as any, unk); }
   taskFollowNavMeshToCoordAdvanced(ped: number, x: number, y: number, z: number, speed: number, timeout: number, unkFloat: number, unkInt: number, unkX: number, unkY: number, unkZ: number, unk_40000f: number): void { TaskFollowNavMeshToCoordAdvanced(ped, x, y, z, speed, timeout, unkFloat, unkInt, unkX, unkY, unkZ, unk_40000f); }
   taskGoToCoordAnyMeans(ped: number, x: number, y: number, z: number, speed: number, p5: number, p6: boolean, walkingStyle: number, p8: number): void { TaskGoToCoordAnyMeans(ped, x, y, z, speed, p5, p6, walkingStyle, p8); }
-  taskGoToCoordAnyMeansExtraParams(ped: number, x: number, y: number, z: number, speed: number, p5: number, p6: boolean, walkingStyle: number, p8: number, p9: number, p10: number, p11: number, p12: number): void { TaskGoToCoordAnyMeansExtraParams(ped, x, y, z, speed, p5, p6, walkingStyle, p8, p9, p10, p11, p12); }
-  taskGoToCoordAnyMeansExtraParamsWithCruiseSpeed(ped: number, x: number, y: number, z: number, speed: number, p5: number, p6: boolean, walkingStyle: number, p8: number, p9: number, p10: number, p11: number, p12: number, p13: number): void { TaskGoToCoordAnyMeansExtraParamsWithCruiseSpeed(ped, x, y, z, speed, p5, p6, walkingStyle, p8, p9, p10, p11, p12, p13); }
+  taskGoToCoordAnyMeansExtraParams(ped: number, x: number, y: number, z: number, speed: number, p5: number, p6: boolean, walkingStyle: number, p8: number, p9: number, p10: number, p11: number): void { TaskGoToCoordAnyMeansExtraParams(ped, x, y, z, speed, p5, p6, walkingStyle, p8, p9, p10, p11); }
+  taskGoToCoordAnyMeansExtraParamsWithCruiseSpeed(ped: number, x: number, y: number, z: number, speed: number, p5: number, p6: boolean, walkingStyle: number, p8: number, p9: number, p10: number, p11: number, p12: number): void { TaskGoToCoordAnyMeansExtraParamsWithCruiseSpeed(ped, x, y, z, speed, p5, p6, walkingStyle, p8, p9, p10, p11, p12); }
   taskPlayAnim(ped: number, animDictionary: string, animationName: string, blendInSpeed: number, blendOutSpeed: number, duration: number, flag: number, playbackRate: number, lockX: boolean, lockY: boolean, lockZ: boolean): void { TaskPlayAnim(ped, animDictionary, animationName, blendInSpeed, blendOutSpeed, duration, flag, playbackRate, lockX, lockY, lockZ); }
   taskPlayAnimAdvanced(ped: number, animDict: string, animName: string, posX: number, posY: number, posZ: number, rotX: number, rotY: number, rotZ: number, animEnterSpeed: number, animExitSpeed: number, duration: number, flag: number, animTime: number, p14: number, p15: number): void { TaskPlayAnimAdvanced(ped, animDict, animName, posX, posY, posZ, rotX, rotY, rotZ, animEnterSpeed, animExitSpeed, duration, flag, animTime, p14, p15); }
   stopAnimTask(ped: number, animDictionary: string, animationName: string, p3: number): void { StopAnimTask(ped, animDictionary, animationName, p3); }
@@ -340,11 +340,11 @@ export class GameTaskNs {
   taskMoveNetworkAdvanced(ped: number, p1: string, p2: number, p3: number, p4: number, p5: number, p6: number, p7: number, p8: number, p9: number, p10: boolean, animDict: string, flags: number): void { TaskMoveNetworkAdvancedByName(ped, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, animDict, flags); }
   taskSynchronizedScene(ped: number, scene: number, animDictionary: string, animationName: string, speed: number, speedMultiplier: number, duration: number, flag: number, playbackRate: number, p9: number): void { TaskSynchronizedScene(ped, scene, animDictionary, animationName, speed, speedMultiplier, duration, flag, playbackRate, p9); }
   standStill(ped: number, time: number): void { TaskStandStill(ped, time); }
-  jump(ped: number, unused: boolean, p2: number, p3: number): void { TaskJump(ped, unused, p2, p3); }
+  jump(ped: number, unused: boolean): void { TaskJump(ped, unused); }
   cower(ped: number, duration: number): void { TaskCower(ped, duration); }
   getOffBoat(ped: number, boat: number): void { TaskGetOffBoat(ped, boat); }
-  skyDive(ped: number, p1: boolean): void { TaskSkyDive(ped, p1); }
-  parachute(ped: number, p1: boolean, p2: boolean): void { TaskParachute(ped, p1, p2); }
+  skyDive(ped: number): void { TaskSkyDive(ped); }
+  parachute(ped: number, p1: boolean): void { TaskParachute(ped, p1); }
   parachuteToTarget(ped: number, x: number, y: number, z: number): void { TaskParachuteToTarget(ped, x, y, z); }
   setParachuteTarget(ped: number, x: number, y: number, z: number): void { SetParachuteTaskTarget(ped, x, y, z); }
   setParachuteThrust(ped: number, thrust: number): void { SetParachuteTaskThrust(ped, thrust); }
@@ -365,10 +365,10 @@ export class GameTaskNs {
   stealthKill(killer: number, target: number, actionType: number, p3: number, p4: number): void { TaskStealthKill(killer, target, actionType, p3, p4); }
   plantBomb(ped: number, x: number, y: number, z: number, heading: number): void { TaskPlantBomb(ped, x, y, z, heading); }
   followNavMeshToCoordAdvanced(ped: number, x: number, y: number, z: number, speed: number, timeout: number, unkFloat: number, unkInt: number, unkX: number, unkY: number, unkZ: number, unk_40000f: number): void { TaskFollowNavMeshToCoordAdvanced(ped, x, y, z, speed, timeout, unkFloat, unkInt, unkX, unkY, unkZ, unk_40000f); }
-  goToCoordAnyMeansExtraParams(ped: number, x: number, y: number, z: number, speed: number, p5: number, p6: boolean, walkingStyle: number, p8: number, p9: number, p10: number, p11: number, p12: number): void { TaskGoToCoordAnyMeansExtraParams(ped, x, y, z, speed, p5, p6, walkingStyle, p8, p9, p10, p11, p12); }
-  goToCoordAnyMeansExtraParamsWithCruiseSpeed(ped: number, x: number, y: number, z: number, speed: number, p5: number, p6: boolean, walkingStyle: number, p8: number, p9: number, p10: number, p11: number, p12: number, p13: number): void { TaskGoToCoordAnyMeansExtraParamsWithCruiseSpeed(ped, x, y, z, speed, p5, p6, walkingStyle, p8, p9, p10, p11, p12, p13); }
+  goToCoordAnyMeansExtraParams(ped: number, x: number, y: number, z: number, speed: number, p5: number, p6: boolean, walkingStyle: number, p8: number, p9: number, p10: number, p11: number): void { TaskGoToCoordAnyMeansExtraParams(ped, x, y, z, speed, p5, p6, walkingStyle, p8, p9, p10, p11); }
+  goToCoordAnyMeansExtraParamsWithCruiseSpeed(ped: number, x: number, y: number, z: number, speed: number, p5: number, p6: boolean, walkingStyle: number, p8: number, p9: number, p10: number, p11: number, p12: number): void { TaskGoToCoordAnyMeansExtraParamsWithCruiseSpeed(ped, x, y, z, speed, p5, p6, walkingStyle, p8, p9, p10, p11, p12); }
   playPhoneGestureAnimation(ped: number, animDict: string, animation: string, boneMaskType: string, p4: number, p5: number, p6: boolean, p7: boolean): void { TaskPlayPhoneGestureAnimation(ped, animDict, animation, boneMaskType, p4, p5, p6, p7); }
-  stopPhoneGestureAnimation(ped: number, p1: number): void { TaskStopPhoneGestureAnimation(ped, p1); }
+  stopPhoneGestureAnimation(ped: number): void { TaskStopPhoneGestureAnimation(ped); }
   vehiclePlayAnim(vehicle: number, animationSet: string, animationName: string): void { TaskVehiclePlayAnim(vehicle, animationSet, animationName); }
   lookAtCoord(entity: number, x: number, y: number, z: number, duration: number, p5: number, p6: number): void { TaskLookAtCoord(entity, x, y, z, duration, p5, p6); }
   performSequence(ped: number, taskSequenceId: number): void { TaskPerformSequence(ped, taskSequenceId); }
@@ -377,7 +377,7 @@ export class GameTaskNs {
   aimGunScripted(ped: number, scriptTask: number, p2: boolean, p3: boolean): void { TaskAimGunScripted(ped, scriptTask, p2, p3); }
   aimGunScriptedWithTarget(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: boolean, p7: boolean): void { TaskAimGunScriptedWithTarget(p0, p1, p2, p3, p4, p5, p6, p7); }
   turnPedToFaceEntity(ped: number, entity: number, duration: number): void { TaskTurnPedToFaceEntity(ped, entity, duration); }
-  shuffleToNextVehicleSeat(ped: number, vehicle: number, p2: number): void { TaskShuffleToNextVehicleSeat(ped, vehicle, p2); }
+  shuffleToNextVehicleSeat(ped: number, vehicle: number): void { TaskShuffleToNextVehicleSeat(ped, vehicle); }
   clearPedS(ped: number): void { ClearPedTasks(ped); }
   everyoneLeaveVehicle(vehicle: number): void { TaskEveryoneLeaveVehicle(vehicle); }
   gotoEntityOffset(ped: number, p1: number, p2: number, x: number, y: number, z: number, duration: number): void { TaskGotoEntityOffset(ped, p1, p2, x, y, z, duration); }
@@ -401,8 +401,8 @@ export class GameTaskNs {
   boatMission(pedDriver: number, boat: number, p2: number, p3: number, x: number, y: number, z: number, p7: number, maxSpeed: number, drivingStyle: number, p10: number, p11: number): void { TaskBoatMission(pedDriver, boat, p2, p3, x, y, z, p7, maxSpeed, drivingStyle, p10, p11); }
   setDrivebyTarget(shootingPed: number, targetPed: number, targetVehicle: number, x: number, y: number, z: number): void { SetDrivebyTaskTarget(shootingPed, targetPed, targetVehicle, x, y, z); }
   clearDrivebyUnderneathDrivingTask(ped: number): void { ClearDrivebyTaskUnderneathDrivingTask(ped); }
-  setMountedWeaponTarget(shootingPed: number, targetPed: number, targetVehicle: number, x: number, y: number, z: number, p6: number, p7: number): void { SetMountedWeaponTarget(shootingPed, targetPed, targetVehicle, x, y, z, p6, p7); }
-  useMobilePhone(ped: number, p1: number, p2: number): void { TaskUseMobilePhone(ped, p1, p2); }
+  setMountedWeaponTarget(shootingPed: number, targetPed: number, targetVehicle: number, x: number, y: number, z: number, p6: number, p7: number): void { SetMountedWeaponTarget(shootingPed, targetPed, targetVehicle, x, y, z); }
+  useMobilePhone(ped: number, p1: number): void { TaskUseMobilePhone(ped, p1); }
   useMobilePhoneTimed(ped: number, duration: number): void { TaskUseMobilePhoneTimed(ped, duration); }
   chatToPed(ped: number, target: number, p2: number, p3: number, p4: number, p5: number, p6: number, p7: number): void { TaskChatToPed(ped, target, p2, p3, p4, p5, p6, p7); }
   warpPedIntoVehicle(ped: number, vehicle: number, seat: number): void { TaskWarpPedIntoVehicle(ped, vehicle, seat); }
@@ -432,10 +432,10 @@ export class GameTaskNs {
   useNearestScenarioChainToCoord(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number): void { TaskUseNearestScenarioChainToCoord(p0, p1, p2, p3, p4, p5); }
   useNearestScenarioChainToCoordWarp(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number): void { TaskUseNearestScenarioChainToCoordWarp(p0, p1, p2, p3, p4, p5); }
   combatHatedTargetsAroundPedTimed(p0: number, p1: number, p2: number, p3: number): void { TaskCombatHatedTargetsAroundPedTimed(p0, p1, p2, p3); }
-  throwProjectile(ped: number, x: number, y: number, z: number, p4: number, p5: number): void { TaskThrowProjectile(ped, x, y, z, p4, p5); }
+  throwProjectile(ped: number, x: number, y: number, z: number): void { TaskThrowProjectile(ped, x, y, z); }
   swapWeapon(ped: number, p1: boolean): void { TaskSwapWeapon(ped, p1); }
   reloadWeapon(ped: number, unused: boolean): void { TaskReloadWeapon(ped, unused); }
-  writhe(ped: number, target: number, time: number, p3: number, p4: number, p5: number): void { TaskWrithe(ped, target, time, p3, p4, p5); }
+  writhe(ped: number, target: number, time: number, p3: number): void { TaskWrithe(ped, target, time, p3); }
   addVehicleSubAttackCoord(ped: number, x: number, y: number, z: number): void { AddVehicleSubtaskAttackCoord(ped, x, y, z); }
   addVehicleSubAttackPed(ped: number, ped2: number): void { AddVehicleSubtaskAttackPed(ped, ped2); }
   vehicleShootAtPed(ped: number, target: number, p2: number): void { TaskVehicleShootAtPed(ped, target, p2); }
@@ -453,16 +453,16 @@ export class GameTaskNs {
   setMoveNetworkSignalFloat2(ped: number, signalName: string, value: number): void { SetTaskMoveNetworkSignalFloatLerpRate(ped, signalName, value); }
   synchronizedScene(ped: number, scene: number, animDictionary: string, animationName: string, speed: number, speedMultiplier: number, duration: number, flag: number, playbackRate: number, p9: number): void { TaskSynchronizedScene(ped, scene, animDictionary, animationName, speed, speedMultiplier, duration, flag, playbackRate, p9); }
   arrestPed(ped: number, target: number): void { TaskArrestPed(ped, target); }
-  taskScriptedAnimation(ped: number, p4: number, p5: number): { p1: number; p2: number; p3: number } { const r = TaskScriptedAnimation(ped, 0, 0, 0, p4, p5); return Array.isArray(r) ? { p1: r[0], p2: r[1], p3: r[2] } : r; }
-  scriptedAnimation(ped: number, p4: number, p5: number): { p1: number; p2: number; p3: number } { const r = TaskScriptedAnimation(ped, 0, 0, 0, p4, p5); return Array.isArray(r) ? { p1: r[0], p2: r[1], p3: r[2] } : r; }
-  playEntityScriptedAnim(p0: number, p4: number, p5: number): { p1: number; p2: number; p3: number } { const r = PlayEntityScriptedAnim(p0, 0, 0, 0, p4, p5); return Array.isArray(r) ? { p1: r[0], p2: r[1], p3: r[2] } : r; }
+  taskScriptedAnimation(ped: number): { p1: number; p2: number; p3: number } { const r = TaskScriptedAnimation(ped, 0, 0); return Array.isArray(r) ? { p1: r[0], p2: r[1], p3: r[2] } : r; }
+  scriptedAnimation(ped: number): { p1: number; p2: number; p3: number } { const r = TaskScriptedAnimation(ped, 0, 0); return Array.isArray(r) ? { p1: r[0], p2: r[1], p3: r[2] } : r; }
+  playEntityScriptedAnim(p0: number): { p1: number; p2: number; p3: number } { const r = PlayEntityScriptedAnim(p0, 0, 0); return Array.isArray(r) ? { p1: r[0], p2: r[1], p3: r[2] } : r; }
   sweepAimEntity(ped: number, anim: string, p2: string, p3: string, p4: string, p5: number, vehicle: number, p7: number, p8: number): void { TaskSweepAimEntity(ped, anim, p2, p3, p4, p5, vehicle, p7, p8); }
   sweepAimPosition(p0: number, p5: number, p6: number, p7: number, p8: number, p9: number, p10: number): { p1: number; p2: number; p3: number; p4: number } { const r = TaskSweepAimPosition(p0, p5, p6, p7, p8, p9, p10); return Array.isArray(r) ? { p1: r[0], p2: r[1], p3: r[2], p4: r[3] } : r; }
   getIsActive(ped: number, taskIndex: number): boolean { return GetIsTaskActive(ped, taskIndex); }
   getScriptStatus(ped: number, taskHash: number): number { return GetScriptTaskStatus(ped, taskHash); }
   isDrivebyUnderneathDrivingTask(ped: number): boolean { return IsDrivebyTaskUnderneathDrivingTask(ped); }
   isMountedWeaponUnderneathDrivingTask(ped: number): boolean { return IsMountedWeaponTaskUnderneathDrivingTask(ped); }
-  moveNetworkByNameWithInitParams(ped: number, p1: string, p3: number, p4: boolean, animDict: string, flags: number): number { return TaskMoveNetworkByNameWithInitParams(ped, p1, 0, p3, p4, animDict, flags); }
+  moveNetworkByNameWithInitParams(ped: number, p1: string, p3: number, p4: boolean, animDict: string, flags: number): number { return TaskMoveNetworkByNameWithInitParams(ped, p1, p3, p4, animDict, flags); }
   rappelDownWall(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: number, p7: number, p8: number, p9: number, p10: number): void { TaskRappelDownWallUsingClipsetOverride(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10); } // unverified
   clearVehicleS(vehicle: number): void { ClearVehicleCrashTask(vehicle); } // unverified
   agitatedAction(ped: number, ped2: number): void { TaskAgitatedActionConfrontResponse(ped, ped2); } // unverified

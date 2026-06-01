@@ -72,17 +72,9 @@ export class GameGraphicsNs {
             p10 ?? false
         );
     }
-    startParticleFxLoopedOnEntity(fxName: string, entity: number, xOff: number, yOff: number, zOff: number, xRot: number, yRot: number, zRot: number, scale: number): number {
+    startParticleFxLoopedOnEntity(effectName: string, entity: number, xOffset: number, yOffset: number, zOffset: number, xRot: number, yRot: number, zRot: number, scale: number, xAxis: boolean, yAxis: boolean, zAxis: boolean): number {
         return StartParticleFxLoopedOnEntity(
-            fxName,
-            entity,
-            xOff ?? 0,
-            yOff ?? 0,
-            zOff ?? 0,
-            xRot ?? 0,
-            yRot ?? 0,
-            zRot ?? 0,
-            scale ?? 1.0
+            effectName, entity, xOffset, yOffset, zOffset, xRot, yRot, zRot, scale, xAxis, yAxis, zAxis
         );
     }
     stopParticleFxLooped(ptFxHandle: number, killImmediate: boolean): void {
@@ -103,17 +95,9 @@ export class GameGraphicsNs {
             p9 ?? false
         );
     }
-    startParticleFxNonLoopedOnEntity(fxName: string, entity: number, xOff: number, yOff: number, zOff: number, xRot: number, yRot: number, zRot: number, scale: number): boolean {
+    startParticleFxNonLoopedOnEntity(effectName: string, entity: number, offsetX: number, offsetY: number, offsetZ: number, rotX: number, rotY: number, rotZ: number, scale: number, axisX: boolean, axisY: boolean, axisZ: boolean): boolean {
         return StartParticleFxNonLoopedOnEntity(
-            fxName,
-            entity,
-            xOff ?? 0,
-            yOff ?? 0,
-            zOff ?? 0,
-            xRot ?? 0,
-            yRot ?? 0,
-            zRot ?? 0,
-            scale ?? 1.0
+            effectName, entity, offsetX, offsetY, offsetZ, rotX, rotY, rotZ, scale, axisX, axisY, axisZ
         );
     }
     removeParticleFx(ptFxHandle: number, killImmediate: boolean): void {
@@ -163,8 +147,7 @@ export class GameGraphicsNs {
             r,
             g,
             b,
-            alpha ?? 255,
-            unk ?? false
+            alpha ?? 255
         );
     }
 
@@ -213,7 +196,7 @@ export class GameGraphicsNs {
         (SetScaleformMovieAsNoLongerNeeded as any)(h);
     }
 
-    getScreenAspectRatio(b: boolean): number { return GetScreenAspectRatio(); }
+    getScreenAspectRatio(physicalAspect: boolean): number { return GetScreenAspectRatio(physicalAspect); }
     setDebugLinesAndSpheresDrawingActive(enabled: boolean): void { SetDebugLinesAndSpheresDrawingActive(enabled); }
     drawDebugLine(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, r: number, g: number, b: number, alpha: number): void { DrawDebugLine(x1, y1, z1, x2, y2, z2, r, g, b, alpha); }
     drawDebugSphere(x: number, y: number, z: number, radius: number, red: number, green: number, blue: number, alpha: number): void { DrawDebugSphere(x, y, z, radius, red, green, blue, alpha); }
@@ -246,7 +229,7 @@ export class GameGraphicsNs {
     dontRenderInGameUi(val: boolean): void { DontRenderInGameUi(val); }
     forceRenderInGameUi(toggle: boolean): void { ForceRenderInGameUi(toggle); }
     setStreamedTextureDictAsNoLongerNeeded(textureDict: string): void { SetStreamedTextureDictAsNoLongerNeeded(textureDict); }
-    drawRect(x: number, y: number, width: number, height: number, r: number, g: number, b: number, a: number, p8: boolean): void { DrawRect(x, y, width, height, r, g, b, a, p8); }
+    drawRect(x: number, y: number, width: number, height: number, r: number, g: number, b: number, a: number): void { DrawRect(x, y, width, height, r, g, b, a); }
     setScriptGfxDrawBehindPausemenu(toggle: boolean): void { SetScriptGfxDrawBehindPausemenu(toggle); }
     setScriptGfxDrawOrder(drawOrder: number): void { SetScriptGfxDrawOrder(drawOrder); }
     setScriptGfxAlign(horizontalAlign: number, verticalAlign: number): void { SetScriptGfxAlign(horizontalAlign, verticalAlign); }
@@ -423,7 +406,7 @@ export class GameGraphicsNs {
     setParticleFxBloodScale(scale: number): void { (SetParticleFxBloodScale as any)(scale); }
 
     setScreenDrawPosition(horizontalAlign: number, verticalAlign: number): void { SetScreenDrawPosition(horizontalAlign, verticalAlign); } // unverified
-    getScreenActiveResolution(x: number, y: number): { x: number; y: number } { const r: any = GetActiveScreenResolution(x, y); return { x: r?.[0] ?? r?.[1], y: r?.[1] ?? r?.[2] }; } // unverified
+    getScreenActiveResolution(): { x: number; y: number } { const r: any = GetActiveScreenResolution(); return { x: r?.[0] ?? r?.[1], y: r?.[1] ?? r?.[2] }; } // unverified
     getActiveScreenResolution(): { x: number; y: number } { const r = GetActiveScreenResolution(); return { x: r[0], y: r[1] }; } // unverified
     getScriptGfxPosition(x: number, y: number): { calculatedX: number; calculatedY: number } { const r = GetScriptGfxPosition(x, y); return { calculatedX: r?.[0], calculatedY: r?.[1] }; } // unverified
 
@@ -472,7 +455,7 @@ export class GameGraphicsNs {
     } // unverified
 
     loadMissionCreatorPhoto(p1: number, p2: number, p3: number): number { return (LoadMissionCreatorPhoto as any)(p1, p2, p3); }
-    getStatusOfLoadMissionCreatorPhoto(): { p0: number; result: number } { const r: any = GetStatusOfLoadMissionCreatorPhoto(); return { p0: r?.[1] ?? r?.[0], result: r?.[0] }; }
+    getStatusOfLoadMissionCreatorPhoto(p0: string): { p0: number; result: number } { const r: any = GetStatusOfLoadMissionCreatorPhoto(p0); return { p0: r?.[1] ?? r?.[0], result: r?.[0] }; }
     returnTwo(p0: number): number { return ReturnTwo(p0); } // unverified
 
     setBinkMovieUnk2(binkMovie: number, p1: boolean): void { SetBinkMovieUnk2(binkMovie, p1); } // unverified
@@ -498,8 +481,8 @@ export class GameGraphicsNs {
     setParticleFxLoopedRange(ptfxHandle: number, range: number): void { SetParticleFxLoopedRange(ptfxHandle, range); } // unverified
     setPtfxAssetNextCall(name: string): void { SetPtfxAssetNextCall(name); } // unverified
     setPtfxAssetOldToNew(oldAsset: string, newAsset: string): void { SetPtfxAssetOldToNew(oldAsset, newAsset); } // unverified
-    startParticleFxNonLoopedAtCoord2(effectName: string, xPos: number, yPos: number, zPos: number, xRot: number, yRot: number, zRot: number, scale: number, xAxis: boolean, yAxis: boolean, zAxis: boolean, p11: boolean): boolean {
-        return StartParticleFxNonLoopedAtCoord_2(effectName, xPos, yPos, zPos, xRot ?? 0, yRot ?? 0, zRot ?? 0, scale ?? 1.0, xAxis ?? false, yAxis ?? false, zAxis ?? false, p11 ?? false);
+    startParticleFxNonLoopedAtCoord2(effectName: string, xPos: number, yPos: number, zPos: number, xRot: number, yRot: number, zRot: number, scale: number, xAxis: boolean, yAxis: boolean, zAxis: boolean): boolean {
+        return StartParticleFxNonLoopedAtCoord_2(effectName, xPos, yPos, zPos, xRot ?? 0, yRot ?? 0, zRot ?? 0, scale ?? 1.0, xAxis ?? false, yAxis ?? false, zAxis ?? false);
     } // unverified
     startParticleFxNonLoopedOnPedBone2(effectName: string, ped: number, offsetX: number, offsetY: number, offsetZ: number, rotX: number, rotY: number, rotZ: number, boneIndex: number, scale: number, axisX: boolean, axisY: boolean, axisZ: boolean): boolean {
         return StartParticleFxNonLoopedOnPedBone_2(effectName, ped, offsetX ?? 0, offsetY ?? 0, offsetZ ?? 0, rotX ?? 0, rotY ?? 0, rotZ ?? 0, boneIndex, scale ?? 1.0, axisX ?? false, axisY ?? false, axisZ ?? false);
@@ -510,14 +493,14 @@ export class GameGraphicsNs {
     startParticleFxLoopedOnEntityBone(effectName: string, entity: number, xOffset: number, yOffset: number, zOffset: number, xRot: number, yRot: number, zRot: number, boneIndex: number, scale: number, xAxis: boolean, yAxis: boolean, zAxis: boolean): number {
         return StartParticleFxLoopedOnEntityBone(effectName, entity, xOffset ?? 0, yOffset ?? 0, zOffset ?? 0, xRot ?? 0, yRot ?? 0, zRot ?? 0, boneIndex, scale ?? 1.0, xAxis ?? false, yAxis ?? false, zAxis ?? false);
     } // unverified
-    startParticleFxLoopedOnEntity2(effectName: string, entity: number, xOffset: number, yOffset: number, zOffset: number, xRot: number, yRot: number, zRot: number, scale: number, xAxis: boolean, yAxis: boolean, zAxis: boolean, p12: number, p13: number, p14: number, p15: number): number {
-        return StartParticleFxLoopedOnEntity_2(effectName, entity, xOffset ?? 0, yOffset ?? 0, zOffset ?? 0, xRot ?? 0, yRot ?? 0, zRot ?? 0, scale ?? 1.0, xAxis ?? false, yAxis ?? false, zAxis ?? false, p12, p13, p14, p15);
+    startParticleFxLoopedOnEntity2(effectName: string, entity: number, xOffset: number, yOffset: number, zOffset: number, xRot: number, yRot: number, zRot: number, scale: number, xAxis: boolean, yAxis: boolean, zAxis: boolean): number {
+        return StartParticleFxLoopedOnEntity_2(effectName, entity, xOffset ?? 0, yOffset ?? 0, zOffset ?? 0, xRot ?? 0, yRot ?? 0, zRot ?? 0, scale ?? 1.0, xAxis ?? false, yAxis ?? false, zAxis ?? false);
     } // unverified
-    startParticleFxLoopedOnEntityBone2(effectName: string, entity: number, xOffset: number, yOffset: number, zOffset: number, xRot: number, yRot: number, zRot: number, boneIndex: number, scale: number, xAxis: boolean, yAxis: boolean, zAxis: boolean, p13: number, p14: number, p15: number, p16: number): number {
-        return StartParticleFxLoopedOnEntityBone_2(effectName, entity, xOffset ?? 0, yOffset ?? 0, zOffset ?? 0, xRot ?? 0, yRot ?? 0, zRot ?? 0, boneIndex, scale ?? 1.0, xAxis ?? false, yAxis ?? false, zAxis ?? false, p13, p14, p15, p16);
+    startParticleFxLoopedOnEntityBone2(effectName: string, entity: number, xOffset: number, yOffset: number, zOffset: number, xRot: number, yRot: number, zRot: number, boneIndex: number, scale: number, xAxis: boolean, yAxis: boolean, zAxis: boolean): number {
+        return StartParticleFxLoopedOnEntityBone_2(effectName, entity, xOffset ?? 0, yOffset ?? 0, zOffset ?? 0, xRot ?? 0, yRot ?? 0, zRot ?? 0, boneIndex, scale ?? 1.0, xAxis ?? false, yAxis ?? false, zAxis ?? false);
     } // unverified
-    startNetworkedParticleFxNonLoopedAtCoord(effectName: string, xPos: number, yPos: number, zPos: number, xRot: number, yRot: number, zRot: number, scale: number, xAxis: boolean, yAxis: boolean, zAxis: boolean, p11: boolean): boolean {
-        return StartNetworkedParticleFxNonLoopedAtCoord(effectName, xPos, yPos, zPos, xRot ?? 0, yRot ?? 0, zRot ?? 0, scale ?? 1.0, xAxis ?? false, yAxis ?? false, zAxis ?? false, p11 ?? false);
+    startNetworkedParticleFxNonLoopedAtCoord(effectName: string, xPos: number, yPos: number, zPos: number, xRot: number, yRot: number, zRot: number, scale: number, xAxis: boolean, yAxis: boolean, zAxis: boolean): boolean {
+        return StartNetworkedParticleFxNonLoopedAtCoord(effectName, xPos, yPos, zPos, xRot ?? 0, yRot ?? 0, zRot ?? 0, scale ?? 1.0, xAxis ?? false, yAxis ?? false, zAxis ?? false);
     }
     startParticleFxNonLoopedOnPedBone(effectName: string, ped: number, offsetX: number, offsetY: number, offsetZ: number, rotX: number, rotY: number, rotZ: number, boneIndex: number, scale: number, axisX: boolean, axisY: boolean, axisZ: boolean): boolean {
         return StartParticleFxNonLoopedOnPedBone(effectName, ped, offsetX ?? 0, offsetY ?? 0, offsetZ ?? 0, rotX ?? 0, rotY ?? 0, rotZ ?? 0, boneIndex, scale ?? 1.0, axisX ?? false, axisY ?? false, axisZ ?? false);
@@ -534,11 +517,11 @@ export class GameGraphicsNs {
     startParticleFxLoopedOnPedBone(effectName: string, ped: number, xOffset: number, yOffset: number, zOffset: number, xRot: number, yRot: number, zRot: number, boneIndex: number, scale: number, xAxis: boolean, yAxis: boolean, zAxis: boolean): number {
         return StartParticleFxLoopedOnPedBone(effectName, ped, xOffset ?? 0, yOffset ?? 0, zOffset ?? 0, xRot ?? 0, yRot ?? 0, zRot ?? 0, boneIndex, scale ?? 1.0, xAxis ?? false, yAxis ?? false, zAxis ?? false);
     }
-    startNetworkedParticleFxLoopedOnEntity(effectName: string, entity: number, xOffset: number, yOffset: number, zOffset: number, xRot: number, yRot: number, zRot: number, scale: number, xAxis: boolean, yAxis: boolean, zAxis: boolean, p12: number, p13: number, p14: number, p15: number): number {
-        return StartNetworkedParticleFxLoopedOnEntity(effectName, entity, xOffset ?? 0, yOffset ?? 0, zOffset ?? 0, xRot ?? 0, yRot ?? 0, zRot ?? 0, scale ?? 1.0, xAxis ?? false, yAxis ?? false, zAxis ?? false, p12, p13, p14, p15);
+    startNetworkedParticleFxLoopedOnEntity(effectName: string, entity: number, xOffset: number, yOffset: number, zOffset: number, xRot: number, yRot: number, zRot: number, scale: number, xAxis: boolean, yAxis: boolean, zAxis: boolean): number {
+        return StartNetworkedParticleFxLoopedOnEntity(effectName, entity, xOffset ?? 0, yOffset ?? 0, zOffset ?? 0, xRot ?? 0, yRot ?? 0, zRot ?? 0, scale ?? 1.0, xAxis ?? false, yAxis ?? false, zAxis ?? false);
     }
-    startNetworkedParticleFxLoopedOnEntityBone(effectName: string, entity: number, xOffset: number, yOffset: number, zOffset: number, xRot: number, yRot: number, zRot: number, boneIndex: number, scale: number, xAxis: boolean, yAxis: boolean, zAxis: boolean, p13: number, p14: number, p15: number, p16: number): number {
-        return StartNetworkedParticleFxLoopedOnEntityBone(effectName, entity, xOffset ?? 0, yOffset ?? 0, zOffset ?? 0, xRot ?? 0, yRot ?? 0, zRot ?? 0, boneIndex, scale ?? 1.0, xAxis ?? false, yAxis ?? false, zAxis ?? false, p13, p14, p15, p16);
+    startNetworkedParticleFxLoopedOnEntityBone(effectName: string, entity: number, xOffset: number, yOffset: number, zOffset: number, xRot: number, yRot: number, zRot: number, boneIndex: number, scale: number, xAxis: boolean, yAxis: boolean, zAxis: boolean): number {
+        return StartNetworkedParticleFxLoopedOnEntityBone(effectName, entity, xOffset ?? 0, yOffset ?? 0, zOffset ?? 0, xRot ?? 0, yRot ?? 0, zRot ?? 0, boneIndex, scale ?? 1.0, xAxis ?? false, yAxis ?? false, zAxis ?? false);
     }
 
     addDecal(decalType: number, posX: number, posY: number, posZ: number, p4: number, p5: number, p6: number, p7: number, p8: number, p9: number, width: number, height: number, rCoef: number, gCoef: number, bCoef: number, opacity: number, timeout: number, p17: boolean, p18: boolean, p19: boolean): number {

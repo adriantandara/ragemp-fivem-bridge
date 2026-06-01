@@ -14,7 +14,7 @@ export class GameObjectNs {
   }
 
   createNoOffset(modelHash: number, x: number, y: number, z: number, isNetwork: boolean, bScriptHostObj: boolean, dynamic: boolean): number {
-    return CreateObjectNoOffset(modelHash, x, y, z, isNetwork, bScriptHostObj, dynamic, 0);
+    return CreateObjectNoOffset(modelHash, x, y, z, isNetwork, bScriptHostObj, dynamic);
   }
   getClosestObjectOfType(x: number, y: number, z: number, radius: number, modelHash: number, isMission: boolean, p6: boolean, p7: boolean): number { return GetClosestObjectOfType(x, y, z, radius, modelHash, isMission, p6, p7); }
   hasClosestObjectOfTypeBeenBroken(p0: number, p1: number, p2: number, p3: number, modelHash: number, p5: number): boolean { return HasClosestObjectOfTypeBeenBroken(p0, p1, p2, p3, modelHash, p5); }
@@ -27,12 +27,12 @@ export class GameObjectNs {
   setTeamPickupObject(object: number, p1: number, p2: boolean): void { SetTeamPickupObject(object, p1, p2); }
   setForceObjectThisFrame(x: number, y: number, z: number, p3: number): void { SetForceObjectThisFrame(x, y, z, p3); }
   slide(object: number, toX: number, toY: number, toZ: number, speedX: number, speedY: number, speedZ: number, collision: boolean): boolean { return SlideObject(object, toX, toY, toZ, speedX, speedY, speedZ, collision); }
-  setTargettable(object: number, targettable: boolean, p2: number): void { SetObjectTargettable(object, targettable, p2); }
-  hasBeenBroken(object: number, p1: number): boolean { return HasObjectBeenBroken(object, p1); }
+  setTargettable(object: number, targettable: boolean): void { SetObjectTargettable(object, targettable); }
+  hasBeenBroken(object: number): boolean { return HasObjectBeenBroken(object); }
   setStateOfClosestDoorOfType(type: number, x: number, y: number, z: number, locked: boolean, heading: number, p6: boolean): void { SetStateOfClosestDoorOfType(type, x, y, z, locked, heading, p6); }
   getStateOfClosestDoorOfType(type: number, x: number, y: number, z: number): { locked: boolean; heading: number } { const r = GetStateOfClosestDoorOfType(type, x, y, z); return { locked: !!r[0], heading: r[1] }; }
-  addDoorToSystem(doorHash: number, modelHash: number, x: number, y: number, z: number, p5: boolean, scriptDoor: boolean, isLocal: boolean): void { AddDoorToSystem(doorHash, modelHash, x, y, z, p5, scriptDoor, isLocal, 0); }
-  removeDoorFromSystem(doorHash: number): void { RemoveDoorFromSystem(doorHash, 0); }
+  addDoorToSystem(doorHash: number, modelHash: number, x: number, y: number, z: number, p5: boolean, scriptDoor: boolean, isLocal: boolean): void { AddDoorToSystem(doorHash, modelHash, x, y, z, p5, scriptDoor, isLocal); }
+  removeDoorFromSystem(doorHash: number): void { RemoveDoorFromSystem(doorHash); }
   doorSystemSetDoorState(doorHash: number, state: number, requestDoor: boolean, forceUpdate: boolean): void { DoorSystemSetDoorState(doorHash, state, requestDoor, forceUpdate); }
   doorSystemGetDoorState(doorHash: number): number { return DoorSystemGetDoorState(doorHash); }
   doorSystemGetDoorPendingState(doorHash: number): number { return DoorSystemGetDoorPendingState(doorHash); }
@@ -104,7 +104,7 @@ export class GameObjectNs {
   getWeaponTypeFromPickupType(pickupHash: number): number { return GetWeaponTypeFromPickupType(pickupHash); }
 
   createObject(modelHash: number, x: number, y: number, z: number, isNetwork: boolean, bScriptHostObj: boolean, dynamic: boolean): number { return CreateObject(modelHash, x, y, z, isNetwork, bScriptHostObj, dynamic); }
-  createObjectNoOffset(modelHash: number, x: number, y: number, z: number, isNetwork: boolean, bScriptHostObj: boolean, dynamic: boolean): number { return CreateObjectNoOffset(modelHash, x, y, z, isNetwork, bScriptHostObj, dynamic, 0); }
+  createObjectNoOffset(modelHash: number, x: number, y: number, z: number, isNetwork: boolean, bScriptHostObj: boolean, dynamic: boolean): number { return CreateObjectNoOffset(modelHash, x, y, z, isNetwork, bScriptHostObj, dynamic); }
   deleteObject(object: number): void { DeleteObject(object); }
   getClosestOfType(x: number, y: number, z: number, radius: number, modelHash: number, isMission: boolean, p6: boolean, p7: boolean): number { return GetClosestObjectOfType(x, y, z, radius, modelHash, isMission, p6, p7); }
   hasClosestOfTypeBeenBroken(p0: number, p1: number, p2: number, p3: number, modelHash: number, p5: number): boolean { return HasClosestObjectOfTypeBeenBroken(p0, p1, p2, p3, modelHash, p5); }

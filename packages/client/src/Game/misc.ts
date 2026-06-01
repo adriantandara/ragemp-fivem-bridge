@@ -267,11 +267,11 @@ export class GameMiscNs {
   shootSingleBulletBetweenCoords(fromX: number, fromY: number, fromZ: number, toX: number, toY: number, toZ: number, damage: number, pureAccuracy: boolean, weaponHash: number, ownerPed: number, isAudible: boolean, isInvisible: boolean, speed: number): void {
     ShootSingleBulletBetweenCoords(fromX, fromY, fromZ, toX, toY, toZ, damage, pureAccuracy ?? true, weaponHash, ownerPed, isAudible ?? true, isInvisible ?? false, speed ?? 1.0);
   }
-  shootSingleBulletBetweenCoordsIgnoreEntity(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, damage: number, p7: boolean, weaponHash: number, ownerPed: number, isAudible: boolean, isInvisible: boolean, speed: number, entity: number, p14: number): void {
-    ShootSingleBulletBetweenCoordsIgnoreEntity(x1, y1, z1, x2, y2, z2, damage, p7, weaponHash, ownerPed, isAudible, isInvisible, speed, entity, p14);
+  shootSingleBulletBetweenCoordsIgnoreEntity(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, damage: number, p7: boolean, weaponHash: number, ownerPed: number, isAudible: boolean, isInvisible: boolean, speed: number, entity: number): void {
+    ShootSingleBulletBetweenCoordsIgnoreEntity(x1, y1, z1, x2, y2, z2, damage, p7, weaponHash, ownerPed, isAudible, isInvisible, speed, entity);
   }
-  shootSingleBulletBetweenCoordsIgnoreEntityNew(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, damage: number, p7: boolean, weaponHash: number, ownerPed: number, isAudible: boolean, isInvisible: boolean, speed: number, entity: number, p14: boolean, p15: boolean, p16: boolean, p17: boolean, p18: number, p19: number, p20: number): void {
-    ShootSingleBulletBetweenCoordsIgnoreEntityNew(x1, y1, z1, x2, y2, z2, damage, p7, weaponHash, ownerPed, isAudible, isInvisible, speed, entity, p14, p15, p16, p17, p18, p19, p20);
+  shootSingleBulletBetweenCoordsIgnoreEntityNew(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, damage: number, p7: boolean, weaponHash: number, ownerPed: number, isAudible: boolean, isInvisible: boolean, speed: number, entity: number, p14: boolean, p15: boolean, p16: boolean, p17: boolean): void {
+    ShootSingleBulletBetweenCoordsIgnoreEntityNew(x1, y1, z1, x2, y2, z2, damage, p7, weaponHash, ownerPed, isAudible, isInvisible, speed, entity, p14, p15, p16, p17);
   }
 
   getGlobalCharBuffer(): string { return GetGlobalCharBuffer(); } // unverified
@@ -306,12 +306,12 @@ export class GameMiscNs {
     const r: any = GetGroundZAndNormalFor_3dCoord(x, y, z);
     return { groundZ: r?.[1], normal: toVec3(r?.[2]) ?? r?.[2], result: r?.[0] };
   }
-  getGroundZFor3dCoord2(x: number, y: number, z: number, p4?: boolean, p5?: boolean): number {
-    const [, z2] = GetGroundZExcludingObjectsFor_3dCoord(x, y, z);
+  getGroundZFor3dCoord2(x: number, y: number, z: number, waterAsGround: boolean): number {
+    const [, z2] = GetGroundZExcludingObjectsFor_3dCoord(x, y, z, waterAsGround);
     return z2;
   }
-  getGroundZFor3DCoord2(x: number, y: number, z: number, p4?: boolean, p5?: boolean): number {
-    const [, z2] = GetGroundZExcludingObjectsFor_3dCoord(x, y, z);
+  getGroundZFor3DCoord2(x: number, y: number, z: number, waterAsGround: boolean): number {
+    const [, z2] = GetGroundZExcludingObjectsFor_3dCoord(x, y, z, waterAsGround);
     return z2;
   }
 
@@ -326,8 +326,8 @@ export class GameMiscNs {
   isPositionOccupied(x: number, y: number, z: number, range: number, p4: boolean, checkVehicles: boolean, checkPeds: boolean, p7: boolean, p8: boolean, ignoreEntity: number, p10: boolean): boolean {
     return IsPositionOccupied(x, y, z, range, p4 ?? false, checkVehicles ?? true, checkPeds ?? true, p7 ?? false, p8 ?? false, ignoreEntity ?? 0, p10 ?? false);
   }
-  clearAngledAreaOfVehicles(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, width: number, p7: boolean, p8: boolean, p9: boolean, p10: boolean, p11: boolean, p12: number): void {
-    ClearAngledAreaOfVehicles(x1, y1, z1, x2, y2, z2, width, p7 ?? false, p8 ?? false, p9 ?? false, p10 ?? false, p11 ?? false, p12);
+  clearAngledAreaOfVehicles(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, width: number, p7: boolean, p8: boolean, p9: boolean, p10: boolean, p11: boolean): void {
+    ClearAngledAreaOfVehicles(x1, y1, z1, x2, y2, z2, width, p7 ?? false, p8 ?? false, p9 ?? false, p10 ?? false, p11 ?? false);
   }
 
   setRestartCustomPosition(x: number, y: number, z: number, heading: number): void { SetRestartCustomPosition(x, y, z, heading); } // unverified
@@ -386,8 +386,8 @@ export class GameMiscNs {
   addTacticalAnalysisPoint(x: number, y: number, z: number): void { AddTacticalAnalysisPoint(x, y, z); } // unverified
   clearTacticalAnalysisPoints(): void { ClearTacticalAnalysisPoints(); } // unverified
 
-  addPopMultiplierArea(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, p6: number, p7: number, p8: boolean, p9: boolean): number {
-    return AddPopMultiplierArea(x1, y1, z1, x2, y2, z2, p6, p7, p8 ?? false, p9 ?? false);
+  addPopMultiplierArea(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, p6: number, p7: number, p8: boolean): number {
+    return AddPopMultiplierArea(x1, y1, z1, x2, y2, z2, p6, p7, p8 ?? false);
   }
   isPopMultiplierAreaUnk(id: number): boolean { return IsPopMultiplierAreaUnk(id); } // unverified
   addPopMultiplierSphere(x: number, y: number, z: number, radius: number, pedMultiplier: number, vehicleMultiplier: number, p6: boolean, p7: boolean): number {
@@ -405,8 +405,8 @@ export class GameMiscNs {
   setBeastModeActive(player: number): void { SetBeastModeActive(player); } // unverified
   setForcePlayerToJump(player: number): void { SetForcePlayerToJump(player); } // unverified
 
-  isProjectileTypeInAngledArea(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, width: number, p7: number, ownedByPlayer: boolean): boolean {
-    return IsProjectileTypeInAngledArea(x1, y1, z1, x2, y2, z2, width, p7, ownedByPlayer ?? false);
+  isProjectileTypeInAngledArea(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, width: number, p7: number, weaponHash: string | number, ownedByPlayer: boolean): boolean {
+    return IsProjectileTypeInAngledArea(x1, y1, z1, x2, y2, z2, width, p7, weaponHash,  ownedByPlayer ?? false);
   }
   getCoordsOfProjectileTypeInArea(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, projectileHash: number, ownedByPlayer: boolean): import('@ragemp-fivem-bridge/shared').Vector3 {
     return toVec3((GetCoordsOfProjectileTypeInArea as any)(x1, y1, z1, x2, y2, z2, projectileHash, ownedByPlayer ?? false));

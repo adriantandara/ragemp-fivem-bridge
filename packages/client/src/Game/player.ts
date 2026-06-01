@@ -32,12 +32,12 @@ export class GamePlayerNs {
   isWantedLevelGreater(player: number, wantedLevel: number): boolean { return GetPlayerWantedLevel(player) > wantedLevel; }
 
   setWeaponDamageModifier(player: number, modifier: number): void { SetPlayerWeaponDamageModifier(player, modifier); }
-  setMeleeWeaponDamageModifier(player: number, modifier: number, p2: boolean): void { SetPlayerMeleeWeaponDamageModifier(player, modifier, p2 ?? false); }
+  setMeleeWeaponDamageModifier(player: number, modifier: number): void { SetPlayerMeleeWeaponDamageModifier(player, modifier); }
   disableFiring(player: number, toggle: boolean): void { DisablePlayerFiring(player, toggle); }
 
-  specialAbilityActivate(player: number, p0: number, p1: number): void { SpecialAbilityActivate(player, p0, p1); }
-  specialAbilityDeactivate(player: number, p1: number): void { SpecialAbilityDeactivate(player, p1); }
-  isSpecialAbilityActive(player: number, p1: number): boolean { return IsSpecialAbilityActive(player, p1); }
+  specialAbilityActivate(player: number): void { SpecialAbilityActivate(player); }
+  specialAbilityDeactivate(player: number): void { SpecialAbilityDeactivate(player); }
+  isSpecialAbilityActive(player: number): boolean { return IsSpecialAbilityActive(player); }
 
   setParachuteTintIndex(player: number, tintIndex: number): void { SetPlayerParachuteTintIndex(player, tintIndex); }
   setParachuteSmokeTrailColor(player: number, r: number, g: number, b: number): void { SetPlayerParachuteSmokeTrailColor(player, r, g, b); }
@@ -45,7 +45,7 @@ export class GamePlayerNs {
   startTeleport(player: number, x: number, y: number, z: number, heading: number, tpVehicle: boolean, setToGround: boolean, fadeOut: boolean): void {
     StartPlayerTeleport(player, x, y, z, heading, tpVehicle ?? false, setToGround ?? false, fadeOut ?? true);
   }
-  isTeleportActive(player: number): boolean { return IsPlayerTeleportActive(player); }
+  isTeleportActive(): boolean { return IsPlayerTeleportActive(); }
   stopTeleport(): void { StopPlayerTeleport(); }
 
 
@@ -146,23 +146,23 @@ export class GamePlayerNs {
   setForcedZoom(player: number, toggle: boolean): void { SetPlayerForcedZoom(player, toggle); }
   setForceSkipAimIntro(player: number, toggle: boolean): void { SetPlayerForceSkipAimIntro(player, toggle); }
   setDisableAmbientMeleeMove(player: number, toggle: boolean): void { SetDisableAmbientMeleeMove(player, toggle); }
-  specialAbilityDeactivateFast(player: number, p1: number): void { SpecialAbilityDeactivateFast(player, p1); }
-  specialAbilityReset(player: number, p1: number): void { SpecialAbilityReset(player, p1); }
-  specialAbilityChargeOnMissionFailed(player: number, p1: number): void { SpecialAbilityChargeOnMissionFailed(player, p1); }
-  specialAbilityChargeSmall(player: number, p1: boolean, p2: boolean, p3: number): void { SpecialAbilityChargeSmall(player, p1, p2, p3); }
-  specialAbilityChargeMedium(player: number, p1: boolean, p2: boolean, p3: number): void { SpecialAbilityChargeMedium(player, p1, p2, p3); }
-  specialAbilityChargeLarge(player: number, p1: boolean, p2: boolean, p3: number): void { SpecialAbilityChargeLarge(player, p1, p2, p3); }
-  specialAbilityChargeContinuous(player: number, p1: number, p2: number): void { SpecialAbilityChargeContinuous(player, p1, p2); }
-  specialAbilityChargeAbsolute(player: number, p1: number, p2: boolean, p3: number): void { SpecialAbilityChargeAbsolute(player, p1, p2, p3); }
-  specialAbilityChargeNormalized(player: number, normalizedValue: number, p2: boolean, p3: number): void { SpecialAbilityChargeNormalized(player, normalizedValue, p2, p3); }
-  specialAbilityFillMeter(player: number, p1: boolean, p2: number): void { SpecialAbilityFillMeter(player, p1, p2); }
-  specialAbilityDepleteMeter(player: number, p1: boolean, p2: number): void { SpecialAbilityDepleteMeter(player, p1, p2); }
-  specialAbilityLock(playerModel: number, p1: number): void { SpecialAbilityLock(playerModel, p1); }
-  specialAbilityUnlock(playerModel: number, p1: number): void { SpecialAbilityUnlock(playerModel, p1); }
+  specialAbilityDeactivateFast(player: number): void { SpecialAbilityDeactivateFast(player); }
+  specialAbilityReset(player: number): void { SpecialAbilityReset(player); }
+  specialAbilityChargeOnMissionFailed(player: number): void { SpecialAbilityChargeOnMissionFailed(player); }
+  specialAbilityChargeSmall(player: number, p1: boolean, p2: boolean): void { SpecialAbilityChargeSmall(player, p1, p2); }
+  specialAbilityChargeMedium(player: number, p1: boolean, p2: boolean): void { SpecialAbilityChargeMedium(player, p1, p2); }
+  specialAbilityChargeLarge(player: number, p1: boolean, p2: boolean): void { SpecialAbilityChargeLarge(player, p1, p2); }
+  specialAbilityChargeContinuous(player: number, p1: number): void { SpecialAbilityChargeContinuous(player, p1); }
+  specialAbilityChargeAbsolute(player: number, p1: number, p2: boolean): void { SpecialAbilityChargeAbsolute(player, p1, p2); }
+  specialAbilityChargeNormalized(player: number, normalizedValue: number, p2: boolean): void { SpecialAbilityChargeNormalized(player, normalizedValue, p2); }
+  specialAbilityFillMeter(player: number, p1: boolean): void { SpecialAbilityFillMeter(player, p1); }
+  specialAbilityDepleteMeter(player: number, p1: boolean): void { SpecialAbilityDepleteMeter(player, p1); }
+  specialAbilityLock(playerModel: number): void { SpecialAbilityLock(playerModel); }
+  specialAbilityUnlock(playerModel: number): void { SpecialAbilityUnlock(playerModel); }
   isSpecialAbilityUnlocked(playerModel: number): boolean { return IsSpecialAbilityUnlocked(playerModel); }
-  isSpecialAbilityMeterFull(player: number, p1: number): boolean { return IsSpecialAbilityMeterFull(player, p1); }
-  enableSpecialAbility(player: number, toggle: boolean, p2: number): void { EnableSpecialAbility(player, toggle, p2); }
-  isSpecialAbilityEnabled(player: number, p1: number): boolean { return IsSpecialAbilityEnabled(player, p1); }
+  isSpecialAbilityMeterFull(player: number): boolean { return IsSpecialAbilityMeterFull(player); }
+  enableSpecialAbility(player: number, toggle: boolean): void { EnableSpecialAbility(player, toggle); }
+  isSpecialAbilityEnabled(player: number): boolean { return IsSpecialAbilityEnabled(player); }
   setSpecialAbilityMultiplier(multiplier: number): void { SetSpecialAbilityMultiplier(multiplier); }
   updateTeleport(player: number): boolean { return UpdatePlayerTeleport(player); }
   getCurrentStealthNoise(player: number): number { return GetPlayerCurrentStealthNoise(player); }
@@ -225,11 +225,11 @@ export class GamePlayerNs {
   getTimeSinceDroveAgainstTraffic(player: number): number { return GetTimeSincePlayerDroveAgainstTraffic(player); }
   id(): number { return PlayerId(); }
   pedId(): number { return PlayerPedId(); }
-  isCamControlDisabled(player: number): boolean { return IsPlayerCamControlDisabled(player); } // unverified
+  isCamControlDisabled(): boolean { return IsPlayerCamControlDisabled(); } // unverified
   setUnderwaterTimeRemaining(player: number, time: number): void { SetPlayerUnderwaterTimeRemaining(player, time); } // unverified
   setInvincibleKeepRagdollEnabled(player: number, toggle: boolean): void { SetPlayerInvincibleKeepRagdollEnabled(player, toggle); } // unverified
-  setSpecialAbility(player: number, p1: number, p2: number): void { SetSpecialAbility(player, p1, p2); } // unverified
-  specialAbilityDeplete(player: number, p0: number, p1: number): void { SpecialAbilityDeplete(player, p0, p1); } // unverified
+  setSpecialAbility(player: number, p1: number): void { SetSpecialAbility(player, p1); } // unverified
+  specialAbilityDeplete(player: number): void { SpecialAbilityDeplete(player); } // unverified
   getHealthRechargeLimit(player: number): number { return GetPlayerHealthRechargeLimit(player); } // unverified
   setHealthRechargeLimit(player: number, limit: number): void { SetPlayerHealthRechargeLimit(player, limit); } // unverified
   setWeaponDefenseModifier2(player: number, modifier: number): void { SetPlayerWeaponDefenseModifier2(player, modifier); } // unverified

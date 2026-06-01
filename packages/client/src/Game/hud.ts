@@ -112,13 +112,13 @@ export class GameHudNs {
   endTextCommandThefeedPostUnlockTu(p0: string, p1: number, p2: number, p3: string): number { return (EndTextCommandThefeedPostUnlockTu as any)(p0, p1, p2, p3); }
   endTextCommandThefeedPostUnlockTuWithColor(p0: string, p1: number, p2: number, p3: string, p4: number, p5: number): number { return (EndTextCommandThefeedPostUnlockTuWithColor as any)(p0, p1, p2, p3, p4, p5); }
   endTextCommandThefeedPostMpticker(blink: boolean, p1: boolean): number { return EndTextCommandThefeedPostMpticker(blink, p1); }
-  endTextCommandThefeedPostVersusTu(p2: number, p5: number, p6: number, p7: number): number { return EndTextCommandThefeedPostVersusTu(p2, p5, p6, p7); }
+  endTextCommandThefeedPostVersusTu(ch1TXD: string, ch1TXN: string, val1: number, ch2TXD: string, ch2TXN: string, val2: number): number { return EndTextCommandThefeedPostVersusTu(ch1TXD, ch1TXN, val1, ch2TXD, ch2TXN, val2); }
   endTextCommandThefeedPostReplayInput(type: number, button: string, text: string): number { return EndTextCommandThefeedPostReplayInput(type, button, text); }
 
   beginTextCommandIsMessageDisplayed(text: string): void { BeginTextCommandIsMessageDisplayed(text); }
   endTextCommandIsMessageDisplayed(): boolean { return EndTextCommandIsMessageDisplayed(); }
   beginTextCommandDisplayText(text: string): void { BeginTextCommandDisplayText(text); }
-  endTextCommandDisplayText(x: number, y: number, p2?: number): void { EndTextCommandDisplayText(x, y, p2); }
+  endTextCommandDisplayText(x: number, y: number): void { EndTextCommandDisplayText(x, y); }
   beginTextCommandDisplayHelp(inputType: string): void { BeginTextCommandDisplayHelp(inputType); }
   endTextCommandDisplayHelp(helpid: number, loop: boolean, beep: boolean, shape: number): void { EndTextCommandDisplayHelp(helpid, loop, beep, shape); }
   beginTextCommandIsThisHelpMessageBeingDisplayed(labelName: string): void { BeginTextCommandIsThisHelpMessageBeingDisplayed(labelName); }
@@ -252,7 +252,7 @@ export class GameHudNs {
   isWaypointActive(): boolean { return IsWaypointActive(); }
   setNewWaypoint(x: number, y: number): void { SetNewWaypoint(x, y); }
   setBlipBright(blip: number, toggle: boolean): void { SetBlipBright(blip, toggle); }
-  setBlipShowCone(blip: number, toggle: boolean, hudColor: number): void { SetBlipShowCone(blip, toggle, hudColor); }
+  setBlipShowCone(blip: number, toggle: boolean): void { SetBlipShowCone(blip, toggle); }
   setMinimapComponent(componentId: number, toggle: boolean, overrideColor: number): boolean { return (SetMinimapComponent as any)(componentId, toggle, overrideColor); }
   getMainPlayerBlipId(): number { return GetMainPlayerBlipId(); }
   getBlipRotation(blip: number): number { return GetBlipRotation(blip); }
@@ -328,7 +328,7 @@ export class GameHudNs {
   removeMpGamerTag(gamerTagId: number): void { RemoveMpGamerTag(gamerTagId); }
   isMpGamerTagActive(gamerTagId: number): boolean { return IsMpGamerTagActive(gamerTagId); }
   isMpGamerTagFree(gamerTagId: number): boolean { return IsMpGamerTagFree(gamerTagId); }
-  setMpGamerTagVisibility(gamerTagId: number, component: number, toggle: boolean, p3: boolean): void { SetMpGamerTagVisibility(gamerTagId, component, toggle, p3); }
+  setMpGamerTagVisibility(gamerTagId: number, component: number, toggle: boolean): void { SetMpGamerTagVisibility(gamerTagId, component, toggle); }
   setMpGamerTagColour(gamerTagId: number, component: number, hudColorIndex: number): void { SetMpGamerTagColour(gamerTagId, component, hudColorIndex); }
   setMpGamerTagHealthBarColour(gamerTagId: number, hudColorIndex: number): void { SetMpGamerTagHealthBarColour(gamerTagId, hudColorIndex); }
   setMpGamerTagAlpha(gamerTagId: number, component: number, alpha: number): void { SetMpGamerTagAlpha(gamerTagId, component, alpha); }
@@ -424,7 +424,7 @@ export class GameHudNs {
   keyHudColour(toggle: boolean, ped: number): void { KeyHudColour(toggle, ped); } // unverified
   setMinimapRevealed(toggle: boolean): void { SetMinimapRevealed(toggle); } // unverified
   isMinimapAreaRevealed(x: number, y: number, z: number): boolean { return IsMinimapAreaRevealed(x, y, z); } // unverified
-  setMinimapAttitudeIndicatorLevel(altitude: number, p1: boolean, p2: number): void { SetMinimapAttitudeIndicatorLevel(altitude, p1, p2); } // unverified
+  setMinimapAttitudeIndicatorLevel(altitude: number, p1: boolean): void { SetMinimapAttitudeIndicatorLevel(altitude, p1); } // unverified
   setRadarBigmapEnabled(toggleBigMap: boolean, showFullMap: boolean): void { SetBigmapActive(toggleBigMap, showFullMap); }
   hasHeadDisplayLoaded(gamerTagId: number): boolean { return HasHeadDisplayLoaded(gamerTagId); } // unverified
   addTrevorRandomModifier(gamerTagId: number): number { return (AddTrevorRandomModifier as any)(gamerTagId); } // unverified
@@ -504,7 +504,7 @@ export class GameHudNs {
   setWeaponWheelTopSlot(weaponHash: number): void { HudSetWeaponWheelTopSlot(weaponHash); }
   weaponWheelGetSlotHash(weaponTypeIndex: number): number { return HudGetWeaponWheelTopSlot(weaponTypeIndex); }
   weaponWheelIgnoreControlInput(toggle: boolean): void { HudWeaponWheelIgnoreControlInput(toggle); } // unverified
-  setMinimapAltitudeIndicatorLevel(altitude: number, p1: boolean, p2: number): void { SetMinimapAltitudeIndicatorLevel(altitude, p1, p2); } // unverified
+  setMinimapAltitudeIndicatorLevel(altitude: number, p1: boolean): void { SetMinimapAltitudeIndicatorLevel(altitude, p1); } // unverified
   setHealthDisplayValues(health: number, capacity: number, wasAdded: boolean): void { SetHealthDisplayValues(health, capacity, wasAdded); } // unverified
   setMaxHealthDisplay(maximumValue: number): void { SetMaxHealthDisplay(maximumValue); } // unverified
   setMaxArmourDisplay(maximumValue: number): void { SetMaxArmourDisplay(maximumValue); } // unverified

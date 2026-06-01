@@ -113,8 +113,8 @@ export class GameStreamingNs {
   shutdownCreatorBudget(): void { ShutdownCreatorBudget(); }
   addModelToCreatorBudget(modelHash: number): boolean { return AddModelToCreatorBudget(modelHash); }
   removeModelFromCreatorBudget(modelHash: number): void { RemoveModelFromCreatorBudget(modelHash); }
-  streamvolCreateSphere(x: number, y: number, z: number, flag: number, lodFlag: number): number { return StreamvolCreateSphere(x, y, z, flag, lodFlag); }
-  streamvolCreateFrustum(x: number, y: number, z: number, dirx: number, diry: number, dirz: number, flag: number, lodflag: number): number { return StreamvolCreateFrustum(x, y, z, dirx, diry, dirz, flag, lodflag); }
+  streamvolCreateSphere(x: number, y: number, z: number, rad: number, p4: number, p5: number): number { return StreamvolCreateSphere(x, y, z, rad, p4, p5); }
+  streamvolCreateFrustum(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: number, p7: number, p8: number): number { return StreamvolCreateFrustum(p0, p1, p2, p3, p4, p5, p6, p7, p8); }
   streamvolCreateLine(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, flag: number): void { StreamvolCreateLine(x1, y1, z1, x2, y2, z2, flag); }
   streamvolDelete(handle: number): void { StreamvolDelete(handle); }
   streamvolHasLoaded(handle: number): boolean { return StreamvolHasLoaded(handle); }

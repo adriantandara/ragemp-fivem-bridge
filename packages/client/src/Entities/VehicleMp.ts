@@ -4,7 +4,7 @@ import { toVec3 } from "../utils/vec";
 
 export class VehicleMp extends EntityMpBase {
   constructor(id: number, handle: number) {
-    super(id, "vehicle");
+    super(id, "vehicle", handle);
     this._handle = handle;
   }
 
@@ -179,13 +179,13 @@ export class VehicleMp extends EntityMpBase {
   smashWindow(index: number): void { SmashVehicleWindow(this.handle, index); }
 
   getMaxNumberOfPassengers(): number { return GetVehicleMaxNumberOfPassengers(this.handle); }
-  getNumberOfPassengers(): number { return GetVehicleNumberOfPassengers(this.handle, false, false); }
+  getNumberOfPassengers(): number { return GetVehicleNumberOfPassengers(this.handle); }
   getPedInSeat(seatIndex: number): number { return GetPedInVehicleSeat(this.handle, seatIndex - 1); }
   getLastPedInSeat(seatIndex: number): number { return GetLastPedInVehicleSeat(this.handle, seatIndex - 1); }
-  isSeatFree(seatIndex: number): boolean { return IsVehicleSeatFree(this.handle, seatIndex - 1, false); }
+  isSeatFree(seatIndex: number): boolean { return IsVehicleSeatFree(this.handle, seatIndex - 1); }
   isAnySeatEmpty(): boolean { return IsAnyVehicleSeatEmpty(this.handle); }
   canShuffleSeat(seatIndex: number): boolean { return CanShuffleSeat(this.handle, seatIndex); }
-  setExclusiveDriver(ped: any, driverIndex: number): void { SetVehicleExclusiveDriver(this.handle, ped?.handle ?? ped, driverIndex ?? 0); }
+  setExclusiveDriver(ped: any): void { SetVehicleExclusiveDriver(this.handle, ped?.handle ?? ped); }
 
   getIsEngineRunning(): boolean { return GetIsVehicleEngineRunning(this.handle); }
   setEngineOn(value: boolean, instantly: boolean, otherwise: boolean): void { SetVehicleEngineOn(this.handle, !!value, instantly ?? true, otherwise ?? false); }
@@ -193,9 +193,9 @@ export class VehicleMp extends EntityMpBase {
   setForwardSpeed(speed: number): void { SetVehicleForwardSpeed(this.handle, speed); }
   setUndriveable(toggle: boolean): void { SetVehicleUndriveable(this.handle, !!toggle); }
   isDriveable(checkfire: boolean): boolean { return IsVehicleDriveable(this.handle, checkfire ?? false); }
-  setOnGroundProperly(): boolean { return SetVehicleOnGroundProperly(this.handle, 5.0); }
+  setOnGroundProperly(): boolean { return SetVehicleOnGroundProperly(this.handle); }
   setOutOfControl(killDriver: boolean, explodeOnImpact: boolean): void { SetVehicleOutOfControl(this.handle, !!killDriver, !!explodeOnImpact); }
-  setReduceGrip(toggle: boolean): void { SetVehicleReduceGrip(this.handle, !!toggle); }
+  setReduceGrip(toggle: boolean): void { SetVehicleReduceGrip(this.handle, toggle); }
   setFrictionOverride(friction: number): void { SetVehicleFrictionOverride(this.handle, friction); }
   setSteerBias(value: number): void { SetVehicleSteerBias(this.handle, value); }
   steerUnlockBias(value: number): void { SetVehicleSteerBias(this.handle, value); }
@@ -205,7 +205,7 @@ export class VehicleMp extends EntityMpBase {
   setEngineTorqueMultiplier(value: number): void { SetVehicleCheatPowerIncrease(this.handle, value); }
   setHasStrongAxles(toggle: boolean): void { SetVehicleHasStrongAxles(this.handle, !!toggle); }
 
-  getHandling(fieldName: string): number | string {
+  getHandling(fieldName: string): number {
     const v = GetVehicleHandlingFloat(this.handle, "CHandlingData", fieldName);
     if (typeof v === "number") return v;
     return GetVehicleHandlingInt(this.handle, "CHandlingData", fieldName);
@@ -236,6 +236,27 @@ export class VehicleMp extends EntityMpBase {
   isTyreBurst(wheelId: number, completely: boolean): boolean { return IsVehicleTyreBurst(this.handle, wheelId, !!completely); }
   getTyresCanBurst(): boolean { return GetVehicleTyresCanBurst(this.handle); }
   setTyresCanBurst(toggle: boolean): void { SetVehicleTyresCanBurst(this.handle, !!toggle); }
+
+  getGearRatios() {
+    const gearCount = this.getHandling(`nInitialDriveGears`);
+    if (!Number.isInteger(gearCount)) return [];
+
+    const ratios = [];
+    for (let i = 0; i < gearCount; i++) {
+      ratios.push(GetVehicleGearRatio(this._handle, i));
+    }
+    return ratios;
+  }
+
+  setGearRatios(ratios: number[]) {
+    if (!Array.isArray(ratios)) return;
+
+    for (let i = 0; i < ratios.length; i++) {
+      SetVehicleGearRatio(this._handle, i, ratios[i]);
+    }
+  }
+
+
 
   setLights(state: number | boolean): void { SetVehicleLights(this.handle, state === true ? 3 : state === false ? 4 : state as number); }
   setFullbeam(toggle: boolean): void { SetVehicleFullbeam(this.handle, !!toggle); }

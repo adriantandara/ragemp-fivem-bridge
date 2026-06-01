@@ -247,7 +247,7 @@ export class GamePedNs {
   getVehicleIsIn(ped: number, lastVehicle: boolean): number { return GetVehiclePedIsIn(ped, lastVehicle ?? false); }
   resetLastVehicle(ped: number): void { ResetPedLastVehicle(ped); }
   setAllowVehiclesOverride(ped: number, toggle: boolean): void { SetPedAllowVehiclesOverride(ped, toggle); }
-  setVehicleForcedSeatUsage(ped: number, vehicle: number, seatIndex: number, flags: number, p4: number): void { SetPedVehicleForcedSeatUsage(ped, vehicle, seatIndex, flags, p4); }
+  setVehicleForcedSeatUsage(ped: number, vehicle: number, seatIndex: number, flags: number): void { SetPedVehicleForcedSeatUsage(ped, vehicle, seatIndex, flags); }
   setCanBeKnockedOffVehicle(ped: number, state: number): void { SetPedCanBeKnockedOffVehicle(ped, state); }
   knockOffVehicle(ped: number): void { KnockPedOffVehicle(ped); }
   setStayInVehicleWhenJacked(ped: number, toggle: boolean): void { SetPedStayInVehicleWhenJacked(ped, toggle); }
@@ -388,7 +388,7 @@ export class GamePedNs {
   isTakingOffHelmet(ped: number): boolean { return IsPedTakingOffHelmet(ped); }
   setHelmet(ped: number, canWearHelmet: boolean): void { SetPedHelmet(ped, canWearHelmet); }
   setHelmetFlag(ped: number, helmetFlag: number): void { SetPedHelmetFlag(ped, helmetFlag); }
-  setHelmetPropIndex(ped: number, propIndex: number, p2: boolean): void { SetPedHelmetPropIndex(ped, propIndex, p2); }
+  setHelmetPropIndex(ped: number, propIndex: number): void { SetPedHelmetPropIndex(ped, propIndex); }
   setHelmetTextureIndex(ped: number, textureIndex: number): void { SetPedHelmetTextureIndex(ped, textureIndex); }
   isWearingHelmet(ped: number): boolean { return IsPedWearingHelmet(ped); }
   clearStoredHatProp(ped: number): void { ClearPedStoredHatProp(ped); }
@@ -530,7 +530,7 @@ export class GamePedNs {
   getRelationshipBetweenS(ped1: number, ped2: number): number { return GetRelationshipBetweenPeds(ped1, ped2); }
   setRelationshipGroupDontAffectWantedLevel(group: number, p1: boolean): void { SetRelationshipGroupDontAffectWantedLevel(group, p1); } // unverified
 
-  clearAllProps(ped: number, p1: number): void { ClearAllPedProps(ped, p1); }
+  clearAllProps(ped: number): void { ClearAllPedProps(ped); }
   knockOffProp(ped: number, p1: boolean, p2: boolean, p3: boolean, p4: boolean): void { KnockOffPedProp(ped, p1, p2, p3, p4); }
 
   getEyeColor(ped: number): number { return GetHeadBlendEyeColor(ped); }

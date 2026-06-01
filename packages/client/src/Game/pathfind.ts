@@ -24,7 +24,7 @@ export class GamePathfindNs {
     };
   }
   isPointOnRoad(x: number, y: number, z: number, entity: number): boolean { return IsPointOnRoad(x, y, z, entity ?? 0); }
-  generateDirectionsToCoord(x: number, y: number, z: number): void { GenerateDirectionsToCoord(x, y, z); }
+  generateDirectionsToCoord(x: number, y: number, z: number, p3: boolean): void { GenerateDirectionsToCoord(x, y, z, p3); }
   getStreetNameAtCoord(x: number, y: number, z: number): { streetName: number; crossingRoad: number } {
     const [streetName, crossingRoad] = GetStreetNameAtCoord(x, y, z);
     return { streetName, crossingRoad };
@@ -32,7 +32,7 @@ export class GamePathfindNs {
 
   setRoadsInArea(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, nodeEnabled: boolean, unknown2: boolean): void { SetRoadsInArea(x1, y1, z1, x2, y2, z2, !!nodeEnabled, !!unknown2); }
   setRoadsInAngledArea(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, width: number, unknown1: boolean, unknown2: boolean, unknown3: boolean): void { SetRoadsInAngledArea(x1, y1, z1, x2, y2, z2, width, !!unknown1, !!unknown2, !!unknown3); }
-  setPedPathsInArea(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, unknown: boolean, p7: number): void { SetPedPathsInArea(x1, y1, z1, x2, y2, z2, !!unknown, p7); }
+  setPedPathsInArea(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, unknown: boolean, p7: number): void { SetPedPathsInArea(x1, y1, z1, x2, y2, z2, !!unknown); }
   getSafeCoordForPed(x: number, y: number, z: number, onGround: boolean, flags: number): Vector3 { return toVec3((GetSafeCoordForPed as any)(x, y, z, !!onGround, flags)); } // NOTE: native returns [boolean,number[]] per typings
   getClosestMajorVehicleNode(x: number, y: number, z: number, unknown1: number, unknown2: number): Vector3 { return toVec3((GetClosestMajorVehicleNode as any)(x, y, z, unknown1, unknown2)); } // NOTE: native returns [boolean,number[]] per typings
   getNthClosestVehicleNode(x: number, y: number, z: number, nthClosest: number, unknown1: number, unknown2: number, unknown3: number): Vector3 { return toVec3((GetNthClosestVehicleNode as any)(x, y, z, nthClosest, unknown1, unknown2, unknown3)); } // NOTE: native returns [boolean,number[]] per typings
@@ -75,15 +75,15 @@ export class GamePathfindNs {
   getSupportsGpsRouteFlag(nodeID: number): boolean { return GetSupportsGpsRouteFlag(nodeID); } // unverified
   getIsSlowRoadFlag(nodeID: number): boolean { return GetIsSlowRoadFlag(nodeID); } // unverified
   areNodesLoadedForArea(x1: number, y1: number, x2: number, y2: number): boolean { return AreNodesLoadedForArea(x1, y1, x2, y2); }
-  setRoadsBackToOriginal(minx: number, miny: number, minz: number, maxx: number, maxy: number, maxz: number, network: boolean): void { SetRoadsBackToOriginal(minx, miny, minz, maxx, maxy, maxz, network); }
-  setRoadsBackToOriginalInAngledArea(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, width: number, p7: number): void { SetRoadsBackToOriginalInAngledArea(x1, y1, z1, x2, y2, z2, width, p7); }
+  setRoadsBackToOriginal(minx: number, miny: number, minz: number, maxx: number, maxy: number, maxz: number): void { SetRoadsBackToOriginal(minx, miny, minz, maxx, maxy, maxz); }
+  setRoadsBackToOriginalInAngledArea(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, width: number): void { SetRoadsBackToOriginalInAngledArea(x1, y1, z1, x2, y2, z2, width); }
   setAmbientPedRangeMultiplierThisFrame(multiplier: number): void { SetAmbientPedRangeMultiplierThisFrame(multiplier); }
-  setPedPathsBackToOriginal(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: number): void { SetPedPathsBackToOriginal(p0, p1, p2, p3, p4, p5, p6); }
+  setPedPathsBackToOriginal(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number): void { SetPedPathsBackToOriginal(p0, p1, p2, p3, p4, p5); }
   setIgnoreNoGpsFlag(toggle: boolean): void { SetIgnoreNoGpsFlag(!!toggle); }
   setGpsDisabledZone(x1: number, y1: number, z1: number, x2: number, y2: number, z3: number): void { SetGpsDisabledZone(x1, y1, z1, x2, y2, z3); }
   getGpsBlipRouteLength(): number { return GetGpsBlipRouteLength(); }
   getGpsBlipRouteFound(): boolean { return GetGpsBlipRouteFound(); }
-  getNextGpsDisabledZoneIndex(): number { return GetNextGpsDisabledZoneIndex(); }
+  getNextGpsDisabledZoneIndex(index: number): number { return GetNextGpsDisabledZoneIndex(index); }
   setGpsDisabledZoneAtIndex(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, index: number): void { SetGpsDisabledZoneAtIndex(x1, y1, z1, x2, y2, z2, index); }
   clearGpsDisabledZoneAtIndex(index: number): void { ClearGpsDisabledZoneAtIndex(index); }
   addNavmeshRequiredRegion(x: number, y: number, radius: number): void { AddNavmeshRequiredRegion(x, y, radius); }

@@ -3,7 +3,7 @@ import { createUnkProxy } from "./_helpers.js";
 export class GameCutsceneNs {
   unk = createUnkProxy();
 
-  startCutscene(cutsceneName: string, flags: number): void { StartCutscene(cutsceneName, flags ?? 0); }
+  startCutscene(flags: number): void { StartCutscene(flags); }
   stopCutscene(bInstantly: boolean): void { StopCutscene(bInstantly ?? true); }
 
   requestCutscene(cutsceneName: string, flags: number): void { RequestCutscene(cutsceneName, flags); }
@@ -64,7 +64,7 @@ export class GameCutsceneNs {
     const start = GetGameTimer();
     while (!HasCutsceneLoaded()) {
       if (GetGameTimer() - start > timeout) return false;
-      await new Promise((r) => setTimeout(r, 0));
+      await new Promise<void>((r) => setTimeout(() => r(), 0));
     }
     return true;
   }
@@ -73,7 +73,7 @@ export class GameCutsceneNs {
     const start = GetGameTimer();
     while (!HasCutFileLoaded(name)) {
       if (GetGameTimer() - start > timeout) return false;
-      await new Promise((r) => setTimeout(r, 0));
+      await new Promise<void>((r) => setTimeout(() => r(), 0));
     }
     return true;
   }

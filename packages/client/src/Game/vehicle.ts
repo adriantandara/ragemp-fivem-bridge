@@ -4,7 +4,7 @@ import { Vector3 } from "@ragemp-fivem-bridge/shared";
 export class GameVehicleNs {
   unk: any = createUnkProxy();
 
-  create(modelHash: number, x: number, y: number, z: number, heading: number, isNetwork: boolean, bScriptHostVeh: boolean, p7: boolean): number {
+  create(modelHash: number, x: number, y: number, z: number, heading: number, isNetwork: boolean, bScriptHostVeh: boolean): number {
     return (CreateVehicle as any)(modelHash, x, y, z, heading, isNetwork ?? true, bScriptHostVeh ?? false);
   }
   delete(vehicle: number): void { DeleteVehicle(vehicle); }
@@ -824,6 +824,9 @@ export class GameVehicleNs {
   isVehicleInGarageArea(garageName: string, vehicle: number): boolean { return IsVehicleInGarageArea(garageName, vehicle); }
   isInGarageArea(garageName: string, vehicle: number): boolean { return IsVehicleInGarageArea(garageName, vehicle); }
   isThisModelAnEmergencyBoat(model: number): boolean { return IsThisModelAnEmergencyBoat(model); } // unverified
+
+  get passengerMassMultiplier() { return GetGlobalPassengerMassMultiplier(); }
+  set passengerMassMultiplier(massMul: number) { SetGlobalPassengerMassMultiplier(massMul); }
 
   ["_0x7D6F9A3EF26136A0"](...args: any[]): any { return Citizen.invokeNative("0x7D6F9A3EF26136A0", ...args); }
   ["_0x6EAAEFC76ACC311F"](...args: any[]): any { return Citizen.invokeNative("0x6EAAEFC76ACC311F", ...args); }

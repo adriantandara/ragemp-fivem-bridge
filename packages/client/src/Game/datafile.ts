@@ -5,35 +5,35 @@ export class GameDatafileNs {
 
 
   loadUgcFile(filename: string): boolean { return DatafileLoadOfflineUgc(filename); }
-  objectValueAddBoolean(objectData: any, key: string, value: boolean): number { return DatadictSetBool(objectData, key, value); }
-  objectValueAddInteger(objectData: any, key: string, value: number): number { return DatadictSetInt(objectData, key, value); }
-  objectValueAddFloat(objectData: any, key: string, value: number): number { return DatadictSetFloat(objectData, key, value); }
-  objectValueAddString(objectData: any, key: string, value: string): number { return DatadictSetString(objectData, key, value); }
-  objectValueAddVector3(objectData: any, key: string, valueX: number, valueY: number, valueZ: number): number { return DatadictSetVector(objectData, key, valueX, valueY, valueZ); }
-  objectValueAddObject(objectData: any, key: string): any { return DatadictCreateDict(objectData, key); }
-  objectValueAddArray(objectData: any, key: string): any { return DatadictCreateArray(objectData, key); }
-  objectValueGetBoolean(objectData: any, key: string): number { return (DatadictGetBool as any)(objectData, key); }
-  objectValueGetInteger(objectData: any, key: string): any { return DatadictGetInt(objectData, key); }
-  objectValueGetFloat(objectData: any, key: string): any { return DatadictGetFloat(objectData, key); }
-  objectValueGetString(objectData: any, key: string): any { return DatadictGetString(objectData, key); }
-  objectValueGetVector3(objectData: any, key: string): any { return DatadictGetVector(objectData, key); }
-  objectValueGetObject(objectData: any, key: string): any { return DatadictGetDict(objectData, key); }
-  objectValueGetArray(objectData: any, key: string): any { return DatadictGetArray(objectData, key); }
-  objectValueGetType(objectData: any, key: string): any { return DatadictGetType(objectData, key); }
-  arrayValueAddBoolean(arrayData: any, value: boolean): number { return DataarrayAddBool(arrayData, value); }
-  arrayValueAddInteger(arrayData: any, value: number): number { return DataarrayAddInt(arrayData, value); }
-  arrayValueAddFloat(arrayData: any, value: number): number { return DataarrayAddFloat(arrayData, value); }
-  arrayValueAddString(arrayData: any, value: string): number { return DataarrayAddString(arrayData, value); }
-  arrayValueAddVector3(arrayData: any, valueX: number, valueY: number, valueZ: number): number { return DataarrayAddVector(arrayData, valueX, valueY, valueZ); }
+  objectValueAddBoolean(key: string, value: boolean): number { return DatadictSetBool(key, value); }
+  objectValueAddInteger(key: string, value: number): number { return DatadictSetInt(key, value); }
+  objectValueAddFloat(key: string, value: number): number { return DatadictSetFloat(key, value); }
+  objectValueAddString(key: string, value: string): number { return DatadictSetString(key, value); }
+  objectValueAddVector3(key: string, valueX: number, valueY: number, valueZ: number): number { return DatadictSetVector(key, valueX, valueY, valueZ); }
+  objectValueAddObject(key: string): any { return DatadictCreateDict(key); }
+  objectValueAddArray(key: string): any { return DatadictCreateArray(key); }
+  objectValueGetBoolean(key: string): [boolean, number] { return DatadictGetBool(key); }
+  objectValueGetInteger(key: string): any { return DatadictGetInt(key); }
+  objectValueGetFloat(key: string): any { return DatadictGetFloat(key); }
+  objectValueGetString(key: string): any { return DatadictGetString(key); }
+  objectValueGetVector3(key: string): any { return DatadictGetVector(key); }
+  objectValueGetObject(key: string): any { return DatadictGetDict(key); }
+  objectValueGetArray(key: string): any { return DatadictGetArray(key); }
+  objectValueGetType(key: string): any { return DatadictGetType(key); }
+  arrayValueAddBoolean(value: boolean): number { return DataarrayAddBool(value); }
+  arrayValueAddInteger(value: number): number { return DataarrayAddInt(value); }
+  arrayValueAddFloat(value: number): number { return DataarrayAddFloat(value); }
+  arrayValueAddString(value: string): number { return DataarrayAddString(value); }
+  arrayValueAddVector3(valueX: number, valueY: number, valueZ: number): number { return DataarrayAddVector(valueX, valueY, valueZ); }
   arrayValueAddObject(arrayData: any): any { return DataarrayAddDict(arrayData); }
-  arrayValueGetBoolean(arrayData: any, arrayIndex: number): number { return (DataarrayGetBool as any)(arrayData, arrayIndex); }
-  arrayValueGetInteger(arrayData: any, arrayIndex: number): any { return DataarrayGetInt(arrayData, arrayIndex); }
-  arrayValueGetFloat(arrayData: any, arrayIndex: number): any { return DataarrayGetFloat(arrayData, arrayIndex); }
-  arrayValueGetString(arrayData: any, arrayIndex: number): any { return DataarrayGetString(arrayData, arrayIndex); }
-  arrayValueGetVector3(arrayData: any, arrayIndex: number): any { return DataarrayGetVector(arrayData, arrayIndex); }
-  arrayValueGetObject(arrayData: any, arrayIndex: number): any { return DataarrayGetDict(arrayData, arrayIndex); }
+  arrayValueGetBoolean(arrayIndex: number): number { return (DataarrayGetBool as any)(arrayIndex); }
+  arrayValueGetInteger(arrayIndex: number): any { return DataarrayGetInt(arrayIndex); }
+  arrayValueGetFloat(arrayIndex: number): any { return DataarrayGetFloat(arrayIndex); }
+  arrayValueGetString(arrayIndex: number): any { return DataarrayGetString(arrayIndex); }
+  arrayValueGetVector3(arrayIndex: number): any { return DataarrayGetVector(arrayIndex); }
+  arrayValueGetObject(arrayIndex: number): any { return DataarrayGetDict(arrayIndex); }
   arrayValueGetSize(arrayData: any): any { return DataarrayGetCount(arrayData); }
-  arrayValueGetType(arrayData: any, arrayIndex: number): any { return DataarrayGetType(arrayData, arrayIndex); }
+  arrayValueGetType(arrayIndex: number): [number, number] { return DataarrayGetType(arrayIndex); }
 
   watchRequestId(id: number): void { DatafileWatchRequestId(id); }
   clearWatchList(): void { DatafileClearWatchList(); }
@@ -63,36 +63,36 @@ export class GameDatafileNs {
   updateSaveToCloud(): boolean { return (DatafileUpdateSaveToCloud as any)(); }
   isSavePending(): boolean { return DatafileIsSavePending(); }
 
-  datadictSetBool(objectData: any, key: string, value: boolean): number { return DatadictSetBool(objectData, key, value); }
-  datadictSetInt(objectData: any, key: string, value: number): number { return DatadictSetInt(objectData, key, value); }
-  datadictSetFloat(objectData: any, key: string, value: number): number { return DatadictSetFloat(objectData, key, value); }
-  datadictSetString(objectData: any, key: string, value: string): number { return DatadictSetString(objectData, key, value); }
-  datadictSetVector(objectData: any, key: string, valueX: number, valueY: number, valueZ: number): number { return DatadictSetVector(objectData, key, valueX, valueY, valueZ); }
-  datadictCreateDict(objectData: any, key: string): any { return DatadictCreateDict(objectData, key); }
-  datadictCreateArray(objectData: any, key: string): any { return DatadictCreateArray(objectData, key); }
-  datadictGetBool(objectData: any, key: string): number { return (DatadictGetBool as any)(objectData, key); }
-  datadictGetInt(objectData: any, key: string): any { return DatadictGetInt(objectData, key); }
-  datadictGetFloat(objectData: any, key: string): any { return DatadictGetFloat(objectData, key); }
-  datadictGetString(objectData: any, key: string): any { return DatadictGetString(objectData, key); }
-  datadictGetVector(objectData: any, key: string): any { return DatadictGetVector(objectData, key); }
-  datadictGetDict(objectData: any, key: string): any { return DatadictGetDict(objectData, key); }
-  datadictGetArray(objectData: any, key: string): any { return DatadictGetArray(objectData, key); }
-  datadictGetType(objectData: any, key: string): any { return DatadictGetType(objectData, key); }
+  datadictSetBool(key: string, value: boolean): number { return DatadictSetBool(key, value); }
+  datadictSetInt(key: string, value: number): number { return DatadictSetInt(key, value); }
+  datadictSetFloat(key: string, value: number): number { return DatadictSetFloat(key, value); }
+  datadictSetString(key: string, value: string): number { return DatadictSetString(key, value); }
+  datadictSetVector(key: string, valueX: number, valueY: number, valueZ: number): number { return DatadictSetVector(key, valueX, valueY, valueZ); }
+  datadictCreateDict(key: string): any { return DatadictCreateDict(key); }
+  datadictCreateArray(key: string): any { return DatadictCreateArray(key); }
+  datadictGetBool(key: string): number { return (DatadictGetBool as any)(key); }
+  datadictGetInt(key: string): any { return DatadictGetInt(key); }
+  datadictGetFloat(key: string): any { return DatadictGetFloat(key); }
+  datadictGetString(key: string): any { return DatadictGetString(key); }
+  datadictGetVector(key: string): any { return DatadictGetVector(key); }
+  datadictGetDict(key: string): any { return DatadictGetDict(key); }
+  datadictGetArray(key: string): any { return DatadictGetArray(key); }
+  datadictGetType(key: string): any { return DatadictGetType(key); }
 
-  dataarrayAddBool(arrayData: any, value: boolean): number { return DataarrayAddBool(arrayData, value); }
-  dataarrayAddInt(arrayData: any, value: number): number { return DataarrayAddInt(arrayData, value); }
-  dataarrayAddFloat(arrayData: any, value: number): number { return DataarrayAddFloat(arrayData, value); }
-  dataarrayAddString(arrayData: any, value: string): number { return DataarrayAddString(arrayData, value); }
-  dataarrayAddVector(arrayData: any, valueX: number, valueY: number, valueZ: number): number { return DataarrayAddVector(arrayData, valueX, valueY, valueZ); }
+  dataarrayAddBool(value: boolean): number { return DataarrayAddBool(value); }
+  dataarrayAddInt(value: number): number { return DataarrayAddInt(value); }
+  dataarrayAddFloat(value: number): number { return DataarrayAddFloat(value); }
+  dataarrayAddString(value: string): number { return DataarrayAddString(value); }
+  dataarrayAddVector(valueX: number, valueY: number, valueZ: number): number { return DataarrayAddVector(valueX, valueY, valueZ); }
   dataarrayAddDict(arrayData: any): any { return DataarrayAddDict(arrayData); }
-  dataarrayGetBool(arrayData: any, arrayIndex: number): number { return (DataarrayGetBool as any)(arrayData, arrayIndex); }
-  dataarrayGetInt(arrayData: any, arrayIndex: number): any { return DataarrayGetInt(arrayData, arrayIndex); }
-  dataarrayGetFloat(arrayData: any, arrayIndex: number): any { return DataarrayGetFloat(arrayData, arrayIndex); }
-  dataarrayGetString(arrayData: any, arrayIndex: number): any { return DataarrayGetString(arrayData, arrayIndex); }
-  dataarrayGetVector(arrayData: any, arrayIndex: number): any { return DataarrayGetVector(arrayData, arrayIndex); }
-  dataarrayGetDict(arrayData: any, arrayIndex: number): any { return DataarrayGetDict(arrayData, arrayIndex); }
+  dataarrayGetBool(arrayIndex: number): number { return (DataarrayGetBool as any)(arrayIndex); }
+  dataarrayGetInt(arrayIndex: number): any { return DataarrayGetInt(arrayIndex); }
+  dataarrayGetFloat(arrayIndex: number): any { return DataarrayGetFloat(arrayIndex); }
+  dataarrayGetString(arrayIndex: number): any { return DataarrayGetString(arrayIndex); }
+  dataarrayGetVector(arrayIndex: number): any { return DataarrayGetVector(arrayIndex); }
+  dataarrayGetDict(arrayIndex: number): any { return DataarrayGetDict(arrayIndex); }
   dataarrayGetCount(arrayData: any): any { return DataarrayGetCount(arrayData); }
-  dataarrayGetType(arrayData: any, arrayIndex: number): any { return DataarrayGetType(arrayData, arrayIndex); }
+  dataarrayGetType(arrayIndex: number): any { return DataarrayGetType(arrayIndex); }
 
   ["_0xA6EEF01087181EDD"](...args: any[]): any { return Citizen.invokeNative("0xA6EEF01087181EDD", ...args); }
   ["_0x6AD0BD5E087866CB"](...args: any[]): any { return Citizen.invokeNative("0x6AD0BD5E087866CB", ...args); }

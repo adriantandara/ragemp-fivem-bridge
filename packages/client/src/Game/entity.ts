@@ -53,7 +53,7 @@ export class GameEntityNs {
   setMaxSpeed(entity: number, speed: number): void { SetEntityMaxSpeed(entity, speed); }
 
   getHealth(entity: number): number { const h = GetEntityHealth(entity); return IsEntityAPed(entity) ? gtaPedHealthToRage(h) : h; }
-  setHealth(entity: number, health: number, p2: number): void { SetEntityHealth(entity, IsEntityAPed(entity) ? rageHealthToGtaPed(health) : health, p2); }
+  setHealth(entity: number, health: number): void { SetEntityHealth(entity, IsEntityAPed(entity) ? rageHealthToGtaPed(health) : health); }
   getMaxHealth(entity: number): number { const h = GetEntityMaxHealth(entity); return IsEntityAPed(entity) ? gtaPedHealthToRage(h) : h; }
   setMaxHealth(entity: number, value: number): void { SetEntityMaxHealth(entity, IsEntityAPed(entity) ? rageHealthToGtaPed(value) : value); }
 
@@ -118,7 +118,7 @@ export class GameEntityNs {
   getWorldPositionOfBone(entity: number, boneIndex: number): Vector3 { return toVec3(GetWorldPositionOfEntityBone(entity, boneIndex)); }
   getBonePosition2(entity: number, boneIndex: number): Vector3 { return toVec3(GetWorldPositionOfEntityBone(entity, boneIndex)); }
 
-  isDead(entity: number, p1: boolean): boolean { return IsEntityDead(entity, p1 ?? false); }
+  isDead(entity: number): boolean { return IsEntityDead(entity); }
   isInAir(entity: number): boolean { return IsEntityInAir(entity); }
   isInWater(entity: number): boolean { return IsEntityInWater(entity); }
   isAtEntity(entity1: number, entity2: number, xSize: number, ySize: number, zSize: number, p5: boolean, p6: boolean, p7: number): boolean { return IsEntityAtEntity(entity1, entity2, xSize, ySize, zSize, !!p5, !!p6, p7); }
@@ -149,7 +149,7 @@ export class GameEntityNs {
 
   setDynamic(entity: number, toggle: boolean): void { SetEntityDynamic(entity, !!toggle); }
   setLights(entity: number, toggle: boolean): void { SetEntityLights(entity, !!toggle); }
-  setLoadCollisionFlag(entity: number, toggle: boolean, p2: number): void { SetEntityLoadCollisionFlag(entity, !!toggle, p2); }
+  setLoadCollisionFlag(entity: number, toggle: boolean): void { SetEntityLoadCollisionFlag(entity, !!toggle); }
   setAlpha(entity: number, alphaLevel: number, skin: boolean): void { SetEntityAlpha(entity, alphaLevel, skin ?? false); }
   getAlpha(entity: number): number { return GetEntityAlpha(entity); }
   resetAlpha(entity: number): void { ResetEntityAlpha(entity); }
@@ -192,12 +192,8 @@ export class GameEntityNs {
   isAtCoord(entity: number, xPos: number, yPos: number, zPos: number, xSize: number, ySize: number, zSize: number, p7: boolean, p8: boolean, p9: number): boolean { return IsEntityAtCoord(entity, xPos, yPos, zPos, xSize, ySize, zSize, !!p7, !!p8, p9); }
   isInAngledArea(entity: number, x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, width: number, debug: boolean, includeZ: boolean, p10: number): boolean { return IsEntityInAngledArea(entity, x1, y1, z1, x2, y2, z2, width, !!debug, !!includeZ, p10); }
   playSynchronizedAnim(entity: number, syncedScene: number, animation: string, propName: string, p4: number, p5: number, p6: number, p7: number): boolean { return PlaySynchronizedEntityAnim(entity, syncedScene, animation, propName, p4, p5, p6, p7); }
-  playSynchronizedMapAnim(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p8: number, p9: number, p10: number, p11: number): { p6: number; p7: number; result: boolean } {
-    const r: any = PlaySynchronizedMapEntityAnim(p0, p1, p2, p3, p4, p5, p8, p9, p10, p11);
-    return { p6: r[1], p7: r[2], result: !!r[0] };
-  }
-  playSynchronizedMapEntityAnim(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p8: number, p9: number, p10: number, p11: number): { p6: number; p7: number; result: boolean } {
-    const r: any = PlaySynchronizedMapEntityAnim(p0, p1, p2, p3, p4, p5, p8, p9, p10, p11);
+  playSynchronizedMapAnim(x: number, y: number, z: number, radius: number, objectModelHash: string | number, sceneId: number, pAnimName: string, pAnimDictName: string, fBlendDelta: number, fBlendOutDelta: number, flags: number, fMoverBlendInDelta: number): { p6: number; p7: number; result: boolean } {
+    const r: any = PlaySynchronizedMapEntityAnim(x, y, z, radius, objectModelHash, sceneId, pAnimName, pAnimDictName, fBlendDelta, fBlendOutDelta, flags, fMoverBlendInDelta);
     return { p6: r[1], p7: r[2], result: !!r[0] };
   }
   setCleanupByEngine(entity: number, toggle: boolean): void { SetEntityCleanupByEngine(entity, !!toggle); } // unverified

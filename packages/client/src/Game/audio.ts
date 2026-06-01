@@ -7,9 +7,9 @@ export class GameAudioNs {
   registerScriptWithAudio(p0: number): void { (RegisterScriptWithAudio as any)(p0); }
   registerScriptWith(p0: number): void { (RegisterScriptWithAudio as any)(p0); }
   unregisterScriptWith(): void { UnregisterScriptWithAudio(); }
-  requestMissionAudioBank(p0: string, p1: boolean, p2: number): boolean { return RequestMissionAudioBank(p0, p1, p2); }
-  requestAmbientAudioBank(p0: string, p1: boolean, p2: number): boolean { return RequestAmbientAudioBank(p0, p1, p2); }
-  requestScriptAudioBank(p0: string, p1: boolean, p2: number): boolean { return RequestScriptAudioBank(p0, p1, p2); }
+  requestMissionAudioBank(p0: string, p1: boolean): boolean { return RequestMissionAudioBank(p0, p1); }
+  requestAmbientAudioBank(p0: string, p1: boolean): boolean { return RequestAmbientAudioBank(p0, p1); }
+  requestScriptAudioBank(p0: string, p1: boolean): boolean { return RequestScriptAudioBank(p0, p1); }
   hintAmbientAudioBank(p0: number, p1: number, p2: number): number { return (HintAmbientAudioBank as any)(p0, p1, p2); }
   hintScriptAudioBank(p0: number, p1: number, p2: number): number { return (HintScriptAudioBank as any)(p0, p1, p2); }
   releaseNamedScriptAudioBank(audioBank: string): void { ReleaseNamedScriptAudioBank(audioBank); }
@@ -34,11 +34,11 @@ export class GameAudioNs {
   getSoundIdFromNetworkId(netId: number): number { return GetSoundIdFromNetworkId(netId); }
   hasSoundFinished(soundId: number): boolean { return HasSoundFinished(soundId); }
 
-  playPedAmbientSpeechNative(ped: number, speechName: string, speechParam: string, p3: number): void {
-    PlayPedAmbientSpeechNative(ped, speechName, speechParam, p3 ?? 0);
+  playPedAmbientSpeechNative(ped: number, speechName: string, speechParam: string): void {
+    PlayPedAmbientSpeechNative(ped, speechName, speechParam);
   }
-  playPedAmbientSpeechAndCloneNative(ped: number, speechName: string, speechParam: string, p3: number): void {
-    PlayPedAmbientSpeechAndCloneNative(ped, speechName, speechParam, p3 ?? 0);
+  playPedAmbientSpeechAndCloneNative(ped: number, speechName: string, speechParam: string): void {
+    PlayPedAmbientSpeechAndCloneNative(ped, speechName, speechParam);
   }
   playPedAmbientSpeechWithVoiceNative(ped: number, speechName: string, voiceName: string, speechParam: string, p4: boolean): void {
     PlayPedAmbientSpeechWithVoiceNative(ped, speechName, voiceName, speechParam, p4 ?? false);
@@ -49,7 +49,7 @@ export class GameAudioNs {
   overrideTrevorRage(voiceEffect: string): void { OverrideTrevorRage(voiceEffect); }
   resetTrevorRage(): void { ResetTrevorRage(); }
   setPlayerAngry(ped: number, toggle: boolean): void { SetPlayerAngry(ped, toggle); }
-  playPain(ped: number, painID: number, p1: number, p3: number): void { PlayPain(ped, painID, p1, p3); }
+  playPain(ped: number, painID: number, p1: number): void { PlayPain(ped, painID, p1); }
   setAmbientVoiceName(ped: number, name: string): void { SetAmbientVoiceName(ped, name); }
   setAmbientVoiceNameHash(ped: number, hash: number): void { SetAmbientVoiceNameHash(ped, hash); }
   getAmbientVoiceNameHash(ped: number): number { return GetAmbientVoiceNameHash(ped); }
@@ -107,7 +107,7 @@ export class GameAudioNs {
   isRadioFadedOut(): boolean { return IsRadioFadedOut(); }
   setRadioToStationName(stationName: string): void { SetRadioToStationName(stationName); }
   setVehRadioStation(vehicle: number, radioStation: string): void { SetVehRadioStation(vehicle, radioStation); }
-  setEmitterRadioStation(emitterName: string, radioStation: string, p2: any): void { SetEmitterRadioStation(emitterName, radioStation, p2); }
+  setEmitterRadioStation(emitterName: string, radioStation: string): void { SetEmitterRadioStation(emitterName, radioStation); }
   setStaticEmitterEnabled(emitterName: string, toggle: boolean): void { SetStaticEmitterEnabled(emitterName, toggle); }
   linkStaticEmitterToEntity(emitterName: string, entity: number): void { LinkStaticEmitterToEntity(emitterName, entity); }
   setRadioToStationIndex(radioStation: number): void { SetRadioToStationIndex(radioStation); }
@@ -225,9 +225,9 @@ export class GameAudioNs {
   setPortalSettingsOverride(p0: string, p1: string): void { SetPortalSettingsOverride(p0, p1); }
   removePortalSettingsOverride(p0: string): void { RemovePortalSettingsOverride(p0); }
 
-  requestMissionBank(p0: string, p1: boolean, p2: number): boolean { return RequestMissionAudioBank(p0, p1, p2); }
-  requestAmbientBank(p0: string, p1: boolean, p2: number): boolean { return RequestAmbientAudioBank(p0, p1, p2); }
-  requestScriptBank(p0: string, p1: boolean, p2: number): boolean { return RequestScriptAudioBank(p0, p1, p2); }
+  requestMissionBank(p0: string, p1: boolean): boolean { return RequestMissionAudioBank(p0, p1); }
+  requestAmbientBank(p0: string, p1: boolean): boolean { return RequestAmbientAudioBank(p0, p1); }
+  requestScriptBank(p0: string, p1: boolean): boolean { return RequestScriptAudioBank(p0, p1); }
   hintAmbientBank(p0: number, p1: number, p2: number): number { return (HintAmbientAudioBank as any)(p0, p1, p2); }
   hintScriptBank(p0: number, p1: number, p2: number): number { return (HintScriptAudioBank as any)(p0, p1, p2); }
   releaseMissionBank(): void { ReleaseMissionAudioBank(); }
@@ -271,7 +271,7 @@ export class GameAudioNs {
 
   setCutsceneOverride(name: string): void { SetCutsceneOverride(name); } // unverified
   setVariableOnCutscene(variableName: string, value: number): void { SetVariableOnCutscene(variableName, value); } // unverified
-  stopCutscene(): void { StopCutscene(); }
+  stopCutscene(p0: boolean): void { StopCutscene(p0); }
 
   setRadioTrackMix(radioStationName: string, mixName: string, p2: number): void { SetRadioTrackMix(radioStationName, mixName, p2); } // unverified
   isVehicleRadioLoud(vehicle: number): boolean { return IsVehicleRadioLoud(vehicle); } // unverified

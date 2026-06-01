@@ -47,8 +47,8 @@ export class GameCamNs {
   attachToPedBone(cam: number, ped: number, boneIndex: number, xOffset: number, yOffset: number, zOffset: number, heading: boolean): void {
     AttachCamToPedBone(cam, ped, boneIndex, xOffset, yOffset, zOffset, heading ?? true);
   }
-  attachToVehicleBone(cam: number, vehicle: number, boneIndex: number, xOffset: number, yOffset: number, zOffset: number, isRelative: boolean): void {
-    AttachCamToVehicleBone(cam, vehicle, boneIndex, xOffset, yOffset, zOffset, isRelative ?? true);
+  attachToVehicleBone(cam: number, vehicle: number, boneIndex: number, relativeRotation: boolean, rotX: number, rotY: number, rotZ: number, offX: number, offY: number, offZ: number, fixedDirection: boolean): void {
+    AttachCamToVehicleBone(cam, vehicle, boneIndex, relativeRotation, rotX, rotY, rotZ, offX, offY, offZ, fixedDirection);
   }
   detach(cam: number): void { DetachCam(cam); }
   pointAtCoord(cam: number, x: number, y: number, z: number): void { PointCamAtCoord(cam, x, y, z); }
@@ -78,7 +78,7 @@ export class GameCamNs {
   isScreenFadingIn(): boolean { return IsScreenFadingIn(); }
   isScreenFadingOut(): boolean { return IsScreenFadingOut(); }
   setCinematicModeActive(p0: boolean): void { SetCinematicModeActive(p0); }
-  setWidescreenBorders(p0: boolean): void { SetWidescreenBorders(p0); }
+  setWidescreenBorders(p0: boolean, p1: number): void { SetWidescreenBorders(p0, p1); }
 
   create(camName: string, p1: boolean): number { return CreateCam(camName, p1 ?? false); }
   destroy(cam: number, bScriptHostCam: boolean): void { DestroyCam(cam, bScriptHostCam ?? false); }
@@ -224,7 +224,7 @@ export class GameCamNs {
   isCinematicActive(): boolean { return IsCinematicCamActive(); }
   getFocusPedOnScreen(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: number, p7: number, p8: number): number { return GetFocusPedOnScreen(p0, p1, p2, p3, p4, p5, p6, p7, p8); }
 
-  stopRenderingScriptCamsUsingCatchUp(render: boolean, p1: number, p2: number, p3: number): void { StopRenderingScriptCamsUsingCatchUp(render, p1, p2, p3); }
+  stopRenderingScriptCamsUsingCatchUp(render: boolean, p1: number, p2: number): void { StopRenderingScriptCamsUsingCatchUp(render, p1, p2); }
 
   addCamSplineNode(camera: number, x: number, y: number, z: number, xRot: number, yRot: number, zRot: number, length: number, p8: number, p9: number): void { AddCamSplineNode(camera, x, y, z, xRot, yRot, zRot, length, p8, p9); }
   setParams(cam: number, posX: number, posY: number, posZ: number, rotX: number, rotY: number, rotZ: number, fieldOfView: number, p8: number, p9: number, p10: number, p11: number): void { SetCamParams(cam, posX, posY, posZ, rotX, rotY, rotZ, fieldOfView, p8, p9, p10, p11); }
@@ -268,7 +268,7 @@ export class GameCamNs {
   invalidateVehicleIdle(): void { InvalidateCinematicVehicleIdleMode(); }
   isCinematicIdleRendering(): boolean { return IsCinematicIdleCamRendering(); }
   isInVehicleDisabled(): boolean { return IsInVehicleCamDisabled(); } // unverified
-  stopCutsceneShaking(): void { StopCutsceneCamShaking(0); }
+  stopCutsceneShaking(): void { StopCutsceneCamShaking(); }
   setEffect(p0: number): void { SetCamEffect(p0); } // unverified
   setCamEffect(p0: number): void { SetCamEffect(p0); } // unverified
   setGameplayVehicleCamera(vehicleName: string): void { SetGameplayCamVehicleCamera(vehicleName); } // unverified
@@ -278,7 +278,7 @@ export class GameCamNs {
   setDofParam(cam: number, paramHash: number, value: boolean | number | Array<any>): void { SetCamDofParam(cam, paramHash, value); } // unverified
   getFinalRenderedInWhenFriendlyRot(player: number, rotationOrder: number): Vector3 { return toVec3(GetFinalRenderedInWhenFriendlyCamRot(player, rotationOrder ?? 2)); } // unverified
   getFinalRenderedInWhenFriendlyFov(player: number): number { return GetFinalRenderedInWhenFriendlyCamFov(player); } // unverified
-  renderScriptS(render: boolean, ease: boolean, easeTime: number, p3: boolean, p4: boolean, p5: number): void { RenderScriptCams(render, ease ?? false, easeTime ?? 0, p3 ?? true, p4 ?? false, p5 ?? 0); }
+  renderScriptS(render: boolean, ease: boolean, easeTime: number, p3: boolean, p4: boolean): void { RenderScriptCams(render, ease ?? false, easeTime ?? 0, p3 ?? true, p4 ?? false); }
 
   getGameplayCamRelativeHeading(): number { return GetGameplayCamRelativeHeading(); }
   setGameplayCamRelativeHeading(heading: number): void { SetGameplayCamRelativeHeading(heading); }

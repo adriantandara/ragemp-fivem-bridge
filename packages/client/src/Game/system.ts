@@ -46,8 +46,8 @@ export class GameSystemNs {
   toFloat(value: number): number { return ToFloat(value); }
 
   startNewStreamedScript(scriptHash: number, stackSize: number): number { return StartNewStreamedScript(scriptHash, stackSize ?? 1000); } // unverified
-  startNewStreamedScriptWithArgs(scriptHash: number, args: number, argCount: number, stackSize: number): { result: number; args: number } {
-    const r = StartNewStreamedScriptWithArgs(scriptHash, args, argCount, stackSize ?? 1000); // unverified
+  startNewStreamedScriptWithArgs(scriptHash: number, args: number, argCount: number): { result: number; args: number } {
+    const r = StartNewStreamedScriptWithArgs(scriptHash, args, argCount); // unverified
     return Array.isArray(r) ? { result: r[0], args: r[1] } : { result: r, args };
   }
   setThreadPriority(priority: number): void { SetThisThreadPriority(priority); }

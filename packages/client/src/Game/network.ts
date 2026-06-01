@@ -33,7 +33,7 @@ export class GameNetworkNs {
 
   shutdownAndLaunchSinglePlayerGame(): void { ShutdownAndLaunchSinglePlayerGame(); }
   shutdownAndLoadMostRecentSave(): boolean { return ShutdownAndLoadMostRecentSave(); }
-  removeAllStickyBombsFromEntity(entity: number, ped: number): void { RemoveAllStickyBombsFromEntity(entity, ped); }
+  removeAllStickyBombsFromEntity(entity: number): void { RemoveAllStickyBombsFromEntity(entity); }
 
   setIdCanMigrate(netId: number, toggle: boolean): void { SetNetworkIdCanMigrate(netId, toggle); }
   setIdExistsOnAllMachines(netId: number, toggle: boolean): void { SetNetworkIdExistsOnAllMachines(netId, toggle); }
@@ -67,9 +67,9 @@ export class GameNetworkNs {
   canRegisterMissionVehicles(amount: number): boolean { return CanRegisterMissionVehicles(amount); }
   canRegisterMissionPickups(amount: number): boolean { return CanRegisterMissionPickups(amount); }
   canRegisterMissionEntities(ped_amt: number, vehicle_amt: number, object_amt: number, pickup_amt: number): boolean { return CanRegisterMissionEntities(ped_amt, vehicle_amt, object_amt, pickup_amt); }
-  getNumReservedMissionObjects(p0: boolean, p1: boolean): number { return GetNumReservedMissionObjects(p0, p1); }
-  getNumReservedMissionPeds(p0: boolean, p1: boolean): number { return GetNumReservedMissionPeds(p0, p1); }
-  getNumReservedMissionVehicles(p0: boolean, p1: boolean): number { return GetNumReservedMissionVehicles(p0, p1); }
+  getNumReservedMissionObjects(p0: boolean): number { return GetNumReservedMissionObjects(p0); }
+  getNumReservedMissionPeds(p0: boolean): number { return GetNumReservedMissionPeds(p0); }
+  getNumReservedMissionVehicles(p0: boolean): number { return GetNumReservedMissionVehicles(p0); }
   getNumCreatedMissionObjects(p0: boolean): number { return GetNumCreatedMissionObjects(p0); }
   getNumCreatedMissionPeds(p0: boolean): number { return GetNumCreatedMissionPeds(p0); }
   getNumCreatedMissionVehicles(p0: boolean): number { return GetNumCreatedMissionVehicles(p0); }
@@ -88,11 +88,11 @@ export class GameNetworkNs {
   convertPosixTime(posixTime: number): number { return ConvertPosixTime(posixTime); }
   getPosixTime(): number { return (GetPosixTime as any)(); }
 
-  setVehicleRespotTimer(netId: number, time: number, p2: boolean, p3: boolean): void { SetNetworkVehicleRespotTimer(netId, time, p2, p3); }
+  setVehicleRespotTimer(netId: number, time: number): void { SetNetworkVehicleRespotTimer(netId, time); }
   setVehicleAsGhost(vehicle: number, toggle: boolean): void { SetNetworkVehicleAsGhost(vehicle, toggle); }
-  setLocalPlayerAsGhost(toggle: boolean, p1: boolean): void { SetLocalPlayerAsGhost(toggle, p1); }
+  setLocalPlayerAsGhost(toggle: boolean): void { SetLocalPlayerAsGhost(toggle); }
   usePlayerColourInsteadOfTeamColour(toggle: boolean): void { UsePlayerColourInsteadOfTeamColour(toggle); }
-  explodeVehicle(vehicle: number, isAudible: boolean, isInvisible: boolean, p3?: any): void { ExplodeVehicle(vehicle, isAudible, isInvisible); }
+  explodeVehicle(vehicle: number, isAudible: boolean, isInvisible: boolean): void { ExplodeVehicle(vehicle, isAudible, isInvisible); }
 
   getNumCommerceItems(): number { return GetNumCommerceItems(); }
   isCommerceDataValid(): boolean { return IsCommerceDataValid(); }
@@ -101,7 +101,7 @@ export class GameNetworkNs {
   getCommerceProductPrice(index: number): number { return (GetCommerceProductPrice as any)(index); }
   getCommerceItemNumCats(index: number): number { return GetCommerceItemNumCats(index); }
   getCommerceItemCat(index: number, index2: number): string { return GetCommerceItemCat(index, index2); }
-  openCommerceStore(p0: string, p1: number, p2: boolean): void { OpenCommerceStore(p0, p1, p2); }
+  openCommerceStore(p0: string, p1: string): void { OpenCommerceStore(p0, p1); }
   isCommerceStoreOpen(): boolean { return IsCommerceStoreOpen(); }
   setStoreEnabled(toggle: boolean): void { SetStoreEnabled(toggle); }
   requestCommerceItemImage(index: number): number { return (RequestCommerceItemImage as any)(index); }
@@ -168,7 +168,7 @@ export class GameNetworkNs {
   textureDownloadGetName(p0: number): string { return TextureDownloadGetName(p0); }
   getStatusOfTextureDownload(p0: number): number { return GetStatusOfTextureDownload(p0); }
 
-  acceptInvite(): boolean { return NetworkAcceptPresenceInvite(); } // unverified
+  acceptInvite(p0: number): boolean { return NetworkAcceptPresenceInvite(p0); } // unverified
   acceptPresenceInvite(p0: number): boolean { return NetworkAcceptPresenceInvite(p0); }
   accessTunableBool(tunableContext: string, tunableName: string): boolean { return NetworkAccessTunableBool(tunableContext, tunableName); }
   accessTunableBoolHash(tunableContext: number, tunableName: number): boolean { return NetworkAccessTunableBoolHash(tunableContext, tunableName); }
@@ -201,8 +201,8 @@ export class GameNetworkNs {
   areTransitionDetailsValid(p0: number): boolean { return NetworkAreTransitionDetailsValid(p0); }
   attachSynchronisedSceneToEntity(netScene: number, entity: number, bone: number): void { NetworkAttachSynchronisedSceneToEntity(netScene, entity, bone); }
   badSportPlayerLeftDetected(event: number, amountReceived: number): boolean { return (BadSportPlayerLeftDetected as any)(event, amountReceived); }
-  bail(p0: number, p1: number, p2: number): void { NetworkBail(p0, p1, p2); }
-  bailTransition(p0: number, p1: number, p2: number): void { NetworkBailTransition(p0, p1, p2); }
+  bail(): void { NetworkBail(); }
+  bailTransition(): void { NetworkBailTransition(); }
   blockInvites(toggle: boolean): void { NetworkBlockInvites(toggle); }
   blockJoinQueueInvites(toggle: boolean): void { NetworkBlockJoinQueueInvites(toggle); }
   blockKickedPlayers(p0: boolean): void { NetworkBlockKickedPlayers(p0); } // unverified
@@ -259,8 +259,8 @@ export class GameNetworkNs {
   disableInvincibleFlashing(player: number, toggle: boolean): void { NetworkDisableInvincibleFlashing(player, toggle); }
   disableLeaveRemotePedBehind(toggle: boolean): void { NetworkDisableLeaveRemotePedBehind(toggle); }
   disableProximityMigration(netID: number): void { NetworkDisableProximityMigration(netID); }
-  doTransitionQuickmatch(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number): boolean { return NetworkDoTransitionQuickmatch(p0, p1, p2, p3, p4, p5); }
-  doTransitionQuickmatchAsync(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number): boolean { return NetworkDoTransitionQuickmatchAsync(p0, p1, p2, p3, p4, p5); }
+  doTransitionQuickmatch(p0: number, p1: number, p2: number, p3: number): boolean { return NetworkDoTransitionQuickmatch(p0, p1, p2, p3); }
+  doTransitionQuickmatchAsync(p0: number, p1: number, p2: number, p3: number): boolean { return NetworkDoTransitionQuickmatchAsync(p0, p1, p2, p3); }
   doTransitionQuickmatchWithGroup(p0: number, p1: number, p2: number, p3: number, p5: number, p6: number, p7: number): boolean { return (NetworkDoTransitionQuickmatchWithGroup as any)(p0, p1, p2, p3, p5, p6, p7); }
   doTransitionToFreemode(p1: number, p2: number, players: number, p4: number): boolean { return (NetworkDoTransitionToFreemode as any)(p1, p2, players, p4); }
   doTransitionToGame(p0: number, maxPlayers: number): boolean { return (NetworkDoTransitionToGame as any)(p0, maxPlayers); }
@@ -278,14 +278,14 @@ export class GameNetworkNs {
   facebookSetCreateCharacterComplete(): boolean { return FacebookPostCreateCharacter(); }
   facebookSetHeistComplete(heistName: string, cashEarned: number, xpEarned: number): boolean { return FacebookPostCompletedHeist(heistName, cashEarned, xpEarned); }
   facebookSetMilestoneComplete(milestoneId: number): boolean { return FacebookPostCompletedMilestone(milestoneId); }
-  fadeInEntity(entity: number, state: boolean, p2: boolean): void { NetworkFadeInEntity(entity, state, p2); }
+  fadeInEntity(entity: number, state: boolean): void { NetworkFadeInEntity(entity, state); }
   fadeOutEntity(entity: number, normal: boolean, slow: boolean): void { NetworkFadeOutEntity(entity, normal, slow); }
   filloutPmPlayerList(p1: number, p2: number): boolean { return (FilloutPmPlayerList as any)(p1, p2); }
   filloutPmPlayerListWithNames(p2: number, p3: number): boolean { return (FilloutPmPlayerListWithNames as any)(p2, p3); }
   findGamersInCrew(p0: any): boolean { return NetworkFindGamersInCrew(p0); }
   findMatchedGamers(p0: any, p1: any, p2: any, p3: any): boolean { return NetworkFindMatchedGamers(p0, p1, p2, p3); }
   finishBroadcastingData(): void { NetworkFinishBroadcastingData(); }
-  forceLocalUseOfSyncedSceneCamera(netScene: number, animDict: string, animName: string): void { NetworkForceLocalUseOfSyncedSceneCamera(netScene, animDict, animName); }
+  forceLocalUseOfSyncedSceneCamera(netScene: number): void { NetworkForceLocalUseOfSyncedSceneCamera(netScene); }
   gamerHasHeadset(): boolean { return (NetworkGamerHasHeadset as any)(); }
   gamertagFromHandlePending(): boolean { return NetworkGamertagFromHandlePending(); }
   gamertagFromHandleStart(): boolean { return (NetworkGamertagFromHandleStart as any)(); }
@@ -293,7 +293,7 @@ export class GameNetworkNs {
   getActivityPlayerNum(p0: number): number { return (NetworkGetActivityPlayerNum as any)(p0); }
   getAgeGroup(): number { return NetworkGetAgeGroup(); }
   getContentModifierListId(contentHash: number): number { return NetworkGetContentModifierListId(contentHash); }
-  getCurrentlySelectedGamerHandleFromInviteMenu(): any { return NetworkGetCurrentlySelectedGamerHandleFromInviteMenu(); }
+  getCurrentlySelectedGamerHandleFromInviteMenu(p0: number): any { return NetworkGetCurrentlySelectedGamerHandleFromInviteMenu(p0); }
   getDestroyerOfEntity(p0: number, p1: any): number { return (NetworkGetDestroyerOfEntity as any)(p0, p1); }
   getDestroyerOfNetworkId(netId: number): { weaponHash: number; result: number } { return (NetworkGetDestroyerOfNetworkId as any)(netId); }
   getDisplaynamesFromHandles(p0: any, p1: any, p2: any): boolean { return (NetworkGetDisplaynamesFromHandles as any)(p0, p1, p2); }
@@ -307,7 +307,7 @@ export class GameNetworkNs {
   getFriendNameFromIndex(friendIndex: number): string { return NetworkGetFriendName(friendIndex); } // unverified
   getGamerStatus(): number { return (NetworkGetGamerStatusFromQueue as any)(); }
   getGamerStatusResult(p1: number): any { return NetworkGetGamerStatusResult(p1); }
-  getGamertagFromHandle(): any { return NetworkGetGamertagFromHandle(); }
+  getGamertagFromHandle(networkHandle: number): any { return NetworkGetGamertagFromHandle(networkHandle); }
   getGlobalMultiplayerClock(): { hours: number; minutes: number; seconds: number } { return (NetworkGetGlobalMultiplayerClock as any)(); }
   getHostOfScript(scriptName: string, p1: number, p2: number): number { return NetworkGetHostOfScript(scriptName, p1, p2); }
   getHostOfThisScript(): number { return NetworkGetHostOfThisScript(); }
@@ -529,7 +529,7 @@ export class GameNetworkNs {
   resetBodyTracker(): void { NetworkResetBodyTracker(); }
   resetGhostedEntityAlpha(): void { NetworkResetGhostedEntityAlpha(); } // unverified
   respawnCoords(player: number, x: number, y: number, z: number, p4: boolean, p5: boolean): void { NetworkRespawnCoords(player, x, y, z, p4, p5); } // unverified
-  resurrectLocalPlayer(x: number, y: number, z: number, heading: number, unk: boolean, changetime: boolean, p6: boolean): void { NetworkResurrectLocalPlayer(x, y, z, heading, unk, changetime, p6); }
+  resurrectLocalPlayer(x: number, y: number, z: number, heading: number, nInvincibilityTime: number, bLeaveDeadPed: boolean): void { NetworkResurrectLocalPlayer(x, y, z, heading, nInvincibilityTime, bLeaveDeadPed); }
   seedRandomNumberGenerator(seed: number): void { NetworkSeedRandomNumberGenerator(seed); }
   sendInviteViaPresence(p2: number, p3: number): boolean { return (NetworkSendInviteViaPresence as any)(p2, p3); }
   sendPresenceTransitionInvite(p2: number, p3: number): boolean { return (NetworkSendPresenceTransitionInvite as any)(p2, p3); } // unverified

@@ -19,7 +19,7 @@ export class GameFireNs {
   stopInRange(x: number, y: number, z: number, radius: number): void { StopFireInRange(x, y, z, radius); }
   getClosestPos(x: number, y: number, z: number): Vector3 { return toVec3((GetClosestFirePos as any)(x, y, z)); }
   setSpreadRate(p0: number): void { SetFireSpreadRate(p0); } // unverified
-  addExplosion(x: number, y: number, z: number, explosionType: number, damageScale: number, isAudible: boolean, isInvisible: boolean, cameraShake: number, noDamage: boolean): void { AddExplosion(x, y, z, explosionType, damageScale, !!isAudible, !!isInvisible, cameraShake, !!noDamage); }
+  addExplosion(x: number, y: number, z: number, explosionType: number, damageScale: number, isAudible: boolean, isInvisible: boolean, cameraShake: number): void { AddExplosion(x, y, z, explosionType, damageScale, !!isAudible, !!isInvisible, cameraShake); }
   addOwnedExplosion(ped: number, x: number, y: number, z: number, explosionType: number, damageScale: number, isAudible: boolean, isInvisible: boolean, cameraShake: number): void { AddOwnedExplosion(ped, x, y, z, explosionType, damageScale, !!isAudible, !!isInvisible, cameraShake); }
   addExplosionWithUserVfx(x: number, y: number, z: number, explosionType: number, explosionFx: number, damageScale: number, isAudible: boolean, isInvisible: boolean, cameraShake: number): void { AddExplosionWithUserVfx(x, y, z, explosionType, explosionFx, damageScale, !!isAudible, !!isInvisible, cameraShake); }
   isExplosionInArea(explosionType: number, x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): boolean { return IsExplosionInArea(explosionType, x1, y1, z1, x2, y2, z2); }

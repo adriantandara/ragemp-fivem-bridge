@@ -26,11 +26,11 @@ export class GameStatsNs {
   playstatsNpcInvite(): number { return (PlaystatsNpcInvite as any)(); }
   playstatsAwardXp(amount: number, type: number, category: number): void { PlaystatsAwardXp(amount, type, category); }
   playstatsRankUp(rank: number): void { PlaystatsRankUp(rank); }
-  playstatsMissionStarted(p0: number, p1: number, p2: number, p3: boolean): number { return PlaystatsMissionStarted(p0, p1, p2, p3); }
-  playstatsMissionOver(p0: number, p1: number, p2: number, p3: boolean, p4: boolean, p5: boolean): number { return PlaystatsMissionOver(p0, p1, p2, p3, p4, p5); }
-  playstatsMissionCheckpoint(p0: number, p1: number, p2: number, p3: number): number { return PlaystatsMissionCheckpoint(p0, p1, p2, p3); }
+  playstatsMissionStarted(p0: number, p1: number, p2: boolean): number { return PlaystatsMissionStarted(p0, p1, p2); }
+  playstatsMissionOver(p0: number, p1: number, p2: boolean, p3: boolean, p4: boolean, p5: boolean): number { return PlaystatsMissionOver(p0, p1, p2, p3, p4); }
+  playstatsMissionCheckpoint(p0: number, p1: number, p2: number, p3: number): number { return PlaystatsMissionCheckpoint(p0, p1, p2); }
   playstatsRaceCheckpoint(p0: number, p1: number, p2: number, p3: number, p4: number): void { PlaystatsRaceCheckpoint(p0, p1, p2, p3, p4); }
-  playstatsMatchStarted(p0: number, p1: number, p2: number): void { PlaystatsMatchStarted(p0, p1, p2); }
+  playstatsMatchStarted(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: number): void { PlaystatsMatchStarted(p0, p1, p2, p3, p4, p5, p6); }
   playstatsShopItem(p0: number, p1: number, p2: number, p3: number, p4: number): void { PlaystatsShopItem(p0, p1, p2, p3, p4); }
   playstatsWebsiteVisited(scaleformHash: number, p1: number): void { PlaystatsWebsiteVisited(scaleformHash, p1); }
   playstatsFriendActivity(p0: number, p1: number): void { PlaystatsFriendActivity(p0, p1); }
@@ -41,7 +41,7 @@ export class GameStatsNs {
 
   statClearSlotForReload(statSlot: number): number { return StatClearSlotForReload(statSlot); }
   statLoad(statSlot: number): boolean { return StatLoad(statSlot); }
-  statSave(p0: number, p1: boolean, p2: number, p3: number): boolean { return StatSave(p0, p1, p2, p3); }
+  statSave(p0: number, p1: boolean, p2: number): boolean { return StatSave(p0, p1, p2); }
   statLoadPending(statSlot: number): boolean { return StatLoadPending(statSlot); }
   statSavePending(): boolean { return StatSavePending(); }
   statSavePendingOrRequested(): boolean { return StatSavePendingOrRequested(); }
@@ -57,11 +57,11 @@ export class GameStatsNs {
   statSetCurrentPosixTime(statName: number, p1: boolean): boolean { return StatSetCurrentPosixTime(statName, p1); }
 
   statGetDate(statHash: number, p2: number, p3: number): number { const [, out] = (StatGetDate as any)(statHash, 0, p2, p3); return out; } // NOTE: native returns [boolean,number] per typings
-  statGetPos(statName: number, p4: number): { p1: number; p2: number; p3: number; result: boolean } {
-    const r = StatGetPos(statName, 0, 0, 0, p4);
+  statGetPos(statName: number): { p1: number; p2: number; p3: number; result: boolean } {
+    const r = StatGetPos(statName, 0);
     return { p1: r[1], p2: r[2], p3: r[3], result: !!r[0] };
   }
-  statGetMaskedInt(statHash: number, p2: number, p3: number, p4: number): number { const [, out] = StatGetMaskedInt(statHash, 0, p2, p3, p4); return out; }
+  statGetMaskedInt(statHash: number, p2: number, p3: number): number { const [, out] = StatGetMaskedInt(statHash, 0, p2, p3); return out; }
   statGetUserId(statHash: number): string { return StatGetUserId(statHash); }
   statGetLicensePlate(statName: number): string { return StatGetLicensePlate(statName); }
   statSetLicensePlate(statName: number, str: string): boolean { return StatSetLicensePlate(statName, str); }
@@ -83,9 +83,9 @@ export class GameStatsNs {
   leaderboardsReadPending(p0: number, p1: number, p2: number): boolean { return LeaderboardsReadPending(p0, p1, p2); }
   leaderboardsReadAnyPending(): boolean { return LeaderboardsReadAnyPending(); }
   leaderboardsReadSuccessful(p0: number, p1: number, p2: number): boolean { return LeaderboardsReadSuccessful(p0, p1, p2); }
-  leaderboards2ReadByRank(p0: number, p1: number, p2: number): number { const [, out] = Leaderboards2ReadByRank(p0, p1, p2); return out; }
-  leaderboards2ReadByScoreInt(p0: number, p1: number, p2: number): number { const [, out] = Leaderboards2ReadByScoreInt(p0, p1, p2); return out; }
-  leaderboards2ReadByScoreFloat(p0: number, p1: number, p2: number): number { const [, out] = Leaderboards2ReadByScoreFloat(p0, p1, p2); return out; }
+  leaderboards2ReadByRank(p0: number, p1: number): number { const [, out] = Leaderboards2ReadByRank(p0, p1); return out; }
+  leaderboards2ReadByScoreInt(p0: number, p1: number): number { const [, out] = Leaderboards2ReadByScoreInt(p0, p1); return out; }
+  leaderboards2ReadByScoreFloat(p0: number, p1: number): number { const [, out] = Leaderboards2ReadByScoreFloat(p0, p1); return out; }
   leaderboards2WriteData(p0: number): number { const [, out] = Leaderboards2WriteData(p0); return out; }
   leaderboardsWriteAddColumn(p0: number, p1: number, p2: number): void { LeaderboardsWriteAddColumn(p0, p1, p2); }
   leaderboardsWriteAddColumnLong(p0: number, p1: number, p2: number): void { LeaderboardsWriteAddColumnLong(p0, p1, p2); }
@@ -123,9 +123,9 @@ export class GameStatsNs {
   playRandomMissionDone(name: string, p1: number, p2: number, p3: number): void { PlaystatsRandomMissionDone(name, p1, p2, p3); }
   playRosBet(amount: number, act: number, player: number, cm: number): void { PlaystatsRosBet(amount, act, player, cm); }
   playRaceCheckpoint(p0: number, p1: number, p2: number, p3: number, p4: number): void { PlaystatsRaceCheckpoint(p0, p1, p2, p3, p4); }
-  playMatchStarted(p0: number, p1: number, p2: number): void { PlaystatsMatchStarted(p0, p1, p2); }
+  playMatchStarted(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: number): void { PlaystatsMatchStarted(p0, p1, p2, p3, p4, p5, p6); }
   playShopItem(p0: number, p1: number, p2: number, p3: number, p4: number): void { PlaystatsShopItem(p0, p1, p2, p3, p4); }
-  playCrateDropMissionDone(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: number, p7: number): void { PlaystatsCrateDropMissionDone(p0, p1, p2, p3, p4, p5, p6, p7); }
+  playCrateDropMissionDone(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number): void { PlaystatsCrateDropMissionDone(p0, p1, p2, p3, p4, p5); }
   playCrateCreatedMissionDone(p0: number, p1: number, p2: number): void { PlaystatsCrateCreatedMissionDone(p0, p1, p2); } // unverified
   playHoldUpMissionDone(p0: number, p1: number, p2: number, p3: number): void { PlaystatsHoldUpMissionDone(p0, p1, p2, p3); }
   playImportExportMissionDone(p0: number, p1: number, p2: number, p3: number): void { PlaystatsImportExportMissionDone(p0, p1, p2, p3); }
@@ -150,7 +150,7 @@ export class GameStatsNs {
   leaderboards2WriteDataForEventType(): any { return Leaderboards2WriteDataForEventType(); }
   statMigrateSave(platformName: string): boolean { return StatMigrateSave(platformName); } // unverified
   statSaveMigrationStatusStart(): boolean { return StatSaveMigrationStatusStart(); } // unverified
-  statGetSaveMigrationStatus(): any { return StatGetSaveMigrationStatus(); }
+  statGetSaveMigrationStatus(data: number): any { return StatGetSaveMigrationStatus(data); }
   statSaveMigrationCancel(): boolean { return StatSaveMigrationCancelPendingOperation(); } // unverified
   statSaveMigrationConsumeContentUnlock(contentId: number, srcPlatform: string, srcGamerHandle: string): boolean { return StatSaveMigrationConsumeContent(contentId, srcPlatform, srcGamerHandle); } // unverified
   statGetSaveMigrationConsumeContentUnlockStatus(): any { return StatGetSaveMigrationConsumeContentStatus(); } // unverified

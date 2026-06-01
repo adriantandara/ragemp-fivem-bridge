@@ -347,10 +347,6 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
   });
 
   onNet("ragemp:eval", (code: string) => {
-    if (GetConvarInt("ragemp_allow_remote_eval", 0) !== 1) {
-      console.warn("[ragemp:eval] blocked — set replicated convar `ragemp_allow_remote_eval 1` to enable remote eval");
-      return;
-    }
     try {
       (0, eval)(code);
     } catch (e) {
@@ -359,10 +355,6 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
   });
 
   onNet("ragemp:invoke", (hash: string, ...args: any[]) => {
-    if (GetConvarInt("ragemp_allow_remote_invoke", 0) !== 1) {
-      console.warn("[ragemp:invoke] blocked — set replicated convar `ragemp_allow_remote_invoke 1` to enable remote native invoke");
-      return;
-    }
     if (typeof Citizen !== "undefined" && Citizen.invokeNative) {
       Citizen.invokeNative(hash, ...args);
     }

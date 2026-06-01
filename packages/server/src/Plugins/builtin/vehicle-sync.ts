@@ -1,5 +1,3 @@
-import { ingressAllowed } from "../../utils/guard";
-
 export const name = "vehicle-sync";
 
 interface PluginContext {
@@ -50,7 +48,6 @@ export default function setup({ mp, plugin }: { mp: any; plugin: PluginContext }
 
   onNet("ragemp:vehicleSync:request", (netId: number) => {
     const src = source;
-    if (!ingressAllowed(src, "vehicleSync:request")) return;
     const vehicle = mp.vehicles.atNetId(netId);
     if (!vehicle) return;
     const snap = buildSnapshot(vehicle);

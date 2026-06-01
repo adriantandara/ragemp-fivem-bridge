@@ -1,6 +1,5 @@
 import { EventEmitter } from "@ragemp-fivem-bridge/shared";
 import { sanitizeArgsForNet, STATE_KEY_PREFIX } from "@ragemp-fivem-bridge/shared";
-import { ingressAllowed, clearRateLimit } from "../utils/guard";
 
 const RAGEMP_TO_FIVEM_EVENTS: Record<string, string> = {
   playerJoin: "playerJoining",
@@ -25,7 +24,6 @@ export class EventManager extends EventEmitter {
   _setupBuiltinEvents(): void {
     onNet("ragemp:playerReady", (forResource: string) => {
       const src = source;
-      if (!ingressAllowed(src, "playerReady")) return;
       const player = globalThis.mp.players.at(src);
       if (!player) return;
       emitNet("ragemp:playerReady", src, forResource);
@@ -37,18 +35,15 @@ export class EventManager extends EventEmitter {
 
     on("playerDropped", () => {
       this._playerReadyHandled.delete(source);
-      clearRateLimit(source);
     });
 
     onNet("ragemp:command", (commandText: string) => {
       const src = source;
-      if (!ingressAllowed(src, "command")) return;
       this._processCommand(src, commandText);
     });
 
     onNet("ragemp:proc", async (procName: string, requestId: string, ...args: any[]) => {
       const src = source;
-      if (!ingressAllowed(src, "proc")) return;
       const player = globalThis.mp.players.at(src);
       if (!player) return;
       const handler = this._procs.get(procName);
@@ -85,7 +80,6 @@ export class EventManager extends EventEmitter {
     });
 
     onNet("ragemp:playerDeath", (reason: number, killerId: number | null) => {
-      if (!ingressAllowed(source, "playerDeath")) return;
       const player = globalThis.mp.players.at(source);
       const killer = killerId ? globalThis.mp.players.at(killerId) : null;
       if (player) this._fire("playerDeath", player, reason, killer);
@@ -307,10 +301,8 @@ export class EventManager extends EventEmitter {
 
     if (!fivemEvent && !this._handlers.get(`__net_${eventName}`)) {
       this._handlers.set(`__net_${eventName}`, new Set([true]) as any);
-      const isFrameworkEvent = eventName.indexOf("__rpc:") === 0;
       onNet(eventName, (...args: any[]) => {
         const src = source;
-        if (!isFrameworkEvent && !ingressAllowed(src, eventName)) return;
         const player = globalThis.mp.players.at(src);
         if (player) {
           this._fire(eventName, player, ...args);

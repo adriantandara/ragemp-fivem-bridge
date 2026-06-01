@@ -30,19 +30,4 @@ export class ConfigMp {
   get language(): string {
     return GetConvar("locale", "en");
   }
-
-  get security(): {
-    allowRemoteEval: boolean;
-    allowRemoteInvoke: boolean;
-    rpcAllowlist: string[] | null;
-    ingressRateLimit: number;
-  } {
-    const list = GetConvar("ragemp_rpc_allowlist", "").trim();
-    return {
-      allowRemoteEval: GetConvarInt("ragemp_allow_remote_eval", 0) === 1,
-      allowRemoteInvoke: GetConvarInt("ragemp_allow_remote_invoke", 0) === 1,
-      rpcAllowlist: list ? list.split(/[,\s]+/).filter(Boolean) : null,
-      ingressRateLimit: GetConvarInt("ragemp_ingress_rate_limit", 100),
-    };
-  }
 }

@@ -576,16 +576,10 @@ export class PlayerMp extends Entity {
   }
 
   eval(code: string): void {
-    if (!globalThis.mp?.config?.security?.allowRemoteEval) {
-      console.warn("[mp] player.eval() will be ignored by the client unless the replicated convar `ragemp_allow_remote_eval 1` is set");
-    }
     emitNet("ragemp:eval", this.id, code);
   }
 
   invoke(hash: string, ...args: any[]): void {
-    if (!globalThis.mp?.config?.security?.allowRemoteInvoke) {
-      console.warn("[mp] player.invoke() will be ignored by the client unless the replicated convar `ragemp_allow_remote_invoke 1` is set");
-    }
     emitNet("ragemp:invoke", this.id, hash, ...args);
   }
 

@@ -528,6 +528,14 @@ export class VehicleMp extends Entity {
     }
   }
 
+  setSteerBias(value) {
+    SetVehicleSteerBias(this._handle, value);
+  }
+
+  setReduceGrip(toggle) {
+    SetVehicleReduceGrip(this._handle, toggle);
+  }
+
   destroy() {
     SetEntityAsMissionEntity(this._handle, false, true);
     DeleteEntity(this._handle);

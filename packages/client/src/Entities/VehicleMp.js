@@ -7,6 +7,7 @@ export class VehicleMp extends Entity {
   constructor(id, handle) {
     super(id, "vehicle");
     this._handle = handle;
+    this._originalGearRatios = null; // store default vehicle gears rates
     return withEntityNatives(this, (t) => t._handle, ["Entity", "Vehicle"]);
   }
 
@@ -509,9 +510,25 @@ export class VehicleMp extends Entity {
     SetVehicleTyresCanBurst(this._handle, !!toggle);
   }
 
+  storeOriginalGearRatios() {
+    const gearCount = this.getHandling(`nInitialDriveGears`);
+    if (!Number.isInteger(gearCount)) return;
+    
+    this._originalGearRatios = [];
+    for (let i = 0; i < gearCount; i++) {
+      this._originalGearRatios.push(GetVehicleGearRatio(this._handle, i));
+    }
+
+    return this._originalGearRatios;
+  }
+
   getGearRatios() {
     const gearCount = this.getHandling(`nInitialDriveGears`);
     if (!Number.isInteger(gearCount)) return [];
+
+    if(this._originalGearRatios == null) {
+      return this.storeOriginalGearRatios();
+    }
 
     const ratios = [];
     for (let i = 0; i < gearCount; i++) {
@@ -521,10 +538,33 @@ export class VehicleMp extends Entity {
   }
 
   setGearRatios(ratios) {
-    if (!Array.isArray(ratios)) return;
+    if(!Array.isArray(ratios)) return;
+
+    if(this._originalGearRatios == null) {
+      this.storeOriginalGearRatios();
+    }
+
+    if(ratios.length === 0) {
+      this.resetGearRatios();
+      return;
+    }
 
     for (let i = 0; i < ratios.length; i++) {
       SetVehicleGearRatio(this._handle, i, ratios[i]);
+    }
+  }
+
+  resetGearRatios() {
+    if(this._originalGearRatios == null) {
+      this.storeOriginalGearRatios();
+    }
+
+    const gearCount = this.getHandling(`nInitialDriveGears`);
+    if(!Number.isInteger(gearCount)) return;
+
+    for (let i = 0; i < gearCount; i++) {
+      const originalValue = this._originalGearRatios?.[i] ?? 0.0;
+      SetVehicleGearRatio(this._handle, i, originalValue);
     }
   }
 

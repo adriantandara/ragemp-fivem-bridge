@@ -48,7 +48,7 @@ export class GameMiscNs {
   setWindSpeed(speed: number): void { SetWindSpeed(speed); }
   getWindSpeed(): number { return GetWindSpeed(); }
   setWindDirection(direction: number): void { SetWindDirection(direction); }
-  getWindDirection(): import('@ragemp-fivem-bridge/shared').Vector3 { return toVec3(GetWindDirection()); }
+  getWindDirection(): Vector3 { return toVec3(GetWindDirection()); }
   setRainLevel(intensity: number): void { SetRainLevel(intensity); }
   getRainLevel(): number { return GetRainLevel(); }
   setSnowLevel(level: number): void { SetSnowLevel(level); }
@@ -143,12 +143,11 @@ export class GameMiscNs {
   clearReplayStats(): void { ClearReplayStats(); }
   isMemoryCardInUse(): boolean { return IsMemoryCardInUse(); }
 
-  getModelDimensions(modelHash: number): { min: import('@ragemp-fivem-bridge/shared').Vector3; max: import('@ragemp-fivem-bridge/shared').Vector3 } {
+  getModelDimensions(modelHash: number): {  minimum: Vector3, maximum: Vector3, min: Vector3; max: Vector3 } {
     const [min, max] = GetModelDimensions(modelHash);
-    return {
-      min: toVec3(min) ?? new Vector3(min[0], min[1], min[2]),
-      max: toVec3(max) ?? new Vector3(max[0], max[1], max[2]),
-    };
+    const minimum = toVec3(min);
+    const maximum = toVec3(max);
+    return { minimum, maximum, min: minimum, max: maximum };
   }
 
   setFakeWantedLevel(fakeWantedLevel: number): void { SetFakeWantedLevel(fakeWantedLevel); }

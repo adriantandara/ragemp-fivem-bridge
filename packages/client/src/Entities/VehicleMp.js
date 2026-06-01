@@ -509,6 +509,25 @@ export class VehicleMp extends Entity {
     SetVehicleTyresCanBurst(this._handle, !!toggle);
   }
 
+  getGearRatios() {
+    const gearCount = this.getHandling(`nInitialDriveGears`);
+    if (!Number.isInteger(gearCount)) return [];
+
+    const ratios = [];
+    for (let i = 0; i < gearCount; i++) {
+      ratios.push(GetVehicleGearRatio(this._handle, i));
+    }
+    return ratios;
+  }
+
+  setGearRatios(ratios) {
+    if (!Array.isArray(ratios)) return;
+
+    for (let i = 0; i < ratios.length; i++) {
+      SetVehicleGearRatio(this._handle, i, ratios[i]);
+    }
+  }
+
   destroy() {
     SetEntityAsMissionEntity(this._handle, false, true);
     DeleteEntity(this._handle);

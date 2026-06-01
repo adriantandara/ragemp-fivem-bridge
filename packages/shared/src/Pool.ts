@@ -35,6 +35,7 @@ export class Pool {
     if (typeof entity === "number") {
       return this._entities.has(entity);
     }
+    if (!entity || typeof entity !== "object") return false;
     return this._entities.has(entity.id);
   }
 

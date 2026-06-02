@@ -1,17 +1,14 @@
-export type EventHandler = (...args: unknown[]) => void;
+import { EventEmitterInternals, initEventEmitterInternals, type EventHandler } from "./internal/eventEmitterInternals";
 
-export class EventEmitter {
-  _handlers: Map<string, Set<EventHandler>> = new Map();
+export type { EventHandler };
 
-  _getHandlers(eventName: string): Set<EventHandler> {
-    if (!this._handlers.has(eventName)) {
-      this._handlers.set(eventName, new Set());
-    }
-    return this._handlers.get(eventName)!;
+export abstract class EventEmitter {
+  constructor() {
+    initEventEmitterInternals(this);
   }
 
-  _fire(eventName: string, ...args: unknown[]): void {
-    const handlers = this._handlers.get(eventName);
+  call(eventName: string, ...args: any[]): void {
+    const handlers = EventEmitterInternals.get(this).handlers.get(eventName);
     if (!handlers) return;
     for (const handler of handlers) {
       handler(...args);
@@ -26,26 +23,26 @@ export class EventEmitter {
       return;
     }
     const eventName = eventNameOrObject as string;
-    this._getHandlers(eventName).add(handler!);
-    this._onAdd(eventName, handler!);
+    const handlers = EventEmitterInternals.get(this).handlers;
+    let set = handlers.get(eventName);
+    if (!set) {
+      set = new Set();
+      handlers.set(eventName, set);
+    }
+    set.add(handler!);
   }
 
-  _onAdd(eventName: string, handler: EventHandler): void {}
-
   remove(eventName: string, handler?: EventHandler): void {
-    const handlers = this._handlers.get(eventName);
+    const handlers = EventEmitterInternals.get(this).handlers.get(eventName);
     if (!handlers) return;
     if (handler) {
       handlers.delete(handler);
     } else {
       handlers.clear();
     }
-    this._onRemove(eventName);
   }
 
-  _onRemove(eventName: string): void {}
-
   getAllOf(eventName: string): EventHandler[] {
-    return [...(this._handlers.get(eventName) ?? [])];
+    return [...(EventEmitterInternals.get(this).handlers.get(eventName) ?? [])];
   }
 }

@@ -32,12 +32,12 @@ function handleTransition(pool: CheckpointMpPool, playerSource: number, id: numb
     }
     if ((position as any).distance(checkpoint.position) > checkpoint.radius) return;
     inside.add(playerSource);
-    mp.events._fire("playerEnterCheckpoint", player, checkpoint);
+    mp.events.call("playerEnterCheckpoint", player, checkpoint);
   } else {
     if (!inside.has(playerSource)) return;
     inside.delete(playerSource);
     if (inside.size === 0) insideMap.delete(id);
-    mp.events._fire("playerExitCheckpoint", player, checkpoint);
+    mp.events.call("playerExitCheckpoint", player, checkpoint);
   }
 }
 

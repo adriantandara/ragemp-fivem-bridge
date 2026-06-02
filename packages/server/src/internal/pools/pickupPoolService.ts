@@ -26,6 +26,6 @@ export function setupPickupPool(pool: PickupMpPool): void {
     } catch (e) {
       return;
     }
-    globalThis.mp.events._fire("playerPickup", player, pickup);
+    globalThis.mp.events.call("playerPickup", player, pickup);
   });
 }

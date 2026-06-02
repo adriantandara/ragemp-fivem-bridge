@@ -9,7 +9,7 @@ import { safeGetEntityFromNetId } from "./utils/netId";
 if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "library") {
   globalThis.mp = new Mp();
 
-  setPoolLifecycleSink((type, entity) => globalThis.mp?.events?._fire(type, entity));
+  setPoolLifecycleSink((type, entity) => globalThis.mp?.events?.call(type, entity));
 
   globalThis.mp.plugins.registerBuiltin(spawnmanager);
   globalThis.mp.plugins.registerBuiltin(vehicleSync);

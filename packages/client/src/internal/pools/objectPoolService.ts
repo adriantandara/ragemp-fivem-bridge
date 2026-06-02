@@ -34,7 +34,7 @@ export function setupObjectPool(_pool: object): void {
 export function removeFromObjectPool(pool: object, id: number): void {
   const entity = poolStore(pool).entities.get(id) as ObjectMp | undefined;
   if (entity && !streamEntityState(entity).isServer && !ObjectInternals.get(entity).isWeak) {
-    globalThis.mp?.events?._fire("entityStreamOut", entity);
+    globalThis.mp?.events?.call("entityStreamOut", entity);
   }
   removeFromStreamingPool(pool, id);
 }

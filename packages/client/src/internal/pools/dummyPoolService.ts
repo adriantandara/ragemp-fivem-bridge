@@ -6,7 +6,7 @@ function addDummy(pool: DummyMpPool, data: any): void {
   if (pool.exists(data.id)) return;
   const dummy = new DummyMp(data.id, data.dummyType, data.data);
   poolAdd(pool, dummy);
-  globalThis.mp?.events?._fire("dummyEntityCreated", dummy);
+  globalThis.mp?.events?.call("dummyEntityCreated", dummy);
 }
 
 export function setupDummyPool(pool: DummyMpPool): void {
@@ -22,7 +22,7 @@ export function setupDummyPool(pool: DummyMpPool): void {
     const dummy = pool.at(id);
     if (dummy) {
       removeFromPool(pool, id);
-      globalThis.mp?.events?._fire("dummyEntityDestroyed", dummy);
+      globalThis.mp?.events?.call("dummyEntityDestroyed", dummy);
     }
   });
 }

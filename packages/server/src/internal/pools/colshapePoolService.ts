@@ -38,12 +38,12 @@ function handleTransition(pool: ColshapeMpPool, playerSource: number, id: number
       insideMap.set(id, inside);
     }
     inside.add(playerSource);
-    mp.events._fire("playerEnterColshape", player, colshape);
+    mp.events.call("playerEnterColshape", player, colshape);
   } else {
     if (!inside || !inside.has(playerSource)) return;
     inside.delete(playerSource);
     if (inside.size === 0) insideMap.delete(id);
-    mp.events._fire("playerExitColshape", player, colshape);
+    mp.events.call("playerExitColshape", player, colshape);
   }
 }
 

@@ -4,40 +4,27 @@ import { PlayerInternals, resolvePlayerProc } from "../playerInternals";
 import type { PlayerMpPool } from "../../Pools/PlayerMpPool";
 
 export function setupPlayerPool(pool: PlayerMpPool): void {
-  on("playerConnecting", (_name: string, _setKickReason: any, _deferrals: any) => {
-    const playerSource = source;
-    if (!poolStore(pool).entities.has(playerSource)) {
-      const player = new PlayerMp(playerSource);
-      PlayerInternals.get(player).ready = false;
-      poolAdd(pool, player as any);
-    }
-  });
-
-  on("playerJoining", (oldId: string | number) => {
+  on("playerJoining", () => {
     const realSource = source;
-    const old = Number(oldId);
     const entities = poolStore(pool).entities;
-    const existing = entities.get(old) as PlayerMp | undefined;
-    if (existing && old !== realSource) {
-      entities.delete(old);
-      existing.id = realSource;
-      PlayerInternals.get(existing).ready = true;
-      entities.set(realSource, existing as any);
-    } else {
-      const existingAtReal = entities.get(realSource) as PlayerMp | undefined;
-      if (existingAtReal) {
-        PlayerInternals.get(existingAtReal).ready = true;
-      } else {
-        poolAdd(pool, new PlayerMp(realSource) as any);
-      }
+    if (entities.has(realSource)) {
+      PlayerInternals.get(entities.get(realSource) as PlayerMp).ready = true;
+      return;
     }
+    const player = new PlayerMp(realSource);
+    PlayerInternals.get(player).ready = true;
+    poolAdd(pool, player as any);
+    globalThis.mp?.events?.call?.("playerJoin", player);
   });
 
-  on("playerDropped", (_reason: string) => {
+  on("playerDropped", (reason: string) => {
     const playerSource = source;
     const player = poolStore(pool).entities.get(playerSource) as PlayerMp | undefined;
-    if (player && typeof player.cancelPendingProc === "function") {
-      player.cancelPendingProc();
+    if (player) {
+      globalThis.mp?.events?.call?.("playerQuit", player, "disconnect", reason);
+      if (typeof player.cancelPendingProc === "function") {
+        player.cancelPendingProc();
+      }
     }
     poolRemove(pool, playerSource);
   });

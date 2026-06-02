@@ -127,7 +127,7 @@ export function setupPickupPool(pool: PickupMpPool): void {
         rec.collected = true;
         rec.handle = null;
         emitNet("ragemp:playerPickup", id);
-        globalThis.mp?.events?._fire("playerPickup", globalThis.mp?.players?.local, pickup);
+        globalThis.mp?.events?.call("playerPickup", globalThis.mp?.players?.local, pickup);
       }
     }
   });

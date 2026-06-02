@@ -42,7 +42,7 @@ export class KeyManager {
     else this._nuiPressed.delete(code);
   }
 
-  _fire(keyCode: number, isDown: boolean): void {
+  call(keyCode: number, isDown: boolean): void {
     const handlers = this._bindings.get(this._getKey(keyCode, isDown));
     if (!handlers) return;
     for (const handler of handlers) {
@@ -92,10 +92,10 @@ export class KeyManager {
         const wasDown = this._pressedKeys.has(keyCode);
         if (isDown && !wasDown) {
           this._pressedKeys.add(keyCode);
-          this._fire(keyCode, true);
+          this.call(keyCode, true);
         } else if (!isDown && wasDown) {
           this._pressedKeys.delete(keyCode);
-          this._fire(keyCode, false);
+          this.call(keyCode, false);
         }
       }
     });

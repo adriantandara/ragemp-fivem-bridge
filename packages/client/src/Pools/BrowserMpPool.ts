@@ -28,7 +28,7 @@ export class BrowserMpPool extends Pool {
 
     browser.orderId = id;
 
-    globalThis.mp?.events?._fire("browserCreated", browser);
+    globalThis.mp?.events?.call("browserCreated", browser);
 
     return browser;
   }

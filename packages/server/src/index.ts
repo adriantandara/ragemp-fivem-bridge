@@ -9,7 +9,7 @@ import * as vehicleSync from "./Plugins/builtin/vehicle-sync";
 if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "library") {
   globalThis.mp = new Mp();
 
-  setPoolLifecycleSink((type: string, entity: any) => globalThis.mp?.events?._fire(type, entity));
+  setPoolLifecycleSink((type: string, entity: any) => globalThis.mp?.events?.call(type, entity));
 
   globalThis.mp.plugins.registerBuiltin(fsCompat);
   globalThis.mp.plugins.registerBuiltin(envLoader);

@@ -39,7 +39,7 @@ export function setupBrowserPool(pool: BrowserMpPool): void {
     const browser = pool.at(data && data.browserId);
     console.error(formatError(data));
     if (data && data.stack) console.error(data.stack);
-    globalThis.mp?.events?._fire("browserError", browser ?? null, data);
+    globalThis.mp?.events?.call("browserError", browser ?? null, data);
     cb({});
   });
 
@@ -52,12 +52,12 @@ export function setupBrowserPool(pool: BrowserMpPool): void {
     }
     if (data.event === "domReady") {
       if (typeof browser._onDomReady === "function") browser._onDomReady();
-      globalThis.mp?.events?._fire("browserDomReady", browser);
+      globalThis.mp?.events?.call("browserDomReady", browser);
     } else if (data.event === "loadError") {
       console.error(
         `[browser ${data.browserId}] failed to load: ${data.url ?? "(unknown url)"}`,
       );
-      globalThis.mp?.events?._fire("browserLoadError", browser, data);
+      globalThis.mp?.events?.call("browserLoadError", browser, data);
     }
     cb({});
   });
@@ -70,7 +70,7 @@ export function setupBrowserPool(pool: BrowserMpPool): void {
     } else if (event === "chatMessage" || event === "chat:message") {
       sendBrowserChatMessage((args ?? [])[0]);
     } else if (event && globalThis.mp?.events) {
-      globalThis.mp.events._fire(event, ...(args ?? []));
+      globalThis.mp.events.call(event, ...(args ?? []));
     }
     cb({});
   });

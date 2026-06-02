@@ -91,7 +91,7 @@ function onServerDestroy(pool: object, remoteId: number): void {
   }
   const entities = poolStore(pool).entities;
   if (entities.has(remoteId)) {
-    globalThis.mp?.events?._fire("entityStreamOut", entity);
+    globalThis.mp?.events?.call("entityStreamOut", entity);
     host._onStreamOut(entity);
     entities.delete(remoteId);
   }
@@ -125,7 +125,7 @@ export function bindHandle(pool: object, remoteId: number, handle: number, netId
   rec.handleToEntity.set(handle, entity);
   if (!entities.has(entity.id)) {
     poolAdd(pool, entity);
-    globalThis.mp?.events?._fire("entityStreamIn", entity);
+    globalThis.mp?.events?.call("entityStreamIn", entity);
     host._onStreamIn(entity, handle, netId);
   }
   return entity;
@@ -147,7 +147,7 @@ export function refreshServerHandle(pool: object, entity: any): any {
   } else if (entity.handle) {
     rec.handleToEntity.delete(entity.handle);
     if (entities.has(entity.id)) {
-      globalThis.mp?.events?._fire("entityStreamOut", entity);
+      globalThis.mp?.events?.call("entityStreamOut", entity);
       host._onStreamOut(entity);
       entities.delete(entity.id);
     }
@@ -178,7 +178,7 @@ export function resolveHandle(pool: object, handle: number): any {
     entity = rec.makeEntity!(id, handle);
     poolAdd(pool, entity);
     rec.handleToEntity.set(handle, entity);
-    globalThis.mp?.events?._fire("entityStreamIn", entity);
+    globalThis.mp?.events?.call("entityStreamIn", entity);
     host._onStreamIn(entity, handle, netId);
   }
   return entity;
@@ -201,7 +201,7 @@ function scan(pool: object, getHandles: () => number[]): void {
     if (activeSet.has(entity.id)) continue;
     rec.handleToEntity.delete(handle);
     entities.delete(entity.id);
-    globalThis.mp?.events?._fire("entityStreamOut", entity);
+    globalThis.mp?.events?.call("entityStreamOut", entity);
     host._onStreamOut(entity);
     if (streamEntityState(entity).isServer) EntityInternals.get(entity).handle = 0;
   }

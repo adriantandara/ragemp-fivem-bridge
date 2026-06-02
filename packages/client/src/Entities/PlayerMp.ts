@@ -107,7 +107,7 @@ export class PlayerMp extends PedMpBase {
   }
 
   call(eventName: string, ...args: any[]): void {
-    (globalThis as any).mp?.events?._fire(eventName, this, ...args);
+    (globalThis as any).mp?.events?.call(eventName, this, ...args);
   }
 
   canPedHear(ped: number): boolean { return CanPedHearPlayer(PlayerInternals.get(this).playerIndex, ped); }

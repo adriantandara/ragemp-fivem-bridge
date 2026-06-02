@@ -36,7 +36,7 @@ export class ObjectMpPool extends StreamingPool {
 
     poolAdd(this, obj);
     StreamingInternals.get(this).handleToEntity.set(handle, obj);
-    globalThis.mp?.events?._fire("entityStreamIn", obj);
+    globalThis.mp?.events?.call("entityStreamIn", obj);
 
     return obj;
   }
@@ -83,7 +83,7 @@ export class ObjectMpPool extends StreamingPool {
 
     poolAdd(this, obj);
     StreamingInternals.get(this).handleToEntity.set(handle, obj);
-    globalThis.mp?.events?._fire("entityStreamIn", obj);
+    globalThis.mp?.events?.call("entityStreamIn", obj);
 
     return obj;
   }

@@ -30,7 +30,7 @@ function report(pool: ColshapeMpPool, colshape: ColshapeMp, _local: any, enterin
     return;
   }
   try {
-    globalThis.mp.events._fire(
+    globalThis.mp.events.call(
       entering ? "playerEnterColshape" : "playerExitColshape",
       colshape
     );

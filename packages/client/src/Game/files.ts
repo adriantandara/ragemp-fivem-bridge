@@ -58,12 +58,12 @@ export class GameFilesNs {
   isDlcVehicleMod(hash: number): boolean { return IsDlcVehicleMod(hash); }
   getDlcVehicleModLockHash(hash: number): number { return GetDlcVehicleModLockHash(hash); }
 
-  getNumPropsFromOutfit(character: number, p1: number, p2: number, p3: boolean, p4: number, componentId: number): number { return GetNumPropsFromOutfit(character, p1, p2, !!p3, p4, componentId); } // unverified
-  getNumForcedComponents(componentHash: number): number { return GetNumForcedComponents(componentHash); } // unverified
-  getPropFromOutfit(outfitHash: number, variantIndex: number): number { return (GetPropFromOutfit as any)(outfitHash, variantIndex); } // unverified
-  isDlcDataEmpty(itemHash: number): boolean { return IsDlcDataEmpty(itemHash); } // unverified
-  loadContentChangeSetGroup(hash: number): void { LoadContentChangeSetGroup(hash); } // unverified
-  unloadContentChangeSetGroup(hash: number): void { UnloadContentChangeSetGroup(hash); } // unverified
+  getNumPropsFromOutfit(character: number, p1: number, p2: number, p3: boolean, p4: number, componentId: number): number { return GetNumPropsFromOutfit(character, p1, p2, !!p3, p4, componentId); }
+  getNumForcedComponents(componentHash: number): number { return GetNumForcedComponents(componentHash); }
+  getPropFromOutfit(outfitHash: number, variantIndex: number): number { return (GetPropFromOutfit as any)(outfitHash, variantIndex); }
+  isDlcDataEmpty(itemHash: number): boolean { return IsDlcDataEmpty(itemHash); }
+  loadContentChangeSetGroup(hash: number): void { LoadContentChangeSetGroup(hash); }
+  unloadContentChangeSetGroup(hash: number): void { UnloadContentChangeSetGroup(hash); }
 
   ["_0x10144267DD22866C"](...args: any[]): any { return Citizen.invokeNative("0x10144267DD22866C", ...args); }
   ["_0x96E2929292A4DB77"](...args: any[]): any { return Citizen.invokeNative("0x96E2929292A4DB77", ...args); }

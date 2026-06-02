@@ -100,14 +100,18 @@ export class GameMiscNs {
   clearAreaOfVehicles(x: number, y: number, z: number, radius: number, p4: boolean, p5: boolean, p6: boolean, p7: boolean, p8: boolean): void {
     ClearAreaOfVehicles(x, y, z, radius, p4 ?? false, p5 ?? false, p6 ?? false, p7 ?? false, p8 ?? false);
   }
-  clearAreaOfPeds(x: number, y: number, z: number, radius: number, p4: number): void {
-    (ClearAreaOfPeds as any)(x, y, z, radius, p4 ?? 0);
+  clearAreaOfPeds(x: number, y: number, z: number, radius: number, flags: number): void {
+    ClearAreaOfPeds(x, y, z, radius, !!flags)
   }
-  clearAreaOfObjects(x: number, y: number, z: number, radius: number, p4: number): void {
-    (ClearAreaOfObjects as any)(x, y, z, radius, p4 ?? 0);
+  clearAreaOfObjects(x: number, y: number, z: number, radius: number, flags: number): void {
+    ClearAreaOfObjects(x, y, z, radius, flags);
   }
-  clearAreaOfCops(x: number, y: number, z: number, radius: number, flags: number): void { (ClearAreaOfCops as any)(x, y, z, radius, flags ?? 0); }
-  clearAreaOfProjectiles(x: number, y: number, z: number, radius: number, flags: number): void { (ClearAreaOfProjectiles as any)(x, y, z, radius, flags ?? 0); }
+  clearAreaOfCops(x: number, y: number, z: number, radius: number, flags: number): void {
+    ClearAreaOfCops(x, y, z, radius, !!flags);
+  }
+  clearAreaOfProjectiles(x: number, y: number, z: number, radius: number, flags: number): void {
+    ClearAreaOfProjectiles(x, y, z, radius, !!flags);
+  }
 
   setSaveMenuActive(ignoreVehicle: boolean): void { SetSaveMenuActive(ignoreVehicle); }
   setCreditsActive(toggle: boolean): void { SetCreditsActive(toggle); }
@@ -129,7 +133,10 @@ export class GameMiscNs {
   forceGameStatePlaying(): void { ForceGameStatePlaying(); }
 
   setSaveHouse(p0: number, p1: boolean, p2: boolean): void { SetSaveHouse(p0, p1, p2); }
-  overrideSaveHouse(p0: boolean, p1: number, p2: number, p3: number, p4: number, p5: boolean, p6: number, p7: number): boolean { return (OverrideSaveHouse as any)(p0, p1, p2, p3, p4, p5, p6, p7); }
+  overrideSaveHouse(p0: boolean, p1: number, p2: number, p3: number, p4: number, p5: boolean, p6: number, p7: number): boolean {
+    const [result] = OverrideSaveHouse(p0, p1, p2, p3, p4, p5);
+    return result;
+  }
   doAutoSave(): void { DoAutoSave(); }
   getIsAutoSaveOff(): boolean { return GetIsAutoSaveOff(); }
   isAutoSaveInProgress(): boolean { return IsAutoSaveInProgress(); }
@@ -273,37 +280,40 @@ export class GameMiscNs {
     ShootSingleBulletBetweenCoordsIgnoreEntityNew(x1, y1, z1, x2, y2, z2, damage, p7, weaponHash, ownerPed, isAudible, isInvisible, speed, entity, p14, p15, p16, p17);
   }
 
-  getGlobalCharBuffer(): string { return GetGlobalCharBuffer(); } // unverified
+  getGlobalCharBuffer(): string { return GetGlobalCharBuffer(); }
   getBaseElementMetadata(p2: number, p3: boolean): { p0: number; p1: number; result: boolean } {
-    const r: any = (GetBaseElementMetadata as any)(p2, p3);
-    return { p0: r?.[0], p1: r?.[1], result: r?.[2] };
-  } // unverified
+    const [result, p0, p1] = GetBaseElementMetadata(p2, p3);
+    return { result, p0, p1 };
+  }
 
-  clearWeatherTypeOvertimePersist(transitionTime: number): void { ClearWeatherTypeOvertimePersist(transitionTime); } // unverified
+  clearWeatherTypeOvertimePersist(transitionTime: number): void { ClearWeatherTypeOvertimePersist(transitionTime); }
   setWeatherTypeTransition(weatherType1: number, weatherType2: number, percentWeather2: number): void { SetWeatherTypeTransition(weatherType1, weatherType2, percentWeather2); }
 
-  clearCloudHat(): void { ClearCloudHat(); } // unverified
+  clearCloudHat(): void { ClearCloudHat(); }
   setCloudHatOpacity(opacity: number): void { SetCloudsAlpha(opacity); }
   getCloudHatOpacity(): number { return GetCloudsAlpha(); }
 
-  getBenchmarkTime(): number { return GetBenchmarkTime(); } // unverified
+  getBenchmarkTime(): number { return GetBenchmarkTime(); }
 
   getRandomIntInRange2(startRange: number, endRange: number): number { return GetRandomIntInRange(startRange, endRange); }
   getAngleBetween2DVectors(x1: number, y1: number, x2: number, y2: number): number { return GetAngleBetween_2dVectors(x1, y1, x2, y2); }
   getHeadingFromVector2d(dx: number, dy: number): number { return GetHeadingFromVector_2d(dx, dy); }
-  setBit(offset: number): number { return (SetBit as any)(offset); }
-  clearBit(offset: number): number { return (ClearBit as any)(offset); }
-  isBitSet(address: number, offset: number): boolean { return IsBitSet(address, offset); } // unverified
+  setBit(offset: number): number { return SetBit(offset); }
+  clearBit(offset: number): number { return ClearBit(offset); }
+  isBitSet(address: number, offset: number): boolean { return IsBitSet(address, offset); }
   setBitsInRange(rangeStart: number, rangeEnd: number, p3: number): number { return SetBitsInRange(rangeStart, rangeEnd, p3); }
-  stringToInt(string: string): number { return (StringToInt as any)(string); }
+  stringToInt(string: string): number {
+    const [, result] = StringToInt(string);
+    return result;
+  }
 
   getGroundZFor3dCoord(x: number, y: number, z: number, ignoreWater: boolean, p5?: boolean): number {
     const [, z2] = GetGroundZFor_3dCoord(x, y, z, ignoreWater ?? false);
     return z2;
   }
-  getGroundZAndNormalFor3DCoord(x: number, y: number, z: number): { groundZ: number; normal: import('@ragemp-fivem-bridge/shared').Vector3; result: boolean } {
-    const r: any = GetGroundZAndNormalFor_3dCoord(x, y, z);
-    return { groundZ: r?.[1], normal: toVec3(r?.[2]) ?? r?.[2], result: r?.[0] };
+  getGroundZAndNormalFor3DCoord(x: number, y: number, z: number): { groundZ: number; normal: Vector3; result: boolean } {
+    const [result, groundZ, position] = GetGroundZAndNormalFor_3dCoord(x, y, z);
+    return { result, groundZ, normal: toVec3(position) };
   }
   getGroundZFor3dCoord2(x: number, y: number, z: number, waterAsGround: boolean): number {
     const [, z2] = GetGroundZExcludingObjectsFor_3dCoord(x, y, z, waterAsGround);
@@ -329,15 +339,15 @@ export class GameMiscNs {
     ClearAngledAreaOfVehicles(x1, y1, z1, x2, y2, z2, width, p7 ?? false, p8 ?? false, p9 ?? false, p10 ?? false, p11 ?? false);
   }
 
-  setRestartCustomPosition(x: number, y: number, z: number, heading: number): void { SetRestartCustomPosition(x, y, z, heading); } // unverified
-  clearRestartCustomPosition(): void { ClearRestartCustomPosition(); } // unverified
+  setRestartCustomPosition(x: number, y: number, z: number, heading: number): void { SetRestartCustomPosition(x, y, z, heading); }
+  clearRestartCustomPosition(): void { ClearRestartCustomPosition(); }
   registerSaveHouse(p0: number, p1: number, p2: number, p3: number, p5: number, p6: number): { p4: number; result: number } {
     const r = RegisterSaveHouse(p0, p1, p2, p3, p5, p6);
     return { p4: r?.[1], result: r?.[0] };
   }
 
-  hasButtonCombinationJustBeenEntered(hash: number, amount: number): boolean { return HasButtonCombinationJustBeenEntered(hash, amount); } // unverified
-  hasCheatStringJustBeenEntered(hash: number): boolean { return HasCheatStringJustBeenEntered(hash); } // unverified
+  hasButtonCombinationJustBeenEntered(hash: number, amount: number): boolean { return HasButtonCombinationJustBeenEntered(hash, amount); }
+  hasCheatStringJustBeenEntered(hash: number): boolean { return HasCheatStringJustBeenEntered(hash); }
 
   addStuntJump(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, x3: number, y3: number, z3: number, x4: number, y4: number, z4: number, camX: number, camY: number, camZ: number, p15: number, p16: number, p17: number): number {
     return AddStuntJump(x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, camX, camY, camZ, p15, p16, p17);
@@ -346,7 +356,7 @@ export class GameMiscNs {
     return AddStuntJumpAngled(x1, y1, z1, x2, y2, z2, radius1, x3, y3, z3, x4, y4, z4, radius2, camX, camY, camZ, p17, p18, p19);
   }
 
-  getGravityLevel(): number { return GetGravityLevel(); } // unverified
+  getGravityLevel(): number { return GetGravityLevel(); }
 
   startSaveData(p1: number, p2: boolean): number { return StartSaveData(p1, p2); }
   stopSaveData(): void { StopSaveData(); }
@@ -357,38 +367,42 @@ export class GameMiscNs {
   registerFloatToSave(name: string): number { return RegisterFloatToSave(name); }
   registerBoolToSave(name: string): number { return RegisterBoolToSave(name); }
   registerTextLabelToSave(name: string): number { return RegisterTextLabelToSave(name); }
-  registerTextLabelToSave2(name: string): number { return RegisterTextLabelToSave_2(name); } // unverified
+  registerTextLabelToSave2(name: string): number { return RegisterTextLabelToSave_2(name); }
   startSaveStructWithSize(size: number, structName: string): number { return StartSaveStructWithSize(size, structName); }
   stopSaveStruct(): void { StopSaveStruct(); }
   startSaveArrayWithSize(size: number, arrayName: string): number { return StartSaveArrayWithSize(size, arrayName); }
   stopSaveArray(): void { StopSaveArray(); }
   copyMemory(size: number): { dst: number; src: number } {
-    const r: any = (CopyMemory as any)(size);
-    return { dst: r?.[0], src: r?.[1] };
-  } // unverified
+    const src = 0;
+    const dst = CopyMemory(0, size);
+    return { dst, src };
+  }
 
-  getNumDispatchedUnitsForPlayer(dispatchService: number): number { return GetNumDispatchedUnitsForPlayer(dispatchService); } // unverified
+  getNumDispatchedUnitsForPlayer(dispatchService: number): number { return GetNumDispatchedUnitsForPlayer(dispatchService); }
   createIncident(dispatchService: number, x: number, y: number, z: number, numUnits: number, radius: number, p7: number, p8: number): number {
-    return (CreateIncident as any)(dispatchService, x, y, z, numUnits, radius, p7, p8);
+    const [, result] = CreateIncident(dispatchService, x, y, z, numUnits, radius, p7);
+    return result;
   }
   createIncidentWithEntity(dispatchService: number, ped: number, numUnits: number, radius: number, p5: number, p6: number): number {
-    return (CreateIncidentWithEntity as any)(dispatchService, ped, numUnits, radius, p5, p6);
+    const [, result] = CreateIncidentWithEntity(dispatchService, ped, numUnits, radius, p5);
+    return result;
   }
-  setIncidentUnk(incidentId: number, p1: number): void { SetIncidentUnk(incidentId, p1); } // unverified
-  findSpawnPointInDirection(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, distance: number): import('@ragemp-fivem-bridge/shared').Vector3 {
-    return toVec3((FindSpawnPointInDirection as any)(x1, y1, z1, x2, y2, z2, distance));
+  setIncidentUnk(incidentId: number, p1: number): void { SetIncidentUnk(incidentId, p1); }
+  findSpawnPointInDirection(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, distance: number): Vector3 {
+    const [_, position] = FindSpawnPointInDirection(x1, y1, z1, x2, y2, z2, distance);
+    return toVec3(position);
   }
   addDispatchSpawnBlockingAngledArea(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, width: number): number {
     return AddDispatchSpawnBlockingAngledArea(x1, y1, z1, x2, y2, z2, width);
-  } // unverified
-  addDispatchSpawnBlockingArea(x1: number, y1: number, x2: number, y2: number): number { return AddDispatchSpawnBlockingArea(x1, y1, x2, y2); } // unverified
-  addTacticalAnalysisPoint(x: number, y: number, z: number): void { AddTacticalAnalysisPoint(x, y, z); } // unverified
-  clearTacticalAnalysisPoints(): void { ClearTacticalAnalysisPoints(); } // unverified
+  }
+  addDispatchSpawnBlockingArea(x1: number, y1: number, x2: number, y2: number): number { return AddDispatchSpawnBlockingArea(x1, y1, x2, y2); }
+  addTacticalAnalysisPoint(x: number, y: number, z: number): void { AddTacticalAnalysisPoint(x, y, z); }
+  clearTacticalAnalysisPoints(): void { ClearTacticalAnalysisPoints(); }
 
   addPopMultiplierArea(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, p6: number, p7: number, p8: boolean): number {
     return AddPopMultiplierArea(x1, y1, z1, x2, y2, z2, p6, p7, p8 ?? false);
   }
-  isPopMultiplierAreaUnk(id: number): boolean { return IsPopMultiplierAreaUnk(id); } // unverified
+  isPopMultiplierAreaUnk(id: number): boolean { return IsPopMultiplierAreaUnk(id); }
   addPopMultiplierSphere(x: number, y: number, z: number, radius: number, pedMultiplier: number, vehicleMultiplier: number, p6: boolean, p7: boolean): number {
     return AddPopMultiplierSphere(x, y, z, radius, pedMultiplier, vehicleMultiplier, p6 ?? false, p7 ?? false);
   }
@@ -400,9 +414,9 @@ export class GameMiscNs {
     DisplayOnscreenKeyboard(p0, windowTitle, p2, defaultText, defaultConcat1, defaultConcat2, defaultConcat3, maxInputLength);
   }
 
-  removeStealthKill(hash: number, p1: boolean): void { RemoveStealthKill(hash, p1); } // unverified
-  setBeastModeActive(player: number): void { SetBeastModeActive(player); } // unverified
-  setForcePlayerToJump(player: number): void { SetForcePlayerToJump(player); } // unverified
+  removeStealthKill(hash: number, p1: boolean): void { RemoveStealthKill(hash, p1); }
+  setBeastModeActive(player: number): void { SetBeastModeActive(player); }
+  setForcePlayerToJump(player: number): void { SetForcePlayerToJump(player); }
 
   isProjectileTypeInAngledArea(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, width: number, p7: number, weaponHash: string | number, ownedByPlayer: boolean): boolean {
     return IsProjectileTypeInAngledArea(x1, y1, z1, x2, y2, z2, width, p7, weaponHash,  ownedByPlayer ?? false);
@@ -416,26 +430,26 @@ export class GameMiscNs {
   }
   getProjectileNearPed(ped: number, weaponhash: number, p2: number, p3: number, p4: number, p5: boolean): boolean {
     return (GetProjectileNearPed as any)(ped, weaponhash, p2, p3, p4, p5 ?? false);
-  } // unverified
+  }
 
   scriptRaceGetPlayerSplitTime(player: number): { p1: number; p2: number; result: boolean } {
     const r = ScriptRaceGetPlayerSplitTime(player);
     return { p1: r?.[1], p2: r?.[2], result: r?.[0] };
   }
-  startBenchmarkRecording(): void { StartBenchmarkRecording(); } // unverified
-  stopBenchmarkRecording(): void { StopBenchmarkRecording(); } // unverified
-  resetBenchmarkRecording(): void { ResetBenchmarkRecording(); } // unverified
-  saveBenchmarkRecording(): void { SaveBenchmarkRecording(); } // unverified
-  uiIsSingleplayerPauseMenuActive(): boolean { return UiIsSingleplayerPauseMenuActive(); } // unverified
-  landingMenuIsActive(): boolean { return LandingMenuIsActive(); } // unverified
-  isCommandLineBenchmarkValueSet(): boolean { return IsCommandLineBenchmarkValueSet(); } // unverified
-  getBenchmarkIterationsFromCommandLine(): number { return GetBenchmarkIterationsFromCommandLine(); } // unverified
-  getBenchmarkPassFromCommandLine(): number { return GetBenchmarkPassFromCommandLine(); } // unverified
+  startBenchmarkRecording(): void { StartBenchmarkRecording(); }
+  stopBenchmarkRecording(): void { StopBenchmarkRecording(); }
+  resetBenchmarkRecording(): void { ResetBenchmarkRecording(); }
+  saveBenchmarkRecording(): void { SaveBenchmarkRecording(); }
+  uiIsSingleplayerPauseMenuActive(): boolean { return UiIsSingleplayerPauseMenuActive(); }
+  landingMenuIsActive(): boolean { return LandingMenuIsActive(); }
+  isCommandLineBenchmarkValueSet(): boolean { return IsCommandLineBenchmarkValueSet(); }
+  getBenchmarkIterationsFromCommandLine(): number { return GetBenchmarkIterationsFromCommandLine(); }
+  getBenchmarkPassFromCommandLine(): number { return GetBenchmarkPassFromCommandLine(); }
 
-  forceSocialClubUpdate(): void { ForceSocialClubUpdate(); } // unverified
-  isInPowerSavingMode(): boolean { return IsInPowerSavingMode(); } // unverified
-  getPowerSavingModeDuration(): number { return GetPowerSavingModeDuration(); } // unverified
-  setPlayerRockstarEditorDisabled(toggle: boolean): void { SetPlayerRockstarEditorDisabled(toggle); } // unverified
+  forceSocialClubUpdate(): void { ForceSocialClubUpdate(); }
+  isInPowerSavingMode(): boolean { return IsInPowerSavingMode(); }
+  getPowerSavingModeDuration(): number { return GetPowerSavingModeDuration(); }
+  setPlayerRockstarEditorDisabled(toggle: boolean): void { SetPlayerRockstarEditorDisabled(toggle); }
 
   startPerformanceTimer(): { getElapsedMs: () => number; getElapsedSec: () => number; getElapsedUs: () => number; reset: () => void } {
     let start = GetGameTimer();
@@ -454,8 +468,8 @@ export class GameMiscNs {
   clearAreaOfEverything(x: number, y: number, z: number, radius: number, p4: boolean, p5: boolean, p6: boolean, p7: boolean): void {
     ClearAreaOfEverything(x, y, z, radius, p4 ?? false, p5 ?? false, p6 ?? false, p7 ?? false);
   }
-  enableMpDlcMaps(toggle: boolean): void { (EnableMpDlcMaps as any)(toggle); } // unverified
-  setUnkMapFlag(flag: number): void { SetUnkMapFlag(flag); } // unverified
+  enableMpDlcMaps(toggle: boolean): void { EnableMpDlcMaps(Number(toggle)); }
+  setUnkMapFlag(flag: number): void { SetUnkMapFlag(flag); }
   startSaveStruct(size: number, structName: string): number { return StartSaveStructWithSize(size, structName); }
   startSaveArray(size: number, arrayName: string): number { return StartSaveArrayWithSize(size, arrayName); }
 

@@ -437,9 +437,9 @@ export class GameGraphicsNs {
     drawMarker(type: number, posX: number, posY: number, posZ: number, dirX: number, dirY: number, dirZ: number, rotX: number, rotY: number, rotZ: number, scaleX: number, scaleY: number, scaleZ: number, red: number, green: number, blue: number, alpha: number, bobUpAndDown: boolean, faceCamera: boolean, p19: number, rotate: boolean, textureDict: string | null, textureName: string | null, drawOnEnts: boolean): void {
         DrawMarker(type, posX, posY, posZ, dirX, dirY, dirZ, rotX, rotY, rotZ, scaleX, scaleY, scaleZ, red, green, blue, alpha, bobUpAndDown ?? false, faceCamera ?? false, p19 ?? 2, rotate ?? false, textureDict ?? null, textureName ?? null, drawOnEnts ?? false);
     }
-    drawMarker2(type: number, posX: number, posY: number, posZ: number, dirX: number, dirY: number, dirZ: number, rotX: number, rotY: number, rotZ: number, scaleX: number, scaleY: number, scaleZ: number, red: number, green: number, blue: number, alpha: number, bobUpAndDown: boolean, faceCamera: boolean, p19: number, rotate: boolean, textureDict: string | null, textureName: string | null, drawOnEnts: boolean, p24: boolean, p25: boolean): void {
-        Citizen.invokeNative("0xE82728F0DE75D13A", type, posX, posY, posZ, dirX, dirY, dirZ, rotX, rotY, rotZ, scaleX, scaleY, scaleZ, red, green, blue, alpha, bobUpAndDown ?? false, faceCamera ?? false, p19 ?? 2, rotate ?? false, textureDict ?? null, textureName ?? null, drawOnEnts ?? false, p24 ?? false, p25 ?? false);
-    } // unverified
+    drawMarker2(type: number, posX: number, posY: number, posZ: number, dirX: number, dirY: number, dirZ: number, rotX: number, rotY: number, rotZ: number, scaleX: number, scaleY: number, scaleZ: number, red: number, green: number, blue: number, alpha: number, bobUpAndDown: boolean, faceCamera: boolean, p19: number, rotate: boolean, textureDict: string | null, textureName: string | null, drawOnEnts: boolean, p24: boolean, _p25: boolean): void {
+        DrawMarker_2(type, posX, posY, posZ, dirX, dirY, dirZ, rotX, rotY, rotZ, scaleX, scaleY, scaleZ, red, green, blue, alpha, bobUpAndDown, faceCamera, p19, rotate, textureDict, textureName, drawOnEnts, p24);  
+    }
 
     createCheckpoint(type: number, posX1: number, posY1: number, posZ1: number, posX2: number, posY2: number, posZ2: number, diameter: number, red: number, green: number, blue: number, alpha: number, reserved: number): number {
         return CreateCheckpoint(type, posX1, posY1, posZ1, posX2, posY2, posZ2, diameter, red, green, blue, alpha, reserved);
@@ -575,7 +575,7 @@ export class GameGraphicsNs {
     callScaleformMovieFunctionMixedParams(scaleform: number, methodName: string, floatParam1: number, floatParam2: number, floatParam3: number, floatParam4: number, floatParam5: number, stringParam1: string, stringParam2: string, stringParam3: string, stringParam4: string, stringParam5: string): void {
         CallScaleformMovieFunctionMixedParams(scaleform, methodName, floatParam1, floatParam2, floatParam3, floatParam4, floatParam5, stringParam1, stringParam2, stringParam3, stringParam4, stringParam5);
     } // unverified
-    beginScaleformHudMovieMethod(hudComponent: number, methodName: string): boolean { return Citizen.invokeNative("0xF6E48914C7A8694E", hudComponent, methodName); }
+    beginScaleformHudMovieMethod(hudComponent: number, methodName: string): boolean { return BeginScaleformMovieMethod(hudComponent, methodName); }
     pushScaleformMovieFunctionFromHudComponent(hudComponent: number, methodName: string): boolean { return PushScaleformMovieFunctionFromHudComponent(hudComponent, methodName); } // unverified
     pushScaleformMovieFunctionN(methodName: string): boolean { return BeginScaleformMovieMethodN(methodName); } // unverified
     beginTextComponent(componentType: string): void { BeginTextCommandScaleformString(componentType); } // unverified

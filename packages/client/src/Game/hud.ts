@@ -397,7 +397,7 @@ export class GameHudNs {
 
   setLoadingPromptTextEntry(string: string): void { BeginTextCommandBusyspinnerOn(string); }
   showLoadingPrompt(busySpinnerType: number): void { EndTextCommandBusyspinnerOn(busySpinnerType); }
-  setCursorSprite(spriteId: number): void { SetMouseCursorSprite(spriteId); } // unverified
+  setCursorSprite(spriteId: number): void { SetMouseCursorSprite(spriteId); }
   removeNotification(notificationId: number): void { ThefeedRemoveItem(notificationId); }
   setNotificationFlashColor(red: number, green: number, blue: number, alpha: number): void { ThefeedSetRgbaParameterForNextMessage(red, green, blue, alpha); }
   setNotificationMessage(txdName: string, textureName: string, flash: boolean, iconType: number, sender: string, subject: string): number { return EndTextCommandThefeedPostMessagetext(txdName, textureName, flash, iconType, sender, subject); }
@@ -406,174 +406,174 @@ export class GameHudNs {
   drawNotification2(blink: boolean, p1: boolean): number { return EndTextCommandThefeedPostTickerForced(blink, p1); }
   drawNotification3(blink: boolean, p1: boolean): number { return EndTextCommandThefeedPostTickerWithTokens(blink, p1); }
   drawNotification4(blink: boolean, p1: boolean): number { return EndTextCommandThefeedPostTicker(blink, p1); }
-  setTextEntry2(GxtEntry: string): void { SetTextEntry(GxtEntry); } // unverified
+  setTextEntry2(GxtEntry: string): void { SetTextEntry(GxtEntry); }
   drawSubtitleTimed(duration: number, drawImmediately: boolean): void { EndTextCommandPrint(duration, drawImmediately); }
   setTextEntryForWidth(text: string): void { SetTextEntryForWidth(text); }
   getTextScreenWidth(p0: boolean): number { return EndTextCommandGetWidth(p0); }
   setTextGxtEntry(entry: string): void { BeginTextCommandDisplayText(entry); }
   setTextComponentFormat(inputType: string): void { BeginTextCommandDisplayHelp(inputType); }
   displayHelpTextFromStringLabel(p0: number, loop: boolean, beep: boolean, shape: number): void { EndTextCommandDisplayHelp(p0, loop, beep, shape); }
-  addTextComponentItemString(labelName: string): void { AddTextComponentItemString(labelName); } // unverified
-  addTextComponentSubstringLocalized(gxtEntryHash: number): void { AddTextComponentSubstringLocalized(gxtEntryHash); } // unverified
-  addTextComponentSubstringCash(value: number, commaSeparated: boolean): void { AddTextComponentSubstringCash(value, commaSeparated); } // unverified
-  requestAdditionalText2(gxt: string, slot: number): void { RequestAdditionalText_2(gxt, slot); } // unverified
-  respondingAsTemp(zoom: number): void { RespondingAsTemp(zoom); } // unverified
-  setRadarZoomLevelThisFrame(zoom: number): void { SetRadarZoomLevelThisFrame(zoom); } // unverified
-  getTextScaleHeight(size: number, font: number): number { return GetTextScaleHeight(size, font); } // unverified
+  addTextComponentItemString(labelName: string): void { AddTextComponentItemString(labelName); }
+  addTextComponentSubstringLocalized(gxtEntryHash: number): void { AddTextComponentSubstringLocalized(gxtEntryHash); }
+  addTextComponentSubstringCash(value: number, commaSeparated: boolean): void { AddTextComponentSubstringCash(value, commaSeparated); }
+  requestAdditionalText2(gxt: string, slot: number): void { RequestAdditionalText_2(gxt, slot); }
+  respondingAsTemp(zoom: number): void { RespondingAsTemp(zoom); }
+  setRadarZoomLevelThisFrame(zoom: number): void { SetRadarZoomLevelThisFrame(zoom); }
+  getTextScaleHeight(size: number, font: number): number { return GetTextScaleHeight(size, font); }
   showWeaponWheel(show: boolean): void { HudForceWeaponWheel(show); }
-  keyHudColour(toggle: boolean, ped: number): void { KeyHudColour(toggle, ped); } // unverified
-  setMinimapRevealed(toggle: boolean): void { SetMinimapRevealed(toggle); } // unverified
-  isMinimapAreaRevealed(x: number, y: number, z: number): boolean { return IsMinimapAreaRevealed(x, y, z); } // unverified
-  setMinimapAttitudeIndicatorLevel(altitude: number, p1: boolean): void { SetMinimapAttitudeIndicatorLevel(altitude, p1); } // unverified
+  keyHudColour(toggle: boolean, ped: number): void { KeyHudColour(toggle, ped); }
+  setMinimapRevealed(toggle: boolean): void { SetMinimapRevealed(toggle); }
+  isMinimapAreaRevealed(x: number, y: number, z: number): boolean { return IsMinimapAreaRevealed(x, y, z); }
+  setMinimapAttitudeIndicatorLevel(altitude: number, p1: boolean): void { SetMinimapAttitudeIndicatorLevel(altitude, p1); }
   setRadarBigmapEnabled(toggleBigMap: boolean, showFullMap: boolean): void { SetBigmapActive(toggleBigMap, showFullMap); }
-  hasHeadDisplayLoaded(gamerTagId: number): boolean { return HasHeadDisplayLoaded(gamerTagId); } // unverified
-  addTrevorRandomModifier(gamerTagId: number): number { return (AddTrevorRandomModifier as any)(gamerTagId); } // unverified
-  setHeadDisplayFlag(gamerTagId: number, component: number, toggle: boolean, p3: boolean): void { SetHeadDisplayFlag(gamerTagId, component, toggle, p3); } // unverified
-  setHeadDisplayWanted(gamerTagId: number, wantedlvl: number): void { Citizen.invokeNative("0xCF228E2AA03099C3", gamerTagId, wantedlvl); } // unverified
-  setHeadDisplayString(gamerTagId: number, string: string): void { Citizen.invokeNative("0xDEA2B8283BAA3944", gamerTagId, string); } // unverified
-  objectDecalToggle(contextHash: number): void { ObjectDecalToggle(contextHash); } // unverified
-  setUseridsUihidden(p0: boolean): boolean { return (SetUseridsUihidden as any)(p0); } // unverified
-  hideSpecialAbilityLockonOperation(ped: number, toggle: boolean): void { HideSpecialAbilityLockonOperation(ped, toggle); } // unverified
-  setWarningMessage2(entryHeader: string, entryLine1: string, instructionalKey: number, entryLine2: string, p4: boolean, p5: number, p8: number, p9: number): { showBackground: number; p7: number } { const r: any = (SetWarningMessageWithHeader as any)(entryHeader, entryLine1, instructionalKey, entryLine2, p4, p5, p8, p9); return { showBackground: r[1], p7: r[2] }; } // unverified
-  setWarningMessage3(entryHeader: string, entryLine1: string, instructionalKey: number, entryLine2: string, p4: boolean, p5: number, p6: number, p9: number, p10: number): { p7: number; p8: number } { const r: any = (SetWarningMessageWithHeaderAndSubstringFlags as any)(entryHeader, entryLine1, instructionalKey, entryLine2, p4, p5, p6, p9, p10); return { p7: r[1], p8: r[2] }; } // unverified
+  hasHeadDisplayLoaded(gamerTagId: number): boolean { return HasHeadDisplayLoaded(gamerTagId); }
+  addTrevorRandomModifier(gamerTagId: number): number { return (AddTrevorRandomModifier as any)(gamerTagId); }
+  setHeadDisplayFlag(gamerTagId: number, component: number, toggle: boolean, p3: boolean): void { SetHeadDisplayFlag(gamerTagId, component, toggle, p3); }
+  setHeadDisplayWanted(gamerTagId: number, wantedlvl: number): void { SetMpGamerTagWantedLevel(gamerTagId, wantedlvl); }
+  setHeadDisplayString(gamerTagId: number, string: string): void { SetMpGamerTagName(gamerTagId, string); }
+  objectDecalToggle(contextHash: number): void { ObjectDecalToggle(contextHash); }
+  setUseridsUihidden(p0: boolean): boolean { return (SetUseridsUihidden as any)(p0); }
+  hideSpecialAbilityLockonOperation(ped: number, toggle: boolean): void { HideSpecialAbilityLockonOperation(ped, toggle); }
+  setWarningMessage2(entryHeader: string, entryLine1: string, instructionalKey: number, entryLine2: string, p4: boolean, p5: number, p8: number, p9: number): { showBackground: number; p7: number } { const r: any = (SetWarningMessageWithHeader as any)(entryHeader, entryLine1, instructionalKey, entryLine2, p4, p5, p8, p9); return { showBackground: r[1], p7: r[2] }; }
+  setWarningMessage3(entryHeader: string, entryLine1: string, instructionalKey: number, entryLine2: string, p4: boolean, p5: number, p6: number, p9: number, p10: number): { p7: number; p8: number } { const r: any = (SetWarningMessageWithHeaderAndSubstringFlags as any)(entryHeader, entryLine1, instructionalKey, entryLine2, p4, p5, p6, p9, p10); return { p7: r[1], p8: r[2] }; }
   setMouseCursorActiveThisFrame(): void { SetMouseCursorThisFrame(); }
-  setMouseCursorSprite(spriteId: number): void { SetMouseCursorSprite(spriteId); } // unverified
-  setMouseCursorVisibleInMenus(toggle: boolean): void { SetMouseCursorVisibleInMenus(toggle); } // unverified
-  thefeedDisableLoadingScreenTips(): void { ThefeedDisableLoadingScreenTips(); } // unverified
-  thefeedDisplayLoadingScreenTips(): void { ThefeedDisplayLoadingScreenTips(); } // unverified
-  thefeedSpsExtendWidescreenOn(): void { ThefeedSpsExtendWidescreenOn(); } // unverified
-  thefeedSpsExtendWidescreenOff(): void { ThefeedSpsExtendWidescreenOff(); } // unverified
-  thefeedGetFirstVisibleDeleteRemaining(): number { return ThefeedGetFirstVisibleDeleteRemaining(); } // unverified
-  thefeedCommentTeleportPoolOn(): void { ThefeedCommentTeleportPoolOn(); } // unverified
-  thefeedCommentTeleportPoolOff(): void { ThefeedCommentTeleportPoolOff(); } // unverified
-  thefeedSetNextPostBackgroundColor(hudColorIndex: number): void { ThefeedSetNextPostBackgroundColor(hudColorIndex); } // unverified
-  thefeedSetAnimpostfxColor(red: number, green: number, blue: number, alpha: number): void { ThefeedSetAnimpostfxColor(red, green, blue, alpha); } // unverified
-  thefeedSetAnimpostfxCount(count: number): void { ThefeedSetAnimpostfxCount(count); } // unverified
-  thefeedSetAnimpostfxSound(toggle: boolean): void { ThefeedSetAnimpostfxSound(toggle); } // unverified
-  thefeedSetFlushAnimpostfx(p0: number): void { (ThefeedSetFlushAnimpostfx as any)(p0); } // unverified
-  thefeedAddTxdRef(...args: any[]): any { const r = (ThefeedAddTxdRef as any)(...args); return Array.isArray(r) ? { p0: r[0], p1: r[1], p2: r[2], p3: r[3] } : r; } // unverified
+  setMouseCursorSprite(spriteId: number): void { SetMouseCursorSprite(spriteId); }
+  setMouseCursorVisibleInMenus(toggle: boolean): void { SetMouseCursorVisibleInMenus(toggle); }
+  thefeedDisableLoadingScreenTips(): void { ThefeedDisableLoadingScreenTips(); }
+  thefeedDisplayLoadingScreenTips(): void { ThefeedDisplayLoadingScreenTips(); }
+  thefeedSpsExtendWidescreenOn(): void { ThefeedSpsExtendWidescreenOn(); }
+  thefeedSpsExtendWidescreenOff(): void { ThefeedSpsExtendWidescreenOff(); }
+  thefeedGetFirstVisibleDeleteRemaining(): number { return ThefeedGetFirstVisibleDeleteRemaining(); }
+  thefeedCommentTeleportPoolOn(): void { ThefeedCommentTeleportPoolOn(); }
+  thefeedCommentTeleportPoolOff(): void { ThefeedCommentTeleportPoolOff(); }
+  thefeedSetNextPostBackgroundColor(hudColorIndex: number): void { ThefeedSetNextPostBackgroundColor(hudColorIndex); }
+  thefeedSetAnimpostfxColor(red: number, green: number, blue: number, alpha: number): void { ThefeedSetAnimpostfxColor(red, green, blue, alpha); }
+  thefeedSetAnimpostfxCount(count: number): void { ThefeedSetAnimpostfxCount(count); }
+  thefeedSetAnimpostfxSound(toggle: boolean): void { ThefeedSetAnimpostfxSound(toggle); }
+  thefeedSetFlushAnimpostfx(p0: number): void { (ThefeedSetFlushAnimpostfx as any)(p0); }
+  thefeedAddTxdRef(...args: any[]): any { const r = (ThefeedAddTxdRef as any)(...args); return Array.isArray(r) ? { p0: r[0], p1: r[1], p2: r[2], p3: r[3] } : r; }
   endTextCommandThefeedPostStats(statTitle: string, iconEnum: number, stepVal: number, barValue: number, isImportant: boolean, pictureTextureDict: string, pictureTextureName: string): number { return (EndTextCommandThefeedPostStats as any)(statTitle, iconEnum, stepVal, barValue, isImportant, pictureTextureDict, pictureTextureName); }
   endTextCommandThefeedPostMessagetext(txdName: string, textureName: string, flash: boolean, iconType: number, sender: string, subject: string): number { return EndTextCommandThefeedPostMessagetext(txdName, textureName, flash, iconType, sender, subject); }
-  endTextCommandThefeedPostMessagetextGxtEntry(txdName: string, textureName: string, flash: boolean, iconType: number, sender: string, subject: string): number { return EndTextCommandThefeedPostMessagetextGxtEntry(txdName, textureName, flash, iconType, sender, subject); } // unverified
+  endTextCommandThefeedPostMessagetextGxtEntry(txdName: string, textureName: string, flash: boolean, iconType: number, sender: string, subject: string): number { return EndTextCommandThefeedPostMessagetextGxtEntry(txdName, textureName, flash, iconType, sender, subject); }
   endTextCommandThefeedPostMessagetextTu(txdName: string, textureName: string, flash: boolean, iconType: number, sender: string, subject: string, duration: number): number { return EndTextCommandThefeedPostMessagetextTu(txdName, textureName, flash, iconType, sender, subject, duration); }
   endTextCommandThefeedPostMessagetextWithCrewTag(txdName: string, textureName: string, flash: boolean, iconType: number, sender: string, subject: string, duration: number, clanTag: string): number { return EndTextCommandThefeedPostMessagetextWithCrewTag(txdName, textureName, flash, iconType, sender, subject, duration, clanTag); }
   endTextCommandThefeedPostMessagetextWithCrewTagAndAdditionalIcon(txdName: string, textureName: string, flash: boolean, iconType1: number, sender: string, subject: string, duration: number, clanTag: string, iconType2: number, p9: number): number { return EndTextCommandThefeedPostMessagetextWithCrewTagAndAdditionalIcon(txdName, textureName, flash, iconType1, sender, subject, duration, clanTag, iconType2, p9); }
-  endTextCommandThefeedPostCrewtag(p0: boolean, p1: string, p3: boolean, isLeader: boolean, unk0: number, clanDesc: string, R: number, G: number, B: number): { p2: number; result: number } { const r: any = (EndTextCommandThefeedPostCrewtag as any)(p0, p1, p3, isLeader, unk0, clanDesc, R, G, B); return Array.isArray(r) ? { p2: r[1], result: r[0] } : r; } // unverified
-  endTextCommandThefeedPostCrewtagWithGameName(p0: boolean, p1: string, p3: boolean, isLeader: boolean, unk0: number, clanDesc: string, playerName: string, R: number, G: number, B: number): { p2: number; result: number } { const r: any = (EndTextCommandThefeedPostCrewtagWithGameName as any)(p0, p1, p3, isLeader, unk0, clanDesc, playerName, R, G, B); return Array.isArray(r) ? { p2: r[1], result: r[0] } : r; } // unverified
-  endTextCommandThefeedPostCrewRankup(p0: boolean, p1: string, p2: number, p3: number, p4: number): number { return (EndTextCommandThefeedPostCrewRankup as any)(p0, p1, p2, p3, p4); } // unverified
-  endTextCommandThefeedPostReplayIcon(type: number, image: string, text: string): number { return (EndTextCommandThefeedPostReplayIcon as any)(type, image, text); } // unverified
+  endTextCommandThefeedPostCrewtag(p0: boolean, p1: string, p3: boolean, isLeader: boolean, unk0: number, clanDesc: string, R: number, G: number, B: number): { p2: number; result: number } { const r: any = (EndTextCommandThefeedPostCrewtag as any)(p0, p1, p3, isLeader, unk0, clanDesc, R, G, B); return Array.isArray(r) ? { p2: r[1], result: r[0] } : r; }
+  endTextCommandThefeedPostCrewtagWithGameName(p0: boolean, p1: string, p3: boolean, isLeader: boolean, unk0: number, clanDesc: string, playerName: string, R: number, G: number, B: number): { p2: number; result: number } { const r: any = (EndTextCommandThefeedPostCrewtagWithGameName as any)(p0, p1, p3, isLeader, unk0, clanDesc, playerName, R, G, B); return Array.isArray(r) ? { p2: r[1], result: r[0] } : r; }
+  endTextCommandThefeedPostCrewRankup(p0: boolean, p1: string, p2: number, p3: number, p4: number): number { return (EndTextCommandThefeedPostCrewRankup as any)(p0, p1, p2, p3, p4); }
+  endTextCommandThefeedPostReplayIcon(type: number, image: string, text: string): number { return (EndTextCommandThefeedPostReplayIcon as any)(type, image, text); }
   beginTextCommandGetWidth(text: string): void { BeginTextCommandGetWidth(text); }
   endTextCommandGetWidth(p0: boolean): number { return EndTextCommandGetWidth(p0); }
   beginTextCommandLineCount(entry: string): void { BeginTextCommandLineCount(entry); }
-  endTextCommandLineCount(x: number, y: number): number { return Citizen.invokeNative("0x9040DFB09BE75706", Citizen.resultAsInteger(), x, y); }
-  beginTextCommandObjective(p0: string): void { BeginTextCommandObjective(p0); } // unverified
-  endTextCommandObjective(p0: number): void { (EndTextCommandObjective as any)(p0); } // unverified
-  endTextComponent(): void { EndTextComponent(); } // unverified
-  getTextSubstring(text: string, position: number, length: number): string { return GetTextSubstring(text, position, length); } // unverified
-  getTextSubstringSafe(text: string, position: number, length: number, maxLength: number): string { return GetTextSubstringSafe(text, position, length, maxLength); } // unverified
-  getTextSubstringSlice(text: string, startPosition: number, endPosition: number): string { return GetTextSubstringSlice(text, startPosition, endPosition); } // unverified
-  getLabelText(labelName: string): string { return GetLabelText(labelName); } // unverified
-  displayWhenDeadThisFrame(): void { DisplayHudWhenDeadThisFrame(); } // unverified
-  displayLoadingScreenTips(): void { Citizen.invokeNative("0x15CFA549788D35EF"); } // unverified
+  endTextCommandLineCount(x: number, y: number): number { return EndTextCommandLineCount(x, y); }
+  beginTextCommandObjective(p0: string): void { BeginTextCommandObjective(p0); }
+  endTextCommandObjective(p0: number): void { (EndTextCommandObjective as any)(p0); }
+  endTextComponent(): void { EndTextComponent(); }
+  getTextSubstring(text: string, position: number, length: number): string { return GetTextSubstring(text, position, length); }
+  getTextSubstringSafe(text: string, position: number, length: number, maxLength: number): string { return GetTextSubstringSafe(text, position, length, maxLength); }
+  getTextSubstringSlice(text: string, startPosition: number, endPosition: number): string { return GetTextSubstringSlice(text, startPosition, endPosition); }
+  getLabelText(labelName: string): string { return GetLabelText(labelName); }
+  displayWhenDeadThisFrame(): void { DisplayHudWhenDeadThisFrame(); }
+  displayLoadingScreenTips(): void { HudDisplayLoadingScreenTips(); }
   setHelpMessageTextStyle(style: number, hudColor: number, alpha: number, direction: number, offset: number): void { SetHelpMessageTextStyle(style, hudColor, alpha, direction, offset); }
   setScriptVariableColour(r: number, g: number, b: number, a: number): void { SetScriptVariableHudColour(r, g, b, a); }
-  setScriptVariable2Colour(r: number, g: number, b: number, a: number): void { SetScriptVariable_2HudColour(r, g, b, a); } // unverified
-  setAbilityBarVisibilityInMultiplayer(visible: boolean): void { SetAbilityBarVisibilityInMultiplayer(visible); } // unverified
-  setAllowAbilityBarInMultiplayer(toggle: boolean): void { SetAllowAbilityBarInMultiplayer(toggle); } // unverified
-  getClosestBlipOfType(blipSprite: number): number { return Citizen.invokeNative("0xD484BF71050CA1EE", Citizen.resultAsInteger(), blipSprite); }
-  setBlipSquaredRotation(blip: number, heading: number): void { SetBlipSquaredRotation(blip, heading); } // unverified
-  setBlipScaleTransformation(blip: number, xScale: number, yScale: number): void { SetBlipScaleTransformation(blip, xScale, yScale); } // unverified
-  setBlipDisplayIndicatorOnBlip(blip: number, toggle: boolean): void { SetBlipDisplayIndicatorOnBlip(blip, toggle); } // unverified
-  setBlipShrink(blip: number, toggle: boolean): void { SetBlipShrink(blip, toggle); } // unverified
+  setScriptVariable2Colour(r: number, g: number, b: number, a: number): void { SetScriptVariable_2HudColour(r, g, b, a); }
+  setAbilityBarVisibilityInMultiplayer(visible: boolean): void { SetAbilityBarVisibilityInMultiplayer(visible); }
+  setAllowAbilityBarInMultiplayer(toggle: boolean): void { SetAllowAbilityBarInMultiplayer(toggle); }
+  getClosestBlipOfType(blipSprite: number): number { return GetClosestBlipOfType(blipSprite); }
+  setBlipSquaredRotation(blip: number, heading: number): void { SetBlipSquaredRotation(blip, heading); }
+  setBlipScaleTransformation(blip: number, xScale: number, yScale: number): void { SetBlipScaleTransformation(blip, xScale, yScale); }
+  setBlipDisplayIndicatorOnBlip(blip: number, toggle: boolean): void { SetBlipDisplayIndicatorOnBlip(blip, toggle); }
+  setBlipShrink(blip: number, toggle: boolean): void { SetBlipShrink(blip, toggle); }
   getBlipFadeStatus(blip: number): number { return GetBlipFadeDirection(blip); }
-  setBlipCategoryPriority(category: number, priority: number): void { SetBlipCategoryPriority(category, priority); } // unverified
-  setBlipCategoryGrouped(category: number, priority: number): void { SetBlipCategoryGrouped(category, priority); } // unverified
-  deleteWaypoint(): void { DeleteWaypoint(); } // unverified
-  setMinimapSonarEnabled(toggle: boolean): void { SetMinimapSonarEnabled(toggle); } // unverified
-  showSigninUi(): void { ShowSigninUi(); } // unverified
-  getNorthRadarBlip(): number { return GetNorthRadarBlip(); } // unverified
-  setPlayerBlipPositionThisFrame(x: number, y: number): void { SetPlayerBlipPositionThisFrame(x, y); } // unverified
-  isMinimapInInterior(): boolean { return IsMinimapInInterior(); } // unverified
-  setToggleMinimapHeistIsland(toggle: boolean): void { SetToggleMinimapHeistIsland(toggle); } // unverified
-  setPlayerCashChange(cash: number, bank: number): void { SetPlayerCashChange(cash, bank); } // unverified
+  setBlipCategoryPriority(category: number, priority: number): void { SetBlipCategoryPriority(category, priority); }
+  setBlipCategoryGrouped(category: number, priority: number): void { SetBlipCategoryGrouped(category, priority); }
+  deleteWaypoint(): void { DeleteWaypoint(); }
+  setMinimapSonarEnabled(toggle: boolean): void { SetMinimapSonarEnabled(toggle); }
+  showSigninUi(): void { ShowSigninUi(); }
+  getNorthRadarBlip(): number { return GetNorthRadarBlip(); }
+  setPlayerBlipPositionThisFrame(x: number, y: number): void { SetPlayerBlipPositionThisFrame(x, y); }
+  isMinimapInInterior(): boolean { return IsMinimapInInterior(); }
+  setToggleMinimapHeistIsland(toggle: boolean): void { SetToggleMinimapHeistIsland(toggle); }
+  setPlayerCashChange(cash: number, bank: number): void { SetPlayerCashChange(cash, bank); }
   setMultiplayerCash(p0: number, p1: boolean): void { (SetMultiplayerHudCash as any)(p0, p1); }
   removeMultiplayerCash(): void { RemoveMultiplayerHudCash(); }
   forceWeaponWheel(show: boolean): void { HudForceWeaponWheel(show); }
-  weaponWheelIgnoreSelection(): void { Citizen.invokeNative("0x0AFC4AF510774B47"); }
-  weaponWheelGetSelectedHash(): number { return Citizen.invokeNative("0xA48931185F0536FE", Citizen.resultAsInteger()); } // unverified
+  weaponWheelIgnoreSelection(): void { HudWeaponWheelIgnoreSelection(); }
+  weaponWheelGetSelectedHash(): number { return HudWeaponWheelGetSelectedHash(); }
   setWeaponWheelTopSlot(weaponHash: number): void { HudSetWeaponWheelTopSlot(weaponHash); }
   weaponWheelGetSlotHash(weaponTypeIndex: number): number { return HudGetWeaponWheelTopSlot(weaponTypeIndex); }
-  weaponWheelIgnoreControlInput(toggle: boolean): void { HudWeaponWheelIgnoreControlInput(toggle); } // unverified
-  setMinimapAltitudeIndicatorLevel(altitude: number, p1: boolean): void { SetMinimapAltitudeIndicatorLevel(altitude, p1); } // unverified
-  setHealthDisplayValues(health: number, capacity: number, wasAdded: boolean): void { SetHealthHudDisplayValues(health, capacity, wasAdded); } // unverified
-  setMaxHealthDisplay(maximumValue: number): void { SetMaxHealthHudDisplay(maximumValue); } // unverified
-  setMaxArmourDisplay(maximumValue: number): void { SetMaxArmourHudDisplay(maximumValue); } // unverified
+  weaponWheelIgnoreControlInput(toggle: boolean): void { HudWeaponWheelIgnoreControlInput(toggle); }
+  setMinimapAltitudeIndicatorLevel(altitude: number, p1: boolean): void { SetMinimapAltitudeIndicatorLevel(altitude, p1); }
+  setHealthDisplayValues(health: number, capacity: number, wasAdded: boolean): void { SetHealthHudDisplayValues(health, capacity, wasAdded); }
+  setMaxHealthDisplay(maximumValue: number): void { SetMaxHealthHudDisplay(maximumValue); }
+  setMaxArmourDisplay(maximumValue: number): void { SetMaxArmourHudDisplay(maximumValue); }
   isScriptedComponentActive(id: number): boolean { return IsScriptedHudComponentActive(id); }
   hideScriptedComponentThisFrame(id: number): void { HideScriptedHudComponentThisFrame(id); }
   showScriptedComponentThisFrame(id: number): void { ShowScriptedHudComponentThisFrame(id); }
   isScriptedComponentHiddenThisFrame(id: number): boolean { return IsScriptedHudComponentHiddenThisFrame(id); }
-  hideAreaAndVehicleNameThisFrame(): void { HideAreaAndVehicleNameThisFrame(); } // unverified
-  createMpGamerTagWithCrewColor(player: number, username: string, pointedClanTag: boolean, isRockstarClan: boolean, clanTag: string, clanFlag: number, r: number, g: number, b: number): void { CreateMpGamerTagWithCrewColor(player, username, pointedClanTag, isRockstarClan, clanTag, clanFlag, r, g, b); } // unverified
-  setMpGamerTagEnabled(gamerTagId: number, toggle: boolean): void { SetMpGamerTagEnabled(gamerTagId, toggle); } // unverified
-  setMpGamerTagIcons(gamerTagId: number, toggle: boolean): void { SetMpGamerTagIcons(gamerTagId, toggle); } // unverified
-  setMpGamerHealthBarDisplay(gamerTagId: number, toggle: boolean): void { SetMpGamerHealthBarDisplay(gamerTagId, toggle); } // unverified
-  setMpGamerHealthBarMax(gamerTagId: number, value: number, maximumValue: number): void { SetMpGamerHealthBarMax(gamerTagId, value, maximumValue); } // unverified
-  setMpGamerTagUnk(gamerTagId: number, p1: number): void { SetMpGamerTagUnk(gamerTagId, p1); } // unverified
-  isValidMpGamerTagMovie(gamerTagId: number): boolean { return IsValidMpGamerTagMovie(gamerTagId); } // unverified
-  isWarningMessageActive2(): boolean { return IsWarningMessageActive_2(); } // unverified
+  hideAreaAndVehicleNameThisFrame(): void { HideAreaAndVehicleNameThisFrame(); }
+  createMpGamerTagWithCrewColor(player: number, username: string, pointedClanTag: boolean, isRockstarClan: boolean, clanTag: string, clanFlag: number, r: number, g: number, b: number): void { CreateMpGamerTagWithCrewColor(player, username, pointedClanTag, isRockstarClan, clanTag, clanFlag, r, g, b); }
+  setMpGamerTagEnabled(gamerTagId: number, toggle: boolean): void { SetMpGamerTagEnabled(gamerTagId, toggle); }
+  setMpGamerTagIcons(gamerTagId: number, toggle: boolean): void { SetMpGamerTagIcons(gamerTagId, toggle); }
+  setMpGamerHealthBarDisplay(gamerTagId: number, toggle: boolean): void { SetMpGamerHealthBarDisplay(gamerTagId, toggle); }
+  setMpGamerHealthBarMax(gamerTagId: number, value: number, maximumValue: number): void { SetMpGamerHealthBarMax(gamerTagId, value, maximumValue); }
+  setMpGamerTagUnk(gamerTagId: number, p1: number): void { SetMpGamerTagUnk(gamerTagId, p1); }
+  isValidMpGamerTagMovie(gamerTagId: number): boolean { return IsValidMpGamerTagMovie(gamerTagId); }
+  isWarningMessageActive2(): boolean { return IsWarningMessageActive_2(); }
   setWarningMessage(titleMsg: string, flags: number, promptMsg: string, p3: boolean, p4: number, p5: boolean, p6: boolean, showBackground: boolean, p8: string): void { (SetWarningMessage as any)(titleMsg, flags, promptMsg, p3, p4, p5, p6, showBackground, p8); }
   setWarningMessageWithHeader(entryHeader: string, entryLine1: string, instructionalKey: number, entryLine2: string, p4: boolean, p5: number, p8: number, p9: number): { showBackground: number; p7: number } { const r: any = (SetWarningMessageWithHeader as any)(entryHeader, entryLine1, instructionalKey, entryLine2, p4, p5, p8, p9); return Array.isArray(r) ? { showBackground: r[1], p7: r[2] } : r; }
   setWarningMessageWithHeaderAndSubstringFlags(entryHeader: string, entryLine1: string, instructionalKey: number, entryLine2: string, p4: boolean, p5: number, p6: number, p9: number, p10: number): { p7: number; p8: number } { const r: any = (SetWarningMessageWithHeaderAndSubstringFlags as any)(entryHeader, entryLine1, instructionalKey, entryLine2, p4, p5, p6, p9, p10); return Array.isArray(r) ? { p7: r[1], p8: r[2] } : r; }
-  setWarningMessageWithHeaderUnk(entryHeader: string, entryLine1: string, flags: number, entryLine2: string, p4: boolean, p5: number, showBg: boolean, p9: number, p10: number): { p6: number; p7: number } { const r: any = (SetWarningMessageWithHeaderUnk as any)(entryHeader, entryLine1, flags, entryLine2, p4, p5, showBg, p9, p10); return Array.isArray(r) ? { p6: r[1], p7: r[2] } : r; } // unverified
-  setWarningMessageWithAlert(labelTitle: string, labelMessage: string, p2: number, p3: boolean, labelMessage2: string, p5: number, p6: boolean, p7: boolean, p8: number, p9: boolean, background: boolean, errorCode: number): void { (SetWarningMessageWithAlert as any)(labelTitle, labelMessage, p2, p3, labelMessage2, p5, p6, p7, p8, p9, background, errorCode); } // unverified
-  getWarningMessageTitleHash(): number { return GetWarningMessageTitleHash(); } // unverified
-  setWarningMessageListRow(index: number, name: string, cash: number, rp: number, lvl: number, colour: number): number { return (SetWarningMessageListRow as any)(index, name, cash, rp, lvl, colour); } // unverified
-  removeWarningMessageListItems(): void { RemoveWarningMessageListItems(); } // unverified
-  raceGalleryFullscreen(toggle: boolean): void { RaceGalleryFullscreen(toggle); } // unverified
-  raceGalleryNextBlipSprite(spriteId: number): void { RaceGalleryNextBlipSprite(spriteId); } // unverified
-  raceGalleryAddBlip(x: number, y: number, z: number): number { return RaceGalleryAddBlip(x, y, z); } // unverified
-  clearRaceGalleryBlips(): void { ClearRaceGalleryBlips(); } // unverified
-  allowPauseMenuWhenDeadThisFrame(): void { AllowPauseMenuWhenDeadThisFrame(); } // unverified
-  logDebugInfo(p0: number): void { (LogDebugInfo as any)(p0); } // unverified
-  getPauseMenuSelection(): { lastItemMenuId: number; selectedItemUniqueId: number } { const r = GetPauseMenuSelection(); return Array.isArray(r) ? { lastItemMenuId: r[0], selectedItemUniqueId: r[1] } : r; } // unverified
-  getPauseMenuSelectionData(): { lastItemMenuId: number; selectedItemMenuId: number; selectedItemUniqueId: number } { const r = GetPauseMenuSelectionData(); return Array.isArray(r) ? { lastItemMenuId: r[0], selectedItemMenuId: r[1], selectedItemUniqueId: r[2] } : r; } // unverified
-  overrideMultiplayerChatPrefix(gxtEntryHash: number): void { Citizen.invokeNative("0x6A1738B4323FE2D9", gxtEntryHash); }
-  isMultiplayerChatActive(): boolean { return Citizen.invokeNative("0xB118AF58B5F332A1", Citizen.resultAsInteger()); }
-  closeMultiplayerChat(): void { Citizen.invokeNative("0x1AC8F4AD40E22127"); }
-  overrideMultiplayerChatColour(p0: number, hudColor: number): void { Citizen.invokeNative("0xF47E567B3630DD12", p0, hudColor); }
-  setTextChatUnk(p0: number): void { (SetTextChatUnk as any)(p0); } // unverified
-  setPedHasAiBlipWithColor(ped: number, hasCone: boolean, color: number): void { SetPedHasAiBlipWithColor(ped, hasCone, color); } // unverified
-  getAiBlip2(ped: number): number { return GetAiBlip(ped); } // unverified
-  getAiBlip(ped: number): number { return GetAiBlip(ped); } // unverified
-  hasDirectorModeBeenTriggered(): boolean { return HasDirectorModeBeenTriggered(); } // unverified
-  setDirectorModeClearTriggeredFlag(): void { SetDirectorModeClearTriggeredFlag(); } // unverified
-  setMinimapComponentValues(name: string, alignX: string, alignY: string, posX: number, posY: number, sizeX: number, sizeY: number): void { SetMinimapComponentPosition(name, alignX, alignY, posX, posY, sizeX, sizeY); } // unverified
-  resetMinimapComponentValues(names: string): void { ResetMinimapComponentPosition(names); } // unverified
-  getMinimapComponentValues(componentName: string): any { return GetMinimapComponentValues(componentName); } // unverified
-  getCurrentAreaNameString(): string { return GetCurrentAreaNameString(); } // unverified
-  getCurrentAreaNameHash(): number { return GetCurrentAreaNameHash(); } // unverified
-  getCurrentAreaNameLabel(): string { return GetCurrentAreaNameLabel(); } // unverified
-  getCurrentStreetNameString(): string { return GetCurrentStreetNameString(); } // unverified
-  getCurrentStreetNameHash(): number { return GetCurrentStreetNameHash(); } // unverified
-  setShowHudComponentsThisFrameBatch(show: boolean, hudComponents: number[]): void { for (const id of hudComponents) { if (show) ShowHudComponentThisFrame(id); else HideHudComponentThisFrame(id); } } // unverified
-  applyShowHudComponentsThisFrameBatch(): void {} // unverified
-  setInteriorZoomLevelIncreased(toggle: boolean): void { SetInteriorZoomLevelIncreased(toggle); } // unverified
-  setInteriorZoomLevelDecreased(toggle: boolean): void { SetInteriorZoomLevelDecreased(toggle); } // unverified
-  setMainPlayerBlipColour(color: number): void { SetMainPlayerBlipColour(color); } // unverified
-  enableDeathbloodSeethrough(p1: boolean): void { (EnableDeathbloodSeethrough as any)(p1); } // unverified
-  setMissionName2(p0: boolean, name: string): void { SetMissionName_2(p0, name); } // unverified
-  setScreenHeader(screenHash: number, header: string): void { SetPauseMenuHeaderText(screenHash, header); } // unverified
-  getItem(itemNameOrHash: number | string): any { return GetMenuItem(itemNameOrHash); } // unverified
-  tryGetItem(itemNameOrHash: number | string): any { try { return GetMenuItem(itemNameOrHash); } catch { return undefined; } } // unverified
-  getItems(itemHashes: (number | string)[]): any[] { return itemHashes.map((h) => GetMenuItem(h)); } // unverified
-  tryGetItems(itemHashes: (number | string)[]): any[] { return itemHashes.map((h) => { try { return GetMenuItem(h); } catch { return undefined; } }); } // unverified
-  setItemText(itemHash: number, text: string): void { SetMenuItemText(itemHash, text); } // unverified
-  setItemRange(itemHash: number, rangeFrom: number, rangeTo: number): void { SetMenuItemRange(itemHash, rangeFrom, rangeTo); } // unverified
-  setItemList(itemHash: number, values: string[]): void { SetMenuItemList(itemHash, values); } // unverified
-  setItemTicksVisible(itemHash: number, isVisible: boolean): void { SetMenuItemTicksVisible(itemHash, isVisible); } // unverified
-  setItemColor(itemHash: number, colorIndex: number): void { SetMenuItemColor(itemHash, colorIndex); } // unverified
-  setItemValue(itemHash: number, value: number): void { SetMenuItemValue(itemHash, value); } // unverified
-  setItemEnabled(itemHash: number, isEnabled: boolean): void { SetMenuItemEnabled(itemHash, isEnabled); } // unverified
+  setWarningMessageWithHeaderUnk(entryHeader: string, entryLine1: string, flags: number, entryLine2: string, p4: boolean, p5: number, showBg: boolean, p9: number, p10: number): { p6: number; p7: number } { const r: any = (SetWarningMessageWithHeaderUnk as any)(entryHeader, entryLine1, flags, entryLine2, p4, p5, showBg, p9, p10); return Array.isArray(r) ? { p6: r[1], p7: r[2] } : r; }
+  setWarningMessageWithAlert(labelTitle: string, labelMessage: string, p2: number, p3: boolean, labelMessage2: string, p5: number, p6: boolean, p7: boolean, p8: number, p9: boolean, background: boolean, errorCode: number): void { (SetWarningMessageWithAlert as any)(labelTitle, labelMessage, p2, p3, labelMessage2, p5, p6, p7, p8, p9, background, errorCode); }
+  getWarningMessageTitleHash(): number { return GetWarningMessageTitleHash(); }
+  setWarningMessageListRow(index: number, name: string, cash: number, rp: number, lvl: number, colour: number): number { return (SetWarningMessageListRow as any)(index, name, cash, rp, lvl, colour); }
+  removeWarningMessageListItems(): void { RemoveWarningMessageListItems(); }
+  raceGalleryFullscreen(toggle: boolean): void { RaceGalleryFullscreen(toggle); }
+  raceGalleryNextBlipSprite(spriteId: number): void { RaceGalleryNextBlipSprite(spriteId); }
+  raceGalleryAddBlip(x: number, y: number, z: number): number { return RaceGalleryAddBlip(x, y, z); }
+  clearRaceGalleryBlips(): void { ClearRaceGalleryBlips(); }
+  allowPauseMenuWhenDeadThisFrame(): void { AllowPauseMenuWhenDeadThisFrame(); }
+  logDebugInfo(p0: number): void { (LogDebugInfo as any)(p0); }
+  getPauseMenuSelection(): { lastItemMenuId: number; selectedItemUniqueId: number } { const r = GetPauseMenuSelection(); return Array.isArray(r) ? { lastItemMenuId: r[0], selectedItemUniqueId: r[1] } : r; }
+  getPauseMenuSelectionData(): { lastItemMenuId: number; selectedItemMenuId: number; selectedItemUniqueId: number } { const r = GetPauseMenuSelectionData(); return Array.isArray(r) ? { lastItemMenuId: r[0], selectedItemMenuId: r[1], selectedItemUniqueId: r[2] } : r; }
+  overrideMultiplayerChatPrefix(gxtEntryHash: number): void { OverrideMultiplayerChatPrefix(gxtEntryHash); }
+  isMultiplayerChatActive(): boolean { return IsMultiplayerChatActive(); }
+  closeMultiplayerChat(): void { CloseMultiplayerChat(); }
+  overrideMultiplayerChatColour(p0: number, hudColor: number): void { OverrideMultiplayerChatColour(p0, hudColor); }
+  setTextChatUnk(p0: number): void { (SetTextChatUnk as any)(p0); }
+  setPedHasAiBlipWithColor(ped: number, hasCone: boolean, color: number): void { SetPedHasAiBlipWithColor(ped, hasCone, color); }
+  getAiBlip2(ped: number): number { return GetAiBlip(ped); }
+  getAiBlip(ped: number): number { return GetAiBlip(ped); }
+  hasDirectorModeBeenTriggered(): boolean { return HasDirectorModeBeenTriggered(); }
+  setDirectorModeClearTriggeredFlag(): void { SetDirectorModeClearTriggeredFlag(); }
+  setMinimapComponentValues(name: string, alignX: string, alignY: string, posX: number, posY: number, sizeX: number, sizeY: number): void { SetMinimapComponentPosition(name, alignX, alignY, posX, posY, sizeX, sizeY); }
+  resetMinimapComponentValues(names: string): void { ResetMinimapComponentPosition(names); }
+  getMinimapComponentValues(componentName: string): any { return GetMinimapComponentValues(componentName); }
+  getCurrentAreaNameString(): string { return GetCurrentAreaNameString(); }
+  getCurrentAreaNameHash(): number { return GetCurrentAreaNameHash(); }
+  getCurrentAreaNameLabel(): string { return GetCurrentAreaNameLabel(); }
+  getCurrentStreetNameString(): string { return GetCurrentStreetNameString(); }
+  getCurrentStreetNameHash(): number { return GetCurrentStreetNameHash(); }
+  setShowHudComponentsThisFrameBatch(show: boolean, hudComponents: number[]): void { for (const id of hudComponents) { if (show) ShowHudComponentThisFrame(id); else HideHudComponentThisFrame(id); } }
+  applyShowHudComponentsThisFrameBatch(): void {}
+  setInteriorZoomLevelIncreased(toggle: boolean): void { SetInteriorZoomLevelIncreased(toggle); }
+  setInteriorZoomLevelDecreased(toggle: boolean): void { SetInteriorZoomLevelDecreased(toggle); }
+  setMainPlayerBlipColour(color: number): void { SetMainPlayerBlipColour(color); }
+  enableDeathbloodSeethrough(p1: boolean): void { (EnableDeathbloodSeethrough as any)(p1); }
+  setMissionName2(p0: boolean, name: string): void { SetMissionName_2(p0, name); }
+  setScreenHeader(screenHash: number, header: string): void { SetPauseMenuHeaderText(screenHash, header); }
+  getItem(itemNameOrHash: number | string): any { return GetMenuItem(itemNameOrHash); }
+  tryGetItem(itemNameOrHash: number | string): any { try { return GetMenuItem(itemNameOrHash); } catch { return undefined; } }
+  getItems(itemHashes: (number | string)[]): any[] { return itemHashes.map((h) => GetMenuItem(h)); }
+  tryGetItems(itemHashes: (number | string)[]): any[] { return itemHashes.map((h) => { try { return GetMenuItem(h); } catch { return undefined; } }); }
+  setItemText(itemHash: number, text: string): void { SetMenuItemText(itemHash, text); }
+  setItemRange(itemHash: number, rangeFrom: number, rangeTo: number): void { SetMenuItemRange(itemHash, rangeFrom, rangeTo); }
+  setItemList(itemHash: number, values: string[]): void { SetMenuItemList(itemHash, values); }
+  setItemTicksVisible(itemHash: number, isVisible: boolean): void { SetMenuItemTicksVisible(itemHash, isVisible); }
+  setItemColor(itemHash: number, colorIndex: number): void { SetMenuItemColor(itemHash, colorIndex); }
+  setItemValue(itemHash: number, value: number): void { SetMenuItemValue(itemHash, value); }
+  setItemEnabled(itemHash: number, isEnabled: boolean): void { SetMenuItemEnabled(itemHash, isEnabled); }
 
   ["_0x9245E81072704B8A"](...args: any[]): any { return Citizen.invokeNative("0x9245E81072704B8A", ...args); }
   ["_0x3D9ACB1EB139E702"](...args: any[]): any { return Citizen.invokeNative("0x3D9ACB1EB139E702", ...args); }

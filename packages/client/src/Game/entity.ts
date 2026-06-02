@@ -113,7 +113,7 @@ export class GameEntityNs {
   getAttachedTo(entity: number): number { return GetEntityAttachedTo(entity); }
 
   getBoneIndexByName(entity: number, boneName: string): number { return GetEntityBoneIndexByName(entity, boneName); }
-  getBoneRotation(entity: number, boneIndex: number): Vector3 { return toVec3(Citizen.invokeNative("0xCE6294A232D03786", Citizen.resultAsVector(), entity, boneIndex)); }
+  getBoneRotation(entity: number, boneIndex: number): Vector3 { return toVec3(GetEntityBoneRotation(entity, boneIndex)); }
   getBoneCount(entity: number): number { return GetEntityBoneCount(entity); }
   getWorldPositionOfBone(entity: number, boneIndex: number): Vector3 { return toVec3(GetWorldPositionOfEntityBone(entity, boneIndex)); }
   getBonePosition2(entity: number, boneIndex: number): Vector3 { return toVec3(GetWorldPositionOfEntityBone(entity, boneIndex)); }
@@ -180,15 +180,15 @@ export class GameEntityNs {
   applyForceTo(entity: number, forceFlags: number, x: number, y: number, z: number, offX: number, offY: number, offZ: number, boneIndex: number, isDirectionRel: boolean, ignoreUpVec: boolean, isForceRel: boolean, p12: boolean, p13: boolean): void {
     ApplyForceToEntity(entity, forceFlags, x, y, z, offX ?? 0, offY ?? 0, offZ ?? 0, boneIndex ?? 0, !!isDirectionRel, !!ignoreUpVec, !!isForceRel, !!p12, !!p13);
   }
-  attachBoneToEntityBonePhysically(entity1: number, entity2: number, boneIndex1: number, boneIndex2: number, p4: boolean, p5: boolean): void { AttachEntityBoneToEntityBonePhysically(entity1, entity2, boneIndex1, boneIndex2, !!p4, !!p5); } // unverified
+  attachBoneToEntityBonePhysically(entity1: number, entity2: number, boneIndex1: number, boneIndex2: number, p4: boolean, p5: boolean): void { AttachEntityBoneToEntityBonePhysically(entity1, entity2, boneIndex1, boneIndex2, !!p4, !!p5); }
   attachToEntityPhysically(entity1: number, entity2: number, boneIndex1: number, boneIndex2: number, xPos1: number, yPos1: number, zPos1: number, xPos2: number, yPos2: number, zPos2: number, xRot: number, yRot: number, zRot: number, breakForce: number, fixedRot: boolean, p15: boolean, collision: boolean, p17: boolean, p18: number): void {
     AttachEntityToEntityPhysically(entity1, entity2, boneIndex1, boneIndex2, xPos1, yPos1, zPos1, xPos2, yPos2, zPos2, xRot, yRot, zRot, breakForce, !!fixedRot, !!p15, !!collision, !!p17, p18 ?? 2);
   }
-  enableUnk(entity: number): void { EnableEntityUnk(entity); } // unverified
-  getBoneRotationLocal(entity: number, boneIndex: number): Vector3 { return toVec3(GetEntityBoneRotationLocal(entity, boneIndex)); } // unverified
-  getPhysicsHeading(entity: number): number { return GetEntityPhysicsHeading(entity); } // unverified
-  getPickup(entity: number, modelHash: number): number { return GetEntityPickup(entity, modelHash); } // unverified
-  hasClearLosToEntity2(entity1: number, entity2: number, traceType: number): number { return Citizen.invokeNative("0x394BDE2A7BBA031E", Citizen.resultAsInteger(), entity1, entity2, traceType ?? 17); }
+  enableUnk(entity: number): void { EnableEntityUnk(entity); }
+  getBoneRotationLocal(entity: number, boneIndex: number): Vector3 { return toVec3(GetEntityBoneRotationLocal(entity, boneIndex)); }
+  getPhysicsHeading(entity: number): number { return GetEntityPhysicsHeading(entity); }
+  getPickup(entity: number, modelHash: number): number { return GetEntityPickup(entity, modelHash); }
+  hasClearLosToEntity2(entity1: number, entity2: number, traceType: number): number { return Number(HasEntityClearLosToEntity(entity1, entity2, traceType)); }
   isAtCoord(entity: number, xPos: number, yPos: number, zPos: number, xSize: number, ySize: number, zSize: number, p7: boolean, p8: boolean, p9: number): boolean { return IsEntityAtCoord(entity, xPos, yPos, zPos, xSize, ySize, zSize, !!p7, !!p8, p9); }
   isInAngledArea(entity: number, x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, width: number, debug: boolean, includeZ: boolean, p10: number): boolean { return IsEntityInAngledArea(entity, x1, y1, z1, x2, y2, z2, width, !!debug, !!includeZ, p10); }
   playSynchronizedAnim(entity: number, syncedScene: number, animation: string, propName: string, p4: number, p5: number, p6: number, p7: number): boolean { return PlaySynchronizedEntityAnim(entity, syncedScene, animation, propName, p4, p5, p6, p7); }
@@ -196,11 +196,11 @@ export class GameEntityNs {
     const r: any = PlaySynchronizedMapEntityAnim(x, y, z, radius, objectModelHash, sceneId, pAnimName, pAnimDictName, fBlendDelta, fBlendOutDelta, flags, fMoverBlendInDelta);
     return { p6: r[1], p7: r[2], result: !!r[0] };
   }
-  setCleanupByEngine(entity: number, toggle: boolean): void { SetEntityCleanupByEngine(entity, !!toggle); } // unverified
+  setCleanupByEngine(entity: number, toggle: boolean): void { SetEntityCleanupByEngine(entity, !!toggle); }
   setCoordsWithoutPlantsReset(entity: number, xPos: number, yPos: number, zPos: number, alive: boolean, deadFlag: boolean, ragdollFlag: boolean, clearArea: boolean): void {
     SetEntityCoordsWithoutPlantsReset(entity, xPos, yPos, zPos, !!alive, !!deadFlag, !!ragdollFlag, !!clearArea);
   }
-  setDecalsDisabled(entity: number, p1: boolean): void { SetEntityDecalsDisabled(entity, !!p1); } // unverified
+  setDecalsDisabled(entity: number, p1: boolean): void { SetEntityDecalsDisabled(entity, !!p1); }
   stopSynchronizedAnim(entity: number, p1: number, p2: boolean): boolean { return StopSynchronizedEntityAnim(entity, p1, !!p2); }
   stopSynchronizedMapAnim(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number): boolean { return StopSynchronizedMapEntityAnim(p0, p1, p2, p3, p4, p5); }
 

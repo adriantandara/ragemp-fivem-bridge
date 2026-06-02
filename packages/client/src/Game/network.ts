@@ -1,5 +1,6 @@
 import { createUnkProxy, toVec3 } from "./_helpers.js";
 import { safeGetEntityFromNetId } from "../utils/netId";
+import { Vector3 } from "@ragemp-fivem-bridge/shared";
 
 export class GameNetworkNs {
   unk = createUnkProxy();
@@ -169,7 +170,7 @@ export class GameNetworkNs {
   textureDownloadGetName(p0: number): string { return TextureDownloadGetName(p0); }
   getStatusOfTextureDownload(p0: number): number { return GetStatusOfTextureDownload(p0); }
 
-  acceptInvite(p0: number): boolean { return NetworkAcceptPresenceInvite(p0); } // unverified
+  acceptInvite(p0: number): boolean { return NetworkAcceptPresenceInvite(p0); }
   acceptPresenceInvite(p0: number): boolean { return NetworkAcceptPresenceInvite(p0); }
   accessTunableBool(tunableContext: string, tunableName: string): boolean { return NetworkAccessTunableBool(tunableContext, tunableName); }
   accessTunableBoolHash(tunableContext: number, tunableName: number): boolean { return NetworkAccessTunableBoolHash(tunableContext, tunableName); }
@@ -181,17 +182,17 @@ export class GameNetworkNs {
   activateDamageTrackerOnId(netID: number, toggle: boolean): void { ActivateDamageTrackerOnNetworkId(netID, toggle); }
   addEntityAngledArea(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, width: number): number { return NetworkAddEntityAngledArea(x1, y1, z1, x2, y2, z2, width); }
   addEntityArea(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number): number { return NetworkAddEntityArea(p0, p1, p2, p3, p4, p5); }
-  addEntityDisplayedBoundaries(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number): number { return NetworkAddEntityArea(p0, p1, p2, p3, p4, p5); } // unverified
+  addEntityDisplayedBoundaries(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number): number { return NetworkAddEntityArea(p0, p1, p2, p3, p4, p5); }
   addEntityToSynchronisedScene(entity: number, netScene: number, animDict: string, animName: string, speed: number, speedMulitiplier: number, flag: number): void { NetworkAddEntityToSynchronisedScene(entity, netScene, animDict, animName, speed, speedMulitiplier, flag); }
   addFollowers(p1: number): boolean { return (NetworkAddFollowers as any)(p1); }
   addFriend(message: string): boolean { return (NetworkAddFriend as any)(message); }
   addPedToSynchronisedScene(ped: number, netScene: number, animDict: string, animnName: string, speed: number, speedMultiplier: number, duration: number, flag: number, playbackRate: number, p9: boolean): void { (NetworkAddPedToSynchronisedScene as any)(ped, netScene, animDict, animnName, speed, speedMultiplier, duration, flag, playbackRate, p9); }
-  allocateTunablesRegistrationDataMap(): number { return (NetworkAllocateTunablesRegistrationDataMap as any)(); } // unverified
-  allowLocalEntityAttachment(entity: number, toggle: boolean): void { NetworkAllowLocalEntityAttachment(entity, toggle); } // unverified
+  allocateTunablesRegistrationDataMap(): number { return (NetworkAllocateTunablesRegistrationDataMap as any)(); }
+  allowLocalEntityAttachment(entity: number, toggle: boolean): void { NetworkAllowLocalEntityAttachment(entity, toggle); }
   amIBlockedByGamer(): boolean { return (NetworkAmIBlockedByGamer as any)(); }
-  amIBlockedByPlayer(player: number): boolean { return NetworkAmIBlockedByPlayer(player); } // unverified
+  amIBlockedByPlayer(player: number): boolean { return NetworkAmIBlockedByPlayer(player); }
   amIMutedByGamer(): boolean { return (NetworkAmIMutedByGamer as any)(); }
-  amIMutedByPlayer(player: number): boolean { return NetworkAmIMutedByPlayer(player); } // unverified
+  amIMutedByPlayer(player: number): boolean { return NetworkAmIMutedByPlayer(player); }
   applyCachedPlayerHeadBlendData(ped: number, player: number): boolean { return NetworkApplyCachedPlayerHeadBlendData(ped, player); }
   applyPedScarData(ped: number, p1: number): void { NetworkApplyPedScarData(ped, p1); }
   applyTransitionParameter(p0: number, p1: number): void { NetworkApplyTransitionParameter(p0, p1); }
@@ -206,12 +207,12 @@ export class GameNetworkNs {
   bailTransition(): void { NetworkBailTransition(); }
   blockInvites(toggle: boolean): void { NetworkBlockInvites(toggle); }
   blockJoinQueueInvites(toggle: boolean): void { NetworkBlockJoinQueueInvites(toggle); }
-  blockKickedPlayers(p0: boolean): void { NetworkBlockKickedPlayers(p0); } // unverified
+  blockKickedPlayers(p0: boolean): void { NetworkBlockKickedPlayers(p0); }
   cacheLocalPlayerHeadBlendData(): void { NetworkCacheLocalPlayerHeadBlendData(); }
   canAccessMultiplayer(): boolean { return (NetworkCanAccessMultiplayer as any)(); }
   canBail(): boolean { return NetworkCanBail(); }
   canCommunicateWithGamer(): boolean { return (NetworkCanCommunicateWithGamer as any)(); }
-  canCommunicateWithGamer2(): boolean { return NetworkCanCommunicateWithGamer2(); } // unverified
+  canCommunicateWithGamer2(): boolean { return NetworkCanCommunicateWithGamer2(); }
   canEnterMultiplayer(): boolean { return NetworkCanEnterMultiplayer(); }
   canGamerPlayMultiplayerWithMe(): boolean { return (NetworkCanGamerPlayMultiplayerWithMe as any)(); }
   canPlayMultiplayerWithGamer(): boolean { return (NetworkCanPlayMultiplayerWithGamer as any)(); }
@@ -223,7 +224,7 @@ export class GameNetworkNs {
   checkCommunicationPrivileges(p0: number, p1: boolean, p2: boolean): boolean { return (NetworkCheckCommunicationPrivileges as any)(p0, p1, p2); }
   checkDataManagerSucceededForHandle(p0: number): boolean { return (NetworkCheckDataManagerSucceededForHandle as any)(p0); }
   checkUserContentPrivileges(p0: number, p1: boolean, p2: boolean): boolean { return (NetworkCheckUserContentPrivileges as any)(p0, p1, p2); }
-  clanAnimation(animDict: string, animName: string): boolean { return NetworkClanAnimation(animDict, animName); } // unverified
+  clanAnimation(animDict: string, animName: string): boolean { return NetworkClanAnimation(animDict, animName); }
   clanDownloadMembership(): boolean { return (NetworkClanDownloadMembership as any)(); }
   clanDownloadMembershipPending(): boolean { return (NetworkClanDownloadMembershipPending as any)(); }
   clanGetEmblemTxdName(): string { return (NetworkClanGetEmblemTxdName as any)(); }
@@ -247,15 +248,15 @@ export class GameNetworkNs {
   clearFollowers(): void { NetworkClearFollowers(); }
   clearFoundGamers(): void { NetworkClearFoundGamers(); }
   clearGetGamerStatus(): void { NetworkClearGetGamerStatus(); }
-  clearLaunchParams(): void { ClearLaunchParams(); } // unverified
-  clearPropertyId(): void { NetworkClearPropertyId(); } // unverified
+  clearLaunchParams(): void { ClearLaunchParams(); }
+  clearPropertyId(): void { NetworkClearPropertyId(); }
   clearTransitionCreatorHandle(): void { NetworkClearTransitionCreatorHandle(); }
   clearVoiceChannel(): void { NetworkClearVoiceChannel(); }
   clearVoiceProximityOverride(): void { NetworkClearVoiceProximityOverride(); }
   closeTransitionMatchmaking(): void { NetworkCloseTransitionMatchmaking(); }
   concealEntity(entity: number, toggle: boolean): void { NetworkConcealEntity(entity, toggle); }
   concealPlayer(player: number, toggle: boolean, p2: boolean): void { NetworkConcealPlayer(player, toggle, p2); }
-  convertSynchronisedSceneToSynchronizedScene(netScene: number): number { return NetworkConvertSynchronisedSceneToSynchronizedScene(netScene); } // unverified
+  convertSynchronisedSceneToSynchronizedScene(netScene: number): number { return NetworkConvertSynchronisedSceneToSynchronizedScene(netScene); }
   createSynchronisedScene(x: number, y: number, z: number, xRot: number, yRot: number, zRot: number, rotationOrder: number, useOcclusionPortal: boolean, looped: boolean, p9: number, animTime: number, p11: number): number { return NetworkCreateSynchronisedScene(x, y, z, xRot, yRot, zRot, rotationOrder, useOcclusionPortal, looped, p9, animTime, p11); }
   disableInvincibleFlashing(player: number, toggle: boolean): void { NetworkDisableInvincibleFlashing(player, toggle); }
   disableLeaveRemotePedBehind(toggle: boolean): void { NetworkDisableLeaveRemotePedBehind(toggle); }
@@ -273,12 +274,12 @@ export class GameNetworkNs {
   endTutorialSession(): void { NetworkEndTutorialSession(); }
   entityAreaDoesExist(areaHandle: number): boolean { return NetworkEntityAreaDoesExist(areaHandle); }
   entityAreaIsOccupied(areaHandle: number): boolean { return NetworkEntityAreaIsOccupied(areaHandle); }
-  facebookDoUnkCheck(): boolean { return FacebookDoUnkCheck(); } // unverified
-  facebookIsAvailable(): boolean { return FacebookIsAvailable(); } // unverified
-  facebookIsSendingData(): boolean { return FacebookIsSendingData(); } // unverified
-  facebookSetCreateCharacterComplete(): boolean { return Citizen.invokeNative("0xDC48473142545431", Citizen.resultAsInteger()); }
-  facebookSetHeistComplete(heistName: string, cashEarned: number, xpEarned: number): boolean { return Citizen.invokeNative("0x098AB65B9ED9A9EC", Citizen.resultAsInteger(), heistName, cashEarned, xpEarned); }
-  facebookSetMilestoneComplete(milestoneId: number): boolean { return Citizen.invokeNative("0x0AE1F1653B554AB9", Citizen.resultAsInteger(), milestoneId); }
+  facebookDoUnkCheck(): boolean { return FacebookDoUnkCheck(); }
+  facebookIsAvailable(): boolean { return FacebookIsAvailable(); }
+  facebookIsSendingData(): boolean { return FacebookIsSendingData(); }
+  facebookSetCreateCharacterComplete(): boolean { return FacebookSetCreateCharacterComplete(); }
+  facebookSetHeistComplete(heistName: string, cashEarned: number, xpEarned: number): boolean { return FacebookSetHeistComplete(heistName, cashEarned, xpEarned); }
+  facebookSetMilestoneComplete(milestoneId: number): boolean { return FacebookSetMilestoneComplete(milestoneId); }
   fadeInEntity(entity: number, state: boolean): void { NetworkFadeInEntity(entity, state); }
   fadeOutEntity(entity: number, normal: boolean, slow: boolean): void { NetworkFadeOutEntity(entity, normal, slow); }
   filloutPmPlayerList(p1: number, p2: number): boolean { return (FilloutPmPlayerList as any)(p1, p2); }
@@ -301,11 +302,11 @@ export class GameNetworkNs {
   getEntityIsLocal(entity: number): boolean { return NetworkGetEntityIsLocal(entity); }
   getEntityIsNetworked(entity: number): boolean { return NetworkGetEntityIsNetworked(entity); }
   getEntityKillerOfPlayer(player: number): { weaponHash: number; result: number } { return (NetworkGetEntityKillerOfPlayer as any)(player); }
-  getEntityNetScriptId(entity: number): number { return NetworkGetEntityNetScriptId(entity); } // unverified
+  getEntityNetScriptId(entity: number): number { return NetworkGetEntityNetScriptId(entity); }
   getFoundGamer(p1: number): any { return NetworkGetFoundGamer(p1); }
   getFriendCount(): number { return NetworkGetFriendCount(); }
   getFriendName(friendIndex: number): string { return NetworkGetFriendName(friendIndex); }
-  getFriendNameFromIndex(friendIndex: number): string { return NetworkGetFriendName(friendIndex); } // unverified
+  getFriendNameFromIndex(friendIndex: number): string { return NetworkGetFriendName(friendIndex); }
   getGamerStatus(): number { return (NetworkGetGamerStatusFromQueue as any)(); }
   getGamerStatusResult(p1: number): any { return NetworkGetGamerStatusResult(p1); }
   getGamertagFromHandle(networkHandle: number): any { return NetworkGetGamertagFromHandle(networkHandle); }
@@ -320,17 +321,17 @@ export class GameNetworkNs {
   getMaxNumPickups(): number { return GetMaxNumNetworkPickups(); }
   getMaxNumVehicles(): number { return GetMaxNumNetworkVehicles(); }
   getNetworkIdFromEntity(entity: number): number { return NetworkGetNetworkIdFromEntity(entity); }
-  getNumBodyTrackers(): number { return Citizen.invokeNative("0xD38C4A6D047C019D", Citizen.resultAsInteger()); }
+  getNumBodyTrackers(): number { return NetworkGetNumBodyTrackers(); }
   getNumFoundGamers(): number { return NetworkGetNumFoundGamers(); }
   getNumParticipants(): number { return NetworkGetNumParticipants(); }
   getNumPresenceInvites(): number { return NetworkGetNumPresenceInvites(); }
   getNumScriptParticipants(p1: number, p2: number): { p0: number; result: number } { return (NetworkGetNumScriptParticipants as any)(p1, p2); }
-  getNumUnackedForPlayer(player: number): number { return Citizen.invokeNative("0xFF8FCF9FFC458A1C", Citizen.resultAsInteger(), player); }
-  getOldestResendCountForPlayer(player: number): number { return Citizen.invokeNative("0x52C1EADAF7B10302", Citizen.resultAsInteger(), player); }
+  getNumUnackedForPlayer(player: number): number { return NetworkGetNumUnackedForPlayer(player); }
+  getOldestResendCountForPlayer(player: number): number { return NetworkGetOldestResendCountForPlayer(player); }
   getParticipantIndex(index: number): number { return NetworkGetParticipantIndex(index); }
   getPlatformPartyMembers(dataSize: number): { data: number; result: number } { return (NetworkGetPlatformPartyMembers as any)(dataSize); }
-  getPlatformPartyUnk(): number { return Citizen.invokeNative("0x01ABCE5E7CBDA196", Citizen.resultAsInteger()); }
-  getPlayerCoords(player: number): import('@ragemp-fivem-bridge/shared').Vector3 { return toVec3(NetworkGetPlayerCoords(player)); } // unverified
+  getPlatformPartyUnk(): number { return NetworkGetPlatformPartyUnk(); }
+  getPlayerCoords(player: number): Vector3 { return toVec3(NetworkGetPlayerCoords(player)); }
   getPlayerFromGamerHandle(): number { return (NetworkGetPlayerFromGamerHandle as any)(); }
   getPlayerIndexFromPed(ped: number): number { return NetworkGetPlayerIndexFromPed(ped); }
   getPlayerLoudness(player: number): number { return NetworkGetPlayerLoudness(player); }
@@ -355,31 +356,31 @@ export class GameNetworkNs {
   getRandomIntRanged(rangeStart: number, rangeEnd: number): number { return NetworkGetRandomIntRanged(rangeStart, rangeEnd); }
   getRespawnResult(randomInt: number): number { return (NetworkGetRespawnResult as any)(randomInt); }
   getRespawnResultFlags(p0: number): number { return NetworkGetRespawnResultFlags(p0); }
-  getRosPrivilege24(): boolean { return NetworkGetRosPrivilege_24(); } // unverified
-  getRosPrivilege25(): boolean { return NetworkGetRosPrivilege_25(); } // unverified
-  getRosPrivilege9(): boolean { return NetworkGetRosPrivilege_9(); } // unverified
+  getRosPrivilege24(): boolean { return NetworkGetRosPrivilege_24(); }
+  getRosPrivilege25(): boolean { return NetworkGetRosPrivilege_25(); }
+  getRosPrivilege9(): boolean { return NetworkGetRosPrivilege_9(); }
   getScriptStatus(): number { return NetworkGetScriptStatus(); }
   getTalkerProximity(): number { return NetworkGetTalkerProximity(); }
-  getTargetingMode(): number { return Citizen.invokeNative("0xDFFA5BE8381C3314", Citizen.resultAsInteger()); } // unverified
+  getTargetingMode(): number { return NetworkGetTargetingMode(); }
   getThisScriptIsNetworkScript(): boolean { return NetworkGetThisScriptIsNetworkScript(); }
   getTimeoutTime(): number { return NetworkGetTimeoutTime(); }
   getTotalNumPlayers(): number { return NetworkGetTotalNumPlayers(); }
   getTransitionHost(): number { return (NetworkGetTransitionHost as any)(); }
   getTransitionMembers(dataCount: number): { data: number; result: number } { return (NetworkGetTransitionMembers as any)(dataCount); }
   getTunableCloudCrc(): number { return NetworkGetTunableCloudCrc(); }
-  getUnreliableResendCountForPlayer(player: number): number { return Citizen.invokeNative("0x3765C3A3E8192E10", Citizen.resultAsInteger(), player); }
+  getUnreliableResendCountForPlayer(player: number): number { return NetworkGetUnreliableResendCountForPlayer(player); }
   handleFromFriend(friendIndex: number, bufferSize: number): any { return NetworkHandleFromFriend(friendIndex, bufferSize); }
   handleFromMemberId(memberId: string, bufferSize: number): any { return NetworkHandleFromMemberId(memberId, bufferSize); }
   handleFromPlayer(player: number, bufferSize: number): any { return NetworkHandleFromPlayer(player, bufferSize); }
   handleFromUserId(userId: string, bufferSize: number): any { return NetworkHandleFromUserId(userId, bufferSize); }
-  hasAgeRestrictedProfile(): boolean { return NetworkHasAgeRestrictedProfile(); } // unverified
+  hasAgeRestrictedProfile(): boolean { return NetworkHasAgeRestrictedProfile(); }
   hasCachedPlayerHeadBlendData(player: number): boolean { return NetworkHasCachedPlayerHeadBlendData(player); }
   hasControlOfDoor(doorHash: number): boolean { return NetworkHasControlOfDoor(doorHash); }
   hasControlOfNetworkId(netId: number): boolean { return NetworkHasControlOfNetworkId(netId); }
   hasControlOfPickup(pickup: number): boolean { return NetworkHasControlOfPickup(pickup); }
   hasEntityBeenRegisteredWithThisThread(entity: number): boolean { return NetworkHasEntityBeenRegisteredWithThisThread(entity); }
   hasFollowInvite(): boolean { return NetworkHasFollowInvite(); }
-  hasGameBeenAltered(): boolean { return NetworkHasGameBeenAltered(); } // unverified
+  hasGameBeenAltered(): boolean { return NetworkHasGameBeenAltered(); }
   hasHeadset(): boolean { return NetworkHasHeadset(); }
   hasInvitedGamer(): boolean { return (NetworkHasInvitedGamer as any)(); }
   hasInvitedGamerToTransition(): boolean { return (NetworkHasInvitedGamerToTransition as any)(); }
@@ -395,7 +396,7 @@ export class GameNetworkNs {
   hashFromGamerHandle(): { networkHandle: number; result: number } { return (NetworkHashFromGamerHandle as any)(); }
   hashFromPlayerHandle(player: number): number { return NetworkHashFromPlayerHandle(player); }
   haveCommunicationPrivileges(p0: number, player: number): boolean { return NetworkHaveCommunicationPrivileges(p0, player); }
-  haveOnlinePrivilege2(): boolean { return NetworkHaveOnlinePrivilege_2(); } // unverified
+  haveOnlinePrivilege2(): boolean { return NetworkHaveOnlinePrivilege_2(); }
   haveOnlinePrivileges(): boolean { return NetworkHaveOnlinePrivileges(); }
   haveRosBannedPriv(): boolean { return NetworkHaveRosBannedPriv(); }
   haveRosCreateTicketPriv(): boolean { return NetworkHaveRosCreateTicketPriv(); }
@@ -412,7 +413,7 @@ export class GameNetworkNs {
   isAddingFriend(): boolean { return (NetworkIsAddingFriend as any)(); }
   isCableConnected(): boolean { return NetworkIsCableConnected(); }
   isChattingInPlatformParty(): boolean { return (NetworkIsChattingInPlatformParty as any)(); }
-  isClanMembershipFinishedDownloading(): boolean { return (NetworkClanDownloadMembershipPending as any)(); } // unverified
+  isClanMembershipFinishedDownloading(): boolean { return (NetworkClanDownloadMembershipPending as any)(); }
   isClockTimeOverridden(): boolean { return NetworkIsClockTimeOverridden(); }
   isCloudAvailable(): boolean { return NetworkIsCloudAvailable(); }
   isCloudBackgroundScriptRequestPending(): boolean { return NetworkIsCloudBackgroundScriptRequestPending(); }
@@ -420,7 +421,7 @@ export class GameNetworkNs {
   isDoorNetworked(doorHash: number): boolean { return NetworkIsDoorNetworked(doorHash); }
   isEntityConcealed(entity: number): boolean { return NetworkIsEntityConcealed(entity); }
   isEntityFading(entity: number): boolean { return NetworkIsEntityFading(entity); }
-  isEntityGhostedToLocalPlayer(entity: number): boolean { return IsEntityGhostedToLocalPlayer(entity); } // unverified
+  isEntityGhostedToLocalPlayer(entity: number): boolean { return IsEntityGhostedToLocalPlayer(entity); }
   isFindingGamers(): boolean { return NetworkIsFindingGamers(); }
   isFriend(): boolean { return (NetworkIsFriend as any)(); }
   isFriendHandleOnline(): boolean { return (NetworkIsFriendHandleOnline as any)(); }
@@ -444,7 +445,7 @@ export class GameNetworkNs {
   isInTutorialSession(): boolean { return NetworkIsInTutorialSession(); }
   isInactiveProfile(): boolean { return (NetworkIsInactiveProfile as any)(); }
   isLocalPlayerInvincible(): boolean { return NetworkIsLocalPlayerInvincible(); }
-  isLocalTalking(): boolean { return NetworkIsLocalTalking(); } // unverified
+  isLocalTalking(): boolean { return NetworkIsLocalTalking(); }
   isMultiplayerDisabled(): boolean { return NetworkIsMultiplayerDisabled(); }
   isOfflineInvitePending(): boolean { return NetworkIsOfflineInvitePending(); }
   isParticipantActive(p0: number): boolean { return NetworkIsParticipantActive(p0); }
@@ -454,7 +455,7 @@ export class GameNetworkNs {
   isPlayerBlockedByMe(player: number): boolean { return NetworkIsPlayerBlockedByMe(player); }
   isPlayerConcealed(player: number): boolean { return NetworkIsPlayerConcealed(player); }
   isPlayerConnected(player: number): boolean { return NetworkIsPlayerConnected(player); }
-  isPlayerEqualToIndex(player: number, index: number): boolean { return NetworkIsPlayerEqualToIndex(player, index); } // unverified
+  isPlayerEqualToIndex(player: number, index: number): boolean { return NetworkIsPlayerEqualToIndex(player, index); }
   isPlayerFading(player: number): boolean { return NetworkIsPlayerFading(player); }
   isPlayerInMpCutscene(player: number): boolean { return NetworkIsPlayerInMpCutscene(player); }
   isPlayerMutedByMe(player: number): boolean { return NetworkIsPlayerMutedByMe(player); }
@@ -465,8 +466,8 @@ export class GameNetworkNs {
   isSessionStarted(): boolean { return NetworkIsSessionStarted(); }
   isSignedIn(): boolean { return NetworkIsSignedIn(); }
   isSignedOnline(): boolean { return NetworkIsSignedOnline(); }
-  isTextChatActive(): boolean { return Citizen.invokeNative("0x5FCF4D7069B09026", Citizen.resultAsInteger()); } // unverified
-  isThisScriptMarked(p0: number, p1: number, p2: number): boolean { return (NetworkIsThisScriptMarked as any)(p0, p1, p2); } // unverified
+  isTextChatActive(): boolean { return NetworkIsTextChatActive(); }
+  isThisScriptMarked(p0: number, p1: number, p2: number): boolean { return (NetworkIsThisScriptMarked as any)(p0, p1, p2); }
   isTransitionBusy(): boolean { return NetworkIsTransitionBusy(); }
   isTransitionClosedCrew(): boolean { return NetworkIsTransitionClosedCrew(); }
   isTransitionClosedFriends(): boolean { return NetworkIsTransitionClosedFriends(); }
@@ -491,7 +492,7 @@ export class GameNetworkNs {
   memberIdFromGamerHandle(): string { return (NetworkMemberIdFromGamerHandle as any)(); }
   openTransitionMatchmaking(): void { NetworkOpenTransitionMatchmaking(); }
   overrideChatRestrictions(player: number, toggle: boolean): void { NetworkOverrideChatRestrictions(player, toggle); }
-  overrideClockMillisecondsPerGameMinute(ms: number): void { NetworkOverrideClockMillisecondsPerGameMinute(ms); } // unverified
+  overrideClockMillisecondsPerGameMinute(ms: number): void { NetworkOverrideClockMillisecondsPerGameMinute(ms); }
   overrideClockTime(hours: number, minutes: number, seconds: number): void { NetworkOverrideClockTime(hours, minutes, seconds); }
   overrideCoordsAndHeading(entity: number, x: number, y: number, z: number, heading: number): void { NetworkOverrideCoordsAndHeading(entity, x, y, z, heading); }
   overrideReceiveRestrictions(player: number, toggle: boolean): void { NetworkOverrideReceiveRestrictions(player, toggle); }
@@ -511,40 +512,40 @@ export class GameNetworkNs {
   queryRespawnResults(): boolean { return (NetworkQueryRespawnResults as any)(); }
   registerHostBroadcastVariables(numVars: number): number { return NetworkRegisterHostBroadcastVariables(numVars); }
   registerPlayerBroadcastVariables(numVars: number): number { return NetworkRegisterPlayerBroadcastVariables(numVars); }
-  registerTunableBoolHash(contextHash: number, nameHash: number): boolean { return (NetworkRegisterTunableBoolHash as any)(contextHash, nameHash); } // unverified
-  registerTunableFloatHash(contextHash: number, nameHash: number): boolean { return (NetworkRegisterTunableFloatHash as any)(contextHash, nameHash); } // unverified
-  registerTunableIntHash(contextHash: number, nameHash: number): boolean { return (NetworkRegisterTunableIntHash as any)(contextHash, nameHash); } // unverified
+  registerTunableBoolHash(contextHash: number, nameHash: number): boolean { return (NetworkRegisterTunableBoolHash as any)(contextHash, nameHash); }
+  registerTunableFloatHash(contextHash: number, nameHash: number): boolean { return (NetworkRegisterTunableFloatHash as any)(contextHash, nameHash); }
+  registerTunableIntHash(contextHash: number, nameHash: number): boolean { return (NetworkRegisterTunableIntHash as any)(contextHash, nameHash); }
   remoteCheatDetected(player: number, a: number, b: number): boolean { return RemoteCheaterPlayerDetected(player, a, b); }
   removeAllTransitionInvite(): void { NetworkRemoveAllTransitionInvite(); }
   removeEntityArea(p0: number): boolean { return NetworkRemoveEntityArea(p0); }
   removePresenceInvite(p0: number): boolean { return NetworkRemovePresenceInvite(p0); }
   removeTransitionInvite(): boolean { return (NetworkRemoveTransitionInvite as any)(); }
-  reportMyself(): void { NetworkReportMyself(); } // unverified
+  reportMyself(): void { NetworkReportMyself(); }
   requestCloudBackgroundScripts(): boolean { return NetworkRequestCloudBackgroundScripts(); }
   requestCloudTunables(): void { NetworkRequestCloudTunables(); }
   requestControlOfDoor(doorID: number): boolean { return NetworkRequestControlOfDoor(doorID); }
   requestControlOfNetworkId(netId: number): boolean { return NetworkRequestControlOfNetworkId(netId); }
-  reserveLocalObjects(amount: number): void { Citizen.invokeNative("0x797F9C5E661D920E", amount); }
-  reserveLocalPeds(amount: number): void { Citizen.invokeNative("0x2C8DF5D129595281", amount); }
-  reserveLocalVehicles(amount: number): void { Citizen.invokeNative("0x42613035157E4208", amount); }
+  reserveLocalObjects(amount: number): void { ReserveNetworkLocalObjects(amount); }
+  reserveLocalPeds(amount: number): void { ReserveNetworkLocalPeds(amount); }
+  reserveLocalVehicles(amount: number): void { ReserveNetworkLocalVehicles(amount); }
   resetBodyTracker(): void { NetworkResetBodyTracker(); }
-  resetGhostedEntityAlpha(): void { ResetGhostedEntityAlpha(); } // unverified
-  respawnCoords(player: number, x: number, y: number, z: number, p4: boolean, p5: boolean): void { NetworkRespawnCoords(player, x, y, z, p4, p5); } // unverified
+  resetGhostedEntityAlpha(): void { ResetGhostedEntityAlpha(); }
+  respawnCoords(player: number, x: number, y: number, z: number, p4: boolean, p5: boolean): void { NetworkRespawnCoords(player, x, y, z, p4, p5); }
   resurrectLocalPlayer(x: number, y: number, z: number, heading: number, nInvincibilityTime: number, bLeaveDeadPed: boolean): void { NetworkResurrectLocalPlayer(x, y, z, heading, nInvincibilityTime, bLeaveDeadPed); }
   seedRandomNumberGenerator(seed: number): void { NetworkSeedRandomNumberGenerator(seed); }
   sendInviteViaPresence(p2: number, p3: number): boolean { return (NetworkSendInviteViaPresence as any)(p2, p3); }
-  sendPresenceTransitionInvite(p2: number, p3: number): boolean { return (NetworkSendPresenceTransitionInvite as any)(p2, p3); } // unverified
+  sendPresenceTransitionInvite(p2: number, p3: number): boolean { return (NetworkSendPresenceTransitionInvite as any)(p2, p3); }
   sendTextMessage(message: string): boolean { return (NetworkSendTextMessage as any)(message); }
   sendTransitionGamerInstruction(p1: any, p2: number, p3: number, p4: number): boolean { return (NetworkSendTransitionGamerInstruction as any)(p1, p2, p3, p4); }
-  sessionActivityQuickmatch(p0: number, p1: number, p2: number, p3: number): boolean { return NetworkSessionActivityQuickmatch(p0, p1, p2, p3); } // unverified
+  sessionActivityQuickmatch(p0: number, p1: number, p2: number, p3: number): boolean { return NetworkSessionActivityQuickmatch(p0, p1, p2, p3); }
   sessionBlockJoinRequests(toggle: boolean): void { NetworkSessionBlockJoinRequests(toggle); }
   sessionCancelInvite(): void { NetworkSessionCancelInvite(); }
   sessionChangeSlots(p0: number, p1: number): void { (NetworkSessionChangeSlots as any)(p0, p1); }
-  sessionCrewMatchmaking(p0: number, p1: number, p2: number, maxPlayers: number, p4: number): boolean { return Citizen.invokeNative("0x94BC51E9449D917F", Citizen.resultAsInteger(), p0, p1, p2, maxPlayers, p4); }
+  sessionCrewMatchmaking(p0: number, p1: number, p2: number, maxPlayers: number, p4: boolean): boolean { return NetworkSessionCrewMatchmaking(p0, p1, p2, maxPlayers, p4); }
   sessionEnd(p0: boolean, p1: boolean): boolean { return NetworkSessionEnd(p0, p1); }
-  sessionEnter(p0: number, p1: number, p2: number, maxPlayers: number, p4: number, p5: boolean): boolean { return (NetworkSessionEnter as any)(p0, p1, p2, maxPlayers, p4, p5); } // unverified
+  sessionEnter(p0: number, p1: number, p2: number, maxPlayers: number, p4: number, p5: number): number { return NetworkSessionEnter(p0, p1, p2, maxPlayers, p4, p5); }
   sessionForceCancelInvite(): void { NetworkSessionForceCancelInvite(); }
-  sessionFriendMatchmaking(p0: number, p1: number, maxPlayers: number, p3: number): boolean { return Citizen.invokeNative("0x2CFC76E0D087C994", Citizen.resultAsInteger(), p0, p1, maxPlayers, p3); }
+  sessionFriendMatchmaking(p0: number, p1: number, maxPlayers: number, p3: boolean): boolean { return NetworkSessionFriendMatchmaking(p0, p1, maxPlayers, p3); }
   sessionGetInviter(): number { return (NetworkSessionGetInviter as any)(); }
   sessionGetKickVote(player: number): boolean { return NetworkSessionGetKickVote(player); }
   sessionGetMatchmakingGroupFree(p0: number): boolean { return (NetworkSessionGetMatchmakingGroupFree as any)(p0); }
@@ -577,17 +578,17 @@ export class GameNetworkNs {
   sessionWasInvited(): boolean { return NetworkSessionWasInvited(); }
   setActivitySpectator(toggle: boolean): void { NetworkSetActivitySpectator(toggle); }
   setActivitySpectatorMax(maxSpectators: number): void { NetworkSetActivitySpectatorMax(maxSpectators); }
-  setBalanceAddMachine(contentId: string, contentTypeName: string): boolean { return SetBalanceAddMachine(contentId, contentTypeName); } // unverified
-  setBalanceAddMachines(dataCount: number, contentTypeName: string): boolean { return NetworkSetBalanceAddMachines(dataCount, contentTypeName); } // unverified
-  setChoiceMigrateOptions(toggle: boolean, player: number): void { NetworkSetChoiceMigrateOptions(toggle, player); } // unverified
+  setBalanceAddMachine(contentId: string, contentTypeName: string): boolean { return SetBalanceAddMachine(contentId, contentTypeName); }
+  setBalanceAddMachines(dataCount: number, contentTypeName: string): boolean { return NetworkSetBalanceAddMachines(dataCount, contentTypeName); }
+  setChoiceMigrateOptions(toggle: boolean, player: number): void { NetworkSetChoiceMigrateOptions(toggle, player); }
   setCurrentDataManagerHandle(): boolean { return (NetworkSetCurrentDataManagerHandle as any)(); }
   setCurrentlySelectedGamerHandleFromInviteMenu(): boolean { return (NetworkSetCurrentlySelectedGamerHandleFromInviteMenu as any)(); }
   setEntityCanBlend(entity: number, toggle: boolean): void { NetworkSetEntityCanBlend(entity, toggle); }
-  setEntityGhostedWithOwner(entity: number, p1: boolean): void { Citizen.invokeNative("0x4BA166079D658ED4", entity, p1); } // unverified
-  setEntityInvisibleToNetwork(entity: number, toggle: boolean): void { NetworkSetEntityInvisibleToNetwork(entity, toggle); } // unverified
+  setEntityGhostedWithOwner(entity: number, p1: boolean): void { NetworkSetEntityGhostedWithOwner(entity, p1); }
+  setEntityInvisibleToNetwork(entity: number, toggle: boolean): void { NetworkSetEntityInvisibleToNetwork(entity, toggle); }
   setFriendlyFireOption(toggle: boolean): void { NetworkSetFriendlyFireOption(toggle); }
   setGamerInvitedToTransition(): boolean { return (NetworkSetGamerInvitedToTransition as any)(); }
-  setGhostedEntityAlpha(alpha: number): void { SetGhostedEntityAlpha(alpha); } // unverified
+  setGhostedEntityAlpha(alpha: number): void { SetGhostedEntityAlpha(alpha); }
   setInFreeCamMode(toggle: boolean): void { NetworkSetInFreeCamMode(toggle); }
   setInMpCutscene(p0: boolean, p1: boolean): void { NetworkSetInMpCutscene(p0, p1); }
   setInSpectatorMode(toggle: boolean, playerPed: number): void { NetworkSetInSpectatorMode(toggle, playerPed); }
@@ -600,8 +601,8 @@ export class GameNetworkNs {
   setNoSpectatorChat(toggle: boolean): void { NetworkSetNoSpectatorChat(toggle); }
   setOverrideSpectatorMode(toggle: boolean): void { NetworkSetOverrideSpectatorMode(toggle); }
   setPlayerIsPassive(toggle: boolean): void { NetworkSetPlayerIsPassive(toggle); }
-  setPropertyId(id: number): void { NetworkSetPropertyId(id); } // unverified
-  setRelationshipToPlayer(player: number, p1: number): void { Citizen.invokeNative("0xA7C511FA1C5BDA38", player, p1); } // unverified
+  setPropertyId(id: number): void { NetworkSetPropertyId(id); }
+  setRelationshipToPlayer(player: number, p1: boolean): void { SetRelationshipToPlayer(player, p1); }
   setRichPresence(p0: number, p1: number, p2: number, p3: number): void { NetworkSetRichPresence(p0, p1, p2, p3); }
   setRichPresenceString(p0: number, textLabel: string): void { NetworkSetRichPresenceString(p0, textLabel); }
   setScriptReadyForEvents(toggle: boolean): void { NetworkSetScriptReadyForEvents(toggle); }
@@ -611,10 +612,10 @@ export class GameNetworkNs {
   setTransitionActivityId(p0: number): void { NetworkSetTransitionActivityId(p0); }
   setTransitionCreatorHandle(): boolean { return (NetworkSetTransitionCreatorHandle as any)(); }
   setTransitionVisibilityLock(p0: boolean, p1: boolean): void { NetworkSetTransitionVisibilityLock(p0, p1); }
-  setVehicleWheelsDestructible(entity: number, toggle: boolean): void { NetworkSetVehicleWheelsDestructible(entity, toggle); } // unverified
+  setVehicleWheelsDestructible(entity: number, toggle: boolean): void { NetworkSetVehicleWheelsDestructible(entity, toggle); }
   setVoiceActive(toggle: boolean): void { NetworkSetVoiceActive(toggle); }
   setVoiceChannel(channel: number): void { NetworkSetVoiceChannel(channel); }
-  shouldShowConnectivityTroubleshooting(): boolean { return Citizen.invokeNative("0x82A2B386716608F1", Citizen.resultAsInteger()); } // unverified
+  shouldShowConnectivityTroubleshooting(): boolean { return NetworkShouldShowConnectivityTroubleshooting(); }
   showProfileUi(): boolean { return (NetworkShowProfileUi as any)(); }
   startRespawnSearchForPlayer(player: number, x: number, y: number, z: number, radius: number, p5: boolean, p6: boolean, p7: boolean, flags: number): boolean { return (NetworkStartRespawnSearchForPlayer as any)(player, x, y, z, radius, p5, p6, p7, flags); }
   startRespawnSearchInAngledAreaForPlayer(player: number, x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, width: number, p8: boolean, p9: boolean, p10: boolean, flags: number): boolean { return (NetworkStartRespawnSearchInAngledAreaForPlayer as any)(player, x1, y1, z1, x2, y2, z2, width, p8, p9, p10, flags); }
@@ -624,8 +625,8 @@ export class GameNetworkNs {
   stopSynchronisedScene(netScene: number): void { NetworkStopSynchronisedScene(netScene); }
   suppressInvite(toggle: boolean): void { NetworkSuppressInvite(toggle); }
   textureDownloadRequest(FilePath: string, Name: string, p3: string): number { return (UgcTextureDownloadRequest as any)(FilePath, Name, p3); }
-  transitionTrack(hash: number, p1: number, p2: number, state: number, p4: number): void { NetworkTransitionTrack(hash, p1, p2, state, p4); } // unverified
-  triggerScriptCrcCheckOnPlayer(player: number, p1: number, scriptHash: number): boolean { return TriggerScriptCrcCheckOnPlayer(player, p1, scriptHash); } // unverified
+  transitionTrack(hash: number, p1: number, p2: number, state: number, p4: number): void { NetworkTransitionTrack(hash, p1, p2, state, p4); }
+  triggerScriptCrcCheckOnPlayer(player: number, p1: number, scriptHash: number): boolean { return TriggerScriptCrcCheckOnPlayer(player, p1, scriptHash); }
   tryAccessTunableBoolHash(tunableContext: number, tunableName: number, defaultValue: boolean): boolean { return NetworkTryAccessTunableBoolHash(tunableContext, tunableName, defaultValue); }
   ugcCopyContent(): boolean { return (UgcCopyContent as any)(); }
   ugcGetBookmarkedContent(p0: number, p1: number): boolean { return (UgcGetBookmarkedContent as any)(p0, p1); }
@@ -634,11 +635,11 @@ export class GameNetworkNs {
   ugcGetFriendContent(p0: number, p1: number): boolean { return (UgcGetFriendContent as any)(p0, p1); }
   ugcGetGetByCategory(p0: number, p1: number, p2: number): boolean { return (UgcGetGetByCategory as any)(p0, p1, p2); }
   ugcGetMyContent(p0: number, p1: number): boolean { return (UgcGetMyContent as any)(p0, p1); }
-  ugcPoliciesMakePrivate(p0: number): boolean { return UgcPoliciesMakePrivate(p0); } // unverified
+  ugcPoliciesMakePrivate(p0: number): boolean { return UgcPoliciesMakePrivate(p0); }
   ugcQueryByContentIds(count: number, latestVersion: boolean, contentTypeName: string): number { return (UgcQueryByContentIds as any)(count, latestVersion, contentTypeName); }
   ugcQueryMyContent(p0: number, p1: number, p3: number, p4: number, p5: number): number { return (UgcQueryMyContent as any)(p0, p1, p3, p4, p5); }
-  ugcQueryRecentlyCreatedContent(offset: number, count: number, contentTypeName: string, p3: number): number { return Citizen.invokeNative("0x6D4CB481FAC835E8", Citizen.resultAsInteger(), offset, count, contentTypeName, p3); } // unverified
+  ugcQueryRecentlyCreatedContent(offset: number, count: number, contentTypeName: string, p3: number): boolean { return UgcQueryRecentlyCreatedContent(offset, count, contentTypeName, p3); }
   ugcSetDeleted(p1: string): boolean { return (UgcSetDeleted as any)(p1); }
   ugcTextureDownloadRequest(p1: string, p2: string, p3: string, p5: number): number { return (UgcTextureDownloadRequest as any)(p1, p2, p3, p5); }
-  updatePlayerScars(): void { NetworkUpdatePlayerScars(); } // unverified
+  updatePlayerScars(): void { NetworkUpdatePlayerScars(); }
 }

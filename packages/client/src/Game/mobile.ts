@@ -25,13 +25,13 @@ export class GameMobileNs {
   cellCamIsCharVisibleNoFaceCheck(entity: number): boolean { return CellCamIsCharVisibleNoFaceCheck(entity); }
   getPhoneRenderId(): number { return (GetMobilePhoneRenderId as any)(); }
 
-  moveFinger(direction: number): void { MoveFinger(direction); } // unverified
-  setPhoneLean(toggle: boolean): void { SetPhoneLean(!!toggle); } // unverified
+  moveFinger(direction: number): void { MoveFinger(direction); }
+  setPhoneLean(toggle: boolean): void { SetPhoneLean(!!toggle); }
   scriptIsMovingPhoneOffscreen(toggle: boolean): void { ScriptIsMovingMobilePhoneOffscreen(!!toggle); }
-  setPhoneUnk(toggle: boolean): void { SetMobilePhoneUnk(!!toggle); } // unverified
-  cellCamMoveFinger(direction: number): void { CellCamMoveFinger(direction); } // unverified
-  cellCamSetLean(toggle: boolean): void { CellCamSetLean(!!toggle); } // unverified
-  cellCamDisableThisFrame(toggle: boolean): void { CellCamDisableThisFrame(!!toggle); } // unverified
+  setPhoneUnk(toggle: boolean): void { SetMobilePhoneUnk(!!toggle); }
+  cellCamMoveFinger(direction: number): void { CellCamMoveFinger(direction); }
+  cellCamSetLean(toggle: boolean): void { CellCamSetLean(!!toggle); }
+  cellCamDisableThisFrame(toggle: boolean): void { CellCamDisableThisFrame(!!toggle); }
 
   ["_0xA2CCBE62CD4C91A4"](...args: any[]): any { return Citizen.invokeNative("0xA2CCBE62CD4C91A4", ...args); }
   ["_0x1B0B4AEED5B9B41C"](...args: any[]): any { return Citizen.invokeNative("0x1B0B4AEED5B9B41C", ...args); }

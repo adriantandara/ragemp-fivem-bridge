@@ -4,8 +4,8 @@ import { Vector3 } from "@ragemp-fivem-bridge/shared";
 export class GameAudioNs {
   unk = createUnkProxy();
 
-  registerScriptWithAudio(p0: number): void { (RegisterScriptWithAudio as any)(p0); }
-  registerScriptWith(p0: number): void { (RegisterScriptWithAudio as any)(p0); }
+  registerScriptWithAudio(p0: number): void { RegisterScriptWithAudio(!!p0); }
+  registerScriptWith(p0: number): void { RegisterScriptWithAudio(!!p0); }
   unregisterScriptWith(): void { UnregisterScriptWithAudio(); }
   requestMissionAudioBank(p0: string, p1: boolean): boolean { return RequestMissionAudioBank(p0, p1); }
   requestAmbientAudioBank(p0: string, p1: boolean): boolean { return RequestAmbientAudioBank(p0, p1); }
@@ -152,7 +152,7 @@ export class GameAudioNs {
   isHornActive(vehicle: number): boolean { return IsHornActive(vehicle); }
   setAggressiveHorns(toggle: boolean): void { SetAggressiveHorns(toggle); }
   setSirenWithNoDriver(vehicle: number, toggle: boolean): void { SetSirenWithNoDriver(vehicle, toggle); }
-  triggerSiren(vehicle: number): void { Citizen.invokeNative("0x66C3FB05206041BA", vehicle); }
+  triggerSiren(vehicle: number): void { TriggerSiren(vehicle); }
   setHornEnabled(vehicle: number, toggle: boolean): void { SetHornEnabled(vehicle, toggle); }
   setVehiclePriority(vehicle: number, p1: number): void { SetAudioVehiclePriority(vehicle, p1); }
   useSirenAsHorn(vehicle: number, toggle: boolean): void { UseSirenAsHorn(vehicle, toggle); }
@@ -235,28 +235,28 @@ export class GameAudioNs {
   releaseScriptBank(): void { ReleaseScriptAudioBank(); }
   releaseNamedScriptBank(audioBank: string): void { ReleaseNamedScriptAudioBank(audioBank); }
 
-  playSoundHash(soundId: number, audioNameHash: number, audioRef: string, p3: boolean, p4: number, p5: boolean): void { PlaySoundHash(soundId, audioNameHash, audioRef, p3 ?? false, p4 ?? 0, p5 ?? true); } // unverified
+  playSoundHash(soundId: number, audioNameHash: number, audioRef: string, p3: boolean, p4: number, p5: boolean): void { PlaySoundHash(soundId, audioNameHash, audioRef, p3 ?? false, p4 ?? 0, p5 ?? true); }
   setVariableOnSound(soundId: number, p2: number): number { return (SetVariableOnSound as any)(soundId, p2); }
   overrideUnderwaterStream(p1: boolean): number { return (OverrideUnderwaterStream as any)(p1); }
 
-  playAmbientSpeechWithVoice(ped: number, speechName: string, voiceName: string, speechParam: string, p4: boolean): void { PlayAmbientSpeechWithVoice(ped, speechName, voiceName, speechParam, p4); } // unverified
-  playAmbientSpeechAtCoords(speechName: string, voiceName: string, x: number, y: number, z: number, speechParam: string): void { PlayAmbientSpeechAtCoords(speechName, voiceName, x, y, z, speechParam); } // unverified
-  getNumberOfPassengerVoiceVariations(newsStory: number): boolean { return GetNumberOfPassengerVoiceVariations(newsStory); } // unverified
-  setPedScream(ped: number): void { SetPedScream(ped); } // unverified
-  canPedSpeak(ped: number, speechName: string, unk: boolean): boolean { return CanPedSpeak(ped, speechName, unk); } // unverified
-  setPedTalk(ped: number): void { SetPedTalk(ped); } // unverified
-  getPlayerHeadsetSoundAlternate(variableName: string, value: number): void { GetPlayerHeadsetSoundAlternate(variableName, value); } // unverified
-  specialFrontendEqual(x: number, y: number, z: number): void { SpecialFrontendEqual(x, y, z); } // unverified
+  playAmbientSpeechWithVoice(ped: number, speechName: string, voiceName: string, speechParam: string, p4: boolean): void { PlayAmbientSpeechWithVoice(ped, speechName, voiceName, speechParam, p4); }
+  playAmbientSpeechAtCoords(speechName: string, voiceName: string, x: number, y: number, z: number, speechParam: string): void { PlayAmbientSpeechAtCoords(speechName, voiceName, x, y, z, speechParam); }
+  getNumberOfPassengerVoiceVariations(newsStory: number): boolean { return GetNumberOfPassengerVoiceVariations(newsStory); }
+  setPedScream(ped: number): void { SetPedScream(ped); }
+  canPedSpeak(ped: number, speechName: string, unk: boolean): boolean { return CanPedSpeak(ped, speechName, unk); }
+  setPedTalk(ped: number): void { SetPedTalk(ped); }
+  getPlayerHeadsetSoundAlternate(variableName: string, value: number): void { GetPlayerHeadsetSoundAlternate(variableName, value); }
+  specialFrontendEqual(x: number, y: number, z: number): void { SpecialFrontendEqual(x, y, z); }
   resetPedFlags(ped: number): void { ResetPedAudioFlags(ped); }
-  setPedFootstepLoud(ped: number, toggle: boolean): void { SetPedAudioFootstepLoud(ped, toggle); } // unverified
-  setPedFootstepQuiet(ped: number, toggle: boolean): void { SetPedAudioFootstepQuiet(ped, toggle); } // unverified
+  setPedFootstepLoud(ped: number, toggle: boolean): void { SetPedAudioFootstepLoud(ped, toggle); }
+  setPedFootstepQuiet(ped: number, toggle: boolean): void { SetPedAudioFootstepQuiet(ped, toggle); }
 
-  setSynchronizedAudioEventPositionThisFrame(p0: string, p1: number): void { SetSynchronizedAudioEventPositionThisFrame(p0, p1); } // unverified
+  setSynchronizedAudioEventPositionThisFrame(p0: string, p1: number): void { SetSynchronizedAudioEventPositionThisFrame(p0, p1); }
   prepareSynchronizedEvent(p0: string, p1: number): number { return (PrepareSynchronizedAudioEvent as any)(p0, p1); }
   prepareSynchronizedEventForScene(p0: number): number { return (PrepareSynchronizedAudioEventForScene as any)(p0); }
   playSynchronizedEvent(p0: number): boolean { return PlaySynchronizedAudioEvent(p0); }
   stopSynchronizedEvent(p0: number): boolean { return StopSynchronizedAudioEvent(p0); }
-  setSynchronizedEventPositionThisFrame(p0: string, p1: number): void { SetSynchronizedAudioEventPositionThisFrame(p0, p1); } // unverified
+  setSynchronizedEventPositionThisFrame(p0: string, p1: number): void { SetSynchronizedAudioEventPositionThisFrame(p0, p1); }
 
   addLineToConversation(index: number, p1: string, p2: string, p3: number, p4: number, p5: boolean, p6: boolean, p7: boolean, p8: boolean, p9: number, p10: boolean, p11: boolean, p12: boolean): void {
     AddLineToConversation(index, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
@@ -267,41 +267,41 @@ export class GameAudioNs {
   interruptConversation(p0: number): { p1: number; p2: number } {
     const r = (InterruptConversation as any)(p0);
     return { p1: r[0], p2: r[1] };
-  } // unverified
+  }
 
-  setCutsceneOverride(name: string): void { SetCutsceneAudioOverride(name); } // unverified
-  setVariableOnCutscene(variableName: string, value: number): void { SetVariableOnCutsceneAudio(variableName, value); } // unverified
+  setCutsceneOverride(name: string): void { SetCutsceneAudioOverride(name); }
+  setVariableOnCutscene(variableName: string, value: number): void { SetVariableOnCutsceneAudio(variableName, value); }
   stopCutscene(p0: boolean): void { StopCutscene(p0); }
 
-  setRadioTrackMix(radioStationName: string, mixName: string, p2: number): void { SetRadioTrackMix(radioStationName, mixName, p2); } // unverified
-  isVehicleRadioLoud(vehicle: number): boolean { return IsVehicleRadioLoud(vehicle); } // unverified
-  updateLsur(enableMixes: boolean): void { UpdateLsur(enableMixes); } // unverified
-  getCurrentRadioStationHash(radioStationName: string): number { return GetCurrentRadioStationHash(radioStationName); } // unverified
+  setRadioTrackMix(radioStationName: string, mixName: string, p2: number): void { SetRadioTrackMix(radioStationName, mixName, p2); }
+  isVehicleRadioLoud(vehicle: number): boolean { return IsVehicleRadioLoud(vehicle); }
+  updateLsur(enableMixes: boolean): void { UpdateLsur(enableMixes); }
+  getCurrentRadioStationHash(radioStationName: string): number { return GetCurrentRadioStationHash(radioStationName); }
 
-  cancelCurrentPoliceReport(): void { CancelCurrentPoliceReport(); } // unverified
+  cancelCurrentPoliceReport(): void { CancelCurrentPoliceReport(); }
   playPoliceCrimeReport(position: Vector3, crimeIndex: number, playDelay: number, localPlayer: boolean): void {
     PlayPoliceCrimeReport(position?.x ?? (position as any)?.[0] ?? 0, position?.y ?? (position as any)?.[1] ?? 0, position?.z ?? (position as any)?.[2] ?? 0, crimeIndex, playDelay, localPlayer);
-  } // unverified
+  }
 
-  soundVehicleHornThisFrame(vehicle: number): void { SoundVehicleHornThisFrame(vehicle); } // unverified
-  forceVehicleEngine(vehicle: number, audioName: string): void { ForceVehicleEngineAudio(vehicle, audioName); } // unverified
-  preloadVehicle(vehicleModel: number): void { PreloadVehicleAudio(vehicleModel); } // unverified
+  soundVehicleHornThisFrame(vehicle: number): void { SoundVehicleHornThisFrame(vehicle); }
+  forceVehicleEngine(vehicle: number, audioName: string): void { ForceVehicleEngineAudio(vehicle, audioName); }
+  preloadVehicle(vehicleModel: number): void { PreloadVehicleAudio(vehicleModel); }
   setVehicleEngineDamageFactor(vehicle: number, damageFactor: number): void { SetVehicleAudioEngineDamageFactor(vehicle, damageFactor); }
   setVehicleBodyDamageFactor(vehicle: number, p1: number): void { SetVehicleAudioBodyDamageFactor(vehicle, p1); }
-  getVehicleDefaultHornVariation(vehicle: number): number { return GetVehicleDefaultHornVariation(vehicle); } // unverified
-  setVehicleHornVariation(vehicle: number, value: number): void { SetVehicleHornVariation(vehicle, value); } // unverified
+  getVehicleDefaultHornVariation(vehicle: number): number { return GetVehicleDefaultHornVariation(vehicle); }
+  setVehicleHornVariation(vehicle: number, value: number): void { SetVehicleHornVariation(vehicle, value); }
 
   addEntityToMixGroup(entity: number, groupName: string, p2: number): void { AddEntityToAudioMixGroup(entity, groupName, p2); }
   removeEntityFromMixGroup(entity: number, p1: number): void { RemoveEntityFromAudioMixGroup(entity, p1); }
-  isScriptedMusicPlaying(): boolean { return AudioIsScriptedMusicPlaying(); } // unverified
+  isScriptedMusicPlaying(): boolean { return AudioIsScriptedMusicPlaying(); }
 
-  hasMultiplayerDataLoaded(): boolean { return HasMpDataLoaded(); } // unverified
-  hasMultiplayerDataUnloaded(): boolean { return HasMpDataUnloaded(); } // unverified
+  hasMultiplayerDataLoaded(): boolean { return HasMpDataLoaded(); }
+  hasMultiplayerDataUnloaded(): boolean { return HasMpDataUnloaded(); }
 
-  getCategoryVariable(categoryHash: number, fieldNameHash: number): void { return GetAudioCategoryVariable(categoryHash, fieldNameHash); } // unverified
-  setCategoryVariable(categoryHash: number, fieldNameHash: number, value: any): void { SetAudioCategoryVariable(categoryHash, fieldNameHash, value); } // unverified
-  copyCategoryVariables(categoryTo: number, categoryFrom: number): void { CopyAudioCategoryVariables(categoryTo, categoryFrom); } // unverified
-  restoreCategoryVariables(categoryHash: number): void { RestoreAudioCategoryVariables(categoryHash); } // unverified
+  getCategoryVariable(categoryHash: number, fieldNameHash: number): void { return GetAudioCategoryVariable(categoryHash, fieldNameHash); }
+  setCategoryVariable(categoryHash: number, fieldNameHash: number, value: any): void { SetAudioCategoryVariable(categoryHash, fieldNameHash, value); }
+  copyCategoryVariables(categoryTo: number, categoryFrom: number): void { CopyAudioCategoryVariables(categoryTo, categoryFrom); }
+  restoreCategoryVariables(categoryHash: number): void { RestoreAudioCategoryVariables(categoryHash); }
 
   ["_0xC8B1B2425604CDD0"](): any { return Citizen.invokeNative("0xC8B1B2425604CDD0"); }
   ["_0x33E3C6C6F2F0B506"](...args: any[]): any { return Citizen.invokeNative("0x33E3C6C6F2F0B506", ...args); }

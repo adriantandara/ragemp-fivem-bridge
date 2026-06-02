@@ -41,12 +41,12 @@ export class GameScriptNs {
   requestStreamedScript(scriptHash: number): void { RequestScriptWithNameHash(scriptHash); }
   setStreamedScriptAsNoLongerNeeded(scriptHash: number): void { SetScriptWithNameHashAsNoLongerNeeded(scriptHash); }
   hasStreamedScriptLoaded(scriptHash: number): boolean { return HasScriptWithNameHashLoaded(scriptHash); }
-  isStreamedScriptRunning(scriptHash: number): boolean { return IsStreamedScriptRunning(scriptHash); } // unverified
+  isStreamedScriptRunning(scriptHash: number): boolean { return IsStreamedScriptRunning(scriptHash); }
   getThreadName(threadId: number): string { return GetNameOfThread(threadId); }
-  getNumberOfInstancesOfStreamedScript(scriptHash: number): number { return GetNumberOfInstancesOfStreamedScript(scriptHash); } // unverified
+  getNumberOfInstancesOfStreamedScript(scriptHash: number): number { return GetNumberOfInstancesOfStreamedScript(scriptHash); }
   threadIteratorReset(): void { ScriptThreadIteratorReset(); }
   threadIteratorGetNextThreadId(): number { return ScriptThreadIteratorGetNextThreadId(); }
-  getNumberOfReferencesOfWithNameHash(scriptHash: number): number { return GetNumberOfReferencesOfScriptWithNameHash(scriptHash); } // unverified
+  getNumberOfReferencesOfWithNameHash(scriptHash: number): number { return GetNumberOfReferencesOfScriptWithNameHash(scriptHash); }
   getThisName(): string { return GetThisScriptName(); }
   getHashOfThisName(): number { return GetHashOfThisScriptName(); }
   triggerEvent2(eventGroup: number, eventDataSize: number, playerBits: number): number { return TriggerScriptEvent(eventGroup, eventDataSize, playerBits); }

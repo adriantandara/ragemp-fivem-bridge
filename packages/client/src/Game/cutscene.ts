@@ -53,9 +53,9 @@ export class GameCutsceneNs {
   requestCutscene2(cutsceneName: string, playbackFlags: number, flags: number): void { RequestCutsceneWithPlaybackList(cutsceneName, playbackFlags, flags); }
   hasThisLoaded(cutsceneName: string): boolean { return HasThisCutsceneLoaded(cutsceneName); }
   canRequestAssetsForEntity(): boolean { return CanRequestAssetsForCutsceneEntity(); }
-  getCutFileNumSections(cutsceneName: string): number { return GetCutFileNumSections(cutsceneName); } // unverified
+  getCutFileNumSections(cutsceneName: string): number { return GetCutFileNumSections(cutsceneName); }
   getEntityIndexOfEntity(cutsceneEntName: string, modelHash: number): number { return GetEntityIndexOfCutsceneEntity(cutsceneEntName, modelHash); }
-  registerSynchronisedScriptSpeech(): void { RegisterSynchronisedScriptSpeech(); } // unverified
+  registerSynchronisedScriptSpeech(): void { RegisterSynchronisedScriptSpeech(); }
   setPedComponentVariation(cutsceneEntName: string, p1: number, p2: number, p3: number, modelHash: number): void { SetCutscenePedComponentVariation(cutsceneEntName, p1, p2, p3, modelHash); }
   doesEntityExist(cutsceneEntName: string, modelHash: number): boolean { return DoesCutsceneEntityExist(cutsceneEntName, modelHash); }
 

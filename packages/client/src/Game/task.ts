@@ -197,9 +197,15 @@ export class GameTaskNs {
   isPlayingPhoneGestureAnim(ped: number): boolean { return IsPlayingPhoneGestureAnim(ped); }
   getPhoneGestureAnimCurrentTime(ped: number): number { return GetPhoneGestureAnimCurrentTime(ped); }
   getPhoneGestureAnimTotalTime(ped: number): number { return GetPhoneGestureAnimTotalTime(ped); }
-  openSequence(): number { const r = (OpenSequenceTask as any)(); return Array.isArray(r) ? r[0] : r; } // NOTE: native returns void per typings
+  openSequence(): number {
+    OpenSequenceTask(0);
+    return 0;
+  }
   closeSequence(taskSequenceId: number): void { CloseSequenceTask(taskSequenceId); }
-  clearSequence(taskSequenceId: number): number { const r = (ClearSequenceTask as any)(taskSequenceId); return Array.isArray(r) ? r[0] : r; } // NOTE: native returns void per typings
+  clearSequence(taskSequenceId: number): number {
+    ClearSequenceTask(taskSequenceId);
+    return 0;
+  }
   setSequenceToRepeat(taskSequenceId: number, repeat: boolean): void { SetSequenceToRepeat(taskSequenceId, repeat); }
   getSequenceProgress(ped: number): number { return GetSequenceProgress(ped); }
   getActiveVehicleMissionType(vehicle: number): number { return GetActiveVehicleMissionType(vehicle); }
@@ -221,7 +227,7 @@ export class GameTaskNs {
   getScriptedCoverPointCoords(coverpoint: number): Vector3 { return toVec3(GetScriptedCoverPointCoords(coverpoint)); }
   removeAllCoverBlockingAreas(): void { RemoveAllCoverBlockingAreas(); }
   doesScenarioExistInArea(x: number, y: number, z: number, radius: number, b: boolean): boolean { return DoesScenarioExistInArea(x, y, z, radius, b); }
-  doesScenarioOfTypeExistInArea(p0: number, p1: number, p2: number, p3: string, p4: number, p5: boolean): number { return DoesScenarioOfTypeExistInArea(p0, p1, p2, p3, p4, p5) as any; } // NOTE: native returns boolean per typings
+  doesScenarioOfTypeExistInArea(p0: number, p1: number, p2: number, p3: string, p4: number, p5: boolean): number { return Number(DoesScenarioOfTypeExistInArea(p0, p1, p2, p3, p4, p5)); }
   isScenarioOccupied(p0: number, p1: number, p2: number, p3: number, p4: boolean): boolean { return IsScenarioOccupied(p0, p1, p2, p3, p4); }
   pedHasUseScenario(ped: number): boolean { return PedHasUseScenarioTask(ped); }
   playAnimOnRunningScenario(ped: number, animDict: string, animName: string): void { PlayAnimOnRunningScenario(ped, animDict, animName); }
@@ -450,7 +456,7 @@ export class GameTaskNs {
   vehicleFollowWaypointRecording(ped: number, vehicle: number, WPRecording: string, p3: number, p4: number, p5: number, p6: number, p7: number, p8: boolean, p9: number): void { TaskVehicleFollowWaypointRecording(ped, vehicle, WPRecording, p3, p4, p5, p6, p7, p8, p9); }
   moveNetworkByName(ped: number, task: string, multiplier: number, p3: boolean, animDict: string, flags: number): void { TaskMoveNetworkByName(ped, task, multiplier, p3, animDict, flags); }
   moveNetworkAdvancedByName(ped: number, p1: string, p2: number, p3: number, p4: number, p5: number, p6: number, p7: number, p8: number, p9: number, p10: boolean, animDict: string, flags: number): void { TaskMoveNetworkAdvancedByName(ped, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, animDict, flags); }
-  setMoveNetworkSignalFloat2(ped: number, signalName: string, value: number): void { Citizen.invokeNative("0x373EF409B82697A3", ped, signalName, value); }
+  setMoveNetworkSignalFloat2(ped: number, signalName: string, value: number): void { SetTaskMoveNetworkSignalFloat_2(ped, signalName, value); }
   synchronizedScene(ped: number, scene: number, animDictionary: string, animationName: string, speed: number, speedMultiplier: number, duration: number, flag: number, playbackRate: number, p9: number): void { TaskSynchronizedScene(ped, scene, animDictionary, animationName, speed, speedMultiplier, duration, flag, playbackRate, p9); }
   arrestPed(ped: number, target: number): void { TaskArrestPed(ped, target); }
   taskScriptedAnimation(ped: number): { p1: number; p2: number; p3: number } { const r = TaskScriptedAnimation(ped, 0, 0); return Array.isArray(r) ? { p1: r[0], p2: r[1], p3: r[2] } : r; }
@@ -463,7 +469,7 @@ export class GameTaskNs {
   isDrivebyUnderneathDrivingTask(ped: number): boolean { return IsDrivebyTaskUnderneathDrivingTask(ped); }
   isMountedWeaponUnderneathDrivingTask(ped: number): boolean { return IsMountedWeaponTaskUnderneathDrivingTask(ped); }
   moveNetworkByNameWithInitParams(ped: number, p1: string, p3: number, p4: boolean, animDict: string, flags: number): number { return TaskMoveNetworkByNameWithInitParams(ped, p1, p3, p4, animDict, flags); }
-  rappelDownWall(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: number, p7: number, p8: number, p9: number, p10: number): void { TaskRappelDownWallUsingClipsetOverride(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10); } // unverified
-  clearVehicleS(vehicle: number): void { ClearVehicleCrashTask(vehicle); } // unverified
-  agitatedAction(ped: number, ped2: number): void { Citizen.invokeNative("0x19D1B791CB3670FE", ped, ped2); } // unverified
+  rappelDownWall(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: number, p7: number, p8: number, p9: number, p10: number): void { TaskRappelDownWallUsingClipsetOverride(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10); }
+  clearVehicleS(vehicle: number): void { ClearVehicleCrashTask(vehicle); }
+  agitatedAction(ped: number, ped2: number): void { TaskAgitatedAction(ped, ped2); }
 }

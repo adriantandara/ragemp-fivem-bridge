@@ -8,16 +8,16 @@ export class GameStatsNs {
   statSetBool(statName: number, value: boolean, save: boolean): void { StatSetBool(statName, value, save ?? true); }
   statSetString(statName: number, value: string, save: boolean): void { StatSetString(statName, value, save ?? true); }
   statGetInt(statName: number): number {
-    const [, out] = StatGetInt(statName, 0);
-    return out;
+    const [, result] = StatGetInt(statName, 0);
+    return result;
   }
   statGetFloat(statName: number): number {
-    const [, out] = StatGetFloat(statName, 0);
-    return out;
+    const [, result] = StatGetFloat(statName, 0);
+    return result;
   }
   statGetBool(statName: number): boolean {
-    const [, out] = StatGetBool(statName, 0 as any);
-    return out;
+    const [, result] = StatGetBool(statName, 0 as any);
+    return result;
   }
   statGetString(statName: number): string {
     return StatGetString(statName, -1);
@@ -50,18 +50,27 @@ export class GameStatsNs {
   statSetBlockSaves(toggle: boolean): void { StatSetBlockSaves(toggle); }
 
   statSetGxtLabel(statName: number, value: string, save: boolean): boolean { return StatSetGxtLabel(statName, value, save); }
-  statSetDate(statName: number, value: number, numFields: number, save: boolean): number { return (StatSetDate as any)(statName, value, numFields, save); } // NOTE: native returns [boolean,number] per typings
+  statSetDate(statName: number, numFields: number, save: boolean): number {
+    const [, result] = StatSetDate(statName, numFields, save);
+    return result;
+  }
   statSetPos(statName: number, x: number, y: number, z: number, save: boolean): boolean { return StatSetPos(statName, x, y, z, save); }
   statSetMaskedInt(statName: number, p1: number, p2: number, p3: number, save: boolean): boolean { return StatSetMaskedInt(statName, p1, p2, p3, save); }
   statSetUserId(statName: number, value: string, save: boolean): boolean { return StatSetUserId(statName, value, save); }
   statSetCurrentPosixTime(statName: number, p1: boolean): boolean { return StatSetCurrentPosixTime(statName, p1); }
 
-  statGetDate(statHash: number, p2: number, p3: number): number { const [, out] = (StatGetDate as any)(statHash, 0, p2, p3); return out; } // NOTE: native returns [boolean,number] per typings
+  statGetDate(statHash: number, p2: number, p3: number): number {
+    const [, result] = StatGetDate(statHash, p2, p3);
+    return result;
+  }
   statGetPos(statName: number): { p1: number; p2: number; p3: number; result: boolean } {
     const r = StatGetPos(statName, 0);
     return { p1: r[1], p2: r[2], p3: r[3], result: !!r[0] };
   }
-  statGetMaskedInt(statHash: number, p2: number, p3: number): number { const [, out] = StatGetMaskedInt(statHash, 0, p2, p3); return out; }
+  statGetMaskedInt(statHash: number, p2: number, p3: number): number { 
+    const [, result] = StatGetMaskedInt(statHash, 0, p2, p3);
+    return result;
+  }
   statGetUserId(statHash: number): string { return StatGetUserId(statHash); }
   statGetLicensePlate(statName: number): string { return StatGetLicensePlate(statName); }
   statSetLicensePlate(statName: number, str: string): boolean { return StatSetLicensePlate(statName, str); }
@@ -83,38 +92,56 @@ export class GameStatsNs {
   leaderboardsReadPending(p0: number, p1: number, p2: number): boolean { return LeaderboardsReadPending(p0, p1, p2); }
   leaderboardsReadAnyPending(): boolean { return LeaderboardsReadAnyPending(); }
   leaderboardsReadSuccessful(p0: number, p1: number, p2: number): boolean { return LeaderboardsReadSuccessful(p0, p1, p2); }
-  leaderboards2ReadByRank(p0: number, p1: number): number { const [, out] = Leaderboards2ReadByRank(p0, p1); return out; }
-  leaderboards2ReadByScoreInt(p0: number, p1: number): number { const [, out] = Leaderboards2ReadByScoreInt(p0, p1); return out; }
-  leaderboards2ReadByScoreFloat(p0: number, p1: number): number { const [, out] = Leaderboards2ReadByScoreFloat(p0, p1); return out; }
-  leaderboards2WriteData(p0: number): number { const [, out] = Leaderboards2WriteData(p0); return out; }
+  leaderboards2ReadByRank(p0: number, p1: number): number {
+    const [, result] = Leaderboards2ReadByRank(p0, p1);
+    return result;
+  }
+  leaderboards2ReadByScoreInt(p0: number, p1: number): number {
+    const [, result] = Leaderboards2ReadByScoreInt(p0, p1);
+    return result;
+  }
+  leaderboards2ReadByScoreFloat(p0: number, p1: number): number {
+    const [, result] = Leaderboards2ReadByScoreFloat(p0, p1);
+    return result;
+  }
+  leaderboards2WriteData(p0: number): number {
+    const [, result] = Leaderboards2WriteData(p0);
+    return result;
+  }
   leaderboardsWriteAddColumn(p0: number, p1: number, p2: number): void { LeaderboardsWriteAddColumn(p0, p1, p2); }
   leaderboardsWriteAddColumnLong(p0: number, p1: number, p2: number): void { LeaderboardsWriteAddColumnLong(p0, p1, p2); }
-  leaderboardsCacheDataRow(p0: number): number { const [, out] = LeaderboardsCacheDataRow(p0); return out; }
+  leaderboardsCacheDataRow(p0: number): number {
+    const [, result] = LeaderboardsCacheDataRow(p0);
+    return result;
+  }
   leaderboardsClearCacheData(): void { LeaderboardsClearCacheData(); }
   leaderboardsGetCacheExists(p0: number): boolean { return LeaderboardsGetCacheExists(p0); }
   leaderboardsGetCacheTime(p0: number): number { return LeaderboardsGetCacheTime(p0); }
   leaderboardsGetCacheNumberOfRows(p0: number): number { return LeaderboardsGetCacheNumberOfRows(p0); }
-  leaderboardsGetCacheDataRow(p0: number, p1: number): number { const [, out] = LeaderboardsGetCacheDataRow(p0, p1, 0); return out; }
+  leaderboardsGetCacheDataRow(p0: number, p1: number): number {
+    const [, result] = LeaderboardsGetCacheDataRow(p0, p1, 0);
+    return result;
+  }
 
   setProfileSettingPrologueComplete(): void { SetProfileSettingPrologueComplete(); }
   statSetCheatIsActive(): void { StatSetCheatIsActive(); }
   statGetCancelSaveMigrationStatus(): number { return StatGetCancelSaveMigrationStatus(); }
   hiredLimo(p0: number, p1: number): void { HiredLimo(p0, p1); }
 
-  statSetProfileSetting(profileSetting: number, value: number): void { StatSetProfileSetting(profileSetting, value); } // unverified
-  statGetPackedBoolMask(p0: number): number { return StatGetPackedBoolMask(p0); } // unverified
-  statGetPackedIntMask(p0: number): number { return StatGetPackedIntMask(p0); } // unverified
-  getPackedBoolStatKey(index: number, spStat: boolean, charStat: boolean, character: number): number { return GetPackedBoolStatKey(index, spStat, charStat, character); } // unverified
-  getPackedTuBoolStatKey(index: number, spStat: boolean, charStat: boolean, character: number): number { return GetPackedTuBoolStatKey(index, spStat, charStat, character); } // unverified
-  getNgstatBoolHash(index: number, spStat: boolean, charStat: boolean, character: number, section: string): number { return GetNgstatBoolHash(index, spStat, charStat, character, section); } // unverified
-  getNgstatIntHash(index: number, spStat: boolean, charStat: boolean, character: number, section: string): number { return GetNgstatIntHash(index, spStat, charStat, character, section); } // unverified
-  statGetBoolMasked(statName: number, mask: number, p2: number): boolean { const [, out] = (StatGetBoolMasked as any)(statName, mask, p2); return out; } // unverified, NOTE: native may return boolean not tuple
-  statSetBoolMasked(statName: number, value: boolean, mask: number, save: boolean): boolean { return StatSetBoolMasked(statName, value, mask, save); } // unverified
+  statSetProfileSetting(profileSetting: number, value: number): void { StatSetProfileSetting(profileSetting, value); }
+  statGetPackedBoolMask(p0: number): number { return StatGetPackedBoolMask(p0); }
+  statGetPackedIntMask(p0: number): number { return StatGetPackedIntMask(p0); }
+  getPackedBoolStatKey(index: number, spStat: boolean, charStat: boolean, character: number): number { return GetPackedBoolStatKey(index, spStat, charStat, character); }
+  getPackedTuBoolStatKey(index: number, spStat: boolean, charStat: boolean, character: number): number { return GetPackedTuBoolStatKey(index, spStat, charStat, character); }
+  getNgstatBoolHash(index: number, spStat: boolean, charStat: boolean, character: number, section: string): number { return GetNgstatBoolHash(index, spStat, charStat, character, section); }
+  getNgstatIntHash(index: number, spStat: boolean, charStat: boolean, character: number, section: string): number { return GetNgstatIntHash(index, spStat, charStat, character, section); }
+  statGetBoolMasked(statName: number, mask: number, p2: number): boolean { return StatGetBoolMasked(statName, mask, p2); }
+  statSetBoolMasked(statName: number, value: boolean, mask: number, save: boolean): boolean { return StatSetBoolMasked(statName, value, mask, save); }
   playBackgroundScriptAction(action: string, value: number): void { PlaystatsBackgroundScriptAction(action, value); }
   playNpcInvite(): number { return (PlaystatsNpcInvite as any)(); }
   playAwardXp(amount: number, type: number, category: number): void { PlaystatsAwardXp(amount, type, category); }
   playRankUp(rank: number): void { PlaystatsRankUp(rank); }
-  playStartOfflineMode(): void { PlaystatsStartOfflineMode(); } // unverified
+  playStartOfflineMode(): void { PlaystatsStartOfflineMode(); }
   playActivityDone(p0: number, p1: number): void { PlaystatsActivityDone(p0, p1); }
   playLeaveJobChain(p0: number, p1: number, p2: number, p3: number, p4: number): void { PlaystatsLeaveJobChain(p0, p1, p2, p3, p4); }
   playMissionStarted(p1: number, p2: number, p3: boolean): number { return PlaystatsMissionStarted(p1, p2, p3); }
@@ -126,7 +153,7 @@ export class GameStatsNs {
   playMatchStarted(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: number): void { PlaystatsMatchStarted(p0, p1, p2, p3, p4, p5, p6); }
   playShopItem(p0: number, p1: number, p2: number, p3: number, p4: number): void { PlaystatsShopItem(p0, p1, p2, p3, p4); }
   playCrateDropMissionDone(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number): void { PlaystatsCrateDropMissionDone(p0, p1, p2, p3, p4, p5); }
-  playCrateCreatedMissionDone(p0: number, p1: number, p2: number): void { PlaystatsCrateCreatedMissionDone(p0, p1, p2); } // unverified
+  playCrateCreatedMissionDone(p0: number, p1: number, p2: number): void { PlaystatsCrateCreatedMissionDone(p0, p1, p2); }
   playHoldUpMissionDone(p0: number, p1: number, p2: number, p3: number): void { PlaystatsHoldUpMissionDone(p0, p1, p2, p3); }
   playImportExportMissionDone(p0: number, p1: number, p2: number, p3: number): void { PlaystatsImportExportMissionDone(p0, p1, p2, p3); }
   playRaceToPointMissionDone(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: number, p7: number, p8: number, p9: number): void { PlaystatsRaceToPointMissionDone(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9); }
@@ -141,65 +168,65 @@ export class GameStatsNs {
   playQuickfixTool(element: number, item: string): void { PlaystatsQuickfixTool(element, item); }
   playIdleKick(time: number): void { PlaystatsIdleKick(time); }
   playHeistSaveCheat(hash: number, p1: number): void { PlaystatsHeistSaveCheat(hash, p1); }
-  playDirectorMode(): number { return (PlaystatsDirectorMode as any)(); } // unverified
-  playAwardBadsport(id: number): void { PlaystatsAwardBadsport(id); } // unverified
-  playPegasaircraft(modelHash: number): void { PlaystatsPegasaircraft(modelHash); } // unverified
-  playPiMenuHideSettings(): number { return (PlaystatsPiMenuHideSettings as any)(); } // unverified
-  updateStatInt(statHash: number, value: number, p2: number): void { UpdateStatInt(statHash, value, p2); } // unverified
-  updateStatFloat(statHash: number, value: number, p2: number): void { UpdateStatFloat(statHash, value, p2); } // unverified
+  playDirectorMode(): number { return (PlaystatsDirectorMode as any)(); }
+  playAwardBadsport(id: number): void { PlaystatsAwardBadsport(id); }
+  playPegasaircraft(modelHash: number): void { PlaystatsPegasaircraft(modelHash); }
+  playPiMenuHideSettings(): number { return (PlaystatsPiMenuHideSettings as any)(); }
+  updateStatInt(statHash: number, value: number, p2: number): void { UpdateStatInt(statHash, value, p2); }
+  updateStatFloat(statHash: number, value: number, p2: number): void { UpdateStatFloat(statHash, value, p2); }
   leaderboards2WriteDataForEventType(): any { return Leaderboards2WriteDataForEventType(); }
-  statMigrateSave(platformName: string): boolean { return StatMigrateSave(platformName); } // unverified
-  statSaveMigrationStatusStart(): boolean { return StatSaveMigrationStatusStart(); } // unverified
+  statMigrateSave(platformName: string): boolean { return StatMigrateSave(platformName); }
+  statSaveMigrationStatusStart(): boolean { return StatSaveMigrationStatusStart(); }
   statGetSaveMigrationStatus(data: number): any { return StatGetSaveMigrationStatus(data); }
-  statSaveMigrationCancel(): boolean { return Citizen.invokeNative("0x4FEF53183C3C6414", Citizen.resultAsInteger()); } // unverified
-  statSaveMigrationConsumeContentUnlock(contentId: number, srcPlatform: string, srcGamerHandle: string): boolean { return Citizen.invokeNative("0x3270F67EED31FBC1", Citizen.resultAsInteger(), contentId, srcPlatform, srcGamerHandle); } // unverified
-  statGetSaveMigrationConsumeContentUnlockStatus(): any { return StatGetSaveMigrationConsumeContentStatus(); } // unverified
-  setHasContentUnlocksFlags(value: number): void { SetHasContentUnlocksFlags(value); } // unverified
-  setSaveMigrationTransactionId(transactionId: number): void { SetSaveMigrationTransactionId(transactionId); } // unverified
+  statSaveMigrationCancel(): boolean { return StatSaveMigrationCancel(); }
+  statSaveMigrationConsumeContentUnlock(contentId: number, srcPlatform: string, srcGamerHandle: string): boolean { return StatSaveMigrationConsumeContentUnlock(contentId, srcPlatform, srcGamerHandle); }
+  statGetSaveMigrationConsumeContentUnlockStatus(): any { return StatGetSaveMigrationConsumeContentStatus(); }
+  setHasContentUnlocksFlags(value: number): void { SetHasContentUnlocksFlags(value); }
+  setSaveMigrationTransactionId(transactionId: number): void { SetSaveMigrationTransactionId(transactionId); }
   playSpentPiCustomLoadout(amount: number): void { PlaystatsSpentPiCustomLoadout(amount); }
-  playBuyContraband(): number { return (PlaystatsBuyContraband as any)(); } // unverified
-  playSellContraband(): number { return (PlaystatsSellContraband as any)(); } // unverified
-  playDefendContraband(): number { return (PlaystatsDefendContraband as any)(); } // unverified
-  playRecoverContraband(): number { return (PlaystatsRecoverContraband as any)(); } // unverified
-  orderedBossVehicle(p0: number, p1: number, vehicleHash: number): void { OrderedBossVehicle(p0, p1, vehicleHash); } // unverified
-  playStuntPerformedEventAllowTrigger(): void { PlaystatsStuntPerformedEventAllowTrigger(); } // unverified
-  playStuntPerformedEventDisallowTrigger(): void { PlaystatsStuntPerformedEventDisallowTrigger(); } // unverified
-  playChangeMcEmblem(p0: number, p1: number, p2: number, p3: number, p4: number): void { PlaystatsChangeMcEmblem(p0, p1, p2, p3, p4); } // unverified
+  playBuyContraband(): number { return (PlaystatsBuyContraband as any)(); }
+  playSellContraband(): number { return (PlaystatsSellContraband as any)(); }
+  playDefendContraband(): number { return (PlaystatsDefendContraband as any)(); }
+  playRecoverContraband(): number { return (PlaystatsRecoverContraband as any)(); }
+  orderedBossVehicle(p0: number, p1: number, vehicleHash: number): void { OrderedBossVehicle(p0, p1, vehicleHash); }
+  playStuntPerformedEventAllowTrigger(): void { PlaystatsStuntPerformedEventAllowTrigger(); }
+  playStuntPerformedEventDisallowTrigger(): void { PlaystatsStuntPerformedEventDisallowTrigger(); }
+  playChangeMcEmblem(p0: number, p1: number, p2: number, p3: number, p4: number): void { PlaystatsChangeMcEmblem(p0, p1, p2, p3, p4); }
   playEarnedMcPoints(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number): void { PlaystatsEarnedMcPoints(p0, p1, p2, p3, p4, p5); }
   playCopyRankIntoNewSlot(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: number): void { PlaystatsCopyRankIntoNewSlot(p0, p1, p2, p3, p4, p5, p6); }
-  playDupeDetection(): number { return (PlaystatsDupeDetection as any)(); } // unverified
+  playDupeDetection(): number { return (PlaystatsDupeDetection as any)(); }
   playBanAlert(p0: number): void { PlaystatsBanAlert(p0); }
-  playGunrunMissionEnded(): number { return (PlaystatsGunrunMissionEnded as any)(); } // unverified
-  playStoneHatchetEnd(): number { return (PlaystatsStoneHatchetEnd as any)(); } // unverified
-  playSmugMissionEnded(): number { return (PlaystatsSmugMissionEnded as any)(); } // unverified
-  playH2FmprepEnd(): number { return (PlaystatsH2FmprepEnd as any)(); } // unverified
-  playH2InstanceEnd(p1: number, p2: number, p3: number): number { return PlaystatsH2InstanceEnd(p1, p2, p3); } // unverified
-  playDarMissionEnd(): number { return (PlaystatsDarMissionEnd as any)(); } // unverified
+  playGunrunMissionEnded(): number { return (PlaystatsGunrunMissionEnded as any)(); }
+  playStoneHatchetEnd(): number { return (PlaystatsStoneHatchetEnd as any)(); }
+  playSmugMissionEnded(): number { return (PlaystatsSmugMissionEnded as any)(); }
+  playH2FmprepEnd(): number { return (PlaystatsH2FmprepEnd as any)(); }
+  playH2InstanceEnd(p1: number, p2: number, p3: number): number { return PlaystatsH2InstanceEnd(p1, p2, p3); }
+  playDarMissionEnd(): number { return (PlaystatsDarMissionEnd as any)(); }
   playEnterSessionPack(): number { return (PlaystatsEnterSessionPack as any)(); }
   playDroneUsage(p0: number, p1: number, p2: number): void { PlaystatsDroneUsage(p0, p1, p2); }
-  playSpectatorWheelSpin(p0: number, p1: number, p2: number, p3: number): void { PlaystatsSpectatorWheelSpin(p0, p1, p2, p3); } // unverified
-  playArenaWarSpectator(p0: number, p1: number, p2: number, p3: number, p4: number): void { PlaystatsArenaWarSpectator(p0, p1, p2, p3, p4); } // unverified
+  playSpectatorWheelSpin(p0: number, p1: number, p2: number, p3: number): void { PlaystatsSpectatorWheelSpin(p0, p1, p2, p3); }
+  playArenaWarSpectator(p0: number, p1: number, p2: number, p3: number, p4: number): void { PlaystatsArenaWarSpectator(p0, p1, p2, p3, p4); }
   playArenaWarsEnded(): number { return (PlaystatsArenaWarsEnded as any)(); }
-  playPassiveMode(p0: boolean, p1: number, p2: number, p3: number): void { PlaystatsPassiveMode(p0, p1, p2, p3); } // unverified
-  playCollectible(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: number, p7: number, p8: number, p9: number): void { PlaystatsCollectible(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9); } // unverified
+  playPassiveMode(p0: boolean, p1: number, p2: number, p3: number): void { PlaystatsPassiveMode(p0, p1, p2, p3); }
+  playCollectible(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: number, p7: number, p8: number, p9: number): void { PlaystatsCollectible(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9); }
   playCasinoStoryMissionEnded(p0: number, p1: number): void { PlaystatsCasinoStoryMissionEnded(p0, p1); }
   playCasinoChip(p0: number): void { PlaystatsCasinoChip(p0); }
   playCasinoRoulette(p0: number): void { PlaystatsCasinoRoulette(p0); }
   playCasinoBlackjack(p0: number): void { PlaystatsCasinoBlackjack(p0); }
-  playCasinoThreecardpoker(p0: number): void { PlaystatsCasinoThreecardpoker(p0); } // unverified
-  playCasinoSlotmachine(p0: number): void { PlaystatsCasinoSlotmachine(p0); } // unverified
-  playCasinoInsidetrack(p0: number): void { PlaystatsCasinoInsidetrack(p0); } // unverified
-  playCasinoLuckyseven(p0: number): void { PlaystatsCasinoLuckyseven(p0); } // unverified
+  playCasinoThreecardpoker(p0: number): void { PlaystatsCasinoThreecardpoker(p0); }
+  playCasinoSlotmachine(p0: number): void { PlaystatsCasinoSlotmachine(p0); }
+  playCasinoInsidetrack(p0: number): void { PlaystatsCasinoInsidetrack(p0); }
+  playCasinoLuckyseven(p0: number): void { PlaystatsCasinoLuckyseven(p0); }
   playCasinoRouletteLight(p0: number): void { PlaystatsCasinoRouletteLight(p0); }
   playCasinoBlackjackLight(p0: number): void { PlaystatsCasinoBlackjackLight(p0); }
-  playCasinoThreecardpokerLight(p0: number): void { PlaystatsCasinoThreecardpokerLight(p0); } // unverified
-  playCasinoSlotmachineLight(p0: number): void { PlaystatsCasinoSlotmachineLight(p0); } // unverified
-  playCasinoInsidetrackLight(p0: number): void { PlaystatsCasinoInsidetrackLight(p0); } // unverified
-  playArcadegame(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number): void { PlaystatsArcadegame(p0, p1, p2, p3, p4, p5); } // unverified
-  playCasinoMissionEnded(): number { return (PlaystatsCasinoMissionEnded as any)(); } // unverified
+  playCasinoThreecardpokerLight(p0: number): void { PlaystatsCasinoThreecardpokerLight(p0); }
+  playCasinoSlotmachineLight(p0: number): void { PlaystatsCasinoSlotmachineLight(p0); }
+  playCasinoInsidetrackLight(p0: number): void { PlaystatsCasinoInsidetrackLight(p0); }
+  playArcadegame(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number): void { PlaystatsArcadegame(p0, p1, p2, p3, p4, p5); }
+  playCasinoMissionEnded(): number { return (PlaystatsCasinoMissionEnded as any)(); }
   leaderboards2ReadFriendsByRow(p2: number, p3: boolean, p4: number, p5: number): any { return Leaderboards2ReadFriendsByRow(p2, p3, p4, p5); }
   leaderboards2ReadByHandle(): any { return Leaderboards2ReadByHandle(); }
-  leaderboards2ReadByRow(p2: number, p4: number, p6: number): any { return Leaderboards2ReadByRow(p2, p4, p6); } // unverified
+  leaderboards2ReadByRow(p2: number, p4: number, p6: number): any { return Leaderboards2ReadByRow(p2, p4, p6); }
   leaderboards2ReadByRadius(p1: number): any { return Leaderboards2ReadByRadius(p1); }
   leaderboards2ReadRankPrediction(): any { return Leaderboards2ReadRankPrediction(); }
   leaderboards2ReadByPlatform(gamerHandleCsv: string, platformName: string): number { return Leaderboards2ReadByPlaform(gamerHandleCsv, platformName); }

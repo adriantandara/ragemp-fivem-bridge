@@ -124,26 +124,26 @@ export class GameStreamingNs {
   setRenderHdOnly(enable: boolean): void { SetRenderHdOnly(enable); }
 
   requestModel2(model: number): void { RequestModel(model); }
-  setFocusArea(x: number, y: number, z: number, offsetX: number, offsetY: number, offsetZ: number): void { SetFocusArea(x, y, z, offsetX ?? 0, offsetY ?? 0, offsetZ ?? 0); } // unverified
-  setUnkCameraSettings(x: number, y: number, z: number, rad: number, p4: number, p5: number): number { return SetUnkCameraSettings(x, y, z, rad, p4, p5); } // unverified
+  setFocusArea(x: number, y: number, z: number, offsetX: number, offsetY: number, offsetZ: number): void { SetFocusArea(x, y, z, offsetX ?? 0, offsetY ?? 0, offsetZ ?? 0); }
+  setUnkCameraSettings(x: number, y: number, z: number, rad: number, p4: number, p5: number): number { return SetUnkCameraSettings(x, y, z, rad, p4, p5); }
   newLoadSceneStartSafe(x: number, y: number, z: number, radius: number, p4: number): boolean { return NewLoadSceneStartSphere(x, y, z, radius, p4); }
-  setPlayerSwitchLocation(cameraCoordX: number, cameraCoordY: number, cameraCoordZ: number, camRotationX: number, camRotationY: number, camRotationZ: number, camFov: number, camFarClip: number, rotationOrder: number): void { SetPlayerSwitchLocation(cameraCoordX, cameraCoordY, cameraCoordZ, camRotationX, camRotationY, camRotationZ, camFov, camFarClip, rotationOrder); } // unverified
-  forceStreamingUpdate(): void { ForceStreamingUpdate(); } // unverified
+  setPlayerSwitchLocation(cameraCoordX: number, cameraCoordY: number, cameraCoordZ: number, camRotationX: number, camRotationY: number, camRotationZ: number, camFov: number, camFarClip: number, rotationOrder: number): void { SetPlayerSwitchLocation(cameraCoordX, cameraCoordY, cameraCoordZ, camRotationX, camRotationY, camRotationZ, camFov, camFarClip, rotationOrder); }
+  forceStreamingUpdate(): void { ForceStreamingUpdate(); }
   set(toggle: boolean): void { SetStreaming(toggle); }
-  loadGlobalWaterType(waterType: number): void { LoadGlobalWaterType(waterType); } // unverified
-  getGlobalWaterType(): number { return GetGlobalWaterType(); } // unverified
+  loadGlobalWaterType(waterType: number): void { LoadGlobalWaterType(waterType); }
+  getGlobalWaterType(): number { return GetGlobalWaterType(); }
   setGamePausesFor(toggle: boolean): void { SetGamePausesForStreaming(toggle); }
   getNumberOfRequests(): number { return GetNumberOfStreamingRequests(); }
-  formatFocusHeading(x: number, y: number, z: number, rad: number, p4: number, p5: number): number { return FormatFocusHeading(x, y, z, rad, p4, p5); } // unverified
+  formatFocusHeading(x: number, y: number, z: number, rad: number, p4: number, p5: number): number { return FormatFocusHeading(x, y, z, rad, p4, p5); }
   newLoadSceneStart(posX: number, posY: number, posZ: number, offsetX: number, offsetY: number, offsetZ: number, radius: number, p7: number): boolean { return NewLoadSceneStart(posX, posY, posZ, offsetX, offsetY, offsetZ, radius, p7); }
   setPlayerSwitchOutro(cameraCoordX: number, cameraCoordY: number, cameraCoordZ: number, camRotationX: number, camRotationY: number, camRotationZ: number, camFov: number, camFarClip: number, rotationOrder: number): void { SetPlayerSwitchOutro(cameraCoordX, cameraCoordY, cameraCoordZ, camRotationX, camRotationY, camRotationZ, camFov, camFarClip, rotationOrder); }
-  switchOutPlayer(ped: number, flags: number, switchType: number): void { SwitchOutPlayer(ped, flags, switchType); } // unverified
-  switchInPlayer(ped: number): void { SwitchInPlayer(ped); } // unverified
-  getUsedCreatorModelMemoryPercentage(): number { return GetUsedCreatorModelMemoryPercentage(); } // unverified
-  setIslandHopperEnabled(name: string, toggle: boolean): void { SetIslandHopperEnabled(name, toggle); } // unverified
-  getAllModelHashes(p1: number): number[] { return GetAllModelHashes(p1); } // unverified
-  requestRuntimeAssetFromUrl(resourceName: string, url: string): Promise<boolean> { return RequestRuntimeAssetFromUrl(resourceName, url); } // unverified
-  releaseRuntimeAsset(resourceName: string | number): void { ReleaseRuntimeAsset(resourceName); } // unverified
+  switchOutPlayer(ped: number, flags: number, switchType: number): void { SwitchOutPlayer(ped, flags, switchType); }
+  switchInPlayer(ped: number): void { SwitchInPlayer(ped); }
+  getUsedCreatorModelMemoryPercentage(): number { return GetUsedCreatorModelMemoryPercentage(); }
+  setIslandHopperEnabled(name: string, toggle: boolean): void { SetIslandHopperEnabled(name, toggle); }
+  getAllModelHashes(p1: number): number[] { return GetAllModelHashes(p1); }
+  requestRuntimeAssetFromUrl(resourceName: string, url: string): Promise<boolean> { return RequestRuntimeAssetFromUrl(resourceName, url); }
+  releaseRuntimeAsset(resourceName: string | number): void { ReleaseRuntimeAsset(resourceName); }
 
   ["_0x0811381EF5062FEC"](...args: any[]): any { return Citizen.invokeNative("0x0811381EF5062FEC", ...args); }
   ["_0x4E52E752C76E7E7A"](...args: any[]): any { return Citizen.invokeNative("0x4E52E752C76E7E7A", ...args); }

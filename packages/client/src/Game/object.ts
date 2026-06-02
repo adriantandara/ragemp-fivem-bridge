@@ -109,55 +109,55 @@ export class GameObjectNs {
   getClosestOfType(x: number, y: number, z: number, radius: number, modelHash: number, isMission: boolean, p6: boolean, p7: boolean): number { return GetClosestObjectOfType(x, y, z, radius, modelHash, isMission, p6, p7); }
   hasClosestOfTypeBeenBroken(p0: number, p1: number, p2: number, p3: number, modelHash: number, p5: number): boolean { return HasClosestObjectOfTypeBeenBroken(p0, p1, p2, p3, modelHash, p5); }
   hasClosestOfTypeBeenCompletelyDestroyed(x: number, y: number, z: number, radius: number, modelHash: number, p5: boolean): boolean { return HasClosestObjectOfTypeBeenCompletelyDestroyed(x, y, z, radius, modelHash, p5); }
-  getObjectOffsetFromCoords(xPos: number, yPos: number, zPos: number, heading: number, xOffset: number, yOffset: number, zOffset: number): Vector3 { return toVec3(GetObjectOffsetFromCoords(xPos, yPos, zPos, heading, xOffset, yOffset, zOffset)); } // unverified
-  getOffsetFromCoords(xPos: number, yPos: number, zPos: number, heading: number, xOffset: number, yOffset: number, zOffset: number): Vector3 { return toVec3(GetObjectOffsetFromCoords(xPos, yPos, zPos, heading, xOffset, yOffset, zOffset)); } // unverified
+  getObjectOffsetFromCoords(xPos: number, yPos: number, zPos: number, heading: number, xOffset: number, yOffset: number, zOffset: number): Vector3 { return toVec3(GetObjectOffsetFromCoords(xPos, yPos, zPos, heading, xOffset, yOffset, zOffset)); }
+  getOffsetFromCoords(xPos: number, yPos: number, zPos: number, heading: number, xOffset: number, yOffset: number, zOffset: number): Vector3 { return toVec3(GetObjectOffsetFromCoords(xPos, yPos, zPos, heading, xOffset, yOffset, zOffset)); }
   getCoordsAndRotationOfClosestOfType(x: number, y: number, z: number, radius: number, modelHash: number, rotationOrder: number): { result: number; outPosition: Vector3; outRotation: Vector3 } {
     const r = GetCoordsAndRotationOfClosestObjectOfType(x, y, z, radius, modelHash, rotationOrder);
     return { result: r[0], outPosition: toVec3(r[1]), outRotation: toVec3(r[2]) };
   }
   placeOnGroundProperly2(object: number): boolean { return PlaceObjectOnGroundOrObjectProperly(object); }
-  doesDoorExist(doorHash: number): boolean { return DoesDoorExist(doorHash); } // unverified
-  setDoorAccelerationLimit(doorHash: number, state: number, requestDoor: boolean, forceUpdate: boolean): void { SetDoorAccelerationLimit(doorHash, state, requestDoor, forceUpdate); } // unverified
-  setDoorAjarAngle(doorHash: number, ajar: number, requestDoor: boolean, forceUpdate: boolean): void { SetDoorAjarAngle(doorHash, ajar, requestDoor, forceUpdate); } // unverified
-  highlightPlacementCoords(x: number, y: number, z: number, colorIndex: number): void { HighlightPlacementCoords(x, y, z, colorIndex); } // unverified
-  clearGarageArea(garageHash: number, isNetwork: boolean): void { ClearGarageArea(garageHash, isNetwork); } // unverified
+  doesDoorExist(doorHash: number): boolean { return DoesDoorExist(doorHash); }
+  setDoorAccelerationLimit(doorHash: number, state: number, requestDoor: boolean, forceUpdate: boolean): void { SetDoorAccelerationLimit(doorHash, state, requestDoor, forceUpdate); }
+  setDoorAjarAngle(doorHash: number, ajar: number, requestDoor: boolean, forceUpdate: boolean): void { SetDoorAjarAngle(doorHash, ajar, requestDoor, forceUpdate); }
+  highlightPlacementCoords(x: number, y: number, z: number, colorIndex: number): void { HighlightPlacementCoords(x, y, z, colorIndex); }
+  clearGarageArea(garageHash: number, isNetwork: boolean): void { ClearGarageArea(garageHash, isNetwork); }
   isPointInAngledArea(xPos: number, yPos: number, zPos: number, x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, width: number, debug: boolean, includeZ: boolean): boolean { return IsPointInAngledArea(xPos, yPos, zPos, x1, y1, z1, x2, y2, z2, width, !!debug, !!includeZ); }
   setPhysicsParams(object: number, weight: number, p2: number, p3: number, p4: number, p5: number, gravity: number, p7: number, p8: number, p9: number, p10: number, buoyancy: number): void { SetObjectPhysicsParams(object, weight, p2, p3, p4, p5, gravity, p7, p8, p9, p10, buoyancy); }
   setActivatePhysicsAsSoonAsItIsUnfrozen(object: number, toggle: boolean): void { SetActivateObjectPhysicsAsSoonAsItIsUnfrozen(object, toggle); }
   isAnyNearPoint(x: number, y: number, z: number, range: number, p4: boolean): boolean { return IsAnyObjectNearPoint(x, y, z, range, p4); }
-  setUnkGlobalBoolRelatedToDamage(value: boolean): void { SetUnkGlobalBoolRelatedToDamage(value); } // unverified
-  setCreateWeaponLightSource(object: number, toggle: boolean): void { SetCreateWeaponObjectLightSource(object, toggle); } // unverified
-  setSomething(object: number, p1: boolean): void { SetObjectSomething(object, p1); } // unverified
+  setUnkGlobalBoolRelatedToDamage(value: boolean): void { SetUnkGlobalBoolRelatedToDamage(value); }
+  setCreateWeaponLightSource(object: number, toggle: boolean): void { SetCreateWeaponObjectLightSource(object, toggle); }
+  setSomething(object: number, p1: boolean): void { SetObjectSomething(object, p1); }
   doesRayfireMapExist(object: number): boolean { return DoesRayfireMapObjectExist(object); }
   getRayfireMapAnimPhase(object: number): number { return GetRayfireMapObjectAnimPhase(object); }
   createPickupRotate(pickupHash: number, posX: number, posY: number, posZ: number, rotX: number, rotY: number, rotZ: number, flag: number, amount: number, p9: number, p10: boolean, modelHash: number): number { return CreatePickupRotate(pickupHash, posX, posY, posZ, rotX, rotY, rotZ, flag, amount, p9, p10, modelHash); }
   createAmbientPickup(pickupHash: number, posX: number, posY: number, posZ: number, flags: number, value: number, modelHash: number, p7: boolean, p8: boolean): number { return CreateAmbientPickup(pickupHash, posX, posY, posZ, flags, value, modelHash, p7, p8); }
-  createPortablePickup2(pickupHash: number, x: number, y: number, z: number, placeOnGround: boolean, modelHash: number): number { return CreatePortablePickup_2(pickupHash, x, y, z, placeOnGround, modelHash); } // unverified
-  hidePickup(pickupObject: number, toggle: boolean): void { HidePickup(pickupObject, toggle); } // unverified
-  getPickupHash(pickupHash: number): number { return GetPickupHash(pickupHash); } // unverified
-  getPickupHashFromWeapon(weaponHash: number): number { return GetPickupHashFromWeapon(weaponHash); } // unverified
+  createPortablePickup2(pickupHash: number, x: number, y: number, z: number, placeOnGround: boolean, modelHash: number): number { return CreatePortablePickup_2(pickupHash, x, y, z, placeOnGround, modelHash); }
+  hidePickup(pickupObject: number, toggle: boolean): void { HidePickup(pickupObject, toggle); }
+  getPickupHash(pickupHash: number): number { return GetPickupHash(pickupHash); }
+  getPickupHashFromWeapon(weaponHash: number): number { return GetPickupHashFromWeapon(weaponHash); }
   isPickupWeaponValid(object: number): boolean { return IsPickupWeaponObjectValid(object); }
-  isPickupWithinRadius(pickupHash: number, x: number, y: number, z: number, radius: number): boolean { return IsPickupWithinRadius(pickupHash, x, y, z, radius); } // unverified
-  toggleUsePickupsForPlayer(player: number, pickupHash: number, toggle: boolean): void { ToggleUsePickupsForPlayer(player, pickupHash, toggle); } // unverified
-  setLocalPlayerCanUsePickupsWithThisModel(modelHash: number, toggle: boolean): void { SetLocalPlayerCanUsePickupsWithThisModel(modelHash, toggle); } // unverified
+  isPickupWithinRadius(pickupHash: number, x: number, y: number, z: number, radius: number): boolean { return IsPickupWithinRadius(pickupHash, x, y, z, radius); }
+  toggleUsePickupsForPlayer(player: number, pickupHash: number, toggle: boolean): void { ToggleUsePickupsForPlayer(player, pickupHash, toggle); }
+  setLocalPlayerCanUsePickupsWithThisModel(modelHash: number, toggle: boolean): void { SetLocalPlayerCanUsePickupsWithThisModel(modelHash, toggle); }
   getTextureVariation(object: number): number { return GetWeaponObjectTintIndex(object); }
   setTextureVariation(object: number, textureVariation: number): void { SetWeaponObjectTintIndex(object, textureVariation); }
-  setTextureVariationOfClosestOfType(x: number, y: number, z: number, radius: number, modelHash: number, textureVariation: number): boolean { return SetTextureVariationOfClosestObjectOfType(x, y, z, radius, modelHash, textureVariation); } // unverified
-  setLightColor(object: number, p1: boolean, r: number, g: number, b: number): number { return Citizen.invokeNative("0x5F048334B4A4E774", Citizen.resultAsInteger(), object, !!p1, r, g, b); }
-  setStuntPropSpeedup(object: number, p1: number): void { SetObjectStuntPropSpeedup(object, p1); } // unverified
-  setStuntPropDuration(object: number, duration: number): void { SetObjectStuntPropDuration(object, duration); } // unverified
+  setTextureVariationOfClosestOfType(x: number, y: number, z: number, radius: number, modelHash: number, textureVariation: number): boolean { return SetTextureVariationOfClosestObjectOfType(x, y, z, radius, modelHash, textureVariation); }
+  setLightColor(object: number, p1: boolean, r: number, g: number, b: number): number { return SetObjectLightColor(object, p1, r, g, b); }
+  setStuntPropSpeedup(object: number, p1: number): void { SetObjectStuntPropSpeedup(object, p1); }
+  setStuntPropDuration(object: number, duration: number): void { SetObjectStuntPropDuration(object, duration); }
   setForceThisFrame(x: number, y: number, z: number, p3: number): void { SetForceObjectThisFrame(x, y, z, p3); }
-  markForDeletion(object: number): void { MarkObjectForDeletion(object); } // unverified
-  setEnableArenaPropPhysics(object: number, toggle: boolean, p2: number): void { SetEnableArenaPropPhysics(object, toggle, p2); } // unverified
-  setEnableArenaPropPhysicsOnPed(object: number, toggle: boolean, p2: number, ped: number): void { SetEnableArenaPropPhysicsOnPed(object, toggle, p2, ped); } // unverified
-  getIsArenaPropPhysicsDisabled(object: number, p1: number): boolean { return GetIsArenaPropPhysicsDisabled(object, p1); } // unverified
-  getAllInRange(position: Vector3, range?: number, includeDistance?: boolean, sortByDistance?: boolean): [number, Vector3, Vector3, number?][] | undefined { return GetObjectAllInRange(position, range, includeDistance, sortByDistance); } // unverified
-  getAllByHash(hash: number): Vector3[] { return GetObjectAllByHash(hash); } // unverified
-  createGlowStyle(freq: number, minIntensity: number, maxIntensity: number): number { return CreateGlowStyle(freq, minIntensity, maxIntensity); } // unverified
-  releaseGlowStyle(glowStyle: number): void { ReleaseGlowStyle(glowStyle); } // unverified
-  modifyGlowStyle(glowStyle: number, freq: number, minIntensity: number, maxIntensity: number): void { ModifyGlowStyle(glowStyle, freq, minIntensity, maxIntensity); } // unverified
-  enableGlow(handle: number, glowStyle: number): void { EnableGlow(handle, glowStyle); } // unverified
-  disableGlow(handle: number): void { DisableGlow(handle); } // unverified
+  markForDeletion(object: number): void { MarkObjectForDeletion(object); }
+  setEnableArenaPropPhysics(object: number, toggle: boolean, p2: number): void { SetEnableArenaPropPhysics(object, toggle, p2); }
+  setEnableArenaPropPhysicsOnPed(object: number, toggle: boolean, p2: number, ped: number): void { SetEnableArenaPropPhysicsOnPed(object, toggle, p2, ped); }
+  getIsArenaPropPhysicsDisabled(object: number, p1: number): boolean { return GetIsArenaPropPhysicsDisabled(object, p1); }
+  getAllInRange(position: Vector3, range?: number, includeDistance?: boolean, sortByDistance?: boolean): [number, Vector3, Vector3, number?][] | undefined { return GetObjectAllInRange(position, range, includeDistance, sortByDistance); }
+  getAllByHash(hash: number): Vector3[] { return GetObjectAllByHash(hash); }
+  createGlowStyle(freq: number, minIntensity: number, maxIntensity: number): number { return CreateGlowStyle(freq, minIntensity, maxIntensity); }
+  releaseGlowStyle(glowStyle: number): void { ReleaseGlowStyle(glowStyle); }
+  modifyGlowStyle(glowStyle: number, freq: number, minIntensity: number, maxIntensity: number): void { ModifyGlowStyle(glowStyle, freq, minIntensity, maxIntensity); }
+  enableGlow(handle: number, glowStyle: number): void { EnableGlow(handle, glowStyle); }
+  disableGlow(handle: number): void { DisableGlow(handle); }
 
   ["_0xAFE24E4D29249E4A"](...args: any[]): any { return Citizen.invokeNative("0xAFE24E4D29249E4A", ...args); }
   ["_0x2542269291C6AC84"](...args: any[]): any { return Citizen.invokeNative("0x2542269291C6AC84", ...args); }

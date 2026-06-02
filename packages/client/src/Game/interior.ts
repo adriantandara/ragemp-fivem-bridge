@@ -55,13 +55,16 @@ export class GameInteriorNs {
   unkGetInteriorAtCoords(x: number, y: number, z: number, typeHash: number): number { return GetInteriorAtCoordsWithTypehash(x, y, z, typeHash); }
   areCoordsCollidingWithExterior(x: number, y: number, z: number): boolean { return IsCollisionMarkedOutside(x, y, z); }
   hideMapObjectThisFrame(mapObjectHash: number): void { EnableExteriorCullModelThisFrame(mapObjectHash); }
-  getInfo(interior: number): { position: Vector3; nameHash: number } { const r: any = GetInteriorLocationAndNamehash(interior); return { position: toVec3(Array.isArray(r) && Array.isArray(r[0]) ? r[0] : r), nameHash: Array.isArray(r) ? r[r.length - 1] : 0 }; }
+  getInfo(interior: number): { position: Vector3; nameHash: number } {
+    const [position, nameHash] = GetInteriorLocationAndNamehash(interior);
+    return { position: toVec3(position), nameHash };
+  }
   getOffsetFromInWorldCoords(interior: number, x: number, y: number, z: number): Vector3 { return toVec3(GetOffsetFromInteriorInWorldCoords(interior, x, y, z)); }
   clearForEntity(entity: number): void { ClearRoomForEntity(entity); }
   getFromGameplayCam(): number { return GetInteriorFromPrimaryView(); }
   addPickupToRoomByName(pickup: number, roomName: string): void { AddPickupToInteriorRoomByName(pickup, roomName); }
-  setEntitySetColor(interior: number, entitySetName: string, color: number): void { SetInteriorEntitySetColor(interior, entitySetName, color); } // unverified
-  enableScriptCullModelThisFrame(mapObjectHash: number): void { EnableScriptCullModelThisFrame(mapObjectHash); } // unverified
+  setEntitySetColor(interior: number, entitySetName: string, color: number): void { SetInteriorEntitySetColor(interior, entitySetName, color); }
+  enableScriptCullModelThisFrame(mapObjectHash: number): void { EnableScriptCullModelThisFrame(mapObjectHash); }
 
   ["_0x82EBB79E258FA2B7"](...args: any[]): any { return Citizen.invokeNative("0x82EBB79E258FA2B7", ...args); }
   ["_0x38C1CB1CB119A016"](...args: any[]): any { return Citizen.invokeNative("0x38C1CB1CB119A016", ...args); }

@@ -435,7 +435,7 @@ export class GameVehicleNs {
   removeVehicleAsset(vehicleAsset: number): void { RemoveVehicleAsset(vehicleAsset); }
   getNumWindowTints(): number { return GetNumVehicleWindowTints(); }
   getNumberOfNumberPlates(): number { return GetNumberOfVehicleNumberPlates(); }
-  setUseCutsceneWheelCompression(vehicle: number, wheelCompression: boolean, animateWheels: boolean, animateJoints: boolean): number { return SetVehicleUseCutsceneWheelCompression(vehicle, wheelCompression, animateWheels, animateJoints); } // unverified
+  setUseCutsceneWheelCompression(vehicle: number, wheelCompression: boolean, animateWheels: boolean, animateJoints: boolean): number { return SetVehicleUseCutsceneWheelCompression(vehicle, wheelCompression, animateWheels, animateJoints); }
 
   isThisModelABoat(model: number): boolean { return IsThisModelABoat(model); }
   isThisModelAJetski(model: number): boolean { return IsThisModelAJetski(model); }
@@ -472,10 +472,10 @@ export class GameVehicleNs {
   setVehicleDamage(vehicle: number, xOffset: number, yOffset: number, zOffset: number, damage: number, radius: number, focusOnModel: boolean): void { SetVehicleDamage(vehicle, xOffset, yOffset, zOffset, damage, radius, focusOnModel); }
   preloadVehicleMod(vehicle: number, modType: number, modIndex: number): void { PreloadVehicleMod(vehicle, modType, modIndex); }
   doesVehicleExistWithDecorator(decorator: string): boolean { return DoesVehicleExistWithDecorator(decorator); }
-  getVehicleModelMaxNumberOfPassengers(modelHash: number): number { return GetVehicleModelMaxNumberOfPassengers(modelHash); } // unverified
-  getVehicleModelMaxSpeed(modelHash: number): number { return GetVehicleModelMaxSpeed(modelHash); } // unverified
+  getVehicleModelMaxNumberOfPassengers(modelHash: number): number { return GetVehicleModelMaxNumberOfPassengers(modelHash); }
+  getVehicleModelMaxSpeed(modelHash: number): number { return GetVehicleModelMaxSpeed(modelHash); }
 
-  setCanBeLockedOn(vehicle: number, canBeLockedOn: boolean, unk: boolean): void { Citizen.invokeNative("0x1DDA078D12879EEE", vehicle, canBeLockedOn, unk); }
+  setCanBeLockedOn(vehicle: number, canBeLockedOn: boolean, unk: boolean): void { SetVehicleCanBeLockedOn(vehicle, canBeLockedOn, unk); }
   setAllowNoPassengersLockon(veh: number, toggle: boolean): void { SetVehicleAllowNoPassengersLockon(veh, toggle); }
   getHomingLockonState(vehicle: number): number { return GetVehicleHomingLockonState(vehicle); }
 
@@ -501,24 +501,24 @@ export class GameVehicleNs {
   setRandomVehicleDensityMultiplierThisFrame(multiplier: number): void { SetRandomVehicleDensityMultiplierThisFrame(multiplier); }
   setParkedDensityMultiplierThisFrame(multiplier: number): void { SetParkedVehicleDensityMultiplierThisFrame(multiplier); }
   setParkedVehicleDensityMultiplierThisFrame(multiplier: number): void { SetParkedVehicleDensityMultiplierThisFrame(multiplier); }
-  setAmbientRangeMultiplierThisFrame(value: number): void { SetAmbientVehicleRangeMultiplierThisFrame(value); } // unverified
+  setAmbientRangeMultiplierThisFrame(value: number): void { SetAmbientVehicleRangeMultiplierThisFrame(value); }
   setDisableRandomTrainsThisFrame(toggle: boolean): void { SetDisableRandomTrainsThisFrame(toggle); }
   setFarDrawS(toggle: boolean): void { SetFarDrawVehicles(toggle); }
   setFarDrawVehicles(toggle: boolean): void { SetFarDrawVehicles(toggle); }
   setNumberOfParkedS(value: number): void { SetNumberOfParkedVehicles(value); }
   setNumberOfParkedVehicles(value: number): void { SetNumberOfParkedVehicles(value); }
-  instantlyFillPopulation(): void { InstantlyFillVehiclePopulation(); } // unverified
-  hasFilledPopulation(): boolean { return HasFilledVehiclePopulation(); } // unverified
+  instantlyFillPopulation(): void { InstantlyFillVehiclePopulation(); }
+  hasFilledPopulation(): boolean { return HasFilledVehiclePopulation(); }
   setModelIsSuppressed(model: number, suppressed: boolean): void { SetVehicleModelIsSuppressed(model, suppressed); }
   setVehicleModelIsSuppressed(model: number, suppressed: boolean): void { SetVehicleModelIsSuppressed(model, suppressed); }
   setDistantCarsEnabled(toggle: boolean): void { SetDistantCarsEnabled(toggle); }
   setCarHighSpeedBumpSeverityMultiplier(multiplier: number): void { SetCarHighSpeedBumpSeverityMultiplier(multiplier); }
   displayDistantVehicles(toggle: boolean): void { DisplayDistantVehicles(toggle); }
-  setLightsCutoffDistanceTweak(distance: number): void { SetLightsCutoffDistanceTweak(distance); } // unverified
+  setLightsCutoffDistanceTweak(distance: number): void { SetLightsCutoffDistanceTweak(distance); }
 
-  setDoorsLockedForUnk(vehicle: number, toggle: boolean): void { SetVehicleDoorsLockedForUnk(vehicle, toggle); } // unverified
-  getDoorDestroyType(vehicle: number, doorIndex: number): number { return GetVehicleDoorDestroyType(vehicle, doorIndex); } // unverified
-  setDoorCanBreak(vehicle: number, doorIndex: number, isBreakable: boolean): void { SetVehicleDoorCanBreak(vehicle, doorIndex, isBreakable); } // unverified
+  setDoorsLockedForUnk(vehicle: number, toggle: boolean): void { SetVehicleDoorsLockedForUnk(vehicle, toggle); }
+  getDoorDestroyType(vehicle: number, doorIndex: number): number { return GetVehicleDoorDestroyType(vehicle, doorIndex); }
+  setDoorCanBreak(vehicle: number, doorIndex: number, isBreakable: boolean): void { SetVehicleDoorCanBreak(vehicle, doorIndex, isBreakable); }
   getPedUsingDoor(vehicle: number, doorIndex: number): number { return GetPedUsingVehicleDoor(vehicle, doorIndex); }
   getNumberOfDoors(vehicle: number): number { return GetNumberOfVehicleDoors(vehicle); }
 
@@ -526,28 +526,28 @@ export class GameVehicleNs {
   getIsPrimaryColourCustom(vehicle: number): boolean { return GetIsVehiclePrimaryColourCustom(vehicle); }
   getIsSecondaryColourCustom(vehicle: number): boolean { return GetIsVehicleSecondaryColourCustom(vehicle); }
   getNumberOfColours(vehicle: number): number { return GetNumberOfVehicleColours(vehicle); }
-  setInteriorColor(vehicle: number, color: number): void { SetVehicleInteriorColour(vehicle, color); } // unverified
-  getInteriorColor(vehicle: number): number { return GetVehicleInteriorColour(vehicle); } // unverified
-  setDashboardColor(vehicle: number, color: number): void { SetVehicleDashboardColour(vehicle, color); } // unverified
+  setInteriorColor(vehicle: number, color: number): void { SetVehicleInteriorColour(vehicle, color); }
+  getInteriorColor(vehicle: number): number { return GetVehicleInteriorColour(vehicle); }
+  setDashboardColor(vehicle: number, color: number): void { SetVehicleDashboardColour(vehicle, color); }
   getDashboardColor(vehicle: number): number {
-    const r = GetVehicleDashboardColour(vehicle); // unverified
+    const r = GetVehicleDashboardColour(vehicle);
     return Array.isArray(r) ? r[r.length - 1] : r;
   }
   setXenonLightsColor(vehicle: number, colorIndex: number): void { SetVehicleXenonLightColorIndex(vehicle, colorIndex); }
-  getXenonLightsColor(vehicle: number): number { return Citizen.invokeNative("0x3DFF319A831E0CDB", Citizen.resultAsInteger(), vehicle); }
+  getXenonLightsColor(vehicle: number): number { return GetVehicleXenonLightsColor(vehicle); }
 
-  getSubmarineIsBelowFirstCrushDepth(submarine: number): boolean { return GetSubmarineIsBelowFirstCrushDepth(submarine); } // unverified
-  getSubmarineCrushDepthWarningState(submarine: number): number { return GetSubmarineCrushDepthWarningState(submarine); } // unverified
+  getSubmarineIsBelowFirstCrushDepth(submarine: number): boolean { return GetSubmarineIsBelowFirstCrushDepth(submarine); }
+  getSubmarineCrushDepthWarningState(submarine: number): number { return GetSubmarineCrushDepthWarningState(submarine); }
   transformSubmarineTo(vehicle: number, noAnimation: boolean): void { return TransformToSubmarine(vehicle, noAnimation); }
-  getIsSubmarineTransformed(vehicle: number): boolean { return GetIsSubmarineVehicleTransformed(vehicle); } // unverified
+  getIsSubmarineTransformed(vehicle: number): boolean { return GetIsSubmarineVehicleTransformed(vehicle); }
   canAnchorBoatHere2(vehicle: number): boolean { return CanAnchorBoatHereIgnorePlayers(vehicle); }
-  setBoatFrozenWhenAnchored(vehicle: number, toggle: boolean): void { SetBoatFrozenWhenAnchored(vehicle, toggle); } // unverified
-  setBoatMovementResistance(vehicle: number, value: number): void { SetBoatMovementResistance(vehicle, value); } // unverified
-  isBoatAnchoredAndFrozen(vehicle: number): boolean { return IsBoatAnchoredAndFrozen(vehicle); } // unverified
-  setBoatIsSinking(boat: number): void { SetBoatSinks(boat); } // unverified
-  setBoatBoomPositionRatio(vehicle: number, ratio: number): void { SetBoatBoomPositionRatio(vehicle, ratio); } // unverified
-  getBoatBoomPositionRatio2(vehicle: number, p1: boolean): void { return GetBoatBoomPositionRatio_2(vehicle, p1); } // unverified
-  getBoatBoomPositionRatio3(vehicle: number, p1: boolean): void { return GetBoatBoomPositionRatio_3(vehicle, p1); } // unverified
+  setBoatFrozenWhenAnchored(vehicle: number, toggle: boolean): void { SetBoatFrozenWhenAnchored(vehicle, toggle); }
+  setBoatMovementResistance(vehicle: number, value: number): void { SetBoatMovementResistance(vehicle, value); }
+  isBoatAnchoredAndFrozen(vehicle: number): boolean { return IsBoatAnchoredAndFrozen(vehicle); }
+  setBoatIsSinking(boat: number): void { SetBoatSinks(boat); }
+  setBoatBoomPositionRatio(vehicle: number, ratio: number): void { SetBoatBoomPositionRatio(vehicle, ratio); }
+  getBoatBoomPositionRatio2(vehicle: number, p1: boolean): void { return GetBoatBoomPositionRatio_2(vehicle, p1); }
+  getBoatBoomPositionRatio3(vehicle: number, p1: boolean): void { return GetBoatBoomPositionRatio_3(vehicle, p1); }
 
   getVehicleRecordingId(recording: number, script: string): number { return GetVehicleRecordingId(recording, script); }
   getRecordingId(recording: number, script: string): number { return GetVehicleRecordingId(recording, script); }
@@ -573,7 +573,7 @@ export class GameVehicleNs {
   startPlaybackRecorded(vehicle: number, recording: number, script: string, p3: boolean): void { StartPlaybackRecordedVehicle(vehicle, recording, script, p3); }
   startPlaybackRecordedVehicleWithFlags(vehicle: number, recording: number, script: string, flags: number, time: number, drivingStyle: number): void { StartPlaybackRecordedVehicleWithFlags(vehicle, recording, script, flags, time, drivingStyle); }
   startPlaybackRecordedWithFlags(vehicle: number, recording: number, script: string, flags: number, time: number, drivingStyle: number): void { StartPlaybackRecordedVehicleWithFlags(vehicle, recording, script, flags, time, drivingStyle); }
-  forcePlaybackRecordedUpdate(vehicle: number, p1: boolean): void { ForcePlaybackRecordedVehicleUpdate(vehicle, p1); } // unverified
+  forcePlaybackRecordedUpdate(vehicle: number, p1: boolean): void { ForcePlaybackRecordedVehicleUpdate(vehicle, p1); }
   stopPlaybackRecordedVehicle(vehicle: number): void { StopPlaybackRecordedVehicle(vehicle); }
   stopPlaybackRecorded(vehicle: number): void { StopPlaybackRecordedVehicle(vehicle); }
   pausePlaybackRecordedVehicle(vehicle: number): void { PausePlaybackRecordedVehicle(vehicle); }
@@ -631,37 +631,37 @@ export class GameVehicleNs {
   setRandomTrains(toggle: boolean): void { SetRandomTrains(toggle); }
 
   setRandomBoats(toggle: boolean): void { SetRandomBoats(toggle); }
-  setRandomBoatsInMp(random: boolean): void { SetRandomBoatsInMp(random); } // unverified
+  setRandomBoatsInMp(random: boolean): void { SetRandomBoatsInMp(random); }
   setGarbageTrucks(toggle: boolean): void { SetGarbageTrucks(toggle); }
   stopAllGarageActivity(): void { StopAllGarageActivity(); }
 
   rollDownWindows(vehicle: number): void { RollDownWindows(vehicle); }
   popOutWindscreen(vehicle: number): void { PopOutVehicleWindscreen(vehicle); }
-  ejectJb700Roof(vehicle: number, x: number, y: number, z: number): void { EjectJb700Roof(vehicle, x, y, z); } // unverified
+  ejectJb700Roof(vehicle: number, x: number, y: number, z: number): void { EjectJb700Roof(vehicle, x, y, z); }
   areAllWindowsIntact(vehicle: number): boolean { return AreAllVehicleWindowsIntact(vehicle); }
-  setDisableWindowCollisions(vehicle: number, toggle: boolean): void { SetDisableVehicleWindowCollisions(vehicle, toggle); } // unverified
+  setDisableWindowCollisions(vehicle: number, toggle: boolean): void { SetDisableVehicleWindowCollisions(vehicle, toggle); }
 
-  setLightsMode(vehicle: number, p1: number): void { SetVehicleLightsMode(vehicle, p1); } // unverified
+  setLightsMode(vehicle: number, p1: number): void { SetVehicleLightsMode(vehicle, p1); }
   startAlarm(vehicle: number): void { StartVehicleAlarm(vehicle); }
-  disableNeonLights(vehicle: number, toggle: boolean): void { Citizen.invokeNative("0x83F813570FF519DE", vehicle, toggle); } // unverified
+  disableNeonLights(vehicle: number, toggle: boolean): void { DisableVehicleNeonLights(vehicle, toggle); }
 
   bringToHalt(vehicle: number, distance: number, duration: number, unknown: boolean): void { BringVehicleToHalt(vehicle, distance, duration, unknown); }
-  stopBringToHalt(vehicle: number): void { StopBringVehicleToHalt(vehicle); } // unverified
-  isBeingHalted(vehicle: number): boolean { return Citizen.invokeNative("0xC69BB1D832A710EF", Citizen.resultAsInteger(), vehicle); }
+  stopBringToHalt(vehicle: number): void { StopBringVehicleToHalt(vehicle); }
+  isBeingHalted(vehicle: number): boolean { return IsVehicleBeingHalted(vehicle); }
 
   areAnySeatsFree(vehicle: number): boolean { return AreAnyVehicleSeatsFree(vehicle); }
   getLastPedInSeat(vehicle: number, seatIndex: number): number { return GetLastPedInVehicleSeat(vehicle, seatIndex); }
-  isSeatAccessible(ped: number, vehicle: number, seatIndex: number, side: boolean, onEnter: boolean): boolean { return IsVehicleSeatAccessible(ped, vehicle, seatIndex, side, onEnter); } // unverified
-  getEntryPositionOfDoor(vehicle: number, doorIndex: number): Vector3 { return toVec3(GetEntryPositionOfDoor(vehicle, doorIndex)); } // unverified
+  isSeatAccessible(ped: number, vehicle: number, seatIndex: number, side: boolean, onEnter: boolean): boolean { return IsVehicleSeatAccessible(ped, vehicle, seatIndex, side, onEnter); }
+  getEntryPositionOfDoor(vehicle: number, doorIndex: number): Vector3 { return toVec3(GetEntryPositionOfDoor(vehicle, doorIndex)); }
 
-  findCarryingThisEntity(entity: number): number { return FindVehicleCarryingThisEntity(entity); } // unverified
-  isHandlerFrameAboveContainer(vehicle: number, entity: number): boolean { return IsHandlerFrameAboveContainer(vehicle, entity); } // unverified
+  findCarryingThisEntity(entity: number): number { return FindVehicleCarryingThisEntity(entity); }
+  isHandlerFrameAboveContainer(vehicle: number, entity: number): boolean { return IsHandlerFrameAboveContainer(vehicle, entity); }
 
-  getModelMonetaryValue(vehicleModel: number): number { return GetVehicleModelMonetaryValue(vehicleModel); } // unverified
+  getModelMonetaryValue(vehicleModel: number): number { return GetVehicleModelMonetaryValue(vehicleModel); }
   getMakeNameFromModel(modelHash: number): string { return GetMakeNameFromVehicleModel(modelHash); }
-  getModelEstimatedAgility(modelHash: number): number { return GetVehicleModelEstimatedAgility(modelHash); } // unverified
-  getModelMaxKnots(modelHash: number): number { return GetVehicleModelMaxKnots(modelHash); } // unverified
-  getModelMoveResistance(modelHash: number): number { return GetVehicleModelMoveResistance(modelHash); } // unverified
+  getModelEstimatedAgility(modelHash: number): number { return GetVehicleModelEstimatedAgility(modelHash); }
+  getModelMaxKnots(modelHash: number): number { return GetVehicleModelMaxKnots(modelHash); }
+  getModelMoveResistance(modelHash: number): number { return GetVehicleModelMoveResistance(modelHash); }
 
   getNumMods(vehicle: number, modType: number): number { return GetNumVehicleMods(vehicle, modType); }
   getModColor1(vehicle: number): { paintType: number; color: number; pearlescentColor: number } {
@@ -675,128 +675,128 @@ export class GameVehicleNs {
   getModColor1Name(vehicle: number, spec: boolean): string { return GetVehicleModColor_1Name(vehicle, spec); }
   getModColor2Name(vehicle: number): string { return GetVehicleModColor_2Name(vehicle); }
 
-  setRoofLivery(vehicle: number, livery: number): void { SetVehicleRoofLivery(vehicle, livery); } // unverified
-  getRoofLivery(vehicle: number): number { return GetVehicleRoofLivery(vehicle); } // unverified
-  getRoofLiveryCount(vehicle: number): number { return GetVehicleRoofLiveryCount(vehicle); } // unverified
+  setRoofLivery(vehicle: number, livery: number): void { SetVehicleRoofLivery(vehicle, livery); }
+  getRoofLivery(vehicle: number): number { return GetVehicleRoofLivery(vehicle); }
+  getRoofLiveryCount(vehicle: number): number { return GetVehicleRoofLiveryCount(vehicle); }
 
   isDamaged(vehicle: number): boolean { return IsVehicleDamaged(vehicle); }
-  getNumberOfBrokenOffBones(vehicle: number): number { return GetVehicleNumberOfBrokenOffBones(vehicle); } // unverified
-  getNumberOfBrokenBones(vehicle: number): number { return GetVehicleNumberOfBrokenBones(vehicle); } // unverified
-  getBodyHealth2(vehicle: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: number): number { return GetVehicleBodyHealth2(vehicle, p1, p2, p3, p4, p5, p6); } // unverified
+  getNumberOfBrokenOffBones(vehicle: number): number { return GetVehicleNumberOfBrokenOffBones(vehicle); }
+  getNumberOfBrokenBones(vehicle: number): number { return GetVehicleNumberOfBrokenBones(vehicle); }
+  getBodyHealth2(vehicle: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: number): number { return GetVehicleBodyHealth2(vehicle, p1, p2, p3, p4, p5, p6); }
   getIsLeftHeadlightDamaged(vehicle: number): boolean { return GetIsLeftVehicleHeadlightDamaged(vehicle); }
   getIsRightHeadlightDamaged(vehicle: number): boolean { return GetIsRightVehicleHeadlightDamaged(vehicle); }
-  isEngineOnFire(vehicle: number): boolean { return IsVehicleEngineOnFire(vehicle); } // unverified
-  setCanEngineOperateOnFire(vehicle: number, toggle: boolean): void { SetVehicleCanEngineOperateOnFire(vehicle, toggle); } // unverified
-  setDisablePetrolTankFires(vehicle: number, toggle: boolean): void { SetDisableVehiclePetrolTankFires(vehicle, toggle); } // unverified
-  setDisablePetrolTankDamage(vehicle: number, toggle: boolean): void { SetDisableVehiclePetrolTankDamage(vehicle, toggle); } // unverified
-  setDisableEngineFires(vehicle: number, toggle: boolean): void { SetDisableVehicleEngineFires(vehicle, toggle); } // unverified
+  isEngineOnFire(vehicle: number): boolean { return IsVehicleEngineOnFire(vehicle); }
+  setCanEngineOperateOnFire(vehicle: number, toggle: boolean): void { SetVehicleCanEngineOperateOnFire(vehicle, toggle); }
+  setDisablePetrolTankFires(vehicle: number, toggle: boolean): void { SetDisableVehiclePetrolTankFires(vehicle, toggle); }
+  setDisablePetrolTankDamage(vehicle: number, toggle: boolean): void { SetDisableVehiclePetrolTankDamage(vehicle, toggle); }
+  setDisableEngineFires(vehicle: number, toggle: boolean): void { SetDisableVehicleEngineFires(vehicle, toggle); }
   setDisablePretendOccupants(vehicle: number, toggle: boolean): void { SetDisablePretendOccupants(vehicle, toggle); }
-  setDamageModifier(vehicle: number, p1: number): number { return SetVehicleDamageModifier(vehicle, p1); } // unverified
-  setUnkDamageMultiplier(vehicle: number, multiplier: number): void { SetVehicleUnkDamageMultiplier(vehicle, multiplier); } // unverified
+  setDamageModifier(vehicle: number, p1: number): number { return SetVehicleDamageModifier(vehicle, p1); }
+  setUnkDamageMultiplier(vehicle: number, multiplier: number): void { SetVehicleUnkDamageMultiplier(vehicle, multiplier); }
 
-  doesTyreExist(vehicle: number, tyreIndex: number): boolean { return DoesVehicleTyreExist(vehicle, tyreIndex); } // unverified
-  setCamberedWheelsDisabled(vehicle: number, canUse: boolean): void { SetCamberedWheelsDisabled(vehicle, canUse); } // unverified
-  setWheelsDealDamage(vehicle: number, toggle: boolean): void { SetVehicleWheelsDealDamage(vehicle, toggle); } // unverified
-  getWheelGroundSurfaceMaterial(wheelIndex: number): number { return GetVehicleWheelGroundSurfaceMaterial(wheelIndex); } // unverified
-  setReduceTraction(vehicle: number, val: number): void { SetVehicleReduceTraction(vehicle, val); } // unverified
+  doesTyreExist(vehicle: number, tyreIndex: number): boolean { return DoesVehicleTyreExist(vehicle, tyreIndex); }
+  setCamberedWheelsDisabled(vehicle: number, canUse: boolean): void { SetCamberedWheelsDisabled(vehicle, canUse); }
+  setWheelsDealDamage(vehicle: number, toggle: boolean): void { SetVehicleWheelsDealDamage(vehicle, toggle); }
+  getWheelGroundSurfaceMaterial(wheelIndex: number): number { return GetVehicleWheelGroundSurfaceMaterial(wheelIndex); }
+  setReduceTraction(vehicle: number, val: number): void { SetVehicleReduceTraction(vehicle, val); }
 
-  setHydraulicWheelValue(vehicle: number, wheelId: number, value: number): void { Citizen.invokeNative("0x84EA99C62CB3EF0C", vehicle, wheelId, value); }
+  setHydraulicWheelValue(vehicle: number, wheelId: number, value: number): void { SetHydraulicWheelValue(vehicle, wheelId, value); }
   getHydraulicWheelValue(handle: number, wheelIndex: number): number { return GetHydraulicSuspensionRaiseFactor(handle, wheelIndex); }
   setHydraulicWheelState(vehicle: number, wheelIndex: number): void { SetHydraulicVehicleState(vehicle, wheelIndex); }
-  setHydraulicWheelStateTransition(vehicle: number, wheelId: number, state: number, value: number, p4: number): void { SetHydraulicWheelStateTransition(vehicle, wheelId, state, value, p4); } // unverified
+  setHydraulicWheelStateTransition(vehicle: number, wheelId: number, state: number, value: number, p4: number): void { SetHydraulicWheelStateTransition(vehicle, wheelId, state, value, p4); }
 
-  doesHaveLandingGear(vehicle: number): boolean { return DoesVehicleHaveLandingGear(vehicle); } // unverified
+  doesHaveLandingGear(vehicle: number): boolean { return DoesVehicleHaveLandingGear(vehicle); }
   disablePlanePropeller(vehicle: number, p1: number): void { DisableIndividualPlanePropeller(vehicle, p1); }
   setPlanePropellersHealth(handle: number, health: number): boolean { return SetPlanePropellerHealth(handle, health); }
-  arePlaneWingsIntact(plane: number): boolean { return ArePlaneWingsIntact(plane); } // unverified
-  setDisableFlightNozzlePosition(vehicle: number, toggle: boolean): void { SetDisableVehicleFlightNozzlePosition(vehicle, toggle); } // unverified
-  setTaskGotoPlaneMinHeightAboveTerrain(plane: number, height: number): void { SetTaskVehicleGotoPlaneMinHeightAboveTerrain(plane, height); } // unverified
+  arePlaneWingsIntact(plane: number): boolean { return ArePlaneWingsIntact(plane); }
+  setDisableFlightNozzlePosition(vehicle: number, toggle: boolean): void { SetDisableVehicleFlightNozzlePosition(vehicle, toggle); }
+  setTaskGotoPlaneMinHeightAboveTerrain(plane: number, height: number): void { SetTaskVehicleGotoPlaneMinHeightAboveTerrain(plane, height); }
   areBombBayDoorsOpen(aircraft: number): boolean { return GetAreBombBayDoorsOpen(aircraft); }
   setBombCount(vehicle: number, bombCount: number): void { SetVehicleBombAmmo(vehicle, bombCount); }
   getBombCount(vehicle: number): number { return GetVehicleBombAmmo(vehicle); }
   setCountermeasureCount(vehicle: number, counterMeasureCount: number): void { SetVehicleCountermeasureAmmo(vehicle, counterMeasureCount); }
   getCountermeasureCount(vehicle: number): number { return GetVehicleCountermeasureAmmo(vehicle); }
 
-  setHeliTailExplodeThrowDashboard(vehicle: number, p1: boolean): void { SetHeliTailExplodeThrowDashboard(vehicle, p1); } // unverified
-  setDeployHeliStubWings(vehicle: number, deploy: boolean, p2: boolean): void { SetDeployHeliStubWings(vehicle, deploy, p2); } // unverified
-  areHeliStubWingsDeployed(vehicle: number): boolean { return AreHeliStubWingsDeployed(vehicle); } // unverified
-  setSpecialflightWingRatio(vehicle: number, ratio: number): void { SetSpecialFlightModeWingRatio(vehicle, ratio); } // unverified
+  setHeliTailExplodeThrowDashboard(vehicle: number, p1: boolean): void { SetHeliTailExplodeThrowDashboard(vehicle, p1); }
+  setDeployHeliStubWings(vehicle: number, deploy: boolean, p2: boolean): void { SetDeployHeliStubWings(vehicle, deploy, p2); }
+  areHeliStubWingsDeployed(vehicle: number): boolean { return AreHeliStubWingsDeployed(vehicle); }
+  setSpecialflightWingRatio(vehicle: number, ratio: number): void { SetSpecialFlightModeWingRatio(vehicle, ratio); }
 
-  setOppressorTransformState(vehicle: number, state: boolean): void { SetOppressorTransformState(vehicle, state); } // unverified
+  setOppressorTransformState(vehicle: number, state: boolean): void { SetOppressorTransformState(vehicle, state); }
   setHoverTransformRatio(vehicle: number, ratio: number): void { SetSpecialFlightModeRatio(vehicle, ratio); }
   setHoverTransformPercentage(vehicle: number, percentage: number): void { SetSpecialFlightModeTargetRatio(vehicle, percentage); }
   setHoverTransformEnabled(vehicle: number, toggle: boolean): void { SetDisableHoverModeFlight(vehicle, !toggle); }
   setHoverTransformActive(vehicle: number, toggle: boolean): void { SetSpecialFlightModeAllowed(vehicle, toggle); }
 
   setRocketBoostRefillTime(vehicle: number, seconds: number): void { SetScriptRocketBoostRechargeTime(vehicle, seconds); }
-  setRocketBoostPercentage(vehicle: number, percentage: number): void { Citizen.invokeNative("0xFEB2DDED3509562E", vehicle, percentage); }
+  setRocketBoostPercentage(vehicle: number, percentage: number): void { SetVehicleRocketBoostPercentage(vehicle, percentage); }
   setNitroEnabled(vehicle: number, toggle: boolean, level: number, power: number, rechargeTime: number, disableSound: boolean): void { (SetOverrideNitrousLevel as any)(vehicle, toggle, level, power, rechargeTime, disableSound); }
-  getIsShuntBoostActive(vehicle: number): boolean { return Citizen.invokeNative("0xA2459F72C14E2E8D", Citizen.resultAsInteger(), vehicle); }
-  getLastRammed(vehicle: number): number { return GetLastRammedVehicle(vehicle); } // unverified
+  getIsShuntBoostActive(vehicle: number): boolean { return GetIsVehicleShuntBoostActive(vehicle); }
+  getLastRammed(vehicle: number): number { return GetLastRammedVehicle(vehicle); }
   getIsEmpDisabled(vehicle: number): boolean { return GetIsVehicleEmpDisabled(vehicle); }
 
-  getIsWheelsLoweredStateActive(vehicle: number): boolean { return GetIsWheelsLoweredStateActive(vehicle); } // unverified
-  raiseRetractableWheels(vehicle: number): void { RaiseRetractableWheels(vehicle); } // unverified
-  lowerRetractableWheels(vehicle: number): void { LowerRetractableWheels(vehicle); } // unverified
-  getCanJump(vehicle: number): boolean { return GetCanVehicleJump(vehicle); } // unverified
-  setUseHigherJumpForce(vehicle: number, toggle: boolean): void { SetUseHigherVehicleJumpForce(vehicle, toggle); } // unverified
+  getIsWheelsLoweredStateActive(vehicle: number): boolean { return GetIsWheelsLoweredStateActive(vehicle); }
+  raiseRetractableWheels(vehicle: number): void { RaiseRetractableWheels(vehicle); }
+  lowerRetractableWheels(vehicle: number): void { LowerRetractableWheels(vehicle); }
+  getCanJump(vehicle: number): boolean { return GetCanVehicleJump(vehicle); }
+  setUseHigherJumpForce(vehicle: number, toggle: boolean): void { SetUseHigherVehicleJumpForce(vehicle, toggle); }
 
-  setWeaponCapacity(vehicle: number, weaponIndex: number, capacity: number): void { SetVehicleWeaponCapacity(vehicle, weaponIndex, capacity); } // unverified
-  getWeaponCapacity(vehicle: number, weaponIndex: number): number { return GetVehicleWeaponCapacity(vehicle, weaponIndex); } // unverified
-  setWeaponsDisabled(vehicle: number, canTargetObjects: number): void { SetVehicleWeaponsDisabled(vehicle, canTargetObjects); } // unverified
+  setWeaponCapacity(vehicle: number, weaponIndex: number, capacity: number): void { SetVehicleWeaponCapacity(vehicle, weaponIndex, capacity); }
+  getWeaponCapacity(vehicle: number, weaponIndex: number): number { return GetVehicleWeaponCapacity(vehicle, weaponIndex); }
+  setWeaponsDisabled(vehicle: number, canTargetObjects: number): void { SetVehicleWeaponsDisabled(vehicle, canTargetObjects); }
 
-  getCanActivateParachute(vehicle: number): boolean { return GetVehicleCanActivateParachute(vehicle); } // unverified
-  setParachuteActive(vehicle: number, active: boolean): void { SetVehicleParachuteActive(vehicle, active); } // unverified
-  setParachuteModel(vehicle: number, modelHash: number): void { Citizen.invokeNative("0x4D610C6B56031351", vehicle, modelHash); }
-  setParachuteTextureVariatiion(vehicle: number, textureVariation: number): void { Citizen.invokeNative("0xA74AD2439468C883", vehicle, textureVariation); }
-  setParachuteTextureVariation(handle: number, index: number): void { Citizen.invokeNative("0xA74AD2439468C883", handle, index); }
+  getCanActivateParachute(vehicle: number): boolean { return GetVehicleCanActivateParachute(vehicle); }
+  setParachuteActive(vehicle: number, active: boolean): void { SetVehicleParachuteActive(vehicle, active); }
+  setParachuteModel(vehicle: number, modelHash: number): void { SetVehicleParachuteModel(vehicle, modelHash); }
+  setParachuteTextureVariatiion(vehicle: number, textureVariation: number): void { SetVehicleParachuteTextureVariatiion(vehicle, textureVariation); }
+  setParachuteTextureVariation(handle: number, index: number): void { SetVehicleParachuteTextureVariation(handle, index); }
 
-  setReceivesRampDamage(vehicle: number, toggle: boolean): void { SetVehicleReceivesRampDamage(vehicle, toggle); } // unverified
-  setRampLaunchModifier(vehicle: number, impulseScale: number): void { SetVehicleRampLaunchModifier(vehicle, impulseScale); } // unverified
-  setRampSidewaysLaunchMotion(vehicle: number, takeDamage: number): void { SetVehicleRampSidewaysLaunchMotion(vehicle, takeDamage as any); } // unverified
-  setRampUpwardsLaunchMotion(vehicle: number, normalise: number): void { SetVehicleRampUpwardsLaunchMotion(vehicle, normalise as any); } // unverified
+  setReceivesRampDamage(vehicle: number, toggle: boolean): void { SetVehicleReceivesRampDamage(vehicle, toggle); }
+  setRampLaunchModifier(vehicle: number, impulseScale: number): void { SetVehicleRampLaunchModifier(vehicle, impulseScale); }
+  setRampSidewaysLaunchMotion(vehicle: number, takeDamage: number): void { SetVehicleRampSidewaysLaunchMotion(vehicle, takeDamage as any); }
+  setRampUpwardsLaunchMotion(vehicle: number, normalise: number): void { SetVehicleRampUpwardsLaunchMotion(vehicle, normalise as any); }
 
-  setCargobobHookPosition(cargobob: number, length1: number, length2: number, p3: boolean): void { SetCargobobHookPosition(cargobob, length1, length2, p3); } // unverified
-  getCargobobHookPosition(cargobob: number): Vector3 { return toVec3(GetCargobobHookPosition(cargobob)); } // unverified
-  setCargobobHookCanDetach(cargobob: number, toggle: boolean): void { SetCargobobHookCanDetach(cargobob, toggle); } // unverified
-  setCargobobHookCanAttach(vehicle: number, toggle: boolean): void { SetCargobobHookCanAttach(vehicle, toggle); } // unverified
-  setCargobobPickupMagnetEffectRadius(cargobob: number, radius: number): void { SetCargobobPickupMagnetEffectRadius(cargobob, radius); } // unverified
+  setCargobobHookPosition(cargobob: number, length1: number, length2: number, p3: boolean): void { SetCargobobHookPosition(cargobob, length1, length2, p3); }
+  getCargobobHookPosition(cargobob: number): Vector3 { return toVec3(GetCargobobHookPosition(cargobob)); }
+  setCargobobHookCanDetach(cargobob: number, toggle: boolean): void { SetCargobobHookCanDetach(cargobob, toggle); }
+  setCargobobHookCanAttach(vehicle: number, toggle: boolean): void { SetCargobobHookCanAttach(vehicle, toggle); }
+  setCargobobPickupMagnetEffectRadius(cargobob: number, radius: number): void { SetCargobobPickupMagnetEffectRadius(cargobob, radius); }
 
-  setShadowEffect(vehicle: number, p1: number, p2: number): void { SetVehicleShadowEffect(vehicle, p1, p2); } // unverified
-  removeShadowEffect(vehicle: number): void { RemoveVehicleShadowEffect(vehicle); } // unverified
-  requestDashboardScaleformMovie(vehicle: number): void { RequestVehicleDashboardScaleformMovie(vehicle); } // unverified
+  setShadowEffect(vehicle: number, p1: number, p2: number): void { SetVehicleShadowEffect(vehicle, p1, p2); }
+  removeShadowEffect(vehicle: number): void { RemoveVehicleShadowEffect(vehicle); }
+  requestDashboardScaleformMovie(vehicle: number): void { RequestVehicleDashboardScaleformMovie(vehicle); }
 
   getSuspensionBounds(vehicle: number): { out1: Vector3; out2: Vector3 } {
-    const r = GetVehicleSuspensionBounds(vehicle); // unverified
+    const r = GetVehicleSuspensionBounds(vehicle);
     return { out1: toVec3(r[0]), out2: toVec3(r[1]) };
   }
-  getSuspensionHeight(vehicle: number): number { return GetVehicleSuspensionHeight(vehicle); } // unverified
+  getSuspensionHeight(vehicle: number): number { return GetVehicleSuspensionHeight(vehicle); }
 
   setEnableSlipstreaming(toggle: boolean): void { SetEnableVehicleSlipstreaming(toggle); }
-  getCurrentSlipstreamDraft(vehicle: number): number { return GetVehicleCurrentSlipstreamDraft(vehicle); } // unverified
-  isSlipstreamLeader(vehicle: number): boolean { return IsVehicleSlipstreamLeader(vehicle); } // unverified
+  getCurrentSlipstreamDraft(vehicle: number): number { return GetVehicleCurrentSlipstreamDraft(vehicle); }
+  isSlipstreamLeader(vehicle: number): boolean { return IsVehicleSlipstreamLeader(vehicle); }
   isSprayable(vehicle: number): boolean { return IsVehicleSprayable(vehicle); }
 
-  setSilent(vehicle: number, toggle: boolean): void { SetVehicleSilent(vehicle, toggle); } // unverified
-  setJetEngineOn(vehicle: number, toggle: boolean): void { SetVehicleJetEngineOn(vehicle, toggle); } // unverified
-  setHandlingHashForAi(vehicle: number, hash: number): void { SetVehicleHandlingHashForAi(vehicle, hash); } // unverified
+  setSilent(vehicle: number, toggle: boolean): void { SetVehicleSilent(vehicle, toggle); }
+  setJetEngineOn(vehicle: number, toggle: boolean): void { SetVehicleJetEngineOn(vehicle, toggle); }
+  setHandlingHashForAi(vehicle: number, hash: number): void { SetVehicleHandlingHashForAi(vehicle, hash); }
   setSteeringBiasScalar(vehicle: number, scalar: number): void { SetVehicleSteeringBiasScalar(vehicle, scalar); }
-  setControlsInverted(vehicle: number, state: boolean): void { SetVehicleControlsInverted(vehicle, state); } // unverified
-  disableWorldCollision(vehicle: number): void { DisableVehicleWorldCollision(vehicle); } // unverified
-  setExperimentalAttachmentSyncEnabled(enable: boolean): void { SetVehicleExperimentalAttachmentSyncEnabled(enable); } // unverified
-  setExperimentalHornSyncEnabled(enable: boolean): void { SetVehicleExperimentalHornSyncEnabled(enable); } // unverified
-  setDisableSuperdummyMode(vehicle: number, p1: boolean): void { SetDisableSuperdummyMode(vehicle, p1); } // unverified
-  getDoesHaveTombstone(vehicle: number): boolean { return GetDoesVehicleHaveTombstone(vehicle); } // unverified
-  isPedExclusiveDriverOf(ped: number, vehicle: number): number { return IsPedExclusiveDriverOfVehicle(ped, vehicle) as any; } // unverified
-  setResetUnoccupiedSteerAngle(value: boolean): void { SetVehicleResetUnoccupiedSteerAngle(value); } // unverified
-  setTurretUnk(vehicle: number, index: number, toggle: boolean): void { SetVehicleTurretUnk(vehicle, index, toggle); } // unverified
+  setControlsInverted(vehicle: number, state: boolean): void { SetVehicleControlsInverted(vehicle, state); }
+  disableWorldCollision(vehicle: number): void { DisableVehicleWorldCollision(vehicle); }
+  setExperimentalAttachmentSyncEnabled(enable: boolean): void { SetVehicleExperimentalAttachmentSyncEnabled(enable); }
+  setExperimentalHornSyncEnabled(enable: boolean): void { SetVehicleExperimentalHornSyncEnabled(enable); }
+  setDisableSuperdummyMode(vehicle: number, p1: boolean): void { SetDisableSuperdummyMode(vehicle, p1); }
+  getDoesHaveTombstone(vehicle: number): boolean { return GetDoesVehicleHaveTombstone(vehicle); }
+  isPedExclusiveDriverOf(ped: number, vehicle: number): number { return IsPedExclusiveDriverOfVehicle(ped, vehicle) as any; }
+  setResetUnoccupiedSteerAngle(value: boolean): void { SetVehicleResetUnoccupiedSteerAngle(value); }
+  setTurretUnk(vehicle: number, index: number, toggle: boolean): void { SetVehicleTurretUnk(vehicle, index, toggle); }
   setDisableTurretMovementThisFrame(vehicle: number, turretId: number): void { DisableVehicleTurretMovementThisFrame(vehicle); }
-  setUnkFloat0X104ForSubmarineTask(vehicle: number, value: number): void { SetUnkFloatN_0x104ForSubmarineVehicleTask(vehicle, value); } // unverified
-  setUnkBool0X102ForSubmarineTask(vehicle: number, value: boolean): void { SetUnkBoolN_0x102ForSubmarineVehicleTask(vehicle, value); } // unverified
-  setDisableUnk(toggle: boolean): void { SetDisableVehicleUnk(toggle); } // unverified
-  setDisableUnk2(toggle: boolean): void { SetDisableVehicleUnk_2(toggle); } // unverified
-  overrideOverheatHealth(handle: number, value: number): void { OverrideVehicleOverheatHealth(handle, value); } // unverified
-  findRandomPointInSpace(ped: number): Vector3 { return toVec3(FindRandomPointInSpace(ped)); } // unverified
+  setUnkFloat0X104ForSubmarineTask(vehicle: number, value: number): void { SetUnkFloatN_0x104ForSubmarineVehicleTask(vehicle, value); }
+  setUnkBool0X102ForSubmarineTask(vehicle: number, value: boolean): void { SetUnkBoolN_0x102ForSubmarineVehicleTask(vehicle, value); }
+  setDisableUnk(toggle: boolean): void { SetDisableVehicleUnk(toggle); }
+  setDisableUnk2(toggle: boolean): void { SetDisableVehicleUnk_2(toggle); }
+  overrideOverheatHealth(handle: number, value: number): void { OverrideVehicleOverheatHealth(handle, value); }
+  findRandomPointInSpace(ped: number): Vector3 { return toVec3(FindRandomPointInSpace(ped)); }
 
   isCopInArea3D(x1: number, x2: number, y1: number, y2: number, z1: number, z2: number): boolean { return IsCopVehicleInArea_3d(x1, x2, y1, y2, z1, z2); }
   isCopVehicleInArea3d(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): boolean { return IsCopVehicleInArea_3d(x1, y1, z1, x2, y2, z2); }
@@ -810,20 +810,20 @@ export class GameVehicleNs {
   }
   setAutomaticallyAttaches(vehicle: number, autoAttach: boolean, scanWithNonPlayerDriver: boolean): number { return (SetVehicleAutomaticallyAttaches as any)(vehicle, autoAttach, scanWithNonPlayerDriver); }
 
-  createDriveForceCurve(curveNameHash: number, curveData: Array<number>): void { CreateVehicleDriveForceCurve(curveNameHash, curveData); } // unverified
-  getDriveForceCurveValue(curveNameHash: number, input: number): number { return GetVehicleDriveForceCurveValue(curveNameHash, input); } // unverified
-  deleteDriveForceCurve(curveNameHash: number): void { DeleteVehicleDriveForceCurve(curveNameHash); } // unverified
-  setModelDriveForceCurve(vehicleModelHash: number, curveNameHash: number): void { SetVehicleModelDriveForceCurve(vehicleModelHash, curveNameHash); } // unverified
-  setModelGearRatios(vehicleModelHash: number, ratios: Array<number>): void { SetVehicleModelGearRatios(vehicleModelHash, ratios); } // unverified
-  setGearRatios(ratios: Array<number>): void { SetVehicleGearRatios(ratios); } // unverified
+  createDriveForceCurve(curveNameHash: number, curveData: Array<number>): void { CreateVehicleDriveForceCurve(curveNameHash, curveData); }
+  getDriveForceCurveValue(curveNameHash: number, input: number): number { return GetVehicleDriveForceCurveValue(curveNameHash, input); }
+  deleteDriveForceCurve(curveNameHash: number): void { DeleteVehicleDriveForceCurve(curveNameHash); }
+  setModelDriveForceCurve(vehicleModelHash: number, curveNameHash: number): void { SetVehicleModelDriveForceCurve(vehicleModelHash, curveNameHash); }
+  setModelGearRatios(vehicleModelHash: number, ratios: Array<number>): void { SetVehicleModelGearRatios(vehicleModelHash, ratios); }
+  setGearRatios(ratios: Array<number>): void { SetVehicleGearRatios(ratios); }
 
   setDriftTyresEnabled(handle: number, enable: boolean): void { SetDriftTyresEnabled(handle, enable); }
   getDriftTyresEnabled(handle: number): boolean { return GetDriftTyresEnabled(handle); }
 
-  requestVehicleAssetAsync(vehicleHash: number, flags: number, timeout?: number): Promise<boolean> { return RequestVehicleAssetAsync(vehicleHash, flags, timeout); } // unverified
+  requestVehicleAssetAsync(vehicleHash: number, flags: number, timeout?: number): Promise<boolean> { return RequestVehicleAssetAsync(vehicleHash, flags, timeout); }
   isVehicleInGarageArea(garageName: string, vehicle: number): boolean { return IsVehicleInGarageArea(garageName, vehicle); }
   isInGarageArea(garageName: string, vehicle: number): boolean { return IsVehicleInGarageArea(garageName, vehicle); }
-  isThisModelAnEmergencyBoat(model: number): boolean { return IsThisModelAnEmergencyBoat(model); } // unverified
+  isThisModelAnEmergencyBoat(model: number): boolean { return IsThisModelAnEmergencyBoat(model); }
 
   get passengerMassMultiplier() { return GetGlobalPassengerMassMultiplier(); }
   set passengerMassMultiplier(massMul: number) { SetGlobalPassengerMassMultiplier(massMul); }

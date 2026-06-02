@@ -9,9 +9,9 @@ export class GameRecordingNs {
   start(mode: number): void { StartRecording(mode); }
   stopAndSaveClip(): void { StopRecording(); }
   stopAndDiscardClip(): void { StopRecordingAndDiscardClip(); }
-  saveClip(): boolean { return Citizen.invokeNative("0x644546EC5287471B", Citizen.resultAsInteger()); }
-  stopThisFrame(): void { Citizen.invokeNative("0xEB2D525B57F42B40"); }
-  disableRockstarEditorCameraChanges(): void { Citizen.invokeNative("0xAF66DCEE6609B148"); }
+  saveClip(): boolean { return SaveRecordingClip(); }
+  stopThisFrame(): void { StopRecordingThisFrame(); }
+  disableRockstarEditorCameraChanges(): void { DisableRockstarEditorCameraChanges(); }
 
   ["_0x48621C9FCA3EBD28"](...args: any[]): any { return Citizen.invokeNative("0x48621C9FCA3EBD28", ...args); }
   ["_0x81CBAE94390F9F89"](...args: any[]): any { return Citizen.invokeNative("0x81CBAE94390F9F89", ...args); }

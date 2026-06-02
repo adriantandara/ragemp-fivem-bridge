@@ -1,6 +1,7 @@
 import { HandlePool, Vector3 } from "@ragemp-fivem-bridge/shared";
 import { VehicleMp } from "../Entities/VehicleMp";
 import { whenNetworked } from "../utils/whenNetworked";
+import { safeGetEntityFromNetId } from "../utils/netId";
 import { entityCreated, entityBindNetId, entityDestroyed } from "../utils/entityRegistry";
 
 let vehicleIdCounter = 0;
@@ -88,8 +89,7 @@ export class VehicleMpPool extends HandlePool {
     if (!netId) return null;
     const cached = this._netIdToEntity.get(netId);
     if (cached && this._handleToEntity.has(cached._handle)) return cached;
-    if (typeof NetworkGetEntityFromNetworkId !== "function") return null;
-    const handle = NetworkGetEntityFromNetworkId(netId);
+    const handle = safeGetEntityFromNetId(netId);
     if (!handle) return null;
     const existing = this._handleToEntity.get(handle) as unknown as VehicleMp | undefined;
     if (existing) {

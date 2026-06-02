@@ -1,6 +1,6 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
 import { onWorldScan } from "../utils/worldScan";
-import { safeGetNetworkId } from "../utils/netId";
+import { safeGetNetworkId, safeGetEntityFromNetId } from "../utils/netId";
 import { subscribeEntityRegistry } from "../utils/entityRegistry";
 
 export const LOCAL_STREAM_ID_BASE = 2_000_000_000;
@@ -112,10 +112,8 @@ export class StreamingPool extends Pool {
 
   _refreshServerHandle(entity: any) {
     if (!entity || !entity._isServer || !entity._netId) return entity;
-    if (typeof NetworkGetEntityFromNetworkId !== "function") return entity;
-    const handle = NetworkGetEntityFromNetworkId(entity._netId);
-    const valid =
-      handle && (typeof DoesEntityExist !== "function" || DoesEntityExist(handle));
+    const handle = safeGetEntityFromNetId(entity._netId);
+    const valid = !!handle;
     if (valid) {
       if (entity._handle !== handle || !this._entities.has(entity.id)) {
         this._bindHandle(entity.id, handle, entity._netId);
@@ -231,9 +229,8 @@ export class StreamingPool extends Pool {
     }
     const ambient = this._entities.get(netId);
     if (ambient) return ambient;
-    if (typeof NetworkGetEntityFromNetworkId !== "function") return null;
-    const handle = NetworkGetEntityFromNetworkId(netId);
-    if (!handle || (typeof DoesEntityExist === "function" && !DoesEntityExist(handle))) return null;
+    const handle = safeGetEntityFromNetId(netId);
+    if (!handle) return null;
     return this._handleToEntity.get(handle) ?? null;
   }
 

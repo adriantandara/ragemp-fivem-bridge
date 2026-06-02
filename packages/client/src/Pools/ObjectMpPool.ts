@@ -1,6 +1,7 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
 import { ObjectMp } from "../Entities/ObjectMp";
 import { StreamingPool, LOCAL_STREAM_ID_BASE } from "./StreamingPool";
+import { safeGetEntityFromNetId } from "../utils/netId";
 
 let localObjectCounter = 0;
 
@@ -26,8 +27,8 @@ export class ObjectMpPool extends StreamingPool  {
 
   _setupServerSync(): void {
     onNet("ragemp:objectAlpha", (netId: number, value: number) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
+      const handle = safeGetEntityFromNetId(netId);
+      if (handle) {
         SetEntityAlpha(handle, value, false);
       }
     });
@@ -43,8 +44,8 @@ export class ObjectMpPool extends StreamingPool  {
   }
 
   _freezeStaticObject(netId: number, tries: number): void {
-    const handle = NetworkGetEntityFromNetworkId(netId);
-    if (handle && DoesEntityExist(handle)) {
+    const handle = safeGetEntityFromNetId(netId);
+    if (handle) {
       FreezeEntityPosition(handle, true);
       return;
     }

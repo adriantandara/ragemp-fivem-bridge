@@ -1,6 +1,6 @@
 import { EventEmitter } from "@ragemp-fivem-bridge/shared";
 import { sanitizeArgsForNet, rehydrateArgsFromNet, STATE_KEY_PREFIX } from "@ragemp-fivem-bridge/shared";
-import { safeGetNetworkId } from "../utils/netId";
+import { safeGetNetworkId, safeGetEntityFromNetId } from "../utils/netId";
 import { onWorldScan } from "../utils/worldScan";
 import { isVisibleHere } from "../utils/dimension";
 import { resolveNetEntity } from "../utils/netEntity";
@@ -212,9 +212,7 @@ export class EventManager extends EventEmitter {
         entity =
           mp.players?.atRemoteId?.(parseInt(bagName.slice(7), 10)) ?? null;
       } else if (bagName.indexOf("entity:") === 0) {
-        const handle = NetworkGetEntityFromNetworkId(
-          parseInt(bagName.slice(7), 10),
-        );
+        const handle = safeGetEntityFromNetId(parseInt(bagName.slice(7), 10));
         if (handle) {
           entity =
             mp.vehicles?.atHandle?.(handle) ??

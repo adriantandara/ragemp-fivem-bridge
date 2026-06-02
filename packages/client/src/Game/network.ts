@@ -1,4 +1,5 @@
 import { createUnkProxy, toVec3 } from "./_helpers.js";
+import { safeGetEntityFromNetId } from "../utils/netId";
 
 export class GameNetworkNs {
   unk = createUnkProxy();
@@ -8,7 +9,7 @@ export class GameNetworkNs {
   isPlayerActive(player: number): boolean { return NetworkIsPlayerActive(player); }
   isHost(): boolean { return NetworkIsHost(); }
 
-  getEntityFromNetworkId(netId: number): number { return NetworkGetEntityFromNetworkId(netId); }
+  getEntityFromNetworkId(netId: number): number { return safeGetEntityFromNetId(netId); }
   doesEntityExistWithNetworkId(netId: number): boolean { return NetworkDoesEntityExistWithNetworkId(netId); }
   requestControlOfEntity(entity: number): boolean { return NetworkRequestControlOfEntity(entity); }
   hasControlOfEntity(entity: number): boolean { return NetworkHasControlOfEntity(entity); }

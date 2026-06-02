@@ -1,6 +1,7 @@
 import { StreamingPool } from "./StreamingPool";
 import { PedMp } from "../Entities/PedMp";
 import { getPedPool } from "../utils/worldScan";
+import { safeGetEntityFromNetId } from "../utils/netId";
 
 let localPedIdCounter = 1000000;
 
@@ -87,8 +88,8 @@ export class PedMpPool extends StreamingPool {
 
     _setupServerSync(): void {
         onNet("ragemp:pedInvincible", (netId: number, value: boolean) => {
-            const handle = NetworkGetEntityFromNetworkId(netId);
-            if (handle && DoesEntityExist(handle)) {
+            const handle = safeGetEntityFromNetId(netId);
+            if (handle) {
                 SetEntityInvincible(handle, value);
                 const ped = this._handleToEntity.get(handle);
                 if (ped) {

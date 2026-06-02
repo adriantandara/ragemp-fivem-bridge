@@ -1,4 +1,5 @@
 import { applyVehicleSnapshot } from "../../utils/vehicleSync";
+import { safeGetEntityFromNetId } from "../../utils/netId";
 
 interface PluginContext {
   log: (...args: unknown[]) => void;
@@ -18,8 +19,8 @@ export default function setup({ mp, plugin }: { mp: any; plugin: PluginContext }
   });
 
   onNet("ragemp:vehicleSync:apply", (netId: number, snapshot: Record<string, any>) => {
-    const handle = NetworkGetEntityFromNetworkId(netId);
-    if (!handle || !DoesEntityExist(handle)) {
+    const handle = safeGetEntityFromNetId(netId);
+    if (!handle) {
       requested.delete(netId);
       return;
     }

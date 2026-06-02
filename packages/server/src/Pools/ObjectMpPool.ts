@@ -1,6 +1,7 @@
 import { HandlePool, Vector3 } from "@ragemp-fivem-bridge/shared";
 import { ObjectMp } from "../Entities/ObjectMp";
 import { whenNetworked } from "../utils/whenNetworked";
+import { safeGetEntityFromNetId } from "../utils/netId";
 import { STATIC_OBJECT_FLAG } from "../Entities/objectFlags";
 import { entityCreated, entityBindNetId, entityDestroyed } from "../utils/entityRegistry";
 
@@ -96,9 +97,8 @@ export class ObjectMpPool extends HandlePool {
     }
     if (cached) this._netIdToEntity.delete(netId);
 
-    if (typeof NetworkGetEntityFromNetworkId !== "function") return null;
-    const handle = NetworkGetEntityFromNetworkId(netId);
-    if (!handle || !DoesEntityExist(handle)) return null;
+    const handle = safeGetEntityFromNetId(netId);
+    if (!handle) return null;
 
     const obj = this._handleToEntity.get(handle) as unknown as ObjectMp | undefined;
     if (obj) {

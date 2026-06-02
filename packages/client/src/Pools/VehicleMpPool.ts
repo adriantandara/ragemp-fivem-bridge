@@ -1,6 +1,7 @@
 import { StreamingPool } from "./StreamingPool";
 import { VehicleMp } from "../Entities/VehicleMp";
 import { getVehiclePool } from "../utils/worldScan";
+import { safeGetEntityFromNetId } from "../utils/netId";
 import {
   applyVehicleProp,
   applyVehicleMod,
@@ -53,8 +54,8 @@ export class VehicleMpPool extends StreamingPool {
 
   _setupServerSync(): void {
     onNet("ragemp:vehicle:batch", (netId: number, items: [string, any[]][]) => {
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (!handle || !DoesEntityExist(handle)) return;
+      const handle = safeGetEntityFromNetId(netId);
+      if (!handle) return;
       for (const [event, args] of items) {
         const fn = VEHICLE_DISPATCH[event];
         if (fn) fn(handle, ...(args || []));

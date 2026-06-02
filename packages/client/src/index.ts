@@ -5,6 +5,7 @@ import * as spawnmanager from "./Plugins/builtin/spawnmanager";
 import * as vehicleSync from "./Plugins/builtin/vehicle-sync";
 import * as rageRpc from "./Plugins/builtin/rage-rpc";
 import { setLocalDimension } from "./utils/dimension";
+import { safeGetEntityFromNetId } from "./utils/netId";
 
 if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "library") {
   globalThis.mp = new Mp();
@@ -411,8 +412,8 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
     let tries = 0;
     const timer = setInterval(() => {
       tries++;
-      const handle = NetworkGetEntityFromNetworkId(netId);
-      if (handle && DoesEntityExist(handle)) {
+      const handle = safeGetEntityFromNetId(netId);
+      if (handle) {
         clearInterval(timer);
         if (_putVehTimer === timer) _putVehTimer = null;
         if (!NetworkHasControlOfNetworkId || !NetworkHasControlOfNetworkId(netId)) {

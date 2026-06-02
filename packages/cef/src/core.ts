@@ -1,4 +1,3 @@
-import rpc from "@ragemp-fivem-bridge/rage-rpc";
 import { EventManager } from "./events.js";
 import { toClient, log, setDebug, isDebug, setResourceName } from "./transport.js";
 import { installErrorCapture, serializeError, report } from "./errors.js";
@@ -103,8 +102,6 @@ export function createRuntime(): {
   };
 
   (globalThis as Record<string, unknown>).mp = mp;
-  (mp as Record<string, unknown> & { rpc: unknown }).rpc = rpc;
-  rpc.register("__rpc:noop", () => true);
 
   installErrorCapture(
     (info) => toClient("ragemp:browserError", info),

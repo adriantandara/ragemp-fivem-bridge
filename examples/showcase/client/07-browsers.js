@@ -25,6 +25,10 @@ mp.events.add("showcase:hudReady", () => {
   mp.events.callRemote("showcase:requestHudUpdate");
 });
 
+mp.events.add("showcase:hudUpdate", (data) => {
+  if (hud) hud.call("hud:update", data);
+});
+
 mp.events.add("showcase:uiButton", (label) => {
   mp.gui.chat.push(`!{#4ade80}Browser button clicked: ${label}`);
 });

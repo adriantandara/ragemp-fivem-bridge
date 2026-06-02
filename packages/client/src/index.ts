@@ -3,7 +3,6 @@ import { setPoolLifecycleSink } from "@ragemp-fivem-bridge/shared";
 import { Mp } from "./Mp";
 import * as spawnmanager from "./Plugins/builtin/spawnmanager";
 import * as vehicleSync from "./Plugins/builtin/vehicle-sync";
-import * as rageRpc from "./Plugins/builtin/rage-rpc";
 import { setLocalDimension } from "./utils/dimension";
 import { safeGetEntityFromNetId } from "./utils/netId";
 
@@ -12,7 +11,6 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
 
   setPoolLifecycleSink((type, entity) => globalThis.mp?.events?._fire(type, entity));
 
-  globalThis.mp.plugins.registerBuiltin(rageRpc);
   globalThis.mp.plugins.registerBuiltin(spawnmanager);
   globalThis.mp.plugins.registerBuiltin(vehicleSync);
   globalThis.mp.plugins.loadAll();

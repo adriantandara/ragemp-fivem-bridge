@@ -1,11 +1,19 @@
 import { HandlePool, Vector3 } from "@ragemp-fivem-bridge/shared";
+import { poolStore, poolAdd, handlePoolStore } from "@ragemp-fivem-bridge/shared/internal";
 import { PedMp } from "../Entities/PedMp";
 import { whenNetworked } from "../utils/whenNetworked";
-import { entityCreated, entityBindNetId, entityDestroyed } from "../utils/entityRegistry";
+import { entityCreated, entityBindNetId } from "../utils/entityRegistry";
+import { PedInternals } from "../internal/pedInternals";
+import { setupPedPool } from "../internal/pools/pedPoolService";
 
 let pedIdCounter = 0;
 
 export class PedMpPool extends HandlePool {
+  constructor() {
+    super();
+    setupPedPool(this);
+  }
+
   new(model: number | string, position: Vector3, options: {
     heading?: number;
     dimension?: number;
@@ -34,11 +42,12 @@ export class PedMpPool extends HandlePool {
       ped.invincible = true;
     }
 
-    ped._dynamic = options.dynamic ?? true;
-    ped._lockController = options.lockController ?? false;
+    const rec = PedInternals.get(ped);
+    rec.dynamic = options.dynamic ?? true;
+    rec.lockController = options.lockController ?? false;
 
-    this._add(ped as any);
-    this._handleToEntity.set(handle, ped as any);
+    poolAdd(this, ped as any);
+    handlePoolStore(this).handleToEntity.set(handle, ped as any);
 
     entityCreated("ped", ped.id, {
       model: modelHash,
@@ -51,17 +60,12 @@ export class PedMpPool extends HandlePool {
     whenNetworked(
       handle,
       (netId) => {
-        ped._cachedNetId = netId;
+        PedInternals.get(ped).cachedNetId = netId;
         entityBindNetId("ped", ped.id, netId);
       },
-      () => this._entities.has(ped.id),
+      () => poolStore(this).entities.has(ped.id),
     );
 
     return ped;
-  }
-
-  _remove(id: number) {
-    entityDestroyed("ped", id);
-    super._remove(id);
   }
 }

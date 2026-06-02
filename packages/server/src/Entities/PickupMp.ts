@@ -1,23 +1,19 @@
 import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
+import { PickupInternals, initPickupInternals } from "../internal/pickupInternals";
+import { removeFromPool, EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 
 export class PickupMp extends Entity {
-  _position: Vector3;
-  _pickupHash: number;
-  _value: number;
-  _alpha: number;
-  _dimension: number;
-
   constructor(id: number, pickupHash: number, position: Vector3, options: {
     value?: number;
     alpha?: number;
     dimension?: number;
   } = {}) {
     super(id, "pickup");
-    this._pickupHash = pickupHash;
-    this._position = position;
-    this._value = options.value ?? 0;
-    this._alpha = options.alpha ?? 255;
-    this._dimension = options.dimension ?? 0;
+    const rec = EntityInternals.get(this);
+    rec.position = position;
+    rec.alpha = options.alpha ?? 255;
+    rec.dimension = options.dimension ?? 0;
+    initPickupInternals(this, pickupHash, options.value ?? 0);
   }
 
   _sync(): void {
@@ -25,64 +21,67 @@ export class PickupMp extends Entity {
   }
 
   toData(): Record<string, any> {
+    const rec = PickupInternals.get(this);
+    const ent = EntityInternals.get(this);
     return {
       id: this.id,
-      pickupHash: this._pickupHash,
-      x: this._position.x,
-      y: this._position.y,
-      z: this._position.z,
-      value: this._value,
-      alpha: this._alpha,
-      dimension: this._dimension,
+      pickupHash: rec.pickupHash,
+      x: ent.position!.x,
+      y: ent.position!.y,
+      z: ent.position!.z,
+      value: rec.value,
+      alpha: ent.alpha,
+      dimension: ent.dimension,
     };
   }
 
   get pickupHash(): number {
-    return this._pickupHash;
+    return PickupInternals.get(this).pickupHash;
   }
 
   get position(): Vector3 {
-    return this._position;
+    return EntityInternals.get(this).position!;
   }
 
   set position(value: Vector3) {
-    this._position = value;
+    EntityInternals.get(this).position = value;
     this._sync();
   }
 
   get value(): number {
-    return this._value;
+    return PickupInternals.get(this).value;
   }
 
   set value(v: number) {
-    this._value = v;
+    PickupInternals.get(this).value = v;
     this._sync();
   }
 
   get alpha(): number {
-    return this._alpha;
+    return EntityInternals.get(this).alpha;
   }
 
   set alpha(v: number) {
-    this._alpha = v;
+    EntityInternals.get(this).alpha = v;
     this._sync();
   }
 
   get dimension(): number {
-    return this._dimension;
+    return EntityInternals.get(this).dimension;
   }
 
   set dimension(v: number) {
-    this._dimension = v;
+    EntityInternals.get(this).dimension = v;
     this._sync();
   }
 
   get model(): number {
-    return this._pickupHash;
+    return PickupInternals.get(this).pickupHash;
   }
 
   destroy(): void {
     emitNet("ragemp:pickupDestroy", -1, this.id);
-    globalThis.mp?.pickups?._remove(this.id);
+    const pool = globalThis.mp?.pickups;
+    if (pool) removeFromPool(pool, this.id);
   }
 }

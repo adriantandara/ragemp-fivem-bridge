@@ -1,23 +1,15 @@
 import { Pool, Vector3 } from "@ragemp-fivem-bridge/shared";
+import { poolAdd, EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { MarkerMp } from "../Entities/MarkerMp";
+import { MarkerInternals } from "../internal/markerInternals";
+import { setupMarkerPool } from "../internal/pools/markerPoolService";
 
 let markerIdCounter = 0;
 
 export class MarkerMpPool extends Pool {
   constructor() {
     super();
-    this._setupSync();
-  }
-
-  _setupSync(): void {
-    onNet("ragemp:playerReady", () => {
-      const playerSource = source;
-      const markers: ReturnType<MarkerMp["toData"]>[] = [];
-      this.forEach(((marker: MarkerMp) => markers.push(marker.toData())) as any);
-      if (markers.length > 0) {
-        emitNet("ragemp:markerSyncAll", playerSource, markers);
-      }
-    });
+    setupMarkerPool(this);
   }
 
   new(type: number, position: Vector3, scale: number, options: {
@@ -29,21 +21,22 @@ export class MarkerMpPool extends Pool {
   } = {}): MarkerMp {
     const id = ++markerIdCounter;
     const marker = new MarkerMp(id, type, position, scale);
+    const rec = MarkerInternals.get(marker);
 
     if (options.color) {
       const c = options.color;
       const arr = Array.isArray(c);
-      marker._r = (arr ? (c as number[])[0] : (c as any).r) ?? marker._r;
-      marker._g = (arr ? (c as number[])[1] : (c as any).g) ?? marker._g;
-      marker._b = (arr ? (c as number[])[2] : (c as any).b) ?? marker._b;
-      marker._a = (arr ? (c as number[])[3] : (c as any).a) ?? marker._a;
+      rec.r = (arr ? (c as number[])[0] : (c as any).r) ?? rec.r;
+      rec.g = (arr ? (c as number[])[1] : (c as any).g) ?? rec.g;
+      rec.b = (arr ? (c as number[])[2] : (c as any).b) ?? rec.b;
+      rec.a = (arr ? (c as number[])[3] : (c as any).a) ?? rec.a;
     }
-    if (options.dimension !== undefined) marker._dimension = options.dimension;
-    if (options.direction !== undefined) marker._direction = options.direction;
-    if (options.rotation !== undefined) marker._rotation = options.rotation;
-    if (options.visible !== undefined) marker._visible = options.visible;
+    if (options.dimension !== undefined) EntityInternals.get(marker).dimension = options.dimension;
+    if (options.direction !== undefined) rec.direction = options.direction;
+    if (options.rotation !== undefined) rec.rotation = options.rotation;
+    if (options.visible !== undefined) rec.visible = options.visible;
 
-    this._add(marker as any);
+    poolAdd(this, marker as any);
 
     emitNet("ragemp:markerCreate", -1, marker.toData());
 

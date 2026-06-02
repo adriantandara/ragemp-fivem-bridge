@@ -1,47 +1,43 @@
 import { Entity, Vector3, colshapeContains } from "@ragemp-fivem-bridge/shared";
+import { ColshapeInternals, initColshapeInternals } from "../internal/colshapeInternals";
+import { removeFromColshapePool } from "../internal/pools/colshapePoolService";
 
 export class ColshapeMp extends Entity {
   id: number;
-  _shapeType: string;
-  _params: Record<string, any>;
-  _origin: string = "local";
-  _position: Vector3 | undefined;
-  _dimension: number;
 
   constructor(id: number, shapeType: string, position: Vector3 | undefined, params: Record<string, any> | undefined, dimension: number = 0) {
     super(id, "colshape");
-    this._shapeType = shapeType;
-    this._position = position;
-    this._params = params ?? {};
-    this._dimension = dimension;
+    initColshapeInternals(this, shapeType, position, params, dimension);
   }
 
   get shapeType(): string {
-    return this._shapeType;
+    return ColshapeInternals.get(this).shapeType;
   }
 
   get position(): Vector3 | undefined {
-    return this._position;
+    return ColshapeInternals.get(this).position;
   }
 
   set position(value: Vector3 | undefined) {
-    this._position = value;
+    ColshapeInternals.get(this).position = value;
   }
 
   get dimension(): number {
-    return this._dimension;
+    return ColshapeInternals.get(this).dimension;
   }
 
   set dimension(value: number) {
-    this._dimension = value;
+    ColshapeInternals.get(this).dimension = value;
   }
 
   isPointWithin(point: Vector3, margin: number = 0): boolean {
-    return colshapeContains(this._shapeType, this._position, this._params, point, margin);
+    const rec = ColshapeInternals.get(this);
+    return colshapeContains(rec.shapeType, rec.position, rec.params, point, margin);
   }
 
   destroy(): void {
-    if (this._origin === "server") return;
-    globalThis.mp?.colshapes?._remove(this.id);
+    if (ColshapeInternals.get(this).origin === "server") return;
+    const pool = globalThis.mp?.colshapes;
+    if (pool) removeFromColshapePool(pool, this.id);
   }
 }

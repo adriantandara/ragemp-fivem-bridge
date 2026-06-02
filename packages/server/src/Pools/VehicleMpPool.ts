@@ -1,13 +1,19 @@
 import { HandlePool, Vector3 } from "@ragemp-fivem-bridge/shared";
+import { poolStore, poolAdd, handlePoolStore, EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { VehicleMp } from "../Entities/VehicleMp";
 import { whenNetworked } from "../utils/whenNetworked";
 import { safeGetEntityFromNetId } from "../utils/netId";
-import { entityCreated, entityBindNetId, entityDestroyed } from "../utils/entityRegistry";
+import { entityCreated, entityBindNetId } from "../utils/entityRegistry";
+import { VehicleInternals } from "../internal/vehicleInternals";
+import { setupVehiclePool, vehicleNetIdMap } from "../internal/pools/vehiclePoolService";
 
 let vehicleIdCounter = 0;
 
 export class VehicleMpPool extends HandlePool {
-  _netIdToEntity: Map<number, VehicleMp> = new Map();
+  constructor() {
+    super();
+    setupVehiclePool(this);
+  }
 
   new(model: number | string, position: Vector3, options: {
     heading?: number;
@@ -40,7 +46,7 @@ export class VehicleMpPool extends HandlePool {
     }
 
     if (options.alpha !== undefined) {
-      vehicle._alpha = options.alpha;
+      EntityInternals.get(vehicle).alpha = options.alpha;
       vehicle._emit("ragemp:vehicleAlpha", options.alpha);
     }
 
@@ -49,7 +55,7 @@ export class VehicleMpPool extends HandlePool {
     }
 
     if (options.engine !== undefined) {
-      vehicle._engine = options.engine;
+      VehicleInternals.get(vehicle).engine = options.engine;
       vehicle._emit("ragemp:vehicleEngine", options.engine);
     }
 
@@ -61,8 +67,8 @@ export class VehicleMpPool extends HandlePool {
       SetVehicleNumberPlateText(handle, options.numberPlate);
     }
 
-    this._add(vehicle as any);
-    this._handleToEntity.set(handle, vehicle as any);
+    poolAdd(this, vehicle as any);
+    handlePoolStore(this).handleToEntity.set(handle, vehicle as any);
 
     entityCreated("vehicle", vehicle.id, {
       model: modelHash,
@@ -75,11 +81,11 @@ export class VehicleMpPool extends HandlePool {
     whenNetworked(
       handle,
       (netId) => {
-        this._netIdToEntity.set(netId, vehicle);
-        vehicle._cachedNetId = netId;
+        vehicleNetIdMap(this).set(netId, vehicle);
+        VehicleInternals.get(vehicle).cachedNetId = netId;
         entityBindNetId("vehicle", vehicle.id, netId);
       },
-      () => this._entities.has(vehicle.id),
+      () => poolStore(this).entities.has(vehicle.id),
     );
 
     return vehicle;
@@ -87,35 +93,26 @@ export class VehicleMpPool extends HandlePool {
 
   atNetId(netId: number): VehicleMp | null {
     if (!netId) return null;
-    const cached = this._netIdToEntity.get(netId);
-    if (cached && this._handleToEntity.has(cached._handle)) return cached;
+    const map = vehicleNetIdMap(this);
+    const cached = map.get(netId);
+    if (cached && handlePoolStore(this).handleToEntity.has(cached.handle)) return cached;
     const handle = safeGetEntityFromNetId(netId);
     if (!handle) return null;
-    const existing = this._handleToEntity.get(handle) as unknown as VehicleMp | undefined;
+    const existing = handlePoolStore(this).handleToEntity.get(handle) as unknown as VehicleMp | undefined;
     if (existing) {
-      this._netIdToEntity.set(netId, existing);
-      existing._cachedNetId = netId;
+      map.set(netId, existing);
+      VehicleInternals.get(existing).cachedNetId = netId;
       return existing;
     }
     if (typeof DoesEntityExist === "function" && !DoesEntityExist(handle)) return null;
     if (typeof GetEntityType === "function" && GetEntityType(handle) !== 2) return null;
     const vehicle = new VehicleMp(++vehicleIdCounter, handle);
-    this._add(vehicle as any);
-    this._handleToEntity.set(handle, vehicle as any);
-    this._netIdToEntity.set(netId, vehicle);
-    vehicle._cachedNetId = netId;
+    poolAdd(this, vehicle as any);
+    handlePoolStore(this).handleToEntity.set(handle, vehicle as any);
+    map.set(netId, vehicle);
+    VehicleInternals.get(vehicle).cachedNetId = netId;
     entityCreated("vehicle", vehicle.id, { model: GetEntityModel(handle) });
     entityBindNetId("vehicle", vehicle.id, netId);
     return vehicle;
-  }
-
-  _remove(id: number): void {
-    const entity = this._entities.get(id) as unknown as VehicleMp | undefined;
-    if (entity && entity._cachedNetId !== undefined) {
-      this._netIdToEntity.delete(entity._cachedNetId);
-      entity._cachedNetId = undefined;
-    }
-    entityDestroyed("vehicle", id);
-    super._remove(id);
   }
 }

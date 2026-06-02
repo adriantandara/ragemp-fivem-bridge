@@ -1,0 +1,129 @@
+import { defineInternals, poolAdd, removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { ColshapeMp } from "../../Entities/ColshapeMp";
+import { ColshapeInternals } from "../colshapeInternals";
+import { onWorldScan } from "../../utils/worldScan";
+import { isVisibleHere } from "../../utils/dimension";
+import type { ColshapeMpPool } from "../../Pools/ColshapeMpPool";
+
+const LOCAL_ID_BASE = 1000000000;
+
+interface ColshapePoolRec {
+  inside: Set<number>;
+  nextLocalId: number;
+  warned: boolean;
+}
+
+const ColshapePoolInternals = defineInternals<ColshapePoolRec>();
+
+function createFromData(pool: ColshapeMpPool, data: any): ColshapeMp {
+  const position = new Vector3(data.position.x, data.position.y, data.position.z);
+  const colshape = new ColshapeMp(data.id, data.shapeType, position, data.params, data.dimension ?? 0);
+  ColshapeInternals.get(colshape).origin = "server";
+  poolAdd(pool, colshape as any);
+  return colshape;
+}
+
+function report(pool: ColshapeMpPool, colshape: ColshapeMp, _local: any, entering: boolean): void {
+  if (ColshapeInternals.get(colshape).origin === "server") {
+    emitNet(entering ? "ragemp:colshape:enter" : "ragemp:colshape:exit", colshape.id);
+    return;
+  }
+  try {
+    globalThis.mp.events._fire(
+      entering ? "playerEnterColshape" : "playerExitColshape",
+      colshape
+    );
+  } catch (e) {
+    console.error(`[bridge:colshape] handler error (${entering ? "enter" : "exit"} #${colshape.id}):`, e);
+  }
+}
+
+function scan(pool: ColshapeMpPool): void {
+  const mp = globalThis.mp;
+  const local = mp?.players?.local;
+  if (!local) return;
+
+  let localPos;
+  try {
+    localPos = local.position;
+  } catch (e) {
+    return;
+  }
+  if (!localPos) return;
+
+  const poolRec = ColshapePoolInternals.get(pool);
+
+  for (const entity of pool.toArray()) {
+    const colshape = entity as unknown as ColshapeMp;
+    const rec = ColshapeInternals.get(colshape);
+    let inside: boolean;
+    try {
+      inside = isVisibleHere(rec.dimension) && colshape.isPointWithin(localPos);
+    } catch (e) {
+      if (!poolRec.warned) {
+        poolRec.warned = true;
+        console.error(`[bridge:colshape] check failed for #${colshape?.id} (${rec?.shapeType}):`, e);
+      }
+      continue;
+    }
+
+    const wasInside = poolRec.inside.has(colshape.id);
+    if (inside === wasInside) continue;
+
+    if (inside) {
+      poolRec.inside.add(colshape.id);
+      report(pool, colshape, local, true);
+    } else {
+      poolRec.inside.delete(colshape.id);
+      report(pool, colshape, local, false);
+    }
+  }
+}
+
+export function setupColshapePool(pool: ColshapeMpPool): void {
+  ColshapePoolInternals.init(pool, { inside: new Set(), nextLocalId: LOCAL_ID_BASE + 1, warned: false });
+
+  onNet("ragemp:colshapeCreate", (data: any) => {
+    if (data && !pool.exists(data.id)) createFromData(pool, data);
+  });
+
+  onNet("ragemp:colshapeSyncAll", (shapes: any[]) => {
+    if (!Array.isArray(shapes)) return;
+    for (const data of shapes) {
+      if (data && !pool.exists(data.id)) createFromData(pool, data);
+    }
+  });
+
+  onNet("ragemp:colshapeUpdate", (id: number, data: any) => {
+    const existing = pool.at(id) as unknown as ColshapeMp | null;
+    if (!existing) {
+      if (data) createFromData(pool, data);
+      return;
+    }
+    const rec = ColshapeInternals.get(existing);
+    rec.position = new Vector3(data.position.x, data.position.y, data.position.z);
+    rec.params = data.params ?? {};
+    rec.dimension = data.dimension ?? 0;
+  });
+
+  onNet("ragemp:colshapeDestroy", (id: number) => {
+    if (pool.exists(id)) removeFromColshapePool(pool, id);
+  });
+
+  onWorldScan(() => scan(pool));
+}
+
+export function createLocalColshape(pool: ColshapeMpPool, shapeType: string, position: Vector3, params: Record<string, any>, dimension: number = 0): ColshapeMp {
+  const poolRec = ColshapePoolInternals.get(pool);
+  const id = poolRec.nextLocalId++;
+  const colshape = new ColshapeMp(id, shapeType, position, params, dimension);
+  ColshapeInternals.get(colshape).origin = "local";
+  poolAdd(pool, colshape as any);
+  return colshape;
+}
+
+export function removeFromColshapePool(pool: ColshapeMpPool, id: number): void {
+  ColshapePoolInternals.get(pool).inside.delete(id);
+  removeFromPool(pool, id);
+}

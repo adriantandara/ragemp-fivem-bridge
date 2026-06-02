@@ -1,33 +1,16 @@
 import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
+import { MarkerInternals, initMarkerInternals } from "../internal/markerInternals";
+import { removeFromPool, EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 
 type MarkerColor = { r: number; g: number; b: number; a: number };
 
 export class MarkerMp extends Entity {
-  _type: number;
-  _position: Vector3;
-  _direction: Vector3;
-  _rotation: Vector3;
-  _scale: number;
-  _r: number;
-  _g: number;
-  _b: number;
-  _a: number;
-  _visible: boolean;
-  _dimension: number;
-
   constructor(id: number, type: number, position: Vector3, scale: number) {
     super(id, "marker");
-    this._type = type;
-    this._position = position;
-    this._scale = scale;
-    this._direction = new Vector3(0, 0, 0);
-    this._rotation = new Vector3(0, 0, 0);
-    this._r = 255;
-    this._g = 0;
-    this._b = 0;
-    this._a = 255;
-    this._visible = true;
-    this._dimension = 0;
+    const rec = EntityInternals.get(this);
+    rec.position = position;
+    rec.dimension = 0;
+    initMarkerInternals(this, type, scale);
   }
 
   _sync(): void {
@@ -35,108 +18,114 @@ export class MarkerMp extends Entity {
   }
 
   toData(): Record<string, any> {
+    const rec = MarkerInternals.get(this);
+    const ent = EntityInternals.get(this);
     return {
       id: this.id,
-      type: this._type,
-      x: this._position.x,
-      y: this._position.y,
-      z: this._position.z,
-      dirX: this._direction.x,
-      dirY: this._direction.y,
-      dirZ: this._direction.z,
-      rotX: this._rotation.x,
-      rotY: this._rotation.y,
-      rotZ: this._rotation.z,
-      scale: this._scale,
-      r: this._r,
-      g: this._g,
-      b: this._b,
-      a: this._a,
-      visible: this._visible,
-      dimension: this._dimension,
+      type: rec.type,
+      x: ent.position!.x,
+      y: ent.position!.y,
+      z: ent.position!.z,
+      dirX: rec.direction.x,
+      dirY: rec.direction.y,
+      dirZ: rec.direction.z,
+      rotX: rec.rotation.x,
+      rotY: rec.rotation.y,
+      rotZ: rec.rotation.z,
+      scale: rec.scale,
+      r: rec.r,
+      g: rec.g,
+      b: rec.b,
+      a: rec.a,
+      visible: rec.visible,
+      dimension: ent.dimension,
     };
   }
 
   get position(): Vector3 {
-    return this._position;
+    return EntityInternals.get(this).position!;
   }
 
   set position(value: Vector3) {
-    this._position = value;
+    EntityInternals.get(this).position = value;
     this._sync();
   }
 
   get dimension(): number {
-    return this._dimension;
+    return EntityInternals.get(this).dimension;
   }
 
   set dimension(value: number) {
-    this._dimension = value;
+    EntityInternals.get(this).dimension = value;
     this._sync();
   }
 
   get direction(): Vector3 {
-    return this._direction;
+    return MarkerInternals.get(this).direction;
   }
 
   set direction(value: Vector3) {
-    this._direction = value;
+    MarkerInternals.get(this).direction = value;
     this._sync();
   }
 
   get scale(): number {
-    return this._scale;
+    return MarkerInternals.get(this).scale;
   }
 
   set scale(value: number) {
-    this._scale = value;
+    MarkerInternals.get(this).scale = value;
     this._sync();
   }
 
   get visible(): boolean {
-    return this._visible;
+    return MarkerInternals.get(this).visible;
   }
 
   set visible(value: boolean) {
-    this._visible = value;
+    MarkerInternals.get(this).visible = value;
     this._sync();
   }
 
   get color(): MarkerColor {
-    return { r: this._r, g: this._g, b: this._b, a: this._a };
+    const rec = MarkerInternals.get(this);
+    return { r: rec.r, g: rec.g, b: rec.b, a: rec.a };
   }
 
   set color(value: MarkerColor) {
-    this._r = value.r;
-    this._g = value.g;
-    this._b = value.b;
-    this._a = value.a;
+    const rec = MarkerInternals.get(this);
+    rec.r = value.r;
+    rec.g = value.g;
+    rec.b = value.b;
+    rec.a = value.a;
     this._sync();
   }
 
   get rotation(): Vector3 {
-    return this._rotation;
+    return MarkerInternals.get(this).rotation;
   }
 
   set rotation(value: Vector3) {
-    this._rotation = value;
+    MarkerInternals.get(this).rotation = value;
     this._sync();
   }
 
   // Override Entity.type (string) with marker type (number) — runtime shadowing; any suppresses base mismatch
   get type(): any {
-    return this._type;
+    return MarkerInternals.get(this).type;
   }
 
   getColor(): number[] {
-    return [this._r, this._g, this._b, this._a];
+    const rec = MarkerInternals.get(this);
+    return [rec.r, rec.g, rec.b, rec.a];
   }
 
   setColor(r: number, g: number, b: number, a: number): void {
-    this._r = r;
-    this._g = g;
-    this._b = b;
-    this._a = a;
+    const rec = MarkerInternals.get(this);
+    rec.r = r;
+    rec.g = g;
+    rec.b = b;
+    rec.a = a;
     this._sync();
   }
 
@@ -150,6 +139,6 @@ export class MarkerMp extends Entity {
 
   destroy(): void {
     emitNet("ragemp:markerDestroy", -1, this.id);
-    globalThis.mp.markers._remove(this.id);
+    removeFromPool(globalThis.mp.markers, this.id);
   }
 }

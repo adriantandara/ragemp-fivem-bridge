@@ -1,31 +1,16 @@
 import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
+import { TextLabelInternals, initTextLabelInternals } from "../internal/textLabelInternals";
+import { removeFromPool, EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 
 type LabelColor = { r?: number; g?: number; b?: number; a?: number };
 
 export class TextLabelMp extends Entity {
-  _position: Vector3;
-  _text: string;
-  _r: number;
-  _g: number;
-  _b: number;
-  _a: number;
-  _drawDistance: number;
-  _los: boolean;
-  _font: number;
-  _dimension: number;
-
   constructor(id: number, text: string, position: Vector3) {
     super(id, "textlabel");
-    this._text = text;
-    this._position = position;
-    this._r = 255;
-    this._g = 255;
-    this._b = 255;
-    this._a = 255;
-    this._drawDistance = 50;
-    this._los = false;
-    this._font = 0;
-    this._dimension = 0;
+    const rec = EntityInternals.get(this);
+    rec.position = position;
+    rec.dimension = 0;
+    initTextLabelInternals(this, text);
   }
 
   _sync(): void {
@@ -33,91 +18,95 @@ export class TextLabelMp extends Entity {
   }
 
   toData(): Record<string, any> {
+    const rec = TextLabelInternals.get(this);
+    const ent = EntityInternals.get(this);
     return {
       id: this.id,
-      text: this._text,
-      x: this._position.x,
-      y: this._position.y,
-      z: this._position.z,
-      r: this._r,
-      g: this._g,
-      b: this._b,
-      a: this._a,
-      drawDistance: this._drawDistance,
-      los: this._los,
-      font: this._font,
-      dimension: this._dimension,
+      text: rec.text,
+      x: ent.position!.x,
+      y: ent.position!.y,
+      z: ent.position!.z,
+      r: rec.r,
+      g: rec.g,
+      b: rec.b,
+      a: rec.a,
+      drawDistance: rec.drawDistance,
+      los: rec.los,
+      font: rec.font,
+      dimension: ent.dimension,
     };
   }
 
   get position(): Vector3 {
-    return this._position;
+    return EntityInternals.get(this).position!;
   }
 
   set position(value: Vector3) {
-    this._position = value;
+    EntityInternals.get(this).position = value;
     this._sync();
   }
 
   get text(): string {
-    return this._text;
+    return TextLabelInternals.get(this).text;
   }
 
   set text(value: string) {
-    this._text = value;
+    TextLabelInternals.get(this).text = value;
     this._sync();
   }
 
   get color(): { r: number; g: number; b: number; a: number } {
-    return { r: this._r, g: this._g, b: this._b, a: this._a };
+    const rec = TextLabelInternals.get(this);
+    return { r: rec.r, g: rec.g, b: rec.b, a: rec.a };
   }
 
   set color(value: LabelColor) {
-    this._r = value.r ?? this._r;
-    this._g = value.g ?? this._g;
-    this._b = value.b ?? this._b;
-    this._a = value.a ?? this._a;
+    const rec = TextLabelInternals.get(this);
+    rec.r = value.r ?? rec.r;
+    rec.g = value.g ?? rec.g;
+    rec.b = value.b ?? rec.b;
+    rec.a = value.a ?? rec.a;
     this._sync();
   }
 
   get drawDistance(): number {
-    return this._drawDistance;
+    return TextLabelInternals.get(this).drawDistance;
   }
 
   set drawDistance(value: number) {
-    this._drawDistance = value;
+    TextLabelInternals.get(this).drawDistance = value;
     this._sync();
   }
 
   get los(): boolean {
-    return this._los;
+    return TextLabelInternals.get(this).los;
   }
 
   set los(value: boolean) {
-    this._los = value;
+    TextLabelInternals.get(this).los = value;
     this._sync();
   }
 
   get font(): number {
-    return this._font;
+    return TextLabelInternals.get(this).font;
   }
 
   set font(value: number) {
-    this._font = value;
+    TextLabelInternals.get(this).font = value;
     this._sync();
   }
 
   get dimension(): number {
-    return this._dimension;
+    return EntityInternals.get(this).dimension;
   }
 
   set dimension(value: number) {
-    this._dimension = value;
+    EntityInternals.get(this).dimension = value;
     this._sync();
   }
 
   destroy(): void {
     emitNet("ragemp:labelDestroy", -1, this.id);
-    globalThis.mp.labels._remove(this.id);
+    removeFromPool(globalThis.mp.labels, this.id);
   }
 }

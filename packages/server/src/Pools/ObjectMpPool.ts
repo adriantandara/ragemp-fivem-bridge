@@ -1,14 +1,20 @@
 import { HandlePool, Vector3 } from "@ragemp-fivem-bridge/shared";
+import { poolStore, poolAdd, handlePoolStore, EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { ObjectMp } from "../Entities/ObjectMp";
 import { whenNetworked } from "../utils/whenNetworked";
 import { safeGetEntityFromNetId } from "../utils/netId";
 import { STATIC_OBJECT_FLAG } from "../Entities/objectFlags";
-import { entityCreated, entityBindNetId, entityDestroyed } from "../utils/entityRegistry";
+import { entityCreated, entityBindNetId } from "../utils/entityRegistry";
+import { ObjectInternals } from "../internal/objectInternals";
+import { setupObjectPool, objectNetIdMap } from "../internal/pools/objectPoolService";
 
 let objectIdCounter = 0;
 
 export class ObjectMpPool extends HandlePool {
-  _netIdToEntity: Map<number, ObjectMp> = new Map();
+  constructor() {
+    super();
+    setupObjectPool(this);
+  }
 
   new(model: number | string, position: Vector3, options: {
     alpha?: number;
@@ -40,8 +46,9 @@ export class ObjectMpPool extends HandlePool {
 
     const id = ++objectIdCounter;
     const obj = new ObjectMp(id, handle);
-    obj._model = modelHash;
-    obj._alpha = options.alpha ?? 255;
+    const objRec = EntityInternals.get(obj);
+    objRec.model = modelHash;
+    objRec.alpha = options.alpha ?? 255;
 
     if (options.rotation) {
       obj.rotation = options.rotation;
@@ -51,8 +58,8 @@ export class ObjectMpPool extends HandlePool {
       SetEntityRoutingBucket(handle, dimension);
     }
 
-    this._add(obj as any);
-    this._handleToEntity.set(handle, obj as any);
+    poolAdd(this, obj as any);
+    handlePoolStore(this).handleToEntity.set(handle, obj as any);
 
     entityCreated("object", obj.id, {
       model: modelHash,
@@ -65,20 +72,21 @@ export class ObjectMpPool extends HandlePool {
     whenNetworked(
       handle,
       (netId) => {
-        this._netIdToEntity.set(netId, obj);
-        obj._cachedNetId = netId;
-        obj._netIdReady = true;
+        objectNetIdMap(this).set(netId, obj);
+        const rec = ObjectInternals.get(obj);
+        rec.cachedNetId = netId;
+        rec.netIdReady = true;
         entityBindNetId("object", obj.id, netId);
 
         try {
           globalThis.Entity(handle).state.set(STATIC_OBJECT_FLAG, true, true);
         } catch (e) {}
 
-        if (obj._alpha !== 255) {
-          emitNet("ragemp:objectAlpha", -1, netId, obj._alpha);
+        if (objRec.alpha !== 255) {
+          emitNet("ragemp:objectAlpha", -1, netId, objRec.alpha);
         }
       },
-      () => this._entities.has(obj.id),
+      () => poolStore(this).entities.has(obj.id),
     );
 
     return obj;
@@ -87,35 +95,26 @@ export class ObjectMpPool extends HandlePool {
   atNetId(netId: number): ObjectMp | null {
     if (!netId) return null;
 
-    const cached = this._netIdToEntity.get(netId);
+    const map = objectNetIdMap(this);
+    const cached = map.get(netId);
     if (
       cached &&
-      DoesEntityExist(cached._handle) &&
-      NetworkGetNetworkIdFromEntity(cached._handle) === netId
+      DoesEntityExist(cached.handle) &&
+      NetworkGetNetworkIdFromEntity(cached.handle) === netId
     ) {
       return cached;
     }
-    if (cached) this._netIdToEntity.delete(netId);
+    if (cached) map.delete(netId);
 
     const handle = safeGetEntityFromNetId(netId);
     if (!handle) return null;
 
-    const obj = this._handleToEntity.get(handle) as unknown as ObjectMp | undefined;
+    const obj = handlePoolStore(this).handleToEntity.get(handle) as unknown as ObjectMp | undefined;
     if (obj) {
-      this._netIdToEntity.set(netId, obj);
-      obj._cachedNetId = netId;
+      map.set(netId, obj);
+      ObjectInternals.get(obj).cachedNetId = netId;
       return obj;
     }
     return null;
-  }
-
-  _remove(id: number): void {
-    const entity = this._entities.get(id) as unknown as ObjectMp | undefined;
-    if (entity && entity._cachedNetId !== undefined) {
-      this._netIdToEntity.delete(entity._cachedNetId);
-      entity._cachedNetId = undefined;
-    }
-    entityDestroyed("object", id);
-    super._remove(id);
   }
 }

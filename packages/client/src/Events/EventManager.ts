@@ -1,9 +1,11 @@
 import { EventEmitter } from "@ragemp-fivem-bridge/shared";
 import { sanitizeArgsForNet, rehydrateArgsFromNet, STATE_KEY_PREFIX } from "@ragemp-fivem-bridge/shared";
+import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { safeGetNetworkId, safeGetEntityFromNetId } from "../utils/netId";
 import { onWorldScan } from "../utils/worldScan";
 import { isVisibleHere } from "../utils/dimension";
 import { resolveNetEntity } from "../utils/netEntity";
+import { resolveHandle } from "../internal/pools/streamingService";
 
 export class EventManager extends EventEmitter {
   _renderTick: number | null = null;
@@ -236,7 +238,7 @@ export class EventManager extends EventEmitter {
     }
     const oldValue = snapshot.get(key);
     snapshot.set(key, value);
-    entity._variables.set(key, value);
+    EntityInternals.get(entity).variables.set(key, value);
 
     const handlers = this._dataHandlers?.get(key);
     if (handlers) {
@@ -405,7 +407,7 @@ export class EventManager extends EventEmitter {
       const vehicleNetId = safeGetNetworkId(vehicleHandle);
 
       const enteredVehicle =
-        globalThis.mp?.vehicles?._resolveHandle?.(vehicleHandle) ?? null;
+        resolveHandle(globalThis.mp.vehicles, vehicleHandle) ?? null;
       this._fire("playerEnterVehicle", enteredVehicle, seatIndex);
 
       emitNet("ragemp:playerEnterVehicle", vehicleNetId, seatIndex);
@@ -414,7 +416,7 @@ export class EventManager extends EventEmitter {
       const vehicleNetId = safeGetNetworkId(lastVehicle);
 
       const leftVehicle =
-        globalThis.mp?.vehicles?._resolveHandle?.(lastVehicle) ?? null;
+        resolveHandle(globalThis.mp.vehicles, lastVehicle) ?? null;
       this._fire(
         "playerLeaveVehicle",
         leftVehicle,
@@ -443,7 +445,7 @@ export class EventManager extends EventEmitter {
 
       const vehicleNetId = safeGetNetworkId(tryingToEnterVehicle);
       const startVehicle =
-        globalThis.mp?.vehicles?._resolveHandle?.(tryingToEnterVehicle) ?? null;
+        resolveHandle(globalThis.mp.vehicles, tryingToEnterVehicle) ?? null;
       this._fire("playerStartEnterVehicle", startVehicle, seatIndex);
       emitNet("ragemp:playerStartEnterVehicle", vehicleNetId, seatIndex);
     } else if (tryingToEnterVehicle === 0 && this._isTryingToEnterVehicle) {
@@ -457,7 +459,7 @@ export class EventManager extends EventEmitter {
       const vehicleHandle = GetVehiclePedIsIn(ped, false);
       const vehicleNetId = safeGetNetworkId(vehicleHandle);
       const exitVehicle =
-        globalThis.mp?.vehicles?._resolveHandle?.(vehicleHandle) ?? null;
+        resolveHandle(globalThis.mp.vehicles, vehicleHandle) ?? null;
       this._fire("playerStartExitVehicle", exitVehicle);
       emitNet("ragemp:playerStartExitVehicle", vehicleNetId);
     } else if (!isTryingToExit && this._isTryingToExitVehicle) {
@@ -485,7 +487,8 @@ export class EventManager extends EventEmitter {
     const pz = playerCoords[2];
 
     for (const checkpoint of checkpointPool) {
-      const pos = checkpoint._position;
+      const rec = EntityInternals.get(checkpoint);
+      const pos = rec.position;
       const radius = checkpoint._radius;
       if (!pos || radius == null) continue;
 
@@ -494,7 +497,7 @@ export class EventManager extends EventEmitter {
       const dz = pz - pos.z;
       const distSq = dx * dx + dy * dy + dz * dz;
       const isInside =
-        isVisibleHere(checkpoint._dimension) && distSq <= radius * radius;
+        isVisibleHere(rec.dimension) && distSq <= radius * radius;
 
       if (isInside && !this._insideCheckpoints.has(checkpoint.id)) {
         this._insideCheckpoints.add(checkpoint.id);

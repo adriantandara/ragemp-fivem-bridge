@@ -1,16 +1,11 @@
 import { EntityMpBase } from "./EntityMpBase";
+import { ObjectInternals, initObjectInternals } from "../internal/objectInternals";
+import { removeFromObjectPool } from "../internal/pools/objectPoolService";
 
 export class ObjectMp extends EntityMpBase {
-  _isWeak: boolean = false;
-  _notifyStreaming: boolean = false;
-  _streamingRange: number = 0;
-
   constructor(id: number, handle: number) {
     super(id, "object", handle);
-  }
-
-  _stateBag() {
-    return globalThis.Entity(this._handle).state;
+    initObjectInternals(this);
   }
 
   get hidden(): boolean {
@@ -21,21 +16,21 @@ export class ObjectMp extends EntityMpBase {
   }
 
   get isWeak(): boolean {
-    return this._isWeak;
+    return ObjectInternals.get(this).isWeak;
   }
 
   get notifyStreaming(): boolean {
-    return this._notifyStreaming;
+    return ObjectInternals.get(this).notifyStreaming;
   }
   set notifyStreaming(value: boolean) {
-    this._notifyStreaming = value;
+    ObjectInternals.get(this).notifyStreaming = value;
   }
 
   get streamingRange(): number {
-    return this._streamingRange;
+    return ObjectInternals.get(this).streamingRange;
   }
   set streamingRange(value: number) {
-    this._streamingRange = value;
+    ObjectInternals.get(this).streamingRange = value;
   }
 
   hasBeenBroken(): boolean {
@@ -70,6 +65,6 @@ export class ObjectMp extends EntityMpBase {
       SetEntityAsMissionEntity(this.handle, false, true);
       DeleteEntity(this.handle);
     }
-    globalThis.mp.objects._remove(this.id);
+    if (globalThis.mp.objects) removeFromObjectPool(globalThis.mp.objects, this.id);
   }
 }

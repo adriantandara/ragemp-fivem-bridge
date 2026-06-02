@@ -1,21 +1,11 @@
 import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
+import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { toVec3 } from "../utils/vec";
 
 export class EntityMpBase extends Entity {
-  id: number;
-  _handle: number;
-
   constructor(id: number, type: string, handle: number) {
     super(id, type, handle);
-    this._handle = handle;
-  }
-
-  get handle(): number {
-    return this._handle;
-  }
-
-  _stateBag(): any {
-    return globalThis.Entity(this.handle).state;
+    EntityInternals.get(this).stateBag = () => globalThis.Entity(this.handle).state;
   }
 
   get position(): Vector3 {

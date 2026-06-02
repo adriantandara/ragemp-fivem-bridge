@@ -1,61 +1,12 @@
 import { Pool, Vector3 } from "@ragemp-fivem-bridge/shared";
 import { PlayerMp } from "../Entities/PlayerMp";
+import { PlayerInternals } from "../internal/playerInternals";
+import { setupPlayerPool } from "../internal/pools/playerPoolService";
 
 export class PlayerMpPool extends Pool {
   constructor() {
     super();
-    this._setupListeners();
-  }
-
-  _setupListeners(): void {
-    on("playerConnecting", (name: string, setKickReason: any, deferrals: any) => {
-      const playerSource = source;
-      if (!this._entities.has(playerSource)) {
-        const player = new PlayerMp(playerSource);
-        player._ready = false;
-        this._add(player as any);
-      }
-    });
-
-    on("playerJoining", (oldId: string | number) => {
-      const realSource = source;
-      const old = Number(oldId);
-      const existing = this._entities.get(old);
-      if (existing && old !== realSource) {
-        this._entities.delete(old);
-        existing.id = realSource;
-        existing._ready = true;
-        this._entities.set(realSource, existing);
-      } else {
-        const existingAtReal = this._entities.get(realSource);
-        if (existingAtReal) {
-          existingAtReal._ready = true;
-        } else {
-          this._add(new PlayerMp(realSource) as any);
-        }
-      }
-    });
-
-    on("playerDropped", (reason: string) => {
-      const playerSource = source;
-      const player = this._entities.get(playerSource);
-      if (player && typeof player.cancelPendingProc === "function") {
-        player.cancelPendingProc();
-      }
-      this._remove(playerSource);
-    });
-
-    onNet("ragemp:callProcResult", (reqId: number, error: string | null, result: any) => {
-      const player = this._entities.get(source);
-      if (player && typeof player._resolveProc === "function") {
-        player._resolveProc(reqId, error, result);
-      }
-    });
-
-    onNet("ragemp:playerReady", () => {
-      const src = source;
-      emitNet("ragemp:setDimension", src, GetPlayerRoutingBucket(src.toString()));
-    });
+    setupPlayerPool(this);
   }
 
   broadcast(text: string): void {
@@ -67,7 +18,7 @@ export class PlayerMpPool extends Pool {
     const dimension = hasDimension ? dimensionOrText as number : null;
     const text = hasDimension ? maybeText! : dimensionOrText as string;
     this.forEach(((player: PlayerMp) => {
-      if ((player as any)._ready === false) return;
+      if (!PlayerInternals.get(player).ready) return;
       if (hasDimension && player.dimension !== dimension) return;
       if ((player.position as any).distance(position) <= range) player.outputChatBox(text);
     }) as any);
@@ -97,7 +48,7 @@ export class PlayerMpPool extends Pool {
 
   callInRange(position: Vector3, range: number, eventName: string, args?: any[]): void {
     this.forEach(((player: PlayerMp) => {
-      if ((player as any)._ready === false) return;
+      if (!PlayerInternals.get(player).ready) return;
       if ((player.position as any).distance(position) <= range) player.call(eventName, args);
     }) as any);
   }

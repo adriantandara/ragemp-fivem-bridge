@@ -1,6 +1,11 @@
 import { EventEmitter } from "@ragemp-fivem-bridge/shared";
 import { sanitizeArgsForNet, STATE_KEY_PREFIX } from "@ragemp-fivem-bridge/shared";
 import { sendEntitySnapshot } from "../utils/entityRegistry";
+import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
+import { PlayerInternals } from "../internal/playerInternals";
+import { removeFromVehiclePool } from "../internal/pools/vehiclePoolService";
+import { removeFromPedPool } from "../internal/pools/pedPoolService";
+import { removeFromObjectPool } from "../internal/pools/objectPoolService";
 
 const RAGEMP_TO_FIVEM_EVENTS: Record<string, string> = {
   playerJoin: "playerJoining",
@@ -127,7 +132,7 @@ export class EventManager extends EventEmitter {
       const player = globalThis.mp.players.at(source);
       const vehicle = globalThis.mp.vehicles.atNetId(vehicleNetId);
       if (player) {
-        player._vehicle = vehicle ?? null;
+        PlayerInternals.get(player as any).vehicle = vehicle ?? null;
         this._fire(
           "playerEnterVehicle",
           player,
@@ -141,7 +146,7 @@ export class EventManager extends EventEmitter {
       const player = globalThis.mp.players.at(source);
       const vehicle = globalThis.mp.vehicles.atNetId(vehicleNetId);
       if (player) {
-        player._vehicle = null;
+        PlayerInternals.get(player as any).vehicle = null;
         this._fire("playerExitVehicle", player, vehicle);
       }
     });
@@ -216,12 +221,20 @@ export class EventManager extends EventEmitter {
     on("entityRemoved", (handle: number) => {
       const mp = globalThis.mp;
       if (!mp) return;
-      for (const pool of [mp.vehicles, mp.peds, mp.objects]) {
-        const entity = pool?.atHandle?.(handle);
-        if (entity) {
-          pool._remove(entity.id);
-          break;
-        }
+      const vehicle = mp.vehicles?.atHandle?.(handle);
+      if (vehicle) {
+        removeFromVehiclePool(mp.vehicles, vehicle.id);
+        return;
+      }
+      const ped = mp.peds?.atHandle?.(handle);
+      if (ped) {
+        removeFromPedPool(mp.peds, ped.id);
+        return;
+      }
+      const object = mp.objects?.atHandle?.(handle);
+      if (object) {
+        removeFromObjectPool(mp.objects, object.id);
+        return;
       }
     });
 
@@ -338,7 +351,7 @@ export class EventManager extends EventEmitter {
     }
     const oldValue = snapshot.get(key);
     snapshot.set(key, value);
-    entity._variables.set(key, value);
+    EntityInternals.get(entity).variables.set(key, value);
 
     const handlers = this._dataHandlers?.get(key);
     if (handlers) {

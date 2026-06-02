@@ -1,5 +1,6 @@
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { PlayerMp } from "../../Entities/PlayerMp";
+import { PlayerInternals } from "../../internal/playerInternals";
 
 export const name = "spawnmanager";
 
@@ -20,7 +21,9 @@ export default function setup({ mp }: { mp: any }): void {
       player.spawn(new Vector3(info.x, info.y, info.z), info.heading);
     },
     _maybeAutoSpawn(player: PlayerMp) {
-      if (!player || player._autoSpawn === false || player._spawnIssued) return;
+      if (!player) return;
+      const rec = PlayerInternals.get(player);
+      if (rec.autoSpawn === false || rec.spawnIssued) return;
       player.spawn(new Vector3(DEFAULT_SPAWN.x, DEFAULT_SPAWN.y, DEFAULT_SPAWN.z), DEFAULT_SPAWN.heading);
     }
   };

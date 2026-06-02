@@ -1,22 +1,21 @@
+import { poolAdd, EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { StreamingPool } from "./StreamingPool";
 import { PedMp } from "../Entities/PedMp";
 import { getPedPool } from "../utils/worldScan";
-import { safeGetEntityFromNetId } from "../utils/netId";
-
-let localPedIdCounter = 1000000;
+import { StreamingInternals } from "../internal/streamingInternals";
+import { setupPedPool, nextLocalPedId } from "../internal/pools/pedPoolService";
+import { startStreaming } from "../internal/pools/streamingService";
 
 export class PedMpPool extends StreamingPool {
-    _netType = "ped";
-    _add!: (entity: PedMp) => void;
-
     constructor() {
-        super();
-        this._startStreaming(
+        super("ped");
+        setupPedPool(this);
+        startStreaming(
+            this,
             getPedPool,
             (netId: number, handle: number) => new PedMp(netId, handle),
             (handle: number) => !IsPedAPlayer(handle)
         );
-        this._setupServerSync();
     }
 
     new(model: number | string, position: { x: number; y: number; z: number }, options: any = {}, callback?: ((ped: PedMp) => void) | null): PedMp {
@@ -29,9 +28,9 @@ export class PedMpPool extends StreamingPool {
         if (typeof callback !== "function") callback = null;
 
         const hash = typeof model === "string" ? GetHashKey(model) : model;
-        const id = ++localPedIdCounter;
+        const id = nextLocalPedId();
         const ped = new PedMp(id, 0);
-        this._add(ped);
+        poolAdd(this, ped);
 
         const finish = () => {
             const handle = CreatePed(
@@ -44,8 +43,8 @@ export class PedMpPool extends StreamingPool {
                 false,
                 false
             );
-            ped._handle = handle;
-            this._handleToEntity.set(handle, ped);
+            EntityInternals.get(ped).handle = handle;
+            StreamingInternals.get(this).handleToEntity.set(handle, ped);
 
             SetEntityAsMissionEntity(handle, true, true);
 
@@ -84,18 +83,5 @@ export class PedMpPool extends StreamingPool {
         }
 
         return ped;
-    }
-
-    _setupServerSync(): void {
-        onNet("ragemp:pedInvincible", (netId: number, value: boolean) => {
-            const handle = safeGetEntityFromNetId(netId);
-            if (handle) {
-                SetEntityInvincible(handle, value);
-                const ped = this._handleToEntity.get(handle);
-                if (ped) {
-                    ped._invincible = value;
-                }
-            }
-        });
     }
 }

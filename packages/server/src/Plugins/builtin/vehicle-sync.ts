@@ -1,3 +1,6 @@
+import { VehicleInternals } from "../../internal/vehicleInternals";
+import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
+
 export const name = "vehicle-sync";
 
 interface PluginContext {
@@ -11,33 +14,35 @@ interface PluginContext {
 export default function setup({ mp, plugin }: { mp: any; plugin: PluginContext }): void {
   function buildSnapshot(vehicle: any): Record<string, any> {
     const snap: Record<string, any> = {};
+    const rec = VehicleInternals.get(vehicle);
+    const ent = EntityInternals.get(vehicle);
 
-    if (vehicle._engine) snap.engine = true;
-    if (vehicle._alpha !== 255) snap.alpha = vehicle._alpha;
-    if (vehicle._livery >= 0) snap.livery = vehicle._livery;
-    if (vehicle._numberPlateType) snap.numberPlateType = vehicle._numberPlateType;
-    if (vehicle._windowTint) snap.windowTint = vehicle._windowTint;
-    if (vehicle._wheelType) snap.wheelType = vehicle._wheelType;
-    if (vehicle._engineHealth !== 1000) snap.engineHealth = vehicle._engineHealth;
-    if (vehicle._neonEnabled) snap.neonEnabled = true;
-    if (vehicle._customTires) snap.customTires = true;
-    if (vehicle._dashboardColor) snap.dashboardColor = vehicle._dashboardColor;
-    if (vehicle._pearlescentColor) snap.pearlescentColor = vehicle._pearlescentColor;
-    if (vehicle._taxiLights) snap.taxiLights = true;
-    if (vehicle._trimColor) snap.trimColor = vehicle._trimColor;
-    if (vehicle._wheelColor) snap.wheelColor = vehicle._wheelColor;
+    if (rec.engine) snap.engine = true;
+    if (ent.alpha !== 255) snap.alpha = ent.alpha;
+    if (rec.livery >= 0) snap.livery = rec.livery;
+    if (rec.numberPlateType) snap.numberPlateType = rec.numberPlateType;
+    if (rec.windowTint) snap.windowTint = rec.windowTint;
+    if (rec.wheelType) snap.wheelType = rec.wheelType;
+    if (rec.engineHealth !== 1000) snap.engineHealth = rec.engineHealth;
+    if (rec.neonEnabled) snap.neonEnabled = true;
+    if (rec.customTires) snap.customTires = true;
+    if (rec.dashboardColor) snap.dashboardColor = rec.dashboardColor;
+    if (rec.pearlescentColor) snap.pearlescentColor = rec.pearlescentColor;
+    if (rec.taxiLights) snap.taxiLights = true;
+    if (rec.trimColor) snap.trimColor = rec.trimColor;
+    if (rec.wheelColor) snap.wheelColor = rec.wheelColor;
 
-    const neon = vehicle._neonColor;
+    const neon = rec.neonColor;
     if (neon && (neon[0] || neon[1] || neon[2])) snap.neonColor = neon;
 
-    if (vehicle._numberPlate != null) snap.numberPlate = vehicle._numberPlate;
-    if (vehicle._mods && Object.keys(vehicle._mods).length) snap.mods = vehicle._mods;
-    if (vehicle._extras && Object.keys(vehicle._extras).length) snap.extras = vehicle._extras;
-    if (vehicle._colorRGB) snap.colorRGB = vehicle._colorRGB;
+    if (rec.numberPlate != null) snap.numberPlate = rec.numberPlate;
+    if (rec.mods && Object.keys(rec.mods).length) snap.mods = rec.mods;
+    if (rec.extras && Object.keys(rec.extras).length) snap.extras = rec.extras;
+    if (rec.colorRGB) snap.colorRGB = rec.colorRGB;
 
-    if (vehicle._variables && vehicle._variables.size) {
+    if (ent.variables && ent.variables.size) {
       const vars: Record<string, any> = {};
-      for (const [k, v] of vehicle._variables) {
+      for (const [k, v] of ent.variables) {
         if (v !== undefined && v !== null) vars[k] = v;
       }
       if (Object.keys(vars).length) snap.vars = vars;

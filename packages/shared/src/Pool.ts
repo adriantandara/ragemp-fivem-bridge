@@ -1,4 +1,5 @@
 import { Vector3Like } from "./Vector3";
+import { initPool, poolStore, setPoolLifecycleSink } from "./internal/poolStore";
 
 export interface PoolEntity {
   id: number;
@@ -7,40 +8,36 @@ export interface PoolEntity {
   [key: string]: unknown;
 }
 
-type LifecycleEvent = "entityCreated" | "entityDestroyed";
-type LifecycleSink = (event: LifecycleEvent, entity: PoolEntity) => void;
-
-let _lifecycleSink: LifecycleSink | null = null;
-
-export function setPoolLifecycleSink(fn: LifecycleSink): void {
-  _lifecycleSink = fn;
-}
+export { setPoolLifecycleSink };
 
 export class Pool {
-  _entities: Map<number, PoolEntity> = new Map();
+  constructor() {
+    initPool(this);
+  }
 
   get length(): number {
-    return this._entities.size;
+    return poolStore(this).entities.size;
   }
 
   get size(): number {
-    return this._entities.size;
+    return poolStore(this).entities.size;
   }
 
   at(id: number): PoolEntity | null {
-    return this._entities.get(id) ?? null;
+    return poolStore(this).entities.get(id) ?? null;
   }
 
   exists(entity: number | PoolEntity): boolean {
+    const entities = poolStore(this).entities;
     if (typeof entity === "number") {
-      return this._entities.has(entity);
+      return entities.has(entity);
     }
     if (!entity || typeof entity !== "object") return false;
-    return this._entities.has(entity.id);
+    return entities.has(entity.id);
   }
 
   forEach(fn: (entity: PoolEntity) => void): void {
-    this._entities.forEach((entity) => fn(entity));
+    poolStore(this).entities.forEach((entity) => fn(entity));
   }
 
   apply(fn: (entity: PoolEntity) => void): void {
@@ -48,18 +45,7 @@ export class Pool {
   }
 
   toArray(): PoolEntity[] {
-    return Array.from(this._entities.values());
-  }
-
-  _add(entity: PoolEntity): void {
-    this._entities.set(entity.id, entity);
-    _lifecycleSink?.("entityCreated", entity);
-  }
-
-  _remove(id: number): void {
-    const entity = this._entities.get(id);
-    this._entities.delete(id);
-    if (entity) _lifecycleSink?.("entityDestroyed", entity);
+    return Array.from(poolStore(this).entities.values());
   }
 
   forEachFast(fn: (entity: PoolEntity) => void): void {
@@ -70,7 +56,7 @@ export class Pool {
     const hasDimension = typeof dimensionOrFn === "number";
     const fn = hasDimension ? maybeFn! : (dimensionOrFn as (entity: PoolEntity) => void);
     const dimension = hasDimension ? (dimensionOrFn as number) : null;
-    this._entities.forEach((entity) => {
+    poolStore(this).entities.forEach((entity) => {
       if (hasDimension && entity.dimension !== dimension) return;
       if (entity.position.distance(position) <= range) {
         fn(entity);
@@ -79,7 +65,7 @@ export class Pool {
   }
 
   forEachInDimension(dimension: number, fn: (entity: PoolEntity) => void): void {
-    this._entities.forEach((entity) => {
+    poolStore(this).entities.forEach((entity) => {
       if (entity.dimension === dimension) {
         fn(entity);
       }
@@ -90,7 +76,7 @@ export class Pool {
     if (limit === 1) {
       let best: PoolEntity | null = null;
       let bestDist = Infinity;
-      this._entities.forEach((entity) => {
+      poolStore(this).entities.forEach((entity) => {
         const d = entity.position.distanceSqr(position);
         if (d < bestDist) {
           bestDist = d;
@@ -115,11 +101,11 @@ export class Pool {
   }
 
   get maxStreamed(): number {
-    return (this as unknown as { _maxStreamed?: number })._maxStreamed ?? 64;
+    return poolStore(this).maxStreamed;
   }
 
   set maxStreamed(v: number) {
-    (this as unknown as { _maxStreamed?: number })._maxStreamed = v;
+    poolStore(this).maxStreamed = v;
   }
 
   forEachInStreamRange(fn: (entity: PoolEntity) => void): void {
@@ -130,7 +116,7 @@ export class Pool {
     if (limit === 1) {
       let best: PoolEntity | null = null;
       let bestDist = Infinity;
-      this._entities.forEach((entity) => {
+      poolStore(this).entities.forEach((entity) => {
         if (entity.dimension !== dimension) return;
         const d = entity.position.distanceSqr(position);
         if (d < bestDist) {
@@ -149,6 +135,6 @@ export class Pool {
   }
 
   [Symbol.iterator](): IterableIterator<PoolEntity> {
-    return this._entities.values();
+    return poolStore(this).entities.values();
   }
 }

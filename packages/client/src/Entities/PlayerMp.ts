@@ -1,7 +1,9 @@
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { PedMpBase } from "./PedMpBase";
 import { toVec3 } from "../utils/vec";
 import { getLocalDimension } from "../utils/dimension";
+import { PlayerInternals, initPlayerInternals } from "../internal/playerInternals";
 
 // Voice FX parameter shapes (from ragemp d.ts)
 interface VoiceFxChorus { fWetDryMix: number; fDepth: number; fFeedback: number; fFrequency: number; lWaveform: number; fDelay: number; lPhase: number; }
@@ -17,36 +19,29 @@ interface VoiceFxPeakEq { lBand: number; fBandwidth: number; fQ: number; fCenter
 interface VoiceFxBQF { lFilter: number; fCenter: number; fGain: number; fBandwidth: number; fQ: number; fS: number; lChannel: number; }
 
 export class PlayerMp extends PedMpBase {
-  _playerIndex: number;
-  _dimension: number | undefined;
-  _voiceFX: any;
-
   constructor(id: number, playerIndex: number) {
     super(id, "player");
-    this._playerIndex = playerIndex;
-  }
-
-  _stateBag(): any {
-    return globalThis.Player(this.id).state;
+    initPlayerInternals(this, playerIndex);
+    EntityInternals.get(this).stateBag = () => globalThis.Player(this.id).state;
   }
 
   get ped(): number {
-    return GetPlayerPed(this._playerIndex);
+    return GetPlayerPed(PlayerInternals.get(this).playerIndex);
   }
   get handle(): number {
-    return GetPlayerPed(this._playerIndex);
+    return GetPlayerPed(PlayerInternals.get(this).playerIndex);
   }
 
   get name(): string {
-    return GetPlayerName(this._playerIndex);
+    return GetPlayerName(PlayerInternals.get(this).playerIndex);
   }
 
   get dimension(): number {
     if ((globalThis as any).mp?.players?.local === this) return getLocalDimension();
-    return this._dimension ?? 0;
+    return PlayerInternals.get(this).dimension ?? 0;
   }
   set dimension(value: number) {
-    this._dimension = value;
+    PlayerInternals.get(this).dimension = value;
   }
 
   get vehicle(): any {
@@ -56,7 +51,7 @@ export class PlayerMp extends PedMpBase {
   }
 
   get aimTarget(): any {
-    const [found, entity] = GetPlayerTargetEntity(this._playerIndex);
+    const [found, entity] = GetPlayerTargetEntity(PlayerInternals.get(this).playerIndex);
     return found ? entity : null;
   }
 
@@ -65,11 +60,11 @@ export class PlayerMp extends PedMpBase {
   }
 
   get isVoiceActive(): boolean {
-    return NetworkIsPlayerTalking(this._playerIndex);
+    return NetworkIsPlayerTalking(PlayerInternals.get(this).playerIndex);
   }
 
   get ping(): number {
-    return GetPlayerPing(this._playerIndex);
+    return GetPlayerPing(PlayerInternals.get(this).playerIndex);
   }
 
   get eyeColour(): number { return GetPedEyeColor(this.ped); }
@@ -104,99 +99,99 @@ export class PlayerMp extends PedMpBase {
   get p2pConnected(): boolean { return false; }
 
   getId(): number {
-    return GetPlayerServerId(this._playerIndex);
+    return GetPlayerServerId(PlayerInternals.get(this).playerIndex);
   }
 
   getIndex(): number {
-    return this._playerIndex;
+    return PlayerInternals.get(this).playerIndex;
   }
 
   call(eventName: string, ...args: any[]): void {
     (globalThis as any).mp?.events?._fire(eventName, this, ...args);
   }
 
-  canPedHear(ped: number): boolean { return CanPedHearPlayer(this._playerIndex, ped); }
-  changePed(ped: number, b2: boolean, b3: boolean): void { ChangePlayerPed(this._playerIndex, ped, !!b2, !!b3); }
-  clearHasDamagedAtLeastOneNonAnimalPed(): void { ClearPlayerHasDamagedAtLeastOneNonAnimalPed(this._playerIndex); }
-  clearHasDamagedAtLeastOnePed(): void { ClearPlayerHasDamagedAtLeastOnePed(this._playerIndex); }
-  clearParachuteModelOverride(): void { ClearPlayerParachuteModelOverride(this._playerIndex); }
-  clearParachutePackModelOverride(): void { ClearPlayerParachutePackModelOverride(this._playerIndex); }
-  clearParachuteVariationOverride(): void { ClearPlayerParachuteVariationOverride(this._playerIndex); }
-  clearWantedLevel(): void { ClearPlayerWantedLevel(this._playerIndex); }
-  getCurrentStealthNoise(): number { return GetPlayerCurrentStealthNoise(this._playerIndex); }
-  getGroup(): number { return GetPlayerGroup(this._playerIndex); }
-  getHasReserveParachute(): boolean { return GetPlayerHasReserveParachute(this._playerIndex); }
-  getInvincible(): boolean { return GetPlayerInvincible(this._playerIndex); }
-  getMaxArmour(): number { return GetPlayerMaxArmour(this._playerIndex); }
-  getName(): string { return GetPlayerName(this._playerIndex); }
-  getParachutePackTintIndex(tintIndex?: number): number { return GetPlayerParachutePackTintIndex(this._playerIndex); }
-  getPed(): number { return GetPlayerPed(this._playerIndex); }
-  getPedScriptIndex(): number { return GetPlayerPedScriptIndex(this._playerIndex); }
-  getReserveParachuteTintIndex(tintIndex?: number): number { return GetPlayerReserveParachuteTintIndex(this._playerIndex); }
-  getSprintStaminaRemaining(): number { return GetPlayerSprintStaminaRemaining(this._playerIndex); }
-  getSprintTimeRemaining(): number { return GetPlayerSprintTimeRemaining(this._playerIndex); }
-  getTeam(): number { return GetPlayerTeam(this._playerIndex); }
-  getUnderwaterTimeRemaining(): number { return GetPlayerUnderwaterTimeRemaining(this._playerIndex); }
-  getWantedCentrePosition(): Vector3 { return toVec3(GetPlayerWantedCentrePosition(this._playerIndex) as any); }
-  getWantedLevel(): number { return GetPlayerWantedLevel(this._playerIndex); }
-  giveRagdollControl(toggle: boolean): void { GivePlayerRagdollControl(this._playerIndex, !!toggle); }
-  hasBeenSpottedInStolenVehicle(): boolean { return HasPlayerBeenSpottedInStolenVehicle(this._playerIndex); }
-  hasDamagedAtLeastOneNonAnimalPed(): boolean { return HasPlayerDamagedAtLeastOneNonAnimalPed(this._playerIndex); }
-  hasDamagedAtLeastOnePed(): boolean { return HasPlayerDamagedAtLeastOnePed(this._playerIndex); }
-  hasLeftTheWorld(): boolean { return HasPlayerLeftTheWorld(this._playerIndex); }
-  isControlOn(): boolean { return IsPlayerControlOn(this._playerIndex); }
-  isFreeForAmbientTask(): boolean { return IsPlayerFreeForAmbientTask(this._playerIndex); }
-  isPlaying(): boolean { return IsPlayerPlaying(this._playerIndex); }
-  isPressingHorn(): boolean { return IsPlayerPressingHorn(this._playerIndex); }
-  isReadyForCutscene(): boolean { return IsPlayerReadyForCutscene(this._playerIndex); }
-  isRidingTrain(): boolean { return IsPlayerRidingTrain(this._playerIndex); }
-  isScriptControlOn(): boolean { return IsPlayerScriptControlOn(this._playerIndex); }
-  isTargettingAnything(): boolean { return IsPlayerTargettingAnything(this._playerIndex); }
-  isWantedLevelGreater(wantedLevel: number): boolean { return IsPlayerWantedLevelGreater(this._playerIndex, wantedLevel); }
-  resetArrestState(): void { ResetPlayerArrestState(this._playerIndex); }
-  resetInputGait(): void { ResetPlayerInputGait(this._playerIndex); }
-  resetStamina(): void { ResetPlayerStamina(this._playerIndex); }
-  setCanBeHassledByGangs(toggle: boolean): void { SetPlayerCanBeHassledByGangs(this._playerIndex, !!toggle); }
-  setCanDoDriveBy(toggle: boolean): void { SetPlayerCanDoDriveBy(this._playerIndex, !!toggle); }
-  setCanLeaveParachuteSmokeTrail(enabled: boolean): void { SetPlayerCanLeaveParachuteSmokeTrail(this._playerIndex, !!enabled); }
-  setCanUseCover(toggle: boolean): void { SetPlayerCanUseCover(this._playerIndex, !!toggle); }
-  setControl(toggle: boolean, possiblyFlags: number): void { SetPlayerControl(this._playerIndex, !!toggle, possiblyFlags ?? 0); }
-  setEveryoneIgnore(toggle: boolean): void { SetEveryoneIgnorePlayer(this._playerIndex, !!toggle); }
-  setForcedAim(toggle: boolean): void { SetPlayerForcedAim(this._playerIndex, !!toggle); }
-  setForcedZoom(toggle: boolean): void { SetPlayerForcedZoom(this._playerIndex, !!toggle); }
-  setForceSkipAimIntro(toggle: boolean): void { SetPlayerForceSkipAimIntro(this._playerIndex, !!toggle); }
-  setHasReserveParachute(): void { SetPlayerHasReserveParachute(this._playerIndex); }
-  setLockon(toggle: boolean): void { SetPlayerLockon(this._playerIndex, !!toggle); }
-  setLockonRangeOverride(range: number): void { SetPlayerLockonRangeOverride(this._playerIndex, range); }
-  setMaxArmour(value: number): void { SetPlayerMaxArmour(this._playerIndex, value); }
-  setMayNotEnterAnyVehicle(): void { SetPlayerMayNotEnterAnyVehicle(this._playerIndex); }
-  setMayOnlyEnterThisVehicle(vehicle: any): void { SetPlayerMayOnlyEnterThisVehicle(this._playerIndex, vehicle?._handle ?? vehicle); }
-  setMeleeWeaponDamageModifier(modifier: number): void { (SetPlayerMeleeWeaponDamageModifier as any)(this._playerIndex, modifier, false); }
+  canPedHear(ped: number): boolean { return CanPedHearPlayer(PlayerInternals.get(this).playerIndex, ped); }
+  changePed(ped: number, b2: boolean, b3: boolean): void { ChangePlayerPed(PlayerInternals.get(this).playerIndex, ped, !!b2, !!b3); }
+  clearHasDamagedAtLeastOneNonAnimalPed(): void { ClearPlayerHasDamagedAtLeastOneNonAnimalPed(PlayerInternals.get(this).playerIndex); }
+  clearHasDamagedAtLeastOnePed(): void { ClearPlayerHasDamagedAtLeastOnePed(PlayerInternals.get(this).playerIndex); }
+  clearParachuteModelOverride(): void { ClearPlayerParachuteModelOverride(PlayerInternals.get(this).playerIndex); }
+  clearParachutePackModelOverride(): void { ClearPlayerParachutePackModelOverride(PlayerInternals.get(this).playerIndex); }
+  clearParachuteVariationOverride(): void { ClearPlayerParachuteVariationOverride(PlayerInternals.get(this).playerIndex); }
+  clearWantedLevel(): void { ClearPlayerWantedLevel(PlayerInternals.get(this).playerIndex); }
+  getCurrentStealthNoise(): number { return GetPlayerCurrentStealthNoise(PlayerInternals.get(this).playerIndex); }
+  getGroup(): number { return GetPlayerGroup(PlayerInternals.get(this).playerIndex); }
+  getHasReserveParachute(): boolean { return GetPlayerHasReserveParachute(PlayerInternals.get(this).playerIndex); }
+  getInvincible(): boolean { return GetPlayerInvincible(PlayerInternals.get(this).playerIndex); }
+  getMaxArmour(): number { return GetPlayerMaxArmour(PlayerInternals.get(this).playerIndex); }
+  getName(): string { return GetPlayerName(PlayerInternals.get(this).playerIndex); }
+  getParachutePackTintIndex(tintIndex?: number): number { return GetPlayerParachutePackTintIndex(PlayerInternals.get(this).playerIndex); }
+  getPed(): number { return GetPlayerPed(PlayerInternals.get(this).playerIndex); }
+  getPedScriptIndex(): number { return GetPlayerPedScriptIndex(PlayerInternals.get(this).playerIndex); }
+  getReserveParachuteTintIndex(tintIndex?: number): number { return GetPlayerReserveParachuteTintIndex(PlayerInternals.get(this).playerIndex); }
+  getSprintStaminaRemaining(): number { return GetPlayerSprintStaminaRemaining(PlayerInternals.get(this).playerIndex); }
+  getSprintTimeRemaining(): number { return GetPlayerSprintTimeRemaining(PlayerInternals.get(this).playerIndex); }
+  getTeam(): number { return GetPlayerTeam(PlayerInternals.get(this).playerIndex); }
+  getUnderwaterTimeRemaining(): number { return GetPlayerUnderwaterTimeRemaining(PlayerInternals.get(this).playerIndex); }
+  getWantedCentrePosition(): Vector3 { return toVec3(GetPlayerWantedCentrePosition(PlayerInternals.get(this).playerIndex) as any); }
+  getWantedLevel(): number { return GetPlayerWantedLevel(PlayerInternals.get(this).playerIndex); }
+  giveRagdollControl(toggle: boolean): void { GivePlayerRagdollControl(PlayerInternals.get(this).playerIndex, !!toggle); }
+  hasBeenSpottedInStolenVehicle(): boolean { return HasPlayerBeenSpottedInStolenVehicle(PlayerInternals.get(this).playerIndex); }
+  hasDamagedAtLeastOneNonAnimalPed(): boolean { return HasPlayerDamagedAtLeastOneNonAnimalPed(PlayerInternals.get(this).playerIndex); }
+  hasDamagedAtLeastOnePed(): boolean { return HasPlayerDamagedAtLeastOnePed(PlayerInternals.get(this).playerIndex); }
+  hasLeftTheWorld(): boolean { return HasPlayerLeftTheWorld(PlayerInternals.get(this).playerIndex); }
+  isControlOn(): boolean { return IsPlayerControlOn(PlayerInternals.get(this).playerIndex); }
+  isFreeForAmbientTask(): boolean { return IsPlayerFreeForAmbientTask(PlayerInternals.get(this).playerIndex); }
+  isPlaying(): boolean { return IsPlayerPlaying(PlayerInternals.get(this).playerIndex); }
+  isPressingHorn(): boolean { return IsPlayerPressingHorn(PlayerInternals.get(this).playerIndex); }
+  isReadyForCutscene(): boolean { return IsPlayerReadyForCutscene(PlayerInternals.get(this).playerIndex); }
+  isRidingTrain(): boolean { return IsPlayerRidingTrain(PlayerInternals.get(this).playerIndex); }
+  isScriptControlOn(): boolean { return IsPlayerScriptControlOn(PlayerInternals.get(this).playerIndex); }
+  isTargettingAnything(): boolean { return IsPlayerTargettingAnything(PlayerInternals.get(this).playerIndex); }
+  isWantedLevelGreater(wantedLevel: number): boolean { return IsPlayerWantedLevelGreater(PlayerInternals.get(this).playerIndex, wantedLevel); }
+  resetArrestState(): void { ResetPlayerArrestState(PlayerInternals.get(this).playerIndex); }
+  resetInputGait(): void { ResetPlayerInputGait(PlayerInternals.get(this).playerIndex); }
+  resetStamina(): void { ResetPlayerStamina(PlayerInternals.get(this).playerIndex); }
+  setCanBeHassledByGangs(toggle: boolean): void { SetPlayerCanBeHassledByGangs(PlayerInternals.get(this).playerIndex, !!toggle); }
+  setCanDoDriveBy(toggle: boolean): void { SetPlayerCanDoDriveBy(PlayerInternals.get(this).playerIndex, !!toggle); }
+  setCanLeaveParachuteSmokeTrail(enabled: boolean): void { SetPlayerCanLeaveParachuteSmokeTrail(PlayerInternals.get(this).playerIndex, !!enabled); }
+  setCanUseCover(toggle: boolean): void { SetPlayerCanUseCover(PlayerInternals.get(this).playerIndex, !!toggle); }
+  setControl(toggle: boolean, possiblyFlags: number): void { SetPlayerControl(PlayerInternals.get(this).playerIndex, !!toggle, possiblyFlags ?? 0); }
+  setEveryoneIgnore(toggle: boolean): void { SetEveryoneIgnorePlayer(PlayerInternals.get(this).playerIndex, !!toggle); }
+  setForcedAim(toggle: boolean): void { SetPlayerForcedAim(PlayerInternals.get(this).playerIndex, !!toggle); }
+  setForcedZoom(toggle: boolean): void { SetPlayerForcedZoom(PlayerInternals.get(this).playerIndex, !!toggle); }
+  setForceSkipAimIntro(toggle: boolean): void { SetPlayerForceSkipAimIntro(PlayerInternals.get(this).playerIndex, !!toggle); }
+  setHasReserveParachute(): void { SetPlayerHasReserveParachute(PlayerInternals.get(this).playerIndex); }
+  setLockon(toggle: boolean): void { SetPlayerLockon(PlayerInternals.get(this).playerIndex, !!toggle); }
+  setLockonRangeOverride(range: number): void { SetPlayerLockonRangeOverride(PlayerInternals.get(this).playerIndex, range); }
+  setMaxArmour(value: number): void { SetPlayerMaxArmour(PlayerInternals.get(this).playerIndex, value); }
+  setMayNotEnterAnyVehicle(): void { SetPlayerMayNotEnterAnyVehicle(PlayerInternals.get(this).playerIndex); }
+  setMayOnlyEnterThisVehicle(vehicle: any): void { SetPlayerMayOnlyEnterThisVehicle(PlayerInternals.get(this).playerIndex, vehicle?.handle ?? vehicle); }
+  setMeleeWeaponDamageModifier(modifier: number): void { (SetPlayerMeleeWeaponDamageModifier as any)(PlayerInternals.get(this).playerIndex, modifier, false); }
   setModel(model: number | string): void {
     const hash = typeof model === "string" ? GetHashKey(model) : model;
-    SetPlayerModel(this._playerIndex, hash);
+    SetPlayerModel(PlayerInternals.get(this).playerIndex, hash);
   }
-  setNoiseMultiplier(multiplier: number): void { SetPlayerNoiseMultiplier(this._playerIndex, multiplier); }
-  setParachuteModelOverride(model: number): void { SetPlayerParachuteModelOverride(this._playerIndex, model); }
-  setParachutePackModelOverride(model: number): void { SetPlayerParachutePackModelOverride(this._playerIndex, model); }
-  setParachutePackTintIndex(tintIndex: number): void { SetPlayerParachutePackTintIndex(this._playerIndex, tintIndex); }
-  setParachuteSmokeTrailColor(r: number, g: number, b: number): void { SetPlayerParachuteSmokeTrailColor(this._playerIndex, r, g, b); }
-  setParachuteVariationOverride(component: number, drawable: number, texture: number, p4: boolean): void { SetPlayerParachuteVariationOverride(this._playerIndex, component, drawable, texture, !!p4); }
-  setPoliceIgnore(toggle: boolean): void { SetPoliceIgnorePlayer(this._playerIndex, !!toggle); }
+  setNoiseMultiplier(multiplier: number): void { SetPlayerNoiseMultiplier(PlayerInternals.get(this).playerIndex, multiplier); }
+  setParachuteModelOverride(model: number): void { SetPlayerParachuteModelOverride(PlayerInternals.get(this).playerIndex, model); }
+  setParachutePackModelOverride(model: number): void { SetPlayerParachutePackModelOverride(PlayerInternals.get(this).playerIndex, model); }
+  setParachutePackTintIndex(tintIndex: number): void { SetPlayerParachutePackTintIndex(PlayerInternals.get(this).playerIndex, tintIndex); }
+  setParachuteSmokeTrailColor(r: number, g: number, b: number): void { SetPlayerParachuteSmokeTrailColor(PlayerInternals.get(this).playerIndex, r, g, b); }
+  setParachuteVariationOverride(component: number, drawable: number, texture: number, p4: boolean): void { SetPlayerParachuteVariationOverride(PlayerInternals.get(this).playerIndex, component, drawable, texture, !!p4); }
+  setPoliceIgnore(toggle: boolean): void { SetPoliceIgnorePlayer(PlayerInternals.get(this).playerIndex, !!toggle); }
   setReserveParachuteTintIndex(tintIndex: number): void { SetPedReserveParachuteTintIndex(this.ped, tintIndex); }
-  setSimulateAiming(toggle: boolean): void { SetPlayerSimulateAiming(this._playerIndex, !!toggle); }
-  setSneakingNoiseMultiplier(multiplier: number): void { SetPlayerSneakingNoiseMultiplier(this._playerIndex, multiplier); }
-  setSprint(toggle: boolean): void { SetPlayerSprint(this._playerIndex, !!toggle); }
-  setStealthPerceptionModifier(value: number): void { SetPlayerStealthPerceptionModifier(this._playerIndex, value); }
-  setTeam(team: number): void { SetPlayerTeam(this._playerIndex, team); }
-  setVehicleDamageModifier(damageAmount: number): void { SetPlayerVehicleDamageModifier(this._playerIndex, damageAmount); }
-  setVehicleDefenseModifier(modifier: number): void { SetPlayerVehicleDefenseModifier(this._playerIndex, modifier); }
-  setWantedCentrePosition(x: number, y: number, z: number): void { (SetPlayerWantedCentrePosition as any)(this._playerIndex, x, y, z, false, false); }
-  setWantedLevel(wantedLevel: number, disableNoMission: boolean): void { SetPlayerWantedLevel(this._playerIndex, wantedLevel, disableNoMission ?? false); }
-  setWantedLevelNoDrop(wantedLevel: number, p2: boolean): void { SetPlayerWantedLevelNoDrop(this._playerIndex, wantedLevel, !!p2); }
-  setWantedLevelNow(delayLawResponse: boolean): void { SetPlayerWantedLevel(this._playerIndex, arguments.length ? this.getWantedLevel() : 0, false); SetPlayerWantedLevelNow(this._playerIndex, !!delayLawResponse); }
-  setWeaponDamageModifier(damageAmount: number): void { SetPlayerWeaponDamageModifier(this._playerIndex, damageAmount); }
-  setWeaponDefenseModifier(modifier: number): void { SetPlayerWeaponDefenseModifier(this._playerIndex, modifier); }
+  setSimulateAiming(toggle: boolean): void { SetPlayerSimulateAiming(PlayerInternals.get(this).playerIndex, !!toggle); }
+  setSneakingNoiseMultiplier(multiplier: number): void { SetPlayerSneakingNoiseMultiplier(PlayerInternals.get(this).playerIndex, multiplier); }
+  setSprint(toggle: boolean): void { SetPlayerSprint(PlayerInternals.get(this).playerIndex, !!toggle); }
+  setStealthPerceptionModifier(value: number): void { SetPlayerStealthPerceptionModifier(PlayerInternals.get(this).playerIndex, value); }
+  setTeam(team: number): void { SetPlayerTeam(PlayerInternals.get(this).playerIndex, team); }
+  setVehicleDamageModifier(damageAmount: number): void { SetPlayerVehicleDamageModifier(PlayerInternals.get(this).playerIndex, damageAmount); }
+  setVehicleDefenseModifier(modifier: number): void { SetPlayerVehicleDefenseModifier(PlayerInternals.get(this).playerIndex, modifier); }
+  setWantedCentrePosition(x: number, y: number, z: number): void { (SetPlayerWantedCentrePosition as any)(PlayerInternals.get(this).playerIndex, x, y, z, false, false); }
+  setWantedLevel(wantedLevel: number, disableNoMission: boolean): void { SetPlayerWantedLevel(PlayerInternals.get(this).playerIndex, wantedLevel, disableNoMission ?? false); }
+  setWantedLevelNoDrop(wantedLevel: number, p2: boolean): void { SetPlayerWantedLevelNoDrop(PlayerInternals.get(this).playerIndex, wantedLevel, !!p2); }
+  setWantedLevelNow(delayLawResponse: boolean): void { SetPlayerWantedLevel(PlayerInternals.get(this).playerIndex, arguments.length ? this.getWantedLevel() : 0, false); SetPlayerWantedLevelNow(PlayerInternals.get(this).playerIndex, !!delayLawResponse); }
+  setWeaponDamageModifier(damageAmount: number): void { SetPlayerWeaponDamageModifier(PlayerInternals.get(this).playerIndex, damageAmount); }
+  setWeaponDefenseModifier(modifier: number): void { SetPlayerWeaponDefenseModifier(PlayerInternals.get(this).playerIndex, modifier); }
 
   addVehicleSubtaskAttack(ped2: number): void { AddVehicleSubtaskAttackPed(this.ped, ped2); }
   addVehicleSubtaskAttackCoord(x: number, y: number, z: number): void { AddVehicleSubtaskAttackCoord(this.ped, x, y, z); }
@@ -251,13 +246,14 @@ export class PlayerMp extends PedMpBase {
   }
 
   get voiceFX(): any {
-    if (!this._voiceFX) {
-      this._voiceFX = {
+    const rec = PlayerInternals.get(this);
+    if (!rec.voiceFX) {
+      rec.voiceFX = {
         setFX() {}, removeFX() {}, resetFX() {}, getFXType() { return 0; },
         setFXChorus() {}, setFXCompressor() {}, setFXDistortion() {}, setFXEcho() {},
         setFXFlanger() {}, setFXGargle() {}, setFXI3DL2Reverb() {}, setFXParamEQ() {}, setFXReverb() {},
       };
     }
-    return this._voiceFX;
+    return rec.voiceFX;
   }
 }

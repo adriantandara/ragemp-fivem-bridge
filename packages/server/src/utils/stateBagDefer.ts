@@ -1,8 +1,43 @@
-interface StateBagEntity {
-  _handle: number;
-  _varFlushScheduled: boolean;
-  _netIdReady: boolean;
-  _variables: Map<string, any>;
+import { VehicleInternals } from "../internal/vehicleInternals";
+import { PedInternals } from "../internal/pedInternals";
+import { ObjectInternals } from "../internal/objectInternals";
+import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
+
+type StateBagEntity = object;
+
+interface FlushFlags {
+  get varFlushScheduled(): boolean;
+  set varFlushScheduled(value: boolean);
+  set netIdReady(value: boolean);
+}
+
+function flagsFor(entity: StateBagEntity): FlushFlags {
+  switch (EntityInternals.get(entity).kind) {
+    case "ped": {
+      const rec = PedInternals.get(entity as any);
+      return {
+        get varFlushScheduled() { return rec.varFlushScheduled; },
+        set varFlushScheduled(v: boolean) { rec.varFlushScheduled = v; },
+        set netIdReady(v: boolean) { rec.netIdReady = v; },
+      };
+    }
+    case "object": {
+      const rec = ObjectInternals.get(entity as any);
+      return {
+        get varFlushScheduled() { return rec.varFlushScheduled; },
+        set varFlushScheduled(v: boolean) { rec.varFlushScheduled = v; },
+        set netIdReady(v: boolean) { rec.netIdReady = v; },
+      };
+    }
+    default: {
+      const rec = VehicleInternals.get(entity as any);
+      return {
+        get varFlushScheduled() { return rec.varFlushScheduled; },
+        set varFlushScheduled(v: boolean) { rec.varFlushScheduled = v; },
+        set netIdReady(v: boolean) { rec.netIdReady = v; },
+      };
+    }
+  }
 }
 
 function resolveNetId(handle: number): number {
@@ -16,13 +51,14 @@ function resolveNetId(handle: number): number {
 }
 
 export function scheduleStateBagFlush(entity: StateBagEntity, maxTries: number = 50, intervalMs: number = 50): void {
-  if (entity._varFlushScheduled) return;
-  entity._varFlushScheduled = true;
+  const flags = flagsFor(entity);
+  if (flags.varFlushScheduled) return;
+  flags.varFlushScheduled = true;
 
   const attempt = (tries: number): void => {
-    const handle = entity._handle;
+    const handle = EntityInternals.get(entity).handle;
     if (!handle || (typeof DoesEntityExist === "function" && !DoesEntityExist(handle))) {
-      entity._varFlushScheduled = false;
+      flags.varFlushScheduled = false;
       return;
     }
 
@@ -31,13 +67,13 @@ export function scheduleStateBagFlush(entity: StateBagEntity, maxTries: number =
       if (tries < maxTries) {
         setTimeout(() => attempt(tries + 1), intervalMs);
       } else {
-        entity._varFlushScheduled = false;
+        flags.varFlushScheduled = false;
       }
       return;
     }
 
-    entity._netIdReady = true;
-    entity._varFlushScheduled = false;
+    flags.netIdReady = true;
+    flags.varFlushScheduled = false;
 
     let bag: any = null;
     try {
@@ -46,7 +82,7 @@ export function scheduleStateBagFlush(entity: StateBagEntity, maxTries: number =
       bag = null;
     }
     if (!bag) return;
-    for (const [key, value] of entity._variables) {
+    for (const [key, value] of EntityInternals.get(entity).variables) {
       try {
         bag.set(key, value, true);
       } catch (e) {}

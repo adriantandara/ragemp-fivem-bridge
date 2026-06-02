@@ -1,4 +1,5 @@
 import { Vector3, Vector3Like } from "./Vector3";
+import { EntityInternals, initEntityInternals, type EntityInternalsRec } from "./internal/entityInternals";
 
 export const STATE_KEY_PREFIX = "rmp:";
 
@@ -7,91 +8,71 @@ interface StateBag {
   set(key: string, value: unknown, replicate: boolean): void;
 }
 
-export class Entity {
+function safeStateBag(rec: EntityInternalsRec): StateBag | null {
+  if (!rec.stateBagReady()) return null;
+  try {
+    return rec.stateBag();
+  } catch (e) {
+    return null;
+  }
+}
+
+export abstract class Entity {
   [key: string]: unknown;
   id: number;
-  _handle: number;
-  _kind: string;
-  _variables: Map<string, unknown> = new Map();
 
-  _alpha: number = 255;
-  _dimension: number = 0;
-  _model: number = 0;
-  _position: Vector3 | null = null;
-
-  _dataProxy: Record<string | symbol, unknown> | null = null;
-  _ownVariables: Map<string, unknown> | null = null;
-
-  constructor(id: number, type: string, handle: number) {
+  constructor(id: number, type: string, handle: number = 0) {
     this.id = id;
-    this._kind = type;
-    this._handle = handle;
+    initEntityInternals(this, type, handle);
   }
 
-  get handle() {
-    return this._handle;
+  get handle(): number {
+    return EntityInternals.get(this).handle;
   }
 
   get type(): string {
-    return this._kind;
+    return EntityInternals.get(this).kind;
   }
 
   get remoteId(): number {
     return this.id;
   }
 
-  get alpha(): number { return this._alpha; }
-  set alpha(v: number) { this._alpha = v; }
+  get alpha(): number { return EntityInternals.get(this).alpha; }
+  set alpha(v: number) { EntityInternals.get(this).alpha = v; }
 
-  get dimension(): number { return this._dimension; }
-  set dimension(v: number) { this._dimension = v; }
+  get dimension(): number { return EntityInternals.get(this).dimension; }
+  set dimension(v: number) { EntityInternals.get(this).dimension = v; }
 
-  get model(): number { return this._model; }
-  set model(v: number) { this._model = v; }
+  get model(): number { return EntityInternals.get(this).model; }
+  set model(v: number) { EntityInternals.get(this).model = v; }
 
-  get position(): Vector3 | null { return this._position; }
-  set position(v: Vector3 | null) { this._position = v; }
-
-  _stateBag(): StateBag | null {
-    return null;
-  }
-
-  _stateBagReady(): boolean {
-    return true;
-  }
-
-  _onVariableDeferred(): void {}
-
-  _safeStateBag(): StateBag | null {
-    if (!this._stateBagReady()) return null;
-    try {
-      return this._stateBag();
-    } catch (e) {
-      return null;
-    }
-  }
+  get position(): Vector3 | null { return EntityInternals.get(this).position; }
+  set position(v: Vector3 | null) { EntityInternals.get(this).position = v; }
 
   getVariable(key: string): unknown {
-    const bag = this._safeStateBag();
+    const rec = EntityInternals.get(this);
+    const bag = safeStateBag(rec);
     if (bag) {
       try {
         const value = bag[STATE_KEY_PREFIX + key];
         if (value !== undefined && value !== null) return value;
       } catch (e) {  }
     }
-    return this._variables.get(key);
+    return rec.variables.get(key);
   }
 
   setVariable(key: string, value: unknown): void {
-    this._variables.set(key, value);
-    const bag = this._safeStateBag();
+    const rec = EntityInternals.get(this);
+    rec.variables.set(key, value);
+    const bag = safeStateBag(rec);
     if (bag) {
       try {
         bag.set(STATE_KEY_PREFIX + key, value, true);
         return;
       } catch (e) {  }
     }
-    this._onVariableDeferred();
+    rec.onVariableDeferred();
   }
 
   hasVariable(key: string): boolean {
@@ -105,16 +86,17 @@ export class Entity {
   }
 
   get data(): Record<string | symbol, unknown> {
-    if (!this._dataProxy) {
+    const rec = EntityInternals.get(this);
+    if (!rec.dataProxy) {
       const self = this;
-      this._dataProxy = new Proxy({} as Record<string | symbol, unknown>, {
+      rec.dataProxy = new Proxy({} as Record<string | symbol, unknown>, {
         get(_: Record<string | symbol, unknown>, key: string | symbol): unknown { return self.getVariable(key as string); },
         set(_: Record<string | symbol, unknown>, key: string | symbol, value: unknown): boolean { self.setVariable(key as string, value); return true; },
         has(_: Record<string | symbol, unknown>, key: string | symbol): boolean { return self.hasVariable(key as string); },
         deleteProperty(_: Record<string | symbol, unknown>, key: string | symbol): boolean { self.setVariable(key as string, undefined); return true; },
       });
     }
-    return this._dataProxy!;
+    return rec.dataProxy!;
   }
 
   dist(position: Vector3Like): number {
@@ -128,8 +110,9 @@ export class Entity {
   }
 
   setOwnVariable(key: string, value: unknown): void {
-    if (!this._ownVariables) this._ownVariables = new Map();
-    this._ownVariables.set(key, value);
+    const rec = EntityInternals.get(this);
+    if (!rec.ownVariables) rec.ownVariables = new Map();
+    rec.ownVariables.set(key, value);
   }
 
   setOwnVariables(obj: Record<string, unknown>): void {
@@ -139,8 +122,9 @@ export class Entity {
   }
 
   getOwnVariable(key: string): unknown {
-    if (!this._ownVariables) return undefined;
-    return this._ownVariables.get(key);
+    const rec = EntityInternals.get(this);
+    if (!rec.ownVariables) return undefined;
+    return rec.ownVariables.get(key);
   }
 
   destroy(): void {

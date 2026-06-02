@@ -1,25 +1,25 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
+import { removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { DummyInternals, initDummyInternals } from "../internal/dummyInternals";
 
 export class DummyMp extends Entity {
   id: number;
-  _dummyType: number;
-  _data: Record<string, any>;
 
   constructor(id: number, dummyType: number, data: Record<string, any> | undefined) {
     super(id, "dummy");
-    this._dummyType = dummyType;
-    this._data = data ?? {};
+    initDummyInternals(this, dummyType, data);
   }
 
   get dummyType(): number {
-    return this._dummyType;
+    return DummyInternals.get(this).dummyType;
   }
 
   get data(): Record<string, any> {
-    return this._data;
+    return DummyInternals.get(this).data;
   }
 
   destroy(): void {
-    globalThis.mp?.dummies?._remove(this.id);
+    const pool = globalThis.mp?.dummies;
+    if (pool) removeFromPool(pool, this.id);
   }
 }

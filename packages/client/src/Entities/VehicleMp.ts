@@ -1,15 +1,14 @@
 import { EntityMpBase } from "./EntityMpBase";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { toVec3 } from "../utils/vec";
+import { VehicleInternals, initVehicleInternals } from "../internal/vehicleInternals";
+import { PlayerInternals } from "../internal/playerInternals";
+import { removeFromStreamingPool } from "../internal/pools/streamingService";
 
 export class VehicleMp extends EntityMpBase {
   constructor(id: number, handle: number) {
     super(id, "vehicle", handle);
-    this._handle = handle;
-  }
-
-  _stateBag(): any {
-    return globalThis.Entity(this._handle).state;
+    initVehicleInternals(this);
   }
 
   get speed(): number { return GetEntitySpeed(this.handle); }
@@ -68,7 +67,8 @@ export class VehicleMp extends EntityMpBase {
   set nosActive(_v: boolean) {}
   get nosAmount(): number { return 0; }
   set nosAmount(_v: number) {}
-  paintType: number = 0;
+  get paintType(): number { return VehicleInternals.get(this).paintType; }
+  set paintType(value: number) { VehicleInternals.get(this).paintType = value; }
 
   get controller(): any {
     const serverId = NetworkGetEntityOwner(this.handle);
@@ -155,7 +155,7 @@ export class VehicleMp extends EntityMpBase {
 
   getDoorAngleRatio(door: number): number { return GetVehicleDoorAngleRatio(this.handle, door); }
   getDoorLockStatus(): number { return GetVehicleDoorLockStatus(this.handle); }
-  getDoorsLockedForPlayer(player: any): boolean { return GetVehicleDoorsLockedForPlayer(this.handle, player?._playerIndex ?? player); }
+  getDoorsLockedForPlayer(player: any): boolean { return GetVehicleDoorsLockedForPlayer(this.handle, (player && PlayerInternals.peek(player)?.playerIndex) ?? player); }
   getNumberOfDoors(): number { return GetNumberOfVehicleDoors(this.handle); }
   getPedUsingDoor(doorIndex: number): number { return GetPedUsingVehicleDoor(this.handle, doorIndex); }
   isDoorDamaged(doorId: number): boolean { return IsVehicleDoorDamaged(this.handle, doorId); }
@@ -167,7 +167,7 @@ export class VehicleMp extends EntityMpBase {
   setDoorsShut(closeInstantly: boolean): void { SetVehicleDoorsShut(this.handle, closeInstantly ?? false); }
   setDoorsLocked(doorLockStatus: number): void { SetVehicleDoorsLocked(this.handle, doorLockStatus); }
   setDoorsLockedForAllPlayers(toggle: boolean): void { SetVehicleDoorsLockedForAllPlayers(this.handle, !!toggle); }
-  setDoorsLockedForPlayer(player: any, toggle: boolean): void { SetVehicleDoorsLockedForPlayer(this.handle, player?._playerIndex ?? player, !!toggle); }
+  setDoorsLockedForPlayer(player: any, toggle: boolean): void { SetVehicleDoorsLockedForPlayer(this.handle, (player && PlayerInternals.peek(player)?.playerIndex) ?? player, !!toggle); }
   setDoorsLockedForTeam(team: number, toggle: boolean): void { SetVehicleDoorsLockedForTeam(this.handle, team, !!toggle); }
   areAllWindowsIntact(): boolean { return AreAllVehicleWindowsIntact(this.handle); }
   isWindowIntact(windowIndex: number): boolean { return IsVehicleWindowIntact(this.handle, windowIndex); }
@@ -243,7 +243,7 @@ export class VehicleMp extends EntityMpBase {
 
     const ratios = [];
     for (let i = 0; i < gearCount; i++) {
-      ratios.push(GetVehicleGearRatio(this._handle, i));
+      ratios.push(GetVehicleGearRatio(this.handle, i));
     }
     return ratios;
   }
@@ -252,7 +252,7 @@ export class VehicleMp extends EntityMpBase {
     if (!Array.isArray(ratios)) return;
 
     for (let i = 0; i < ratios.length; i++) {
-      SetVehicleGearRatio(this._handle, i, ratios[i]);
+      SetVehicleGearRatio(this.handle, i, ratios[i]);
     }
   }
 
@@ -390,6 +390,6 @@ export class VehicleMp extends EntityMpBase {
   destroy(): void {
     SetEntityAsMissionEntity(this.handle, false, true);
     DeleteEntity(this.handle);
-    globalThis.mp.vehicles._remove(this.id);
+    if (globalThis.mp.vehicles) removeFromStreamingPool(globalThis.mp.vehicles, this.id);
   }
 }

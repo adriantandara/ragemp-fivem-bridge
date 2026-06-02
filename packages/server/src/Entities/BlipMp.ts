@@ -1,17 +1,8 @@
 import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
+import { BlipInternals, initBlipInternals } from "../internal/blipInternals";
+import { removeFromPool, EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 
 export class BlipMp extends Entity {
-  _position: Vector3;
-  _sprite: number;
-  _color: number;
-  _scale: number;
-  _name: string;
-  _shortRange: boolean;
-  _alpha: number;
-  _dimension: number;
-  _drawDistance: number;
-  _rotation: number;
-
   constructor(id: number, sprite: number, position: Vector3, options: {
     color?: number;
     scale?: number;
@@ -23,16 +14,19 @@ export class BlipMp extends Entity {
     rotation?: number;
   } = {}) {
     super(id, "blip");
-    this._sprite = sprite;
-    this._position = position;
-    this._color = options.color ?? 0;
-    this._scale = options.scale ?? 1.0;
-    this._name = options.name ?? "";
-    this._shortRange = options.shortRange ?? false;
-    this._alpha = options.alpha ?? 255;
-    this._dimension = options.dimension ?? 0;
-    this._drawDistance = options.drawDistance ?? 0;
-    this._rotation = options.rotation ?? 0;
+    const rec = EntityInternals.get(this);
+    rec.position = position;
+    rec.alpha = options.alpha ?? 255;
+    rec.dimension = options.dimension ?? 0;
+    initBlipInternals(this, {
+      sprite,
+      color: options.color ?? 0,
+      scale: options.scale ?? 1.0,
+      name: options.name ?? "",
+      shortRange: options.shortRange ?? false,
+      drawDistance: options.drawDistance ?? 0,
+      rotation: options.rotation ?? 0,
+    });
   }
 
   _sync(): void {
@@ -40,110 +34,112 @@ export class BlipMp extends Entity {
   }
 
   toData(): Record<string, any> {
+    const rec = BlipInternals.get(this);
+    const ent = EntityInternals.get(this);
     return {
       id: this.id,
-      sprite: this._sprite,
-      x: this._position.x,
-      y: this._position.y,
-      z: this._position.z,
-      color: this._color,
-      scale: this._scale,
-      name: this._name,
-      shortRange: this._shortRange,
-      alpha: this._alpha,
-      dimension: this._dimension,
-      drawDistance: this._drawDistance,
-      rotation: this._rotation,
+      sprite: rec.sprite,
+      x: ent.position!.x,
+      y: ent.position!.y,
+      z: ent.position!.z,
+      color: rec.color,
+      scale: rec.scale,
+      name: rec.name,
+      shortRange: rec.shortRange,
+      alpha: ent.alpha,
+      dimension: ent.dimension,
+      drawDistance: rec.drawDistance,
+      rotation: rec.rotation,
     };
   }
 
   get position(): Vector3 {
-    return this._position;
+    return EntityInternals.get(this).position!;
   }
 
   set position(value: Vector3) {
-    this._position = value;
+    EntityInternals.get(this).position = value;
     this._sync();
   }
 
   get sprite(): number {
-    return this._sprite;
+    return BlipInternals.get(this).sprite;
   }
 
   set sprite(value: number) {
-    this._sprite = value;
+    BlipInternals.get(this).sprite = value;
     this._sync();
   }
 
   get color(): number {
-    return this._color;
+    return BlipInternals.get(this).color;
   }
 
   set color(value: number) {
-    this._color = value;
+    BlipInternals.get(this).color = value;
     this._sync();
   }
 
   get scale(): number {
-    return this._scale;
+    return BlipInternals.get(this).scale;
   }
 
   set scale(value: number) {
-    this._scale = value;
+    BlipInternals.get(this).scale = value;
     this._sync();
   }
 
   get name(): string {
-    return this._name;
+    return BlipInternals.get(this).name;
   }
 
   set name(value: string) {
-    this._name = value;
+    BlipInternals.get(this).name = value;
     this._sync();
   }
 
   get shortRange(): boolean {
-    return this._shortRange;
+    return BlipInternals.get(this).shortRange;
   }
 
   set shortRange(value: boolean) {
-    this._shortRange = value;
+    BlipInternals.get(this).shortRange = value;
     this._sync();
   }
 
   get alpha(): number {
-    return this._alpha;
+    return EntityInternals.get(this).alpha;
   }
 
   set alpha(value: number) {
-    this._alpha = value;
+    EntityInternals.get(this).alpha = value;
     this._sync();
   }
 
   get dimension(): number {
-    return this._dimension;
+    return EntityInternals.get(this).dimension;
   }
 
   set dimension(value: number) {
-    this._dimension = value;
+    EntityInternals.get(this).dimension = value;
     this._sync();
   }
 
   get drawDistance(): number {
-    return this._drawDistance;
+    return BlipInternals.get(this).drawDistance;
   }
 
   set drawDistance(value: number) {
-    this._drawDistance = value;
+    BlipInternals.get(this).drawDistance = value;
     this._sync();
   }
 
   get rotation(): number {
-    return this._rotation;
+    return BlipInternals.get(this).rotation;
   }
 
   set rotation(value: number) {
-    this._rotation = value;
+    BlipInternals.get(this).rotation = value;
     this._sync();
   }
 
@@ -159,6 +155,6 @@ export class BlipMp extends Entity {
 
   destroy(): void {
     emitNet("ragemp:blipDestroy", -1, this.id);
-    globalThis.mp.blips._remove(this.id);
+    removeFromPool(globalThis.mp.blips, this.id);
   }
 }

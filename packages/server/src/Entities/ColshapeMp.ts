@@ -1,54 +1,61 @@
 import { Entity, Vector3, colshapeContains } from "@ragemp-fivem-bridge/shared";
+import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
+import { ColshapeInternals, initColshapeInternals } from "../internal/colshapeInternals";
+import { removeFromColshapePool } from "../internal/pools/colshapePoolService";
 
 export class ColshapeMp extends Entity {
-  _shapeType: string;
-  _params: Record<string, any>;
-
   constructor(id: number, shapeType: string, position: Vector3, params: Record<string, any> | null, dimension: number = 0) {
     super(id, "colshape");
-    this._shapeType = shapeType;
-    this._position = position;
-    this._params = params ?? {};
-    this._dimension = dimension;
+    const rec = EntityInternals.get(this);
+    rec.position = position;
+    rec.dimension = dimension;
+    initColshapeInternals(this, {
+      shapeType,
+      params: params ?? {},
+    });
   }
 
   get shapeType(): string {
-    return this._shapeType;
+    return ColshapeInternals.get(this).shapeType;
   }
 
   get position(): Vector3 {
-    return this._position;
+    return EntityInternals.get(this).position!;
   }
 
   set position(value: Vector3) {
-    this._position = value;
+    EntityInternals.get(this).position = value;
     globalThis.mp?.colshapes?._onColshapeChanged?.(this);
   }
 
   get dimension(): number {
-    return this._dimension;
+    return EntityInternals.get(this).dimension;
   }
 
   set dimension(value: number) {
-    this._dimension = value;
+    EntityInternals.get(this).dimension = value;
     globalThis.mp?.colshapes?._onColshapeChanged?.(this);
   }
 
   isPointWithin(point: Vector3, margin: number = 0): boolean {
-    return colshapeContains(this._shapeType, this._position, this._params, point, margin);
+    const rec = ColshapeInternals.get(this);
+    return colshapeContains(rec.shapeType, EntityInternals.get(this).position!, rec.params, point, margin);
   }
 
   toData(): Record<string, any> {
+    const rec = ColshapeInternals.get(this);
+    const ent = EntityInternals.get(this);
     return {
       id: this.id,
-      shapeType: this._shapeType,
-      position: { x: this._position.x, y: this._position.y, z: this._position.z },
-      params: this._params,
-      dimension: this._dimension,
+      shapeType: rec.shapeType,
+      position: { x: ent.position!.x, y: ent.position!.y, z: ent.position!.z },
+      params: rec.params,
+      dimension: ent.dimension,
     };
   }
 
   destroy(): void {
-    globalThis.mp?.colshapes?._remove(this.id);
+    const pool = globalThis.mp?.colshapes;
+    if (pool) removeFromColshapePool(pool, this.id);
   }
 }

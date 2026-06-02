@@ -1,66 +1,70 @@
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { PedMpBase } from "./PedMpBase";
+import { PedInternals, initPedInternals } from "../internal/pedInternals";
+import { removeFromStreamingPool } from "../internal/pools/streamingService";
 
 export class PedMp extends PedMpBase {
-  _invincible: boolean = false;
-  _dynamic: boolean = false;
-  spawnPosition: Vector3 | null = null;
-
   constructor(id: number, handle: number) {
     super(id, "ped");
-    this._handle = handle;
+    EntityInternals.get(this).handle = handle;
+    initPedInternals(this);
   }
 
-  _stateBag(): any {
-    return globalThis.Entity(this._handle).state;
+  get spawnPosition(): Vector3 | null {
+    return PedInternals.get(this).spawnPosition;
+  }
+  set spawnPosition(value: Vector3 | null) {
+    PedInternals.get(this).spawnPosition = value;
   }
 
   get isDynamic(): boolean {
-    return this._dynamic;
+    return PedInternals.get(this).dynamic;
   }
   set isDynamic(value: boolean) {
-    this._dynamic = !!value;
+    PedInternals.get(this).dynamic = !!value;
   }
   get dynamic(): boolean {
-    return this._dynamic;
+    return PedInternals.get(this).dynamic;
   }
   set dynamic(value: boolean) {
-    this._dynamic = !!value;
+    PedInternals.get(this).dynamic = !!value;
   }
 
   get invincible(): boolean {
-    return this._invincible;
+    return PedInternals.get(this).invincible;
   }
   set invincible(value: boolean) {
-    this._invincible = !!value;
-    SetEntityInvincible(this._handle, !!value);
+    PedInternals.get(this).invincible = !!value;
+    SetEntityInvincible(this.handle, !!value);
   }
   setInvincible(toggle: boolean): void {
-    this._invincible = !!toggle;
-    SetEntityInvincible(this._handle, !!toggle);
+    PedInternals.get(this).invincible = !!toggle;
+    SetEntityInvincible(this.handle, !!toggle);
   }
 
   get frozen(): boolean {
-    return IsEntityPositionFrozen(this._handle);
+    return IsEntityPositionFrozen(this.handle);
   }
   set frozen(value: boolean) {
-    FreezeEntityPosition(this._handle, !!value);
+    FreezeEntityPosition(this.handle, !!value);
   }
   get isPositionFrozen(): boolean {
-    return IsEntityPositionFrozen(this._handle);
+    return IsEntityPositionFrozen(this.handle);
   }
 
   get controller(): any {
-    const serverId = NetworkGetEntityOwner(this._handle);
+    const serverId = NetworkGetEntityOwner(this.handle);
     if (!serverId) return null;
     return (globalThis as any).mp?.players?.at?.(serverId) ?? null;
   }
 
   destroy(): void {
-    if (this._handle && DoesEntityExist(this._handle)) {
-      SetEntityAsMissionEntity(this._handle, false, true);
-      DeleteEntity(this._handle);
+    if (this.handle && DoesEntityExist(this.handle)) {
+      SetEntityAsMissionEntity(this.handle, false, true);
+      DeleteEntity(this.handle);
     }
-    (globalThis as any).mp.peds._remove(this.id);
+    const pool = (globalThis as any).mp.peds;
+    if (pool) removeFromStreamingPool(pool, this.id);
   }
 }

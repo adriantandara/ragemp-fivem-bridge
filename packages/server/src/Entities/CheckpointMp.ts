@@ -1,32 +1,29 @@
 import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
-
-type CheckpointColor = { r: number; g: number; b: number; a: number };
+import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
+import { CheckpointInternals, initCheckpointInternals, type CheckpointColor } from "../internal/checkpointInternals";
+import { removeFromCheckpointPool } from "../internal/pools/checkpointPoolService";
 
 export class CheckpointMp extends Entity {
-  _type: number;
-  _position: Vector3;
-  _nextPosition: Vector3;
-  _radius: number;
-  _color: CheckpointColor;
-  _dimension: number;
-  _visible: boolean;
-
   constructor(id: number, type: number, position: Vector3, nextPosition: Vector3 | null, radius: number, options: {
     color?: [number, number, number, number] | CheckpointColor;
     dimension?: number;
     visible?: boolean;
   } = {}) {
     super(id, "checkpoint");
-    this._type = type;
-    this._position = position;
-    this._nextPosition = nextPosition ?? new Vector3(0, 0, 0);
-    this._radius = radius;
+    const ent = EntityInternals.get(this);
+    ent.position = position;
+    ent.dimension = options.dimension ?? 0;
     const c = options.color;
-    this._color = Array.isArray(c)
+    const color: CheckpointColor = Array.isArray(c)
       ? { r: c[0] ?? 255, g: c[1] ?? 0, b: c[2] ?? 0, a: c[3] ?? 150 }
       : (c ?? { r: 255, g: 0, b: 0, a: 150 });
-    this._dimension = options.dimension ?? 0;
-    this._visible = options.visible ?? true;
+    initCheckpointInternals(this, {
+      type,
+      nextPosition: nextPosition ?? new Vector3(0, 0, 0),
+      radius,
+      color,
+      visible: options.visible ?? true,
+    });
   }
 
   _sync(): void {
@@ -34,95 +31,98 @@ export class CheckpointMp extends Entity {
   }
 
   toData(): Record<string, any> {
+    const rec = CheckpointInternals.get(this);
+    const ent = EntityInternals.get(this);
     return {
       id: this.id,
-      type: this._type,
-      x: this._position.x,
-      y: this._position.y,
-      z: this._position.z,
-      nextX: this._nextPosition.x,
-      nextY: this._nextPosition.y,
-      nextZ: this._nextPosition.z,
-      radius: this._radius,
-      r: this._color.r,
-      g: this._color.g,
-      b: this._color.b,
-      a: this._color.a,
-      dimension: this._dimension,
-      visible: this._visible,
+      type: rec.type,
+      x: ent.position!.x,
+      y: ent.position!.y,
+      z: ent.position!.z,
+      nextX: rec.nextPosition.x,
+      nextY: rec.nextPosition.y,
+      nextZ: rec.nextPosition.z,
+      radius: rec.radius,
+      r: rec.color.r,
+      g: rec.color.g,
+      b: rec.color.b,
+      a: rec.color.a,
+      dimension: ent.dimension,
+      visible: rec.visible,
     };
   }
 
   get position(): Vector3 {
-    return this._position;
+    return EntityInternals.get(this).position!;
   }
 
   set position(value: Vector3) {
-    this._position = value;
+    EntityInternals.get(this).position = value;
     this._sync();
   }
 
   get nextPosition(): Vector3 {
-    return this._nextPosition;
+    return CheckpointInternals.get(this).nextPosition;
   }
 
   set nextPosition(value: Vector3) {
-    this._nextPosition = value;
+    CheckpointInternals.get(this).nextPosition = value;
     this._sync();
   }
 
   get radius(): number {
-    return this._radius;
+    return CheckpointInternals.get(this).radius;
   }
 
   set radius(value: number) {
-    this._radius = value;
+    CheckpointInternals.get(this).radius = value;
     this._sync();
   }
 
   get color(): CheckpointColor {
-    return this._color;
+    return CheckpointInternals.get(this).color;
   }
 
   set color(value: CheckpointColor) {
-    this._color = value;
+    CheckpointInternals.get(this).color = value;
     this._sync();
   }
 
   // Override Entity.type (string) with checkpoint type (number) — runtime shadowing; any suppresses base mismatch
   get type(): any {
-    return this._type;
+    return CheckpointInternals.get(this).type;
   }
 
   set type(value: any) {
-    this._type = value;
+    CheckpointInternals.get(this).type = value;
     this._sync();
   }
 
   get dimension(): number {
-    return this._dimension;
+    return EntityInternals.get(this).dimension;
   }
 
   set dimension(value: number) {
-    this._dimension = value;
+    EntityInternals.get(this).dimension = value;
     this._sync();
   }
 
   get visible(): boolean {
-    return this._visible;
+    return CheckpointInternals.get(this).visible;
   }
 
   set visible(value: boolean) {
-    this._visible = value;
+    CheckpointInternals.get(this).visible = value;
     this._sync();
   }
 
   getColor(): number[] {
-    return [this._color.r, this._color.g, this._color.b, this._color.a];
+    const c = CheckpointInternals.get(this).color;
+    return [c.r, c.g, c.b, c.a];
   }
 
   setColor(r: number, g: number, b: number, a: number): void {
-    this._color = { r, g, b, a };
+    CheckpointInternals.get(this).color = { r, g, b, a };
     this._sync();
   }
 
@@ -136,6 +136,6 @@ export class CheckpointMp extends Entity {
 
   destroy(): void {
     emitNet("ragemp:checkpointDestroy", -1, this.id);
-    globalThis.mp.checkpoints._remove(this.id);
+    removeFromCheckpointPool(globalThis.mp.checkpoints, this.id);
   }
 }

@@ -1,0 +1,119 @@
+import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
+import { scheduleStateBagFlush } from "../utils/stateBagDefer";
+import { whenNetworked } from "../utils/whenNetworked";
+import { STATIC_OBJECT_FLAG } from "./objectFlags";
+import { ObjectInternals, initObjectInternals } from "../internal/objectInternals";
+import { objectNetIdMap, removeFromObjectPool } from "../internal/pools/objectPoolService";
+import { handlePoolStore, EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
+
+export class ObjectMp extends Entity {
+  constructor(id: number, handle: number) {
+    super(id, "object", handle);
+    initObjectInternals(this);
+    const rec = EntityInternals.get(this);
+    rec.stateBag = () => globalThis.Entity(this.handle).state;
+    rec.stateBagReady = () => ObjectInternals.get(this).netIdReady === true;
+    rec.onVariableDeferred = () => scheduleStateBagFlush(this as any);
+  }
+
+  get position(): Vector3 {
+    const coords = GetEntityCoords(this.handle);
+    return new Vector3(coords[0], coords[1], coords[2]);
+  }
+
+  set position(value: Vector3) {
+    SetEntityCoords(this.handle, value.x, value.y, value.z, false, false, false, false);
+  }
+
+  get rotation(): Vector3 {
+    const rot = GetEntityRotation(this.handle);
+    return new Vector3(rot[0], rot[1], rot[2]);
+  }
+
+  set rotation(value: Vector3) {
+    SetEntityRotation(this.handle, value.x, value.y, value.z, 2, false);
+  }
+
+  get model(): number {
+    return EntityInternals.get(this).model || GetEntityModel(this.handle);
+  }
+
+  set model(value: number | string) {
+    const modelHash = typeof value === "string" ? GetHashKey(value) : value;
+
+    if (!DoesEntityExist(this.handle)) {
+      EntityInternals.get(this).model = modelHash;
+      return;
+    }
+
+    const ent = EntityInternals.get(this);
+    const rec = ObjectInternals.get(this);
+    const coords = GetEntityCoords(this.handle);
+    const rot = GetEntityRotation(this.handle);
+    const dimension = GetEntityRoutingBucket(this.handle);
+    const alpha = ent.alpha;
+
+    const pool = globalThis.mp.objects;
+    handlePoolStore(pool).handleToEntity.delete(this.handle);
+    if (rec.cachedNetId !== undefined) {
+      objectNetIdMap(pool).delete(rec.cachedNetId);
+      rec.cachedNetId = undefined;
+    }
+    DeleteEntity(this.handle);
+
+    const handle = CreateObjectNoOffset(modelHash, coords[0], coords[1], coords[2], true, true, false);
+    ent.handle = handle;
+    ent.model = modelHash;
+    rec.netIdReady = false;
+    handlePoolStore(pool).handleToEntity.set(handle, this as any);
+
+    FreezeEntityPosition(handle, true);
+    SetEntityRotation(handle, rot[0], rot[1], rot[2], 2, false);
+
+    if (dimension !== 0) {
+      SetEntityRoutingBucket(handle, dimension);
+    }
+
+    whenNetworked(handle, (netId: number) => {
+      objectNetIdMap(pool).set(netId, this);
+      rec.cachedNetId = netId;
+      rec.netIdReady = true;
+
+      try {
+        globalThis.Entity(handle).state.set(STATIC_OBJECT_FLAG, true, true);
+      } catch (e) {}
+
+      if (alpha !== 255) {
+        emitNet("ragemp:objectAlpha", -1, netId, alpha);
+      }
+
+      if (EntityInternals.get(this).variables.size) scheduleStateBagFlush(this as any);
+    });
+  }
+
+  get alpha(): number {
+    return EntityInternals.get(this).alpha;
+  }
+
+  set alpha(value: number) {
+    EntityInternals.get(this).alpha = value;
+    whenNetworked(this.handle, (netId: number) => {
+      if (EntityInternals.get(this).alpha === value) {
+        emitNet("ragemp:objectAlpha", -1, netId, value);
+      }
+    });
+  }
+
+  get dimension(): number {
+    return GetEntityRoutingBucket(this.handle);
+  }
+
+  set dimension(value: number) {
+    SetEntityRoutingBucket(this.handle, value);
+  }
+
+  destroy(): void {
+    DeleteEntity(this.handle);
+    removeFromObjectPool(globalThis.mp.objects, this.id);
+  }
+}

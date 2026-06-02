@@ -1,0 +1,86 @@
+import { Entity } from "@ragemp-fivem-bridge/shared";
+import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { TextLabelInternals, initTextLabelInternals } from "../internal/textLabelInternals";
+
+export class TextLabelMp extends Entity {
+  id: number;
+
+  constructor(id: number) {
+    super(id, "textlabel");
+    initTextLabelInternals(this);
+  }
+
+  get position(): Vector3 | undefined {
+    return TextLabelInternals.get(this).position;
+  }
+
+  set position(value: Vector3 | undefined) {
+    TextLabelInternals.get(this).position = value;
+  }
+
+  get text(): string | undefined {
+    return TextLabelInternals.get(this).text;
+  }
+
+  set text(value: string | undefined) {
+    TextLabelInternals.get(this).text = value;
+  }
+
+  get color(): { r: number; g: number; b: number; a: number } {
+    const rec = TextLabelInternals.get(this);
+    return { r: rec.r, g: rec.g, b: rec.b, a: rec.a };
+  }
+
+  set color(value: { r?: number; g?: number; b?: number; a?: number }) {
+    const rec = TextLabelInternals.get(this);
+    rec.r = value.r ?? rec.r;
+    rec.g = value.g ?? rec.g;
+    rec.b = value.b ?? rec.b;
+    rec.a = value.a ?? rec.a;
+  }
+
+  get drawDistance(): number {
+    return TextLabelInternals.get(this).drawDistance;
+  }
+
+  set drawDistance(value: number) {
+    TextLabelInternals.get(this).drawDistance = value;
+  }
+
+  get los(): boolean {
+    return TextLabelInternals.get(this).los;
+  }
+
+  set los(value: boolean) {
+    TextLabelInternals.get(this).los = value;
+  }
+
+  get font(): number {
+    return TextLabelInternals.get(this).font;
+  }
+
+  set font(value: number) {
+    TextLabelInternals.get(this).font = value;
+  }
+
+  get visible(): boolean {
+    return TextLabelInternals.get(this).visible;
+  }
+
+  set visible(value: boolean) {
+    TextLabelInternals.get(this).visible = value;
+  }
+
+  get dimension(): number {
+    return TextLabelInternals.get(this).dimension;
+  }
+
+  set dimension(value: number) {
+    TextLabelInternals.get(this).dimension = value;
+  }
+
+  destroy(): void {
+    if (globalThis.mp.labels) removeFromPool(globalThis.mp.labels, this.id);
+  }
+}

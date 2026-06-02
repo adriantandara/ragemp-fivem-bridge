@@ -1,6 +1,6 @@
 # RAGE:MP → FiveM Bridge
 
-Run your RAGE:MP JavaScript gamemode on a FiveM server with minimal changes. The bridge reimplements the `mp.*` API surface on top of FiveM natives — players, vehicles, events, commands, blips, checkpoints, markers, colshapes, pickups, dummies, browsers (NUI), world, game utilities, and RPC.
+Run your RAGE:MP JavaScript gamemode on a FiveM server with minimal changes. The bridge reimplements the `mp.*` API surface on top of FiveM natives — players, vehicles, events, commands, blips, checkpoints, markers, colshapes, pickups, dummies, browsers (NUI), world, and game utilities.
 
 > **JavaScript gamemodes only.** TypeScript declarations are included for IDE autocomplete.
 

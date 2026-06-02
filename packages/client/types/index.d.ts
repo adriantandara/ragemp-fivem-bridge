@@ -48,7 +48,6 @@ export interface ClientMp {
   user: UserMp;
   system: SystemMp;
   game: GameMp;
-  rpc: ClientRpc;
   spawnmanager: {
     setAutoSpawn(state: boolean): void;
     readonly autoSpawn: boolean;
@@ -59,27 +58,6 @@ export interface ClientMp {
     readonly isSpawning: boolean;
     readonly hasSpawned: boolean;
   };
-}
-
-export interface RpcCallOptions {
-  timeout?: number;
-  noRet?: boolean;
-}
-
-export interface ClientRpc {
-  register(name: string, cb: (args: any, info: { environment: string; id?: string; browser?: BrowserMp }) => any): () => void;
-  unregister(name: string): void;
-  call<T = any>(name: string, args?: any, options?: RpcCallOptions): Promise<T>;
-  callServer<T = any>(name: string, args?: any, options?: RpcCallOptions): Promise<T>;
-  callBrowser<T = any>(browser: BrowserMp, name: string, args?: any, options?: RpcCallOptions): Promise<T>;
-  callBrowsers<T = any>(name: string, args?: any, options?: RpcCallOptions): Promise<T>;
-  on(name: string, cb: (args: any, info: any) => void): () => void;
-  off(name: string, cb: (args: any, info: any) => void): void;
-  trigger(name: string, args?: any): void;
-  triggerServer(name: string, args?: any): void;
-  triggerBrowser(browser: BrowserMp, name: string, args?: any): void;
-  triggerBrowsers(name: string, args?: any): void;
-  setDebugMode(state: boolean): void;
 }
 
 export interface PlayerMp extends EntityMp {
@@ -112,6 +90,7 @@ export interface PlayerMp extends EntityMp {
   voice3d: boolean;
 
   call(eventName: string, ...args: any[]): void;
+  getVehicleIsTryingToEnter(): number;
   setModel(model: HashOrString): void;
   setControl(state: boolean): void;
   setEveryoneIgnore(state: boolean): void;
@@ -223,6 +202,7 @@ export interface PedMp extends EntityMp {
   controller: PlayerMp | null;
   frozen: boolean;
   invincible: boolean;
+  getVehicleIsTryingToEnter(): number;
 }
 
 export interface PedMpPool extends EntityMpPool<PedMp> {
@@ -390,7 +370,7 @@ export interface EventManagerMp {
   callRemoteProc<T = any>(procName: string, ...args: any[]): Promise<T>;
   callBrowser(browser: BrowserMp, eventName: string, ...args: any[]): void;
   remove(eventName: string, handler?: (...args: any[]) => void): void;
-  addDataHandler(key: string, handler: (...args: any[]) => void): void;
+  addDataHandler(key: string, handler: (entity: EntityMp, value: any, oldValue: any) => void): void;
   addProc<T = any>(procName: string, handler: (...args: any[]) => T | Promise<T>): void;
   cancelPendingProc(procName: string): void;
   hasPendingProc(procName: string): boolean;

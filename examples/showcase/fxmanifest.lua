@@ -14,7 +14,6 @@ server_scripts {
     'server/02-players.js',
     'server/03-vehicles.js',
     'server/04-world-objects.js',
-    'server/05-rpc.js',
     'server/06-prototype.js',
     'server/07-browsers.js',
 }
@@ -25,7 +24,6 @@ client_scripts {
     'client/02-keys-cursor.js',
     'client/03-vehicles.js',
     'client/04-camera-raycast.js',
-    'client/05-rpc.js',
     'client/06-prototype.js',
     'client/07-browsers.js',
     'client/08-natives-test.js',

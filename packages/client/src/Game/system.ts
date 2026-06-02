@@ -50,7 +50,7 @@ export class GameSystemNs {
     const r = StartNewStreamedScriptWithArgs(scriptHash, args, argCount); // unverified
     return Array.isArray(r) ? { result: r[0], args: r[1] } : { result: r, args };
   }
-  setThreadPriority(priority: number): void { SetThisThreadPriority(priority); }
+  setThreadPriority(priority: number): void { SetThreadPriority(priority); }
   setConnectableServers(serverIps: string[]): void { SetConnectableServers(serverIps); } // unverified
   connectToServer(ip: string, port: number, sessionData?: string): void { ConnectToServer(ip, port, sessionData); } // unverified
 }

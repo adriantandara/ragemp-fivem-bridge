@@ -561,7 +561,7 @@ export class EventManager extends EventEmitter {
   _tickVehicleAudio(): void {
     const vehHandle = this._wasInVehicle ? this._lastVehicleHandle : 0;
     if (vehHandle !== 0) {
-      const isHornActive = IsVehicleHornActive(vehHandle);
+      const isHornActive = IsHornActive(vehHandle);
       if (isHornActive !== this._lastHornState) {
         this._lastHornState = isHornActive;
         emitNet("ragemp:vehicleHorn", safeGetNetworkId(vehHandle), isHornActive);

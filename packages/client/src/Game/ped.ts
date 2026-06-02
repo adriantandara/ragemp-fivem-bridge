@@ -286,7 +286,7 @@ export class GamePedNs {
   wasKilledByTakedown(ped: number): boolean { return WasPedKilledByTakedown(ped); }
   wasKnockedOut(ped: number): boolean { return WasPedKnockedOut(ped); }
 
-  createGroup(unused: number): number { return CreatePedGroup(unused ?? 0); }
+  createGroup(unused: number): number { return Citizen.invokeNative("0x90370EBE0FEE1A3D", Citizen.resultAsInteger(), unused ?? 0); }
   setAsGroupLeader(ped: number, groupHandle: number): void { SetPedAsGroupLeader(ped, groupHandle); }
   setAsGroupMember(ped: number, groupHandle: number): void { SetPedAsGroupMember(ped, groupHandle); }
   setCanTeleportToGroupLeader(pedHandle: number, groupHandle: number, toggle: boolean): void { SetPedCanTeleportToGroupLeader(pedHandle, groupHandle, toggle); }
@@ -533,7 +533,7 @@ export class GamePedNs {
   clearAllProps(ped: number): void { ClearAllPedProps(ped); }
   knockOffProp(ped: number, p1: boolean, p2: boolean, p3: boolean, p4: boolean): void { KnockOffPedProp(ped, p1, p2, p3, p4); }
 
-  getEyeColor(ped: number): number { return GetHeadBlendEyeColor(ped); }
+  getEyeColor(ped: number): number { return Citizen.invokeNative("0x76BBA2CEE66D47E9", Citizen.resultAsInteger(), ped); }
   getHeadBlendData(ped: number): number { return (GetPedHeadBlendData as any)(ped); } // NOTE: native returns [boolean,number] per typings
   getHeadOverlayValue(ped: number, overlayID: number): number { return GetPedHeadOverlayValue(ped, overlayID); } // unverified
   getNumHairColors(): number { return GetNumHairColors(); } // unverified
@@ -542,11 +542,11 @@ export class GamePedNs {
   getHairRgbColor(hairColorIndex: number): { outR: number; outG: number; outB: number } { const r = GetPedHairRgbColor(hairColorIndex); return { outR: r[0], outG: r[1], outB: r[2] }; } // unverified
   getMakeupRgbColor(makeupColorIndex: number): { outR: number; outG: number; outB: number } { const r = GetPedMakeupRgbColor(makeupColorIndex); return { outR: r[0], outG: r[1], outB: r[2] }; } // unverified
   isHairColorValid(colorID: number): boolean { return IsPedHairColorValid(colorID); } // unverified
-  isHairColorValid2(colorId: number): boolean { return IsPedHairColorValid2(colorId); } // unverified
+  isHairColorValid2(colorId: number): boolean { return IsPedHairColorValid_2(colorId); } // unverified
   isLipstickColorValid(colorID: number): boolean { return IsPedLipstickColorValid(colorID); } // unverified
-  isLipstickColorValid2(colorId: number): boolean { return IsPedLipstickColorValid2(colorId); } // unverified
+  isLipstickColorValid2(colorId: number): boolean { return IsPedLipstickColorValid_2(colorId); } // unverified
   isBlushColorValid(colorID: number): boolean { return IsPedBlushColorValid(colorID); } // unverified
-  isBlushColorValid2(colorId: number): boolean { return IsPedBlushColorValid2(colorId); } // unverified
+  isBlushColorValid2(colorId: number): boolean { return IsPedBlushColorValid_2(colorId); } // unverified
   isBodyBlemishValid(colorId: number): boolean { return IsPedBodyBlemishValid(colorId); } // unverified
 
   setEmissiveIntensity(ped: number, intensity: number): void { SetPedEmissiveIntensity(ped, intensity); } // unverified
@@ -559,12 +559,12 @@ export class GamePedNs {
   setDefensiveSphereAttachedToVehicle(ped: number, target: number, xOffset: number, yOffset: number, zOffset: number, radius: number, p6: boolean): void { SetPedDefensiveSphereAttachedToVehicle(ped, target, xOffset, yOffset, zOffset, radius, p6); }
   setDefensiveAreaAttachedToPed(ped: number, attachPed: number, p2: number, p3: number, p4: number, p5: number, p6: number, p7: number, p8: number, p9: boolean, p10: boolean): void { SetPedDefensiveAreaAttachedToPed(ped, attachPed, p2, p3, p4, p5, p6, p7, p8, p9, p10); }
 
-  setCoverClipsetOverride(ped: number, p1: string): void { SetPedMotionInCoverClipsetOverride(ped, p1); }
-  clearCoverClipsetOverride(ped: number): void { ClearPedMotionInCoverClipsetOverride(ped); }
+  setCoverClipsetOverride(ped: number, p1: string): void { Citizen.invokeNative("0x9DBA107B4937F809", ped, p1); }
+  clearCoverClipsetOverride(ped: number): void { ClearPedCoverClipsetOverride(ped); }
   isScriptedScenarioUsingConditionalAnim(ped: number, animDict: string, anim: string): boolean { return IsScriptedScenarioPedUsingConditionalAnim(ped, animDict, anim); }
   getAnimInitialOffsetPosition(animDict: string, animName: string, x: number, y: number, z: number, xRot: number, yRot: number, zRot: number, p8: number, p9: number): Vector3 { return toVec3(GetAnimInitialOffsetPosition(animDict, animName, x, y, z, xRot, yRot, zRot, p8, p9)); }
   getAnimInitialOffsetRotation(animDict: string, animName: string, x: number, y: number, z: number, xRot: number, yRot: number, zRot: number, p8: number, p9: number): Vector3 { return toVec3(GetAnimInitialOffsetRotation(animDict, animName, x, y, z, xRot, yRot, zRot, p8, p9)); }
-  setFacialClipsetOverride(ped: number, animDict: string): void { SetFacialClipset(ped, animDict); }
+  setFacialClipsetOverride(ped: number, animDict: string): void { SetFacialClipsetOverride(ped, animDict); }
   clearFacialClipsetOverride(ped: number): void { ClearFacialClipsetOverride(ped); } // unverified
   setCanPlayInjuredAnims(ped: number, p1: boolean): void { SetPedCanPlayInjuredAnims(ped, p1); } // unverified
   setCanPlayInCarIdles(ped: number, enable: boolean): void { SetPedCanPlayInCarIdles(ped, enable); }
@@ -584,7 +584,7 @@ export class GamePedNs {
   setCanLosePropsOnDamage(ped: number, enable: boolean, flag: number): void { SetPedCanLosePropsOnDamage(ped, enable, flag); }
   getTaskCombatTarget(ped: number, losCheck: boolean): number { return GetPedTaskCombatTarget(ped, losCheck as any); } // unverified
   isMobilePhoneToEar(ped: number): boolean { return IsMobilePhoneToPedEar(ped); }
-  setTimeExclusiveDisplayTexture(ped: number, tog: boolean): void { SetPedTimeExclusiveDisplayTexture(ped, tog); } // unverified
+  setTimeExclusiveDisplayTexture(ped: number, tog: boolean): void { SetTimeExclusiveDisplayTexture(ped, tog); } // unverified
 
   setHelmetUnk(ped: number, p1: boolean, p2: number, p3: number): void { SetPedHelmetUnk(ped, p1, p2, p3); } // unverified
   isHelmetUnk(ped: number): boolean { return IsPedHelmetUnk(ped); } // unverified
@@ -592,7 +592,7 @@ export class GamePedNs {
   setEnableScubaGearLight(ped: number, toggle: boolean): void { SetEnableScubaGearLight(ped, toggle); } // unverified
   isScubaGearLightEnabled(ped: number): boolean { return IsScubaGearLightEnabled(ped); } // unverified
 
-  createSynchronizedScene2(x: number, y: number, z: number, radius: number, object: number): number { return CreateSynchronizedScene2(x, y, z, radius, object); } // unverified
+  createSynchronizedScene2(x: number, y: number, z: number, radius: number, object: number): number { return CreateSynchronizedScene_2(x, y, z, radius, object); } // unverified
   disposeSynchronizedScene(scene: number): void { DisposeSynchronizedScene(scene); } // unverified
   setSynchronizedSceneLoo(sceneID: number, toggle: boolean): void { SetSynchronizedSceneLooped(sceneID, toggle); }
   isSynchronizedSceneLoo(sceneID: number): boolean { return IsSynchronizedSceneLooped(sceneID); }
@@ -600,7 +600,7 @@ export class GamePedNs {
   setShouldPlayFleeScenarioExit(ped: number, p1: number, p2: number, p3: number): number { return SetPedShouldPlayFleeScenarioExit(ped, p1, p2, p3); }
   setPanicExitScenario(p0: number, p1: number, p2: number, p3: number): number { return SetPedPanicExitScenario(p0, p1, p2, p3); }
   addScenarioBlockingArea(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, p6: boolean, p7: boolean, p8: boolean, p9: boolean): number { return AddScenarioBlockingArea(x1, y1, z1, x2, y2, z2, p6, p7, p8, p9); }
-  doesScenarioBlockingAreaExist(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): boolean { return DoesScenarioBlockingAreaExists(x1, y1, z1, x2, y2, z2); }
+  doesScenarioBlockingAreaExist(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): boolean { return DoesScenarioBlockingAreaExist(x1, y1, z1, x2, y2, z2); }
 
   getCurrentMovementSpeed(ped: number): { speedX: number; speedY: number; result: boolean } { const r = GetPedCurrentMovementSpeed(ped); return { speedX: r[1], speedY: r[2], result: r[0] }; } // unverified
   getNearbyVehicles(ped: number): any { return GetPedNearbyVehicles(ped); }
@@ -635,9 +635,9 @@ export class GamePedNs {
   setPedAlternateWalkAnim(ped: number, animDict: string, animName: string, p3: number, p4: boolean): void { SetPedAlternateWalkAnim(ped, animDict, animName, p3, p4); }
   clearPedAlternateWalkAnim(ped: number, p1: number): void { ClearPedAlternateWalkAnim(ped, p1); }
   getNumHeadOverlayValues(overlayID: number): number { return GetNumHeadOverlayValues(overlayID); } // unverified
-  isAValidHairColor(colorID: number): boolean { return IsAValidHairColor(colorID); } // unverified
-  isAValidLipstickColor(colorID: number): boolean { return IsAValidLipstickColor(colorID); } // unverified
-  isAValidBlushColor(colorID: number): boolean { return IsAValidBlushColor(colorID); } // unverified
+  isAValidHairColor(colorID: number): boolean { return IsPedHairColorValid(colorID); } // unverified
+  isAValidLipstickColor(colorID: number): boolean { return IsPedLipstickColorValid(colorID); } // unverified
+  isAValidBlushColor(colorID: number): boolean { return IsPedBlushColorValid(colorID); } // unverified
   getFirstParentIdForPedType(type: number): number { return GetFirstParentIdForPedType(type); } // unverified
   getRandomPedAtCoord(x: number, y: number, z: number, xRadius: number, yRadius: number, zRadius: number, pedType: number): number { return GetRandomPedAtCoord(x, y, z, xRadius, yRadius, zRadius, pedType); }
   getClosestPed(x: number, y: number, z: number, radius: number, p4: boolean, p5: boolean, p7: boolean, p8: boolean, pedType: number): number { return (GetClosestPed as any)(x, y, z, radius, p4, p5, p7, p8, pedType); } // NOTE: native returns [boolean,number] per typings

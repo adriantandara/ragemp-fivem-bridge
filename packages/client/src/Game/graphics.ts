@@ -424,13 +424,13 @@ export class GameGraphicsNs {
     getLightsState(lightId: number): boolean { return GetLightsState(lightId); } // unverified
 
     drawDebugLineWithTwoColours(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, r1: number, g1: number, b1: number, r2: number, g2: number, b2: number, alpha1: number, alpha2: number): void { DrawDebugLineWithTwoColours(x1, y1, z1, x2, y2, z2, r1, g1, b1, r2, g2, b2, alpha1, alpha2); }
-    drawDebugText2D(text: string, x: number, y: number, z: number, red: number, green: number, blue: number, alpha: number): void { DrawDebugText2d(text, x, y, z, red, green, blue, alpha); }
+    drawDebugText2D(text: string, x: number, y: number, z: number, red: number, green: number, blue: number, alpha: number): void { DrawDebugText_2d(text, x, y, z, red, green, blue, alpha); }
     drawPoly(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, x3: number, y3: number, z3: number, red: number, green: number, blue: number, alpha: number): void { DrawPoly(x1, y1, z1, x2, y2, z2, x3, y3, z3, red, green, blue, alpha); }
     drawSpritePoly(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, x3: number, y3: number, z3: number, red: number, green: number, blue: number, alpha: number, textureDict: string, textureName: string, u1: number, v1: number, w1: number, u2: number, v2: number, w2: number, u3: number, v3: number, w3: number): void {
         DrawSpritePoly(x1, y1, z1, x2, y2, z2, x3, y3, z3, red, green, blue, alpha, textureDict, textureName, u1, v1, w1, u2, v2, w2, u3, v3, w3);
     } // unverified
     drawSpritePoly2(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number, x3: number, y3: number, z3: number, red1: number, green1: number, blue1: number, alpha1: number, red2: number, green2: number, blue2: number, alpha2: number, red3: number, green3: number, blue3: number, alpha3: number, textureDict: string, textureName: string, u1: number, v1: number, w1: number, u2: number, v2: number, w2: number, u3: number, v3: number, w3: number): void {
-        DrawSpritePoly2(x1, y1, z1, x2, y2, z2, x3, y3, z3, red1, green1, blue1, alpha1, red2, green2, blue2, alpha2, red3, green3, blue3, alpha3, textureDict, textureName, u1, v1, w1, u2, v2, w2, u3, v3, w3);
+        DrawSpritePoly_2(x1, y1, z1, x2, y2, z2, x3, y3, z3, red1, green1, blue1, alpha1, red2, green2, blue2, alpha2, red3, green3, blue3, alpha3, textureDict, textureName, u1, v1, w1, u2, v2, w2, u3, v3, w3);
     } // unverified
     drawSphere(x: number, y: number, z: number, radius: number, red: number, green: number, blue: number, alpha: number): void { DrawSphere(x, y, z, radius, red, green, blue, alpha); } // unverified
 
@@ -438,7 +438,7 @@ export class GameGraphicsNs {
         DrawMarker(type, posX, posY, posZ, dirX, dirY, dirZ, rotX, rotY, rotZ, scaleX, scaleY, scaleZ, red, green, blue, alpha, bobUpAndDown ?? false, faceCamera ?? false, p19 ?? 2, rotate ?? false, textureDict ?? null, textureName ?? null, drawOnEnts ?? false);
     }
     drawMarker2(type: number, posX: number, posY: number, posZ: number, dirX: number, dirY: number, dirZ: number, rotX: number, rotY: number, rotZ: number, scaleX: number, scaleY: number, scaleZ: number, red: number, green: number, blue: number, alpha: number, bobUpAndDown: boolean, faceCamera: boolean, p19: number, rotate: boolean, textureDict: string | null, textureName: string | null, drawOnEnts: boolean, p24: boolean, p25: boolean): void {
-        DrawMarker2(type, posX, posY, posZ, dirX, dirY, dirZ, rotX, rotY, rotZ, scaleX, scaleY, scaleZ, red, green, blue, alpha, bobUpAndDown ?? false, faceCamera ?? false, p19 ?? 2, rotate ?? false, textureDict ?? null, textureName ?? null, drawOnEnts ?? false, p24 ?? false, p25 ?? false);
+        Citizen.invokeNative("0xE82728F0DE75D13A", type, posX, posY, posZ, dirX, dirY, dirZ, rotX, rotY, rotZ, scaleX, scaleY, scaleZ, red, green, blue, alpha, bobUpAndDown ?? false, faceCamera ?? false, p19 ?? 2, rotate ?? false, textureDict ?? null, textureName ?? null, drawOnEnts ?? false, p24 ?? false, p25 ?? false);
     } // unverified
 
     createCheckpoint(type: number, posX1: number, posY1: number, posZ1: number, posX2: number, posY2: number, posZ2: number, diameter: number, red: number, green: number, blue: number, alpha: number, reserved: number): number {
@@ -458,12 +458,12 @@ export class GameGraphicsNs {
     getStatusOfLoadMissionCreatorPhoto(p0: string): { p0: number; result: number } { const r: any = GetStatusOfLoadMissionCreatorPhoto(p0); return { p0: r?.[1] ?? r?.[0], result: r?.[0] }; }
     returnTwo(p0: number): number { return ReturnTwo(p0); } // unverified
 
-    setBinkMovieUnk2(binkMovie: number, p1: boolean): void { SetBinkMovieUnk2(binkMovie, p1); } // unverified
+    setBinkMovieUnk2(binkMovie: number, p1: boolean): void { SetBinkMovieUnk_2(binkMovie, p1); } // unverified
 
     overridePedBadgeTexture(ped: number, txd: string, txn: string): boolean { return OverridePedBadgeTexture(ped, txd, txn); } // unverified
     setNumberPlateTexture(txDict: string, txName: string, txDictNormal: string, txNameNorma: string): void { SetNumberPlateTexture(txDict, txName, txDictNormal, txNameNorma); } // unverified
-    set2dLayer(layer: number): void { Set2dLayer(layer); } // unverified
-    registerTextFontId(fontname: string): number { return RegisterTextFontId(fontname); } // unverified
+    set2dLayer(layer: number): void { Set_2dLayer(layer); } // unverified
+    registerTextFontId(fontname: string): number { return RegisterFontId(fontname); } // unverified
 
     grassLodShrinkScriptAreas(x: number, y: number, z: number, radius: number, p4: number, p5: number, p6: number): void { GrassLodShrinkScriptAreas(x, y, z, radius, p4, p5, p6); } // unverified
     grassLodResetScriptAreas(): void { GrassLodResetScriptAreas(); } // unverified
@@ -480,7 +480,7 @@ export class GameGraphicsNs {
 
     setParticleFxLoopedRange(ptfxHandle: number, range: number): void { SetParticleFxLoopedRange(ptfxHandle, range); } // unverified
     setPtfxAssetNextCall(name: string): void { SetPtfxAssetNextCall(name); } // unverified
-    setPtfxAssetOldToNew(oldAsset: string, newAsset: string): void { SetPtfxAssetOldToNew(oldAsset, newAsset); } // unverified
+    setPtfxAssetOldToNew(oldAsset: string, newAsset: string): void { SetParticleFxAssetOldToNew(oldAsset, newAsset); } // unverified
     startParticleFxNonLoopedAtCoord2(effectName: string, xPos: number, yPos: number, zPos: number, xRot: number, yRot: number, zRot: number, scale: number, xAxis: boolean, yAxis: boolean, zAxis: boolean): boolean {
         return StartParticleFxNonLoopedAtCoord_2(effectName, xPos, yPos, zPos, xRot ?? 0, yRot ?? 0, zRot ?? 0, scale ?? 1.0, xAxis ?? false, yAxis ?? false, zAxis ?? false);
     } // unverified
@@ -549,13 +549,13 @@ export class GameGraphicsNs {
     hasNamedScaleformMovieLoaded(scaleformName: string): boolean { return HasNamedScaleformMovieLoaded(scaleformName); } // unverified
     setScaleformFitRendertarget(scaleformHandle: number, toggle: boolean): void { SetScaleformFitRendertarget(scaleformHandle, toggle); } // unverified
     drawScaleformMovie3D(scaleform: number, posX: number, posY: number, posZ: number, rotX: number, rotY: number, rotZ: number, p7: number, p8: number, p9: number, scaleX: number, scaleY: number, scaleZ: number, p13: number): void {
-        DrawScaleformMovie3d(scaleform, posX, posY, posZ, rotX, rotY, rotZ, p7, p8, p9, scaleX, scaleY, scaleZ, p13);
+        DrawScaleformMovie_3d(scaleform, posX, posY, posZ, rotX, rotY, rotZ, p7, p8, p9, scaleX, scaleY, scaleZ, p13);
     }
     drawScaleformMovie3DNonAdditive(scaleform: number, posX: number, posY: number, posZ: number, rotX: number, rotY: number, rotZ: number, p7: number, p8: number, p9: number, scaleX: number, scaleY: number, scaleZ: number, p13: number): void {
-        DrawScaleformMovie3dNonAdditive(scaleform, posX, posY, posZ, rotX, rotY, rotZ, p7, p8, p9, scaleX, scaleY, scaleZ, p13);
+        DrawScaleformMovie_3dNonAdditive(scaleform, posX, posY, posZ, rotX, rotY, rotZ, p7, p8, p9, scaleX, scaleY, scaleZ, p13);
     } // unverified
     drawScaleformMovie3DSolid(scaleform: number, posX: number, posY: number, posZ: number, rotX: number, rotY: number, rotZ: number, p7: number, p8: number, p9: number, scaleX: number, scaleY: number, scaleZ: number, p13: number): void {
-        DrawScaleformMovie3dSolid(scaleform, posX, posY, posZ, rotX, rotY, rotZ, p7, p8, p9, scaleX, scaleY, scaleZ, p13);
+        DrawScaleformMovie_3dSolid(scaleform, posX, posY, posZ, rotX, rotY, rotZ, p7, p8, p9, scaleX, scaleY, scaleZ, p13);
     }
     callScaleformMovieMethodWithNumber(scaleform: number, methodName: string, param1: number, param2: number, param3: number, param4: number, param5: number): void {
         CallScaleformMovieMethodWithNumber(scaleform, methodName, param1, param2, param3, param4, param5);
@@ -575,7 +575,7 @@ export class GameGraphicsNs {
     callScaleformMovieFunctionMixedParams(scaleform: number, methodName: string, floatParam1: number, floatParam2: number, floatParam3: number, floatParam4: number, floatParam5: number, stringParam1: string, stringParam2: string, stringParam3: string, stringParam4: string, stringParam5: string): void {
         CallScaleformMovieFunctionMixedParams(scaleform, methodName, floatParam1, floatParam2, floatParam3, floatParam4, floatParam5, stringParam1, stringParam2, stringParam3, stringParam4, stringParam5);
     } // unverified
-    beginScaleformHudMovieMethod(hudComponent: number, methodName: string): boolean { return BeginScaleformHudMovieMethod(hudComponent, methodName); } // unverified
+    beginScaleformHudMovieMethod(hudComponent: number, methodName: string): boolean { return Citizen.invokeNative("0xF6E48914C7A8694E", hudComponent, methodName); }
     pushScaleformMovieFunctionFromHudComponent(hudComponent: number, methodName: string): boolean { return PushScaleformMovieFunctionFromHudComponent(hudComponent, methodName); } // unverified
     pushScaleformMovieFunctionN(methodName: string): boolean { return BeginScaleformMovieMethodN(methodName); } // unverified
     beginTextComponent(componentType: string): void { BeginTextCommandScaleformString(componentType); } // unverified

@@ -229,8 +229,8 @@ export class PedMpBase extends EntityMpBase {
   setEyeColor(index: number): void { SetPedEyeColor(this.handle, index); }
   setFaceFeature(index: number, scale: number): void { SetPedFaceFeature(this.handle, index, scale); }
   setHairColor(colorID: number, highlightColorID: number): void { SetPedHairTint(this.handle, colorID, highlightColorID ?? 0); }
-  setHeadOverlay(overlayID: number, index: number, opacity: number, firstColor: number, secondColor: number): void { SetPedHeadOverlay(this.handle, overlayID, index, opacity ?? 1.0); if (firstColor !== undefined) SetPedHeadOverlayTint(this.handle, overlayID, 1, firstColor, secondColor ?? 0); }
-  setHeadOverlayColor(overlayID: number, colorType: number, colorID: number, secondColorID: number): void { SetPedHeadOverlayTint(this.handle, overlayID, colorType, colorID, secondColorID ?? 0); }
+  setHeadOverlay(overlayID: number, index: number, opacity: number, firstColor: number, secondColor: number): void { SetPedHeadOverlay(this.handle, overlayID, index, opacity ?? 1.0); if (firstColor !== undefined) SetPedHeadOverlayColor(this.handle, overlayID, 1, firstColor, secondColor ?? 0); }
+  setHeadOverlayColor(overlayID: number, colorType: number, colorID: number, secondColorID: number): void { SetPedHeadOverlayColor(this.handle, overlayID, colorType, colorID, secondColorID ?? 0); }
   setPropIndex(componentId: number, drawableId: number, TextureId: number, attach: boolean): void { SetPedPropIndex(this.handle, componentId, drawableId, TextureId, attach ?? true); }
   setRandomComponentVariation(p1: boolean): void { SetPedRandomComponentVariation(this.handle, (p1 ?? 0) as number); }
   setRandomProps(): void { SetPedRandomProps(this.handle); }

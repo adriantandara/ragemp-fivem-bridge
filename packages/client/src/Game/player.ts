@@ -232,7 +232,7 @@ export class GamePlayerNs {
   specialAbilityDeplete(player: number): void { SpecialAbilityDeplete(player); } // unverified
   getHealthRechargeLimit(player: number): number { return GetPlayerHealthRechargeLimit(player); } // unverified
   setHealthRechargeLimit(player: number, limit: number): void { SetPlayerHealthRechargeLimit(player, limit); } // unverified
-  setWeaponDefenseModifier2(player: number, modifier: number): void { SetPlayerWeaponDefenseModifier2(player, modifier); } // unverified
+  setWeaponDefenseModifier2(player: number, modifier: number): void { SetPlayerWeaponDefenseModifier_2(player, modifier); } // unverified
   getParachuteTintIndex(player: number): number { const r = GetPlayerParachuteTintIndex(player); return Array.isArray(r) ? r[1] : r; }
   setResetFlagPreferRearSeats(player: number, flags: number): void { SetPlayerResetFlagPreferRearSeats(player, flags); } // unverified
   attachVirtualBound(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: number, p7: number): void { PlayerAttachVirtualBound(p0, p1, p2, p3, p4, p5, p6, p7); }
@@ -240,10 +240,10 @@ export class GamePlayerNs {
   setHomingRocketDisabled(player: number, disableHoming: number): void { SetPlayerHomingRocketDisabled(player, disableHoming as any); } // unverified
   intToindex(args: number): number { return IntToPlayerindex(args); }
   setAirDragMultiplierForsVehicle(player: number, multiplier: number): void { SetAirDragMultiplierForPlayersVehicle(player, multiplier); }
-  setHudAnimStopLevel(player: number, toggle: boolean): void { SetPlayerHudAnimStopLevel(player, toggle); } // unverified
-  setAreasGeneratorOrientation(player: number): void { SetPlayerAreasGeneratorOrientation(player); } // unverified
+  setHudAnimStopLevel(player: number, toggle: boolean): void { SetHudAnimStopLevel(player, toggle); } // unverified
+  setAreasGeneratorOrientation(player: number): void { SetAreasGeneratorOrientation(player); } // unverified
   getWantedLevelParoleDuration(): number { return GetWantedLevelParoleDuration(); } // unverified
-  setWantedLevelHiddenEvasionTime(player: number, wantedLevel: number, lossTime: number): void { SetPlayerWantedLevelHiddenEvasionTime(player, wantedLevel, lossTime); } // unverified
+  setWantedLevelHiddenEvasionTime(player: number, wantedLevel: number, lossTime: number): void { SetWantedLevelHiddenEvasionTime(player, wantedLevel, lossTime); } // unverified
   hasTeleportFinished(player: number): boolean { return HasPlayerTeleportFinished(player); } // unverified
   getEntityIsFreeAimingAtRaw(player: number): number | undefined { const [hit, entity] = GetEntityPlayerIsFreeAimingAt(player); return hit ? entity : undefined; }
 }

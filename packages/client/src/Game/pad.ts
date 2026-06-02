@@ -40,8 +40,8 @@ export class GamePadNs {
 
   setPlayerpadShakesWhenControllerDisabled(toggle: boolean): void { SetPlayerpadShakesWhenControllerDisabled(!!toggle); }
   setControlLightEffectColor(padIndex: number, red: number, green: number, blue: number): void { SetControlLightEffectColor(padIndex, red, green, blue); }
-  setShake(padIndex: number, duration: number, frequency: number): void { SetControlShake(padIndex, duration, frequency); }
-  stopShake(padIndex: number): void { StopControlShake(padIndex); }
+  setShake(padIndex: number, duration: number, frequency: number): void { Citizen.invokeNative("0x48B3886C1358D0D5", padIndex, duration, frequency); }
+  stopShake(padIndex: number): void { Citizen.invokeNative("0x38C16A305E8CDC8D", padIndex); }
   getLocalPlayerAimState(): number { return GetLocalPlayerAimState(); }
   getIsUsingAlternateDriveby(): boolean { return GetIsUsingAlternateDriveby(); }
   getAllowMovementWhileZoomed(): boolean { return GetAllowMovementWhileZoomed(); }
@@ -52,9 +52,9 @@ export class GamePadNs {
   }
 
   isInputJustDisabled(padIndex: number): boolean { return IsInputJustDisabled(padIndex); } // unverified
-  setPadShake(padIndex: number, duration: number, frequency: number): void { SetControlShake(padIndex, duration, frequency); }
-  stopPadShake(padIndex: number): void { StopControlShake(padIndex); }
-  isUsingKeyboard2(padIndex: number): boolean { return IsUsingKeyboardAndMouse(padIndex); }
+  setPadShake(padIndex: number, duration: number, frequency: number): void { Citizen.invokeNative("0x48B3886C1358D0D5", padIndex, duration, frequency); }
+  stopPadShake(padIndex: number): void { Citizen.invokeNative("0x38C16A305E8CDC8D", padIndex); }
+  isUsingKeyboard2(padIndex: number): boolean { return Citizen.invokeNative("0x13337B38DB572509", Citizen.resultAsInteger(), padIndex); }
   setCursorLocation(x: number, y: number): boolean { return SetCursorLocation(x, y); } // unverified
   getControlInstructionalButton(padIndex: number, control: number, p2: boolean): string {
     return Citizen.invokeNative('0x0499D7B09FC9B407', Citizen.resultAsString(), padIndex, control, p2 ?? true);
@@ -65,7 +65,7 @@ export class GamePadNs {
   getLocalPlayerAimState2(): number { return GetLocalPlayerGamepadAimState(); }
   setPlayerShakesWhenControllerDisabled(toggle: boolean): void { SetPlayerpadShakesWhenControllerDisabled(!!toggle); }
   switchToInputMappingScheme(name: string): boolean { return SwitchToInputMappingScheme(name); } // unverified
-  switchToInputMappingScheme2(name: string): boolean { return SwitchToInputMappingScheme2(name); } // unverified
+  switchToInputMappingScheme2(name: string): boolean { return SwitchToInputMappingScheme_2(name); } // unverified
   resetInputMappingScheme(): void { ResetInputMappingScheme(); } // unverified
   applyDisableControlActionBatch(): void {
     const batch = this._batchedDisables;

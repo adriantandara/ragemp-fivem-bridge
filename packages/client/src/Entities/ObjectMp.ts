@@ -51,7 +51,7 @@ export class ObjectMp extends EntityMpBase {
   }
 
   setActivatePhysicsAsSoonAsItIsUnfrozen(toggle: boolean): void {
-    SetActivatePhysicsAsSoonAsItIsUnfrozen(this.handle, !!toggle);
+    SetActivateObjectPhysicsAsSoonAsItIsUnfrozen(this.handle, !!toggle);
   }
 
   slide(toX: number, toY: number, toZ: number, speedX: number, speedY: number, speedZ: number, collision: boolean): boolean {

@@ -243,7 +243,7 @@ export class GameCamNs {
   }
   playSynchronizedAnim(p0: number, p1: number, animName: string, animDictionary: string): boolean { return PlaySynchronizedCamAnim(p0, p1, animName, animDictionary); }
   setFlyHorizontalResponse(cam: number, p1: number, p2: number, p3: number): void { SetFlyCamHorizontalResponse(cam, p1, p2, p3); }
-  setFlyVerticalSpeedMultiplier(cam: number, p1: number, p2: number, p3: number): void { SetFlyCamVerticalResponse(cam, p1, p2, p3); }
+  setFlyVerticalSpeedMultiplier(cam: number, p1: number, p2: number, p3: number): void { Citizen.invokeNative("0xE827B9382CFB41BA", cam, p1, p2, p3); }
   setFlyMaxHeight(cam: number, height: number): void { SetFlyCamMaxHeight(cam, height); }
   setFlyCoordAndConstrain(cam: number, x: number, y: number, z: number): void { SetFlyCamCoordAndConstrain(cam, x, y, z); }
   getGameplayRelativePitch(): number { return GetGameplayCamRelativePitch(); }
@@ -260,12 +260,12 @@ export class GameCamNs {
   setGameplayEntityHint(entity: number, xOffset: number, yOffset: number, zOffset: number, p4: boolean, p5: number, p6: number, p7: number, p8: number): void {
     SetGameplayEntityHint(entity, xOffset, yOffset, zOffset, p4, p5, p6, p7, p8);
   }
-  setGameplayHintAnimOffsetx(xOffset: number): void { SetGameplayHintAnimOffsetX(xOffset); } // unverified
-  setGameplayHintAnimOffsety(yOffset: number): void { SetGameplayHintAnimOffsetY(yOffset); } // unverified
+  setGameplayHintAnimOffsetx(xOffset: number): void { SetGameplayHintAnimOffsetx(xOffset); }
+  setGameplayHintAnimOffsety(yOffset: number): void { SetGameplayHintAnimOffsety(yOffset); }
   setGameplayHintAnimCloseup(toggle: boolean): void { SetGameplayHintAnimCloseup(toggle); } // unverified
   isCinematicShaking(): boolean { return IsCinematicCamShaking(); }
   disableVehicleFirstPersonThisFrame(): void { DisableCinematicVehicleIdleModeThisUpdate(); }
-  invalidateVehicleIdle(): void { InvalidateCinematicVehicleIdleMode(); }
+  invalidateVehicleIdle(): void { Citizen.invokeNative("0x9E4CFFF989258472"); }
   isCinematicIdleRendering(): boolean { return IsCinematicIdleCamRendering(); }
   isInVehicleDisabled(): boolean { return IsInVehicleCamDisabled(); } // unverified
   stopCutsceneShaking(): void { StopCutsceneCamShaking(); }
@@ -276,8 +276,8 @@ export class GameCamNs {
   replayFreeGetMaxRange(): number { return ReplayFreeCamGetMaxRange(); } // unverified
   getDofParam(cam: number, paramHash: number): boolean | number | Array<any> { return GetCamDofParam(cam, paramHash); } // unverified
   setDofParam(cam: number, paramHash: number, value: boolean | number | Array<any>): void { SetCamDofParam(cam, paramHash, value); } // unverified
-  getFinalRenderedInWhenFriendlyRot(player: number, rotationOrder: number): Vector3 { return toVec3(GetFinalRenderedInWhenFriendlyCamRot(player, rotationOrder ?? 2)); } // unverified
-  getFinalRenderedInWhenFriendlyFov(player: number): number { return GetFinalRenderedInWhenFriendlyCamFov(player); } // unverified
+  getFinalRenderedInWhenFriendlyRot(player: number, rotationOrder: number): Vector3 { return toVec3(GetFinalRenderedInWhenFriendlyRot(player, rotationOrder ?? 2)); } // unverified
+  getFinalRenderedInWhenFriendlyFov(player: number): number { return GetFinalRenderedInWhenFriendlyFov(player); } // unverified
   renderScriptS(render: boolean, ease: boolean, easeTime: number, p3: boolean, p4: boolean): void { RenderScriptCams(render, ease ?? false, easeTime ?? 0, p3 ?? true, p4 ?? false); }
 
   getGameplayCamRelativeHeading(): number { return GetGameplayCamRelativeHeading(); }

@@ -67,7 +67,7 @@ export class BlipMp extends Entity {
 
   setAlpha(alpha: number): void { SetBlipAlpha(this._handle, alpha); }
   setAsFriendly(toggle: boolean): void { SetBlipAsFriendly(this._handle, !!toggle); }
-  setAsMissionCreator(toggle: boolean): void { SetBlipAsMissionCreator(this._handle, !!toggle); }
+  setAsMissionCreator(toggle: boolean): void { SetBlipAsMissionCreatorBlip(this._handle, !!toggle); }
   setAsShortRange(toggle: boolean): void { SetBlipAsShortRange(this._handle, !!toggle); }
   setBright(toggle: boolean): void { SetBlipBright(this._handle, !!toggle); }
   setCategory(index: number): void { SetBlipCategory(this._handle, index); }

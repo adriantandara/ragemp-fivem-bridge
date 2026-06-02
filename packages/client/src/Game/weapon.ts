@@ -95,8 +95,8 @@ export class GameWeaponNs {
   doesTakeWeaponComponent(weaponHash: number, componentHash: number): boolean { return DoesWeaponTakeWeaponComponent(weaponHash, componentHash); }
   getObjectFromPed(ped: number, p1: boolean): number { return GetWeaponObjectFromPed(ped, p1); }
   giveLoadoutToPed(ped: number, loadoutHash: number): void { GiveLoadoutToPed(ped, loadoutHash); }
-  setObjectTintIndex(weapon: number, tintIndex: number): void { SetObjectTintIndex(weapon, tintIndex); }
-  getObjectTintIndex(weapon: number): number { return GetObjectTintIndex(weapon); }
+  setObjectTintIndex(weapon: number, tintIndex: number): void { SetWeaponObjectTintIndex(weapon, tintIndex); }
+  getObjectTintIndex(weapon: number): number { return GetWeaponObjectTintIndex(weapon); }
   getTintCount(weaponHash: number): number { return GetWeaponTintCount(weaponHash); }
   getHudStats(weaponHash: number): number { const r = GetWeaponHudStats(weaponHash); return Array.isArray(r) ? r[1] : r; }
   getComponentHudStats(componentHash: number): number { const r = GetWeaponComponentHudStats(componentHash); return Array.isArray(r) ? r[1] : r; }
@@ -112,8 +112,8 @@ export class GameWeaponNs {
   getDamageType(weaponHash: number): number { return GetWeaponDamageType(weaponHash); }
 
   createWeaponObject(weaponHash: number, ammoCount: number, x: number, y: number, z: number, showWorldModel: boolean, scale: number, p7: number, p8: number, p9: number): number { return (CreateWeaponObject as any)(weaponHash, ammoCount, x, y, z, showWorldModel ?? true, scale ?? 1.0, p7 ?? 0, p8 ?? 0, p9 ?? 0); }
-  getComponentVariantExtraComponentCount(componentHash: number): number { return GetWeaponComponentVariantExtraCount(componentHash); } // unverified
-  getComponentVariantExtraComponentModel(componentHash: number, extraComponentIndex: number): number { return GetWeaponComponentVariantExtraModel(componentHash, extraComponentIndex); } // unverified
+  getComponentVariantExtraComponentCount(componentHash: number): number { return GetWeaponComponentVariantExtraComponentCount(componentHash); } // unverified
+  getComponentVariantExtraComponentModel(componentHash: number, extraComponentIndex: number): number { return GetWeaponComponentVariantExtraComponentModel(componentHash, extraComponentIndex); } // unverified
   getCurrentPedEntityIndex(ped: number, p1: number): number { return (GetCurrentPedWeaponEntityIndex as any)(ped, p1); }
   isPedReadyToShoot(ped: number): boolean { return IsPedWeaponReadyToShoot(ped); }
   getPedTypeInSlot(ped: number, weaponSlot: number): number { return GetPedWeapontypeInSlot(ped, weaponSlot); }
@@ -123,8 +123,8 @@ export class GameWeaponNs {
   setPedCurrentVisible(ped: number, visible: boolean, deselectWeapon: boolean, p3: boolean, p4: boolean): void { SetPedCurrentWeaponVisible(ped, visible, deselectWeapon, p3, p4); }
   clearPedLastDamage(ped: number): void { ClearPedLastWeaponDamage(ped); }
   clearEntityLastDamage(entity: number): void { ClearEntityLastWeaponDamage(entity); }
-  addAmmoToPedByType(ped: number, ammoTypeHash: number, ammo: number): void { AddPedAmmoByType(ped, ammoTypeHash, ammo); }
-  getPedAmmoTypeFrom2(ped: number, weaponHash: number): number { return GetPedAmmoTypeFromWeapon2(ped, weaponHash); }
+  addAmmoToPedByType(ped: number, ammoTypeHash: number, ammo: number): void { Citizen.invokeNative("0x2472622CE1F2D45F", ped, ammoTypeHash, ammo); }
+  getPedAmmoTypeFrom2(ped: number, weaponHash: number): number { return GetPedAmmoTypeFromWeapon_2(ped, weaponHash); }
   getPedLastImpactCoord(ped: number): Vector3 { const r: any = GetPedLastWeaponImpactCoord(ped); return toVec3(Array.isArray(r) && Array.isArray(r[1]) ? r[1] : r); }
   hasPedGotComponent(ped: number, weaponHash: number, componentHash: number): boolean { return HasPedGotWeaponComponent(ped, weaponHash, componentHash); }
   isPedComponentActive(ped: number, weaponHash: number, componentHash: number): boolean { return IsPedWeaponComponentActive(ped, weaponHash, componentHash); }
@@ -141,12 +141,12 @@ export class GameWeaponNs {
   canUseOnParachute(weaponHash: number): boolean { return CanUseWeaponOnParachute(weaponHash); }
   createAirDefenseSphere(x: number, y: number, z: number, radius: number, p4: number, p5: number, p6: number, weaponHash: number): number { return CreateAirDefenceSphere(x, y, z, radius, p4, p5, p6, weaponHash); }
   createAirDefenseArea(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: number, p7: number, p8: number, p9: number, weaponHash: number): number { return CreateAirDefenceAngledArea(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, weaponHash); } // unverified
-  removeAirDefenseZone(zoneId: number): boolean { return RemoveAirDefenceSphere(zoneId); } // unverified
-  removeAllAirDefenseZones(): void { RemoveAllAirDefenceSpheres(); } // unverified
-  setPlayerAirDefenseZoneFlag(player: number, zoneId: number, enable: boolean): void { SetPlayerTargettableForAirDefenceSphere(player, zoneId, enable); } // unverified
+  removeAirDefenseZone(zoneId: number): boolean { return Citizen.invokeNative("0x0ABF535877897560", Citizen.resultAsInteger(), zoneId); } // unverified
+  removeAllAirDefenseZones(): void { Citizen.invokeNative("0x1E45B34ADEBEE48E"); } // unverified
+  setPlayerAirDefenseZoneFlag(player: number, zoneId: number, enable: boolean): void { Citizen.invokeNative("0xECDC202B25E5CF48", player, zoneId, enable); } // unverified
   isAnyAirDefenseZoneInsideSphere(x: number, y: number, z: number, radius: number): number { return IsAirDefenceSphereInArea(x, y, z, radius); } // unverified
-  fireAirDefense(zoneId: number, x: number, y: number, z: number): void { FireAirDefenceSphereWeaponAtPosition(zoneId, x, y, z); } // unverified
-  doesAirDefenseZoneExist(zoneId: number): boolean { return DoesAirDefenceSphereExist(zoneId); } // unverified
+  fireAirDefense(zoneId: number, x: number, y: number, z: number): void { Citizen.invokeNative("0x44F1012B69313374", zoneId, x, y, z); } // unverified
+  doesAirDefenseZoneExist(zoneId: number): boolean { return Citizen.invokeNative("0xCD79A550999D7D4F", Citizen.resultAsInteger(), zoneId); } // unverified
   setCanPedEquip(ped: number, weaponHash: number, toggle: boolean): void { SetCanPedEquipWeapon(ped, weaponHash, toggle); } // unverified
   setCanPedEquipAllS(ped: number, toggle: boolean): void { SetCanPedEquipAllWeapons(ped, toggle); } // unverified
   setExplosionRadiusMultiplier(weaponHash: number, multiplier: number): void { SetWeaponExplosionRadiusMultiplier(weaponHash, multiplier); } // unverified

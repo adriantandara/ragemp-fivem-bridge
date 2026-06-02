@@ -335,7 +335,7 @@ export class EntityMpBase extends Entity {
   }
 
   isCollisionDisabled(): boolean {
-    return IsEntityCollisionDisabled(this.handle);
+    return GetEntityCollisionDisabled(this.handle);
   }
 
   hasClearLosTo(entity: any, traceType?: number): boolean {

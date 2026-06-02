@@ -54,7 +54,7 @@ export class GameAudioNs {
   setAmbientVoiceNameHash(ped: number, hash: number): void { SetAmbientVoiceNameHash(ped, hash); }
   getAmbientVoiceNameHash(ped: number): number { return GetAmbientVoiceNameHash(ped); }
   setPedVoiceGroup(ped: number, voiceGroupHash: number): void { SetPedVoiceGroup(ped, voiceGroupHash); }
-  setPedGender(ped: number, p1: boolean): void { SetPedGender(ped, p1); }
+  setPedGender(ped: number, p1: boolean): void { SetPedAudioGender(ped, p1); }
   stopCurrentPlayingSpeech(ped: number): void { StopCurrentPlayingSpeech(ped); }
   stopCurrentPlayingAmbientSpeech(ped: number): void { StopCurrentPlayingAmbientSpeech(ped); }
   isAmbientSpeechPlaying(ped: number): boolean { return IsAmbientSpeechPlaying(ped); }
@@ -152,7 +152,7 @@ export class GameAudioNs {
   isHornActive(vehicle: number): boolean { return IsHornActive(vehicle); }
   setAggressiveHorns(toggle: boolean): void { SetAggressiveHorns(toggle); }
   setSirenWithNoDriver(vehicle: number, toggle: boolean): void { SetSirenWithNoDriver(vehicle, toggle); }
-  triggerSiren(vehicle: number): void { TriggerSirenAudio(vehicle); }
+  triggerSiren(vehicle: number): void { Citizen.invokeNative("0x66C3FB05206041BA", vehicle); }
   setHornEnabled(vehicle: number, toggle: boolean): void { SetHornEnabled(vehicle, toggle); }
   setVehiclePriority(vehicle: number, p1: number): void { SetAudioVehiclePriority(vehicle, p1); }
   useSirenAsHorn(vehicle: number, toggle: boolean): void { UseSirenAsHorn(vehicle, toggle); }
@@ -248,8 +248,8 @@ export class GameAudioNs {
   getPlayerHeadsetSoundAlternate(variableName: string, value: number): void { GetPlayerHeadsetSoundAlternate(variableName, value); } // unverified
   specialFrontendEqual(x: number, y: number, z: number): void { SpecialFrontendEqual(x, y, z); } // unverified
   resetPedFlags(ped: number): void { ResetPedAudioFlags(ped); }
-  setPedFootstepLoud(ped: number, toggle: boolean): void { SetPedFootstepLoud(ped, toggle); } // unverified
-  setPedFootstepQuiet(ped: number, toggle: boolean): void { SetPedFootstepQuiet(ped, toggle); } // unverified
+  setPedFootstepLoud(ped: number, toggle: boolean): void { SetPedAudioFootstepLoud(ped, toggle); } // unverified
+  setPedFootstepQuiet(ped: number, toggle: boolean): void { SetPedAudioFootstepQuiet(ped, toggle); } // unverified
 
   setSynchronizedAudioEventPositionThisFrame(p0: string, p1: number): void { SetSynchronizedAudioEventPositionThisFrame(p0, p1); } // unverified
   prepareSynchronizedEvent(p0: string, p1: number): number { return (PrepareSynchronizedAudioEvent as any)(p0, p1); }
@@ -269,8 +269,8 @@ export class GameAudioNs {
     return { p1: r[0], p2: r[1] };
   } // unverified
 
-  setCutsceneOverride(name: string): void { SetCutsceneOverride(name); } // unverified
-  setVariableOnCutscene(variableName: string, value: number): void { SetVariableOnCutscene(variableName, value); } // unverified
+  setCutsceneOverride(name: string): void { SetCutsceneAudioOverride(name); } // unverified
+  setVariableOnCutscene(variableName: string, value: number): void { SetVariableOnCutsceneAudio(variableName, value); } // unverified
   stopCutscene(p0: boolean): void { StopCutscene(p0); }
 
   setRadioTrackMix(radioStationName: string, mixName: string, p2: number): void { SetRadioTrackMix(radioStationName, mixName, p2); } // unverified
@@ -293,7 +293,7 @@ export class GameAudioNs {
 
   addEntityToMixGroup(entity: number, groupName: string, p2: number): void { AddEntityToAudioMixGroup(entity, groupName, p2); }
   removeEntityFromMixGroup(entity: number, p1: number): void { RemoveEntityFromAudioMixGroup(entity, p1); }
-  isScriptedMusicPlaying(): boolean { return IsScriptedMusicPlaying(); } // unverified
+  isScriptedMusicPlaying(): boolean { return AudioIsScriptedMusicPlaying(); } // unverified
 
   hasMultiplayerDataLoaded(): boolean { return HasMpDataLoaded(); } // unverified
   hasMultiplayerDataUnloaded(): boolean { return HasMpDataUnloaded(); } // unverified

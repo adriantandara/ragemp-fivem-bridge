@@ -408,15 +408,15 @@ export class GameHudNs {
   drawNotification4(blink: boolean, p1: boolean): number { return EndTextCommandThefeedPostTicker(blink, p1); }
   setTextEntry2(GxtEntry: string): void { SetTextEntry(GxtEntry); } // unverified
   drawSubtitleTimed(duration: number, drawImmediately: boolean): void { EndTextCommandPrint(duration, drawImmediately); }
-  setTextEntryForWidth(text: string): void { BeginTextCommandGetScreenWidthOfDisplayText(text); }
-  getTextScreenWidth(p0: boolean): number { return EndTextCommandGetScreenWidthOfDisplayText(p0); }
+  setTextEntryForWidth(text: string): void { SetTextEntryForWidth(text); }
+  getTextScreenWidth(p0: boolean): number { return EndTextCommandGetWidth(p0); }
   setTextGxtEntry(entry: string): void { BeginTextCommandDisplayText(entry); }
   setTextComponentFormat(inputType: string): void { BeginTextCommandDisplayHelp(inputType); }
   displayHelpTextFromStringLabel(p0: number, loop: boolean, beep: boolean, shape: number): void { EndTextCommandDisplayHelp(p0, loop, beep, shape); }
   addTextComponentItemString(labelName: string): void { AddTextComponentItemString(labelName); } // unverified
   addTextComponentSubstringLocalized(gxtEntryHash: number): void { AddTextComponentSubstringLocalized(gxtEntryHash); } // unverified
   addTextComponentSubstringCash(value: number, commaSeparated: boolean): void { AddTextComponentSubstringCash(value, commaSeparated); } // unverified
-  requestAdditionalText2(gxt: string, slot: number): void { RequestAdditionalText2(gxt, slot); } // unverified
+  requestAdditionalText2(gxt: string, slot: number): void { RequestAdditionalText_2(gxt, slot); } // unverified
   respondingAsTemp(zoom: number): void { RespondingAsTemp(zoom); } // unverified
   setRadarZoomLevelThisFrame(zoom: number): void { SetRadarZoomLevelThisFrame(zoom); } // unverified
   getTextScaleHeight(size: number, font: number): number { return GetTextScaleHeight(size, font); } // unverified
@@ -429,8 +429,8 @@ export class GameHudNs {
   hasHeadDisplayLoaded(gamerTagId: number): boolean { return HasHeadDisplayLoaded(gamerTagId); } // unverified
   addTrevorRandomModifier(gamerTagId: number): number { return (AddTrevorRandomModifier as any)(gamerTagId); } // unverified
   setHeadDisplayFlag(gamerTagId: number, component: number, toggle: boolean, p3: boolean): void { SetHeadDisplayFlag(gamerTagId, component, toggle, p3); } // unverified
-  setHeadDisplayWanted(gamerTagId: number, wantedlvl: number): void { SetHeadDisplayWanted(gamerTagId, wantedlvl); } // unverified
-  setHeadDisplayString(gamerTagId: number, string: string): void { SetHeadDisplayString(gamerTagId, string); } // unverified
+  setHeadDisplayWanted(gamerTagId: number, wantedlvl: number): void { Citizen.invokeNative("0xCF228E2AA03099C3", gamerTagId, wantedlvl); } // unverified
+  setHeadDisplayString(gamerTagId: number, string: string): void { Citizen.invokeNative("0xDEA2B8283BAA3944", gamerTagId, string); } // unverified
   objectDecalToggle(contextHash: number): void { ObjectDecalToggle(contextHash); } // unverified
   setUseridsUihidden(p0: boolean): boolean { return (SetUseridsUihidden as any)(p0); } // unverified
   hideSpecialAbilityLockonOperation(ped: number, toggle: boolean): void { HideSpecialAbilityLockonOperation(ped, toggle); } // unverified
@@ -462,10 +462,10 @@ export class GameHudNs {
   endTextCommandThefeedPostCrewtagWithGameName(p0: boolean, p1: string, p3: boolean, isLeader: boolean, unk0: number, clanDesc: string, playerName: string, R: number, G: number, B: number): { p2: number; result: number } { const r: any = (EndTextCommandThefeedPostCrewtagWithGameName as any)(p0, p1, p3, isLeader, unk0, clanDesc, playerName, R, G, B); return Array.isArray(r) ? { p2: r[1], result: r[0] } : r; } // unverified
   endTextCommandThefeedPostCrewRankup(p0: boolean, p1: string, p2: number, p3: number, p4: number): number { return (EndTextCommandThefeedPostCrewRankup as any)(p0, p1, p2, p3, p4); } // unverified
   endTextCommandThefeedPostReplayIcon(type: number, image: string, text: string): number { return (EndTextCommandThefeedPostReplayIcon as any)(type, image, text); } // unverified
-  beginTextCommandGetWidth(text: string): void { BeginTextCommandGetScreenWidthOfDisplayText(text); }
-  endTextCommandGetWidth(p0: boolean): number { return EndTextCommandGetScreenWidthOfDisplayText(p0); }
-  beginTextCommandLineCount(entry: string): void { BeginTextCommandGetNumberOfLinesForString(entry); }
-  endTextCommandLineCount(x: number, y: number): number { return EndTextCommandGetNumberOfLinesForString(x, y); }
+  beginTextCommandGetWidth(text: string): void { BeginTextCommandGetWidth(text); }
+  endTextCommandGetWidth(p0: boolean): number { return EndTextCommandGetWidth(p0); }
+  beginTextCommandLineCount(entry: string): void { BeginTextCommandLineCount(entry); }
+  endTextCommandLineCount(x: number, y: number): number { return Citizen.invokeNative("0x9040DFB09BE75706", Citizen.resultAsInteger(), x, y); }
   beginTextCommandObjective(p0: string): void { BeginTextCommandObjective(p0); } // unverified
   endTextCommandObjective(p0: number): void { (EndTextCommandObjective as any)(p0); } // unverified
   endTextComponent(): void { EndTextComponent(); } // unverified
@@ -474,13 +474,13 @@ export class GameHudNs {
   getTextSubstringSlice(text: string, startPosition: number, endPosition: number): string { return GetTextSubstringSlice(text, startPosition, endPosition); } // unverified
   getLabelText(labelName: string): string { return GetLabelText(labelName); } // unverified
   displayWhenDeadThisFrame(): void { DisplayHudWhenDeadThisFrame(); } // unverified
-  displayLoadingScreenTips(): void { DisplayLoadingScreenTips(); } // unverified
-  setHelpMessageTextStyle(style: number, hudColor: number, alpha: number, direction: number, offset: number): void { SetHelpMessageStyle(style, hudColor, alpha, direction, offset); }
+  displayLoadingScreenTips(): void { Citizen.invokeNative("0x15CFA549788D35EF"); } // unverified
+  setHelpMessageTextStyle(style: number, hudColor: number, alpha: number, direction: number, offset: number): void { SetHelpMessageTextStyle(style, hudColor, alpha, direction, offset); }
   setScriptVariableColour(r: number, g: number, b: number, a: number): void { SetScriptVariableHudColour(r, g, b, a); }
-  setScriptVariable2Colour(r: number, g: number, b: number, a: number): void { SetScriptVariable2HudColour(r, g, b, a); } // unverified
+  setScriptVariable2Colour(r: number, g: number, b: number, a: number): void { SetScriptVariable_2HudColour(r, g, b, a); } // unverified
   setAbilityBarVisibilityInMultiplayer(visible: boolean): void { SetAbilityBarVisibilityInMultiplayer(visible); } // unverified
   setAllowAbilityBarInMultiplayer(toggle: boolean): void { SetAllowAbilityBarInMultiplayer(toggle); } // unverified
-  getClosestBlipOfType(blipSprite: number): number { return GetClosestBlipInfoId(blipSprite); }
+  getClosestBlipOfType(blipSprite: number): number { return Citizen.invokeNative("0xD484BF71050CA1EE", Citizen.resultAsInteger(), blipSprite); }
   setBlipSquaredRotation(blip: number, heading: number): void { SetBlipSquaredRotation(blip, heading); } // unverified
   setBlipScaleTransformation(blip: number, xScale: number, yScale: number): void { SetBlipScaleTransformation(blip, xScale, yScale); } // unverified
   setBlipDisplayIndicatorOnBlip(blip: number, toggle: boolean): void { SetBlipDisplayIndicatorOnBlip(blip, toggle); } // unverified
@@ -499,15 +499,15 @@ export class GameHudNs {
   setMultiplayerCash(p0: number, p1: boolean): void { (SetMultiplayerHudCash as any)(p0, p1); }
   removeMultiplayerCash(): void { RemoveMultiplayerHudCash(); }
   forceWeaponWheel(show: boolean): void { HudForceWeaponWheel(show); }
-  weaponWheelIgnoreSelection(): void { HudSuppressWeaponWheelResultsThisFrame(); }
-  weaponWheelGetSelectedHash(): number { return GetWeaponHashFromWeaponWheel(); } // unverified
+  weaponWheelIgnoreSelection(): void { Citizen.invokeNative("0x0AFC4AF510774B47"); }
+  weaponWheelGetSelectedHash(): number { return Citizen.invokeNative("0xA48931185F0536FE", Citizen.resultAsInteger()); } // unverified
   setWeaponWheelTopSlot(weaponHash: number): void { HudSetWeaponWheelTopSlot(weaponHash); }
   weaponWheelGetSlotHash(weaponTypeIndex: number): number { return HudGetWeaponWheelTopSlot(weaponTypeIndex); }
   weaponWheelIgnoreControlInput(toggle: boolean): void { HudWeaponWheelIgnoreControlInput(toggle); } // unverified
   setMinimapAltitudeIndicatorLevel(altitude: number, p1: boolean): void { SetMinimapAltitudeIndicatorLevel(altitude, p1); } // unverified
-  setHealthDisplayValues(health: number, capacity: number, wasAdded: boolean): void { SetHealthDisplayValues(health, capacity, wasAdded); } // unverified
-  setMaxHealthDisplay(maximumValue: number): void { SetMaxHealthDisplay(maximumValue); } // unverified
-  setMaxArmourDisplay(maximumValue: number): void { SetMaxArmourDisplay(maximumValue); } // unverified
+  setHealthDisplayValues(health: number, capacity: number, wasAdded: boolean): void { SetHealthHudDisplayValues(health, capacity, wasAdded); } // unverified
+  setMaxHealthDisplay(maximumValue: number): void { SetMaxHealthHudDisplay(maximumValue); } // unverified
+  setMaxArmourDisplay(maximumValue: number): void { SetMaxArmourHudDisplay(maximumValue); } // unverified
   isScriptedComponentActive(id: number): boolean { return IsScriptedHudComponentActive(id); }
   hideScriptedComponentThisFrame(id: number): void { HideScriptedHudComponentThisFrame(id); }
   showScriptedComponentThisFrame(id: number): void { ShowScriptedHudComponentThisFrame(id); }
@@ -520,7 +520,7 @@ export class GameHudNs {
   setMpGamerHealthBarMax(gamerTagId: number, value: number, maximumValue: number): void { SetMpGamerHealthBarMax(gamerTagId, value, maximumValue); } // unverified
   setMpGamerTagUnk(gamerTagId: number, p1: number): void { SetMpGamerTagUnk(gamerTagId, p1); } // unverified
   isValidMpGamerTagMovie(gamerTagId: number): boolean { return IsValidMpGamerTagMovie(gamerTagId); } // unverified
-  isWarningMessageActive2(): boolean { return IsWarningMessageActive2(); } // unverified
+  isWarningMessageActive2(): boolean { return IsWarningMessageActive_2(); } // unverified
   setWarningMessage(titleMsg: string, flags: number, promptMsg: string, p3: boolean, p4: number, p5: boolean, p6: boolean, showBackground: boolean, p8: string): void { (SetWarningMessage as any)(titleMsg, flags, promptMsg, p3, p4, p5, p6, showBackground, p8); }
   setWarningMessageWithHeader(entryHeader: string, entryLine1: string, instructionalKey: number, entryLine2: string, p4: boolean, p5: number, p8: number, p9: number): { showBackground: number; p7: number } { const r: any = (SetWarningMessageWithHeader as any)(entryHeader, entryLine1, instructionalKey, entryLine2, p4, p5, p8, p9); return Array.isArray(r) ? { showBackground: r[1], p7: r[2] } : r; }
   setWarningMessageWithHeaderAndSubstringFlags(entryHeader: string, entryLine1: string, instructionalKey: number, entryLine2: string, p4: boolean, p5: number, p6: number, p9: number, p10: number): { p7: number; p8: number } { const r: any = (SetWarningMessageWithHeaderAndSubstringFlags as any)(entryHeader, entryLine1, instructionalKey, entryLine2, p4, p5, p6, p9, p10); return Array.isArray(r) ? { p7: r[1], p8: r[2] } : r; }
@@ -537,14 +537,14 @@ export class GameHudNs {
   logDebugInfo(p0: number): void { (LogDebugInfo as any)(p0); } // unverified
   getPauseMenuSelection(): { lastItemMenuId: number; selectedItemUniqueId: number } { const r = GetPauseMenuSelection(); return Array.isArray(r) ? { lastItemMenuId: r[0], selectedItemUniqueId: r[1] } : r; } // unverified
   getPauseMenuSelectionData(): { lastItemMenuId: number; selectedItemMenuId: number; selectedItemUniqueId: number } { const r = GetPauseMenuSelectionData(); return Array.isArray(r) ? { lastItemMenuId: r[0], selectedItemMenuId: r[1], selectedItemUniqueId: r[2] } : r; } // unverified
-  overrideMultiplayerChatPrefix(gxtEntryHash: number): void { OverrideMpTextChatTeamString(gxtEntryHash); }
-  isMultiplayerChatActive(): boolean { return IsMpTextChatTyping(); }
-  closeMultiplayerChat(): void { CloseMpTextChat(); }
-  overrideMultiplayerChatColour(p0: number, hudColor: number): void { OverrideMpTextChatColor(p0, hudColor); }
+  overrideMultiplayerChatPrefix(gxtEntryHash: number): void { Citizen.invokeNative("0x6A1738B4323FE2D9", gxtEntryHash); }
+  isMultiplayerChatActive(): boolean { return Citizen.invokeNative("0xB118AF58B5F332A1", Citizen.resultAsInteger()); }
+  closeMultiplayerChat(): void { Citizen.invokeNative("0x1AC8F4AD40E22127"); }
+  overrideMultiplayerChatColour(p0: number, hudColor: number): void { Citizen.invokeNative("0xF47E567B3630DD12", p0, hudColor); }
   setTextChatUnk(p0: number): void { (SetTextChatUnk as any)(p0); } // unverified
   setPedHasAiBlipWithColor(ped: number, hasCone: boolean, color: number): void { SetPedHasAiBlipWithColor(ped, hasCone, color); } // unverified
   getAiBlip2(ped: number): number { return GetAiBlip(ped); } // unverified
-  getAiBlip(ped: number): number { return GetAiBlipForEntity(ped); } // unverified
+  getAiBlip(ped: number): number { return GetAiBlip(ped); } // unverified
   hasDirectorModeBeenTriggered(): boolean { return HasDirectorModeBeenTriggered(); } // unverified
   setDirectorModeClearTriggeredFlag(): void { SetDirectorModeClearTriggeredFlag(); } // unverified
   setMinimapComponentValues(name: string, alignX: string, alignY: string, posX: number, posY: number, sizeX: number, sizeY: number): void { SetMinimapComponentPosition(name, alignX, alignY, posX, posY, sizeX, sizeY); } // unverified
@@ -561,7 +561,7 @@ export class GameHudNs {
   setInteriorZoomLevelDecreased(toggle: boolean): void { SetInteriorZoomLevelDecreased(toggle); } // unverified
   setMainPlayerBlipColour(color: number): void { SetMainPlayerBlipColour(color); } // unverified
   enableDeathbloodSeethrough(p1: boolean): void { (EnableDeathbloodSeethrough as any)(p1); } // unverified
-  setMissionName2(p0: boolean, name: string): void { SetMissionName2(p0, name); } // unverified
+  setMissionName2(p0: boolean, name: string): void { SetMissionName_2(p0, name); } // unverified
   setScreenHeader(screenHash: number, header: string): void { SetPauseMenuHeaderText(screenHash, header); } // unverified
   getItem(itemNameOrHash: number | string): any { return GetMenuItem(itemNameOrHash); } // unverified
   tryGetItem(itemNameOrHash: number | string): any { try { return GetMenuItem(itemNameOrHash); } catch { return undefined; } } // unverified

@@ -115,10 +115,10 @@ export class VehicleMp extends EntityMpBase {
   getModSlotName(modType: number): string { return GetModSlotName(this.handle, modType); }
   getModTextLabel(modType: number, modValue: number): string { return GetModTextLabel(this.handle, modType, modValue); }
   getModVariation(modType: number): boolean { return GetVehicleModVariation(this.handle, modType); }
-  getModColor1TextLabel(): string { return GetVehicleModColor1Name(this.handle, false); }
-  getModColor2TextLabel(): string { return GetVehicleModColor2Name(this.handle); }
-  setModColor1(paintType: number, color: number, p2: number): void { SetVehicleModColor1(this.handle, paintType, color, p2 ?? 0); }
-  setModColor2(paintType: number, color: number): void { SetVehicleModColor2(this.handle, paintType, color); }
+  getModColor1TextLabel(): string { return GetVehicleModColor_1Name(this.handle, false); }
+  getModColor2TextLabel(): string { return GetVehicleModColor_2Name(this.handle); }
+  setModColor1(paintType: number, color: number, p2: number): void { SetVehicleModColor_1(this.handle, paintType, color, p2 ?? 0); }
+  setModColor2(paintType: number, color: number): void { SetVehicleModColor_2(this.handle, paintType, color); }
   releasePreloadMods(): void { ReleasePreloadMods(this.handle); }
   requestHighDetailModel(): void { RequestVehicleHighDetailModel(this.handle); }
   removeHighDetailModel(): void { RemoveVehicleHighDetailModel(this.handle); }
@@ -279,7 +279,7 @@ export class VehicleMp extends EntityMpBase {
   isSirenSoundOn(): boolean { return IsVehicleSirenAudioOn(this.handle); }
   setSirenWithNoDriver(enable: boolean): void { SetSirenWithNoDriver(this.handle, !!enable); }
   blipSiren(): void { BlipSiren(this.handle); }
-  setHornPermanentlyOnTime(time: number): void { SetHornPermanentlyOnTime(this.handle, time); }
+  setHornPermanentlyOnTime(time: number): void { Citizen.invokeNative("0x9D3AF56E94C9AE98", this.handle, time); }
   startHorn(duration: number, model: number, forever: boolean): void { StartVehicleHorn(this.handle, duration, model ?? GetHashKey("HELDDOWN"), !!forever); }
   overrideVehHorn(override: boolean, hornHash: number): void { OverrideVehHorn(this.handle, !!override, hornHash); }
   triggerSiren(): void { SetVehicleSiren(this.handle, true); }

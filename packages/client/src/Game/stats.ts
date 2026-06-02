@@ -151,8 +151,8 @@ export class GameStatsNs {
   statMigrateSave(platformName: string): boolean { return StatMigrateSave(platformName); } // unverified
   statSaveMigrationStatusStart(): boolean { return StatSaveMigrationStatusStart(); } // unverified
   statGetSaveMigrationStatus(data: number): any { return StatGetSaveMigrationStatus(data); }
-  statSaveMigrationCancel(): boolean { return StatSaveMigrationCancelPendingOperation(); } // unverified
-  statSaveMigrationConsumeContentUnlock(contentId: number, srcPlatform: string, srcGamerHandle: string): boolean { return StatSaveMigrationConsumeContent(contentId, srcPlatform, srcGamerHandle); } // unverified
+  statSaveMigrationCancel(): boolean { return Citizen.invokeNative("0x4FEF53183C3C6414", Citizen.resultAsInteger()); } // unverified
+  statSaveMigrationConsumeContentUnlock(contentId: number, srcPlatform: string, srcGamerHandle: string): boolean { return Citizen.invokeNative("0x3270F67EED31FBC1", Citizen.resultAsInteger(), contentId, srcPlatform, srcGamerHandle); } // unverified
   statGetSaveMigrationConsumeContentUnlockStatus(): any { return StatGetSaveMigrationConsumeContentStatus(); } // unverified
   setHasContentUnlocksFlags(value: number): void { SetHasContentUnlocksFlags(value); } // unverified
   setSaveMigrationTransactionId(transactionId: number): void { SetSaveMigrationTransactionId(transactionId); } // unverified

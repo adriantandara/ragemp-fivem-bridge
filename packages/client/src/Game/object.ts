@@ -126,13 +126,13 @@ export class GameObjectNs {
   setActivatePhysicsAsSoonAsItIsUnfrozen(object: number, toggle: boolean): void { SetActivateObjectPhysicsAsSoonAsItIsUnfrozen(object, toggle); }
   isAnyNearPoint(x: number, y: number, z: number, range: number, p4: boolean): boolean { return IsAnyObjectNearPoint(x, y, z, range, p4); }
   setUnkGlobalBoolRelatedToDamage(value: boolean): void { SetUnkGlobalBoolRelatedToDamage(value); } // unverified
-  setCreateWeaponLightSource(object: number, toggle: boolean): void { SetCreateWeaponLightSource(object, toggle); } // unverified
+  setCreateWeaponLightSource(object: number, toggle: boolean): void { SetCreateWeaponObjectLightSource(object, toggle); } // unverified
   setSomething(object: number, p1: boolean): void { SetObjectSomething(object, p1); } // unverified
   doesRayfireMapExist(object: number): boolean { return DoesRayfireMapObjectExist(object); }
   getRayfireMapAnimPhase(object: number): number { return GetRayfireMapObjectAnimPhase(object); }
   createPickupRotate(pickupHash: number, posX: number, posY: number, posZ: number, rotX: number, rotY: number, rotZ: number, flag: number, amount: number, p9: number, p10: boolean, modelHash: number): number { return CreatePickupRotate(pickupHash, posX, posY, posZ, rotX, rotY, rotZ, flag, amount, p9, p10, modelHash); }
   createAmbientPickup(pickupHash: number, posX: number, posY: number, posZ: number, flags: number, value: number, modelHash: number, p7: boolean, p8: boolean): number { return CreateAmbientPickup(pickupHash, posX, posY, posZ, flags, value, modelHash, p7, p8); }
-  createPortablePickup2(pickupHash: number, x: number, y: number, z: number, placeOnGround: boolean, modelHash: number): number { return CreatePortablePickup2(pickupHash, x, y, z, placeOnGround, modelHash); } // unverified
+  createPortablePickup2(pickupHash: number, x: number, y: number, z: number, placeOnGround: boolean, modelHash: number): number { return CreatePortablePickup_2(pickupHash, x, y, z, placeOnGround, modelHash); } // unverified
   hidePickup(pickupObject: number, toggle: boolean): void { HidePickup(pickupObject, toggle); } // unverified
   getPickupHash(pickupHash: number): number { return GetPickupHash(pickupHash); } // unverified
   getPickupHashFromWeapon(weaponHash: number): number { return GetPickupHashFromWeapon(weaponHash); } // unverified
@@ -140,10 +140,10 @@ export class GameObjectNs {
   isPickupWithinRadius(pickupHash: number, x: number, y: number, z: number, radius: number): boolean { return IsPickupWithinRadius(pickupHash, x, y, z, radius); } // unverified
   toggleUsePickupsForPlayer(player: number, pickupHash: number, toggle: boolean): void { ToggleUsePickupsForPlayer(player, pickupHash, toggle); } // unverified
   setLocalPlayerCanUsePickupsWithThisModel(modelHash: number, toggle: boolean): void { SetLocalPlayerCanUsePickupsWithThisModel(modelHash, toggle); } // unverified
-  getTextureVariation(object: number): number { return GetObjectTintIndex(object); }
-  setTextureVariation(object: number, textureVariation: number): void { SetObjectTintIndex(object, textureVariation); }
-  setTextureVariationOfClosestOfType(x: number, y: number, z: number, radius: number, modelHash: number, textureVariation: number): boolean { return SetObjectTextureVariationOfClosestObjectOfType(x, y, z, radius, modelHash, textureVariation); } // unverified
-  setLightColor(object: number, p1: boolean, r: number, g: number, b: number): number { return SetPropLightColor(object, !!p1, r, g, b); }
+  getTextureVariation(object: number): number { return GetWeaponObjectTintIndex(object); }
+  setTextureVariation(object: number, textureVariation: number): void { SetWeaponObjectTintIndex(object, textureVariation); }
+  setTextureVariationOfClosestOfType(x: number, y: number, z: number, radius: number, modelHash: number, textureVariation: number): boolean { return SetTextureVariationOfClosestObjectOfType(x, y, z, radius, modelHash, textureVariation); } // unverified
+  setLightColor(object: number, p1: boolean, r: number, g: number, b: number): number { return Citizen.invokeNative("0x5F048334B4A4E774", Citizen.resultAsInteger(), object, !!p1, r, g, b); }
   setStuntPropSpeedup(object: number, p1: number): void { SetObjectStuntPropSpeedup(object, p1); } // unverified
   setStuntPropDuration(object: number, duration: number): void { SetObjectStuntPropDuration(object, duration); } // unverified
   setForceThisFrame(x: number, y: number, z: number, p3: number): void { SetForceObjectThisFrame(x, y, z, p3); }

@@ -101,7 +101,7 @@ export class GameTaskNs {
   lookAtEntity(ped: number, entity: number, duration: number, boneIndex: number, priority: number): void {
     TaskLookAtEntity(ped, entity, duration ?? -1, boneIndex ?? 0, priority ?? 2);
   }
-  clearLookAt(ped: number): void { TaskClearLookAtEntity(ped); }
+  clearLookAt(ped: number): void { TaskClearLookAt(ped); }
 
   taskPause(ped: number, ms: number): void { TaskPause(ped, ms); }
   taskStandStill(ped: number, time: number): void { TaskStandStill(ped, time); }
@@ -450,7 +450,7 @@ export class GameTaskNs {
   vehicleFollowWaypointRecording(ped: number, vehicle: number, WPRecording: string, p3: number, p4: number, p5: number, p6: number, p7: number, p8: boolean, p9: number): void { TaskVehicleFollowWaypointRecording(ped, vehicle, WPRecording, p3, p4, p5, p6, p7, p8, p9); }
   moveNetworkByName(ped: number, task: string, multiplier: number, p3: boolean, animDict: string, flags: number): void { TaskMoveNetworkByName(ped, task, multiplier, p3, animDict, flags); }
   moveNetworkAdvancedByName(ped: number, p1: string, p2: number, p3: number, p4: number, p5: number, p6: number, p7: number, p8: number, p9: number, p10: boolean, animDict: string, flags: number): void { TaskMoveNetworkAdvancedByName(ped, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, animDict, flags); }
-  setMoveNetworkSignalFloat2(ped: number, signalName: string, value: number): void { SetTaskMoveNetworkSignalFloatLerpRate(ped, signalName, value); }
+  setMoveNetworkSignalFloat2(ped: number, signalName: string, value: number): void { Citizen.invokeNative("0x373EF409B82697A3", ped, signalName, value); }
   synchronizedScene(ped: number, scene: number, animDictionary: string, animationName: string, speed: number, speedMultiplier: number, duration: number, flag: number, playbackRate: number, p9: number): void { TaskSynchronizedScene(ped, scene, animDictionary, animationName, speed, speedMultiplier, duration, flag, playbackRate, p9); }
   arrestPed(ped: number, target: number): void { TaskArrestPed(ped, target); }
   taskScriptedAnimation(ped: number): { p1: number; p2: number; p3: number } { const r = TaskScriptedAnimation(ped, 0, 0); return Array.isArray(r) ? { p1: r[0], p2: r[1], p3: r[2] } : r; }
@@ -465,5 +465,5 @@ export class GameTaskNs {
   moveNetworkByNameWithInitParams(ped: number, p1: string, p3: number, p4: boolean, animDict: string, flags: number): number { return TaskMoveNetworkByNameWithInitParams(ped, p1, p3, p4, animDict, flags); }
   rappelDownWall(p0: number, p1: number, p2: number, p3: number, p4: number, p5: number, p6: number, p7: number, p8: number, p9: number, p10: number): void { TaskRappelDownWallUsingClipsetOverride(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10); } // unverified
   clearVehicleS(vehicle: number): void { ClearVehicleCrashTask(vehicle); } // unverified
-  agitatedAction(ped: number, ped2: number): void { TaskAgitatedActionConfrontResponse(ped, ped2); } // unverified
+  agitatedAction(ped: number, ped2: number): void { Citizen.invokeNative("0x19D1B791CB3670FE", ped, ped2); } // unverified
 }

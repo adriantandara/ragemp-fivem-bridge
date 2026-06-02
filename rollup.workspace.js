@@ -7,7 +7,6 @@ const ROOT = dirname(fileURLToPath(import.meta.url));
 const PACKAGES = {
   "@ragemp-fivem-bridge/shared": resolve(ROOT, "packages/shared/src/index.ts"),
   "@ragemp-fivem-bridge/plugin-manager": resolve(ROOT, "packages/plugin-manager/src/index.ts"),
-  "@ragemp-fivem-bridge/rage-rpc": resolve(ROOT, "packages/rage-rpc/src/index.ts"),
 };
 
 export function workspaceAlias() {

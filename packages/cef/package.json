@@ -14,9 +14,6 @@
     "build": "rollup -c",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {
-    "@ragemp-fivem-bridge/rage-rpc": "workspace:*"
-  },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "catalog:",
     "@rollup/plugin-terser": "catalog:",

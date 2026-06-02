@@ -13,10 +13,9 @@
     var playersEl = document.getElementById("players");
     var timeEl = document.getElementById("time");
 
-    mp.rpc.register("hud:update", function (data) {
+    mp.events.add("hud:update", function (data) {
       if (data && typeof data.players !== "undefined") playersEl.textContent = data.players;
       if (data && data.time) timeEl.textContent = data.time;
-      return true;
     });
 
     mp.trigger("showcase:hudReady");

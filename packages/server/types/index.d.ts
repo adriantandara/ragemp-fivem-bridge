@@ -37,7 +37,6 @@ export interface ServerMp {
   world: WorldMp;
   config: ConfigMp;
   network: NetworkMp;
-  rpc: ServerRpc;
   storage: StorageMp;
   spawnmanager: { spawnPlayer(player: PlayerMp, info: { x: number; y: number; z: number; heading?: number; model?: HashOrString }): void };
 
@@ -48,25 +47,6 @@ export interface StorageMp {
   readonly data: Record<string, any>;
   sessionData: Record<string, any>;
   flush(): void;
-}
-
-export interface RpcCallOptions {
-  timeout?: number;
-  noRet?: boolean;
-}
-
-export interface ServerRpc {
-  register(name: string, cb: (args: any, info: { player: PlayerMp; environment: string; id?: string }) => any): () => void;
-  unregister(name: string): void;
-  call<T = any>(name: string, args?: any, options?: RpcCallOptions): Promise<T>;
-  callClient<T = any>(player: PlayerMp, name: string, args?: any, options?: RpcCallOptions): Promise<T>;
-  callBrowsers<T = any>(player: PlayerMp, name: string, args?: any, options?: RpcCallOptions): Promise<T>;
-  on(name: string, cb: (args: any, info: any) => void): () => void;
-  off(name: string, cb: (args: any, info: any) => void): void;
-  trigger(name: string, args?: any): void;
-  triggerClient(player: PlayerMp, name: string, args?: any): void;
-  triggerBrowsers(player: PlayerMp, name: string, args?: any): void;
-  setDebugMode(state: boolean): void;
 }
 
 export interface PlayerMp extends EntityMp {
@@ -471,6 +451,7 @@ export interface EventManagerMp {
   add(events: Record<string, (...args: any[]) => void>): void;
   addCommand(name: string, handler: (player: PlayerMp, rawCommand: string, ...args: string[]) => void): void;
   addProc<T = any>(procName: string, handler: (player: PlayerMp, ...args: any[]) => T | Promise<T>): void;
+  addDataHandler(key: string, handler: (entity: EntityMp, value: any, oldValue: any) => void): void;
 
   call(eventName: string, ...args: any[]): void;
   callRemote(player: PlayerMp, eventName: string, ...args: any[]): void;

@@ -1,3 +1,5 @@
+import { safeGetEntityFromNetId } from "./netId";
+
 export function whenNetworked(handle: number, cb: (netId: number) => void, isAlive?: () => boolean): void {
   const stillThere = () => {
     if (!handle) return false;
@@ -21,10 +23,7 @@ export function whenNetworked(handle: number, cb: (netId: number) => void, isAli
     if (netId) {
       let resolved = 0;
       try {
-        resolved =
-          typeof NetworkGetEntityFromNetworkId === "function"
-            ? NetworkGetEntityFromNetworkId(netId) || 0
-            : 0;
+        resolved = safeGetEntityFromNetId(netId);
       } catch (e) {
         resolved = 0;
       }

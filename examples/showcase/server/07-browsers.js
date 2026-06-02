@@ -1,12 +1,10 @@
 const openHuds = new Set();
 
 function pushHud(player) {
-  mp.rpc.callBrowsers(player, "hud:update", {
+  player.call("showcase:hudUpdate", [{
     players: mp.players.length,
     time: `${mp.world.time.hour}:${String(mp.world.time.minute).padStart(2, "0")}`,
-  }).catch(() => {
-    openHuds.delete(player.id);
-  });
+  }]);
 }
 
 mp.events.addCommand("ui", (player) => {

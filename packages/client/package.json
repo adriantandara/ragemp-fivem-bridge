@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "@ragemp-fivem-bridge/plugin-manager": "workspace:*",
-    "@ragemp-fivem-bridge/rage-rpc": "workspace:*",
     "@ragemp-fivem-bridge/shared": "workspace:*"
   },
   "devDependencies": {

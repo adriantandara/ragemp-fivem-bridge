@@ -17,6 +17,9 @@ export class EventManager extends EventEmitter {
 
   _commands: Map<string, (...args: any[]) => any> = new Map();
 
+  _dataHandlers: Map<string, Array<(...args: any[]) => void>> | null = null;
+  _dataSnapshots: WeakMap<object, Map<string, any>> | null = null;
+
   constructor() {
     super();
     this._setupBuiltinEvents();
@@ -115,8 +118,7 @@ export class EventManager extends EventEmitter {
           }
         }
         if (entity) {
-          entity._variables.set(realKey, value);
-          this._fire("entityDataChange", entity, realKey, value);
+          this._emitDataChange(entity, realKey, value);
         }
       });
     }
@@ -319,6 +321,35 @@ export class EventManager extends EventEmitter {
 
   removeProc(procName: string): void {
     this._procs.delete(procName);
+  }
+
+  addDataHandler(key: string, handler: (...args: any[]) => void): void {
+    if (!this._dataHandlers) this._dataHandlers = new Map();
+    if (!this._dataHandlers.has(key)) this._dataHandlers.set(key, []);
+    this._dataHandlers.get(key)!.push(handler);
+  }
+
+  _emitDataChange(entity: any, key: string, value: any): void {
+    if (!this._dataSnapshots) this._dataSnapshots = new WeakMap();
+    let snapshot = this._dataSnapshots.get(entity);
+    if (!snapshot) {
+      snapshot = new Map();
+      this._dataSnapshots.set(entity, snapshot);
+    }
+    const oldValue = snapshot.get(key);
+    snapshot.set(key, value);
+    entity._variables.set(key, value);
+
+    const handlers = this._dataHandlers?.get(key);
+    if (handlers) {
+      for (const handler of handlers) {
+        try {
+          handler(entity, value, oldValue);
+        } catch (e) {
+          console.error(`[bridge] addDataHandler("${key}") handler error:`, e);
+        }
+      }
+    }
   }
 
   reset(): void {

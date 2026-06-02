@@ -20,6 +20,7 @@ export class EventManager extends EventEmitter {
   _procCounter: number | null = null;
   _rules: Map<string, (...args: any[]) => any> | null = null;
   _dataHandlers: Map<string, Array<(...args: any[]) => void>> | null = null;
+  _dataSnapshots: WeakMap<object, Map<string, any>> | null = null;
 
   _wasAlive = true;
   _wasInVehicle = false;
@@ -223,10 +224,32 @@ export class EventManager extends EventEmitter {
         }
       }
       if (entity) {
-        entity._variables.set(realKey, value);
-        this._fire("entityDataChange", entity, realKey, value);
+        this._emitDataChange(entity, realKey, value);
       }
     });
+  }
+
+  _emitDataChange(entity: any, key: string, value: any): void {
+    if (!this._dataSnapshots) this._dataSnapshots = new WeakMap();
+    let snapshot = this._dataSnapshots.get(entity);
+    if (!snapshot) {
+      snapshot = new Map();
+      this._dataSnapshots.set(entity, snapshot);
+    }
+    const oldValue = snapshot.get(key);
+    snapshot.set(key, value);
+    entity._variables.set(key, value);
+
+    const handlers = this._dataHandlers?.get(key);
+    if (handlers) {
+      for (const handler of handlers) {
+        try {
+          handler(entity, value, oldValue);
+        } catch (e) {
+          console.error(`[bridge] addDataHandler("${key}") handler error:`, e);
+        }
+      }
+    }
   }
 
   _setupGlobalErrorHandlers(): void {

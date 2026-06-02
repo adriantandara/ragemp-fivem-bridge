@@ -471,6 +471,7 @@ export interface EventManagerMp {
   add(events: Record<string, (...args: any[]) => void>): void;
   addCommand(name: string, handler: (player: PlayerMp, rawCommand: string, ...args: string[]) => void): void;
   addProc<T = any>(procName: string, handler: (player: PlayerMp, ...args: any[]) => T | Promise<T>): void;
+  addDataHandler(key: string, handler: (entity: EntityMp, value: any, oldValue: any) => void): void;
 
   call(eventName: string, ...args: any[]): void;
   callRemote(player: PlayerMp, eventName: string, ...args: any[]): void;

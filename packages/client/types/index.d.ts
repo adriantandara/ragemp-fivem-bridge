@@ -392,7 +392,7 @@ export interface EventManagerMp {
   callRemoteProc<T = any>(procName: string, ...args: any[]): Promise<T>;
   callBrowser(browser: BrowserMp, eventName: string, ...args: any[]): void;
   remove(eventName: string, handler?: (...args: any[]) => void): void;
-  addDataHandler(key: string, handler: (...args: any[]) => void): void;
+  addDataHandler(key: string, handler: (entity: EntityMp, value: any, oldValue: any) => void): void;
   addProc<T = any>(procName: string, handler: (...args: any[]) => T | Promise<T>): void;
   cancelPendingProc(procName: string): void;
   hasPendingProc(procName: string): boolean;

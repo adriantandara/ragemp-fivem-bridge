@@ -14,9 +14,9 @@
     "checkJs": false,
     "noEmit": true,
     "paths": {
-      "@ragemp-fivem-bridge/shared": ["packages/shared/src/index.ts"],
-      "@ragemp-fivem-bridge/plugin-manager": ["packages/plugin-manager/src/index.ts"],
-      "@ragemp-fivem-bridge/rage-rpc": ["packages/rage-rpc/src/index.ts"]
+      "@ragemp-fivem-bridge/shared": ["./packages/shared/src/index.ts"],
+      "@ragemp-fivem-bridge/plugin-manager": ["./packages/plugin-manager/src/index.ts"],
+      "@ragemp-fivem-bridge/rage-rpc": ["./packages/rage-rpc/src/index.ts"]
     },
 
     "strict": false,

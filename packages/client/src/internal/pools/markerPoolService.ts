@@ -3,6 +3,7 @@ import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { MarkerMp } from "../../Entities/MarkerMp";
 import { MarkerInternals } from "../markerInternals";
 import { isVisibleHere } from "../../utils/dimension";
+import { framePlayerCoords } from "../../utils/frame";
 import type { MarkerMpPool } from "../../Pools/MarkerMpPool";
 
 interface MarkerPoolRec {
@@ -84,22 +85,25 @@ function startRendering(pool: MarkerMpPool): void {
   const MAX_DIST = 150.0;
   const poolRec = MarkerPoolInternals.get(pool);
   poolRec.renderTick = setTick(() => {
-    if (poolStore(pool).entities.size === 0) return;
+    const entities = poolStore(pool).entities;
+    if (entities.size === 0) return;
 
-    const coords = GetEntityCoords(PlayerPedId(), true);
+    const coords = framePlayerCoords();
     const px = coords[0], py = coords[1], pz = coords[2];
     const hiddenSet = poolRec.hiddenSet;
 
-    pool.forEach(((marker: MarkerMp) => {
+    entities.forEach((entity) => {
+      const marker = entity as unknown as MarkerMp;
       const rec = MarkerInternals.get(marker);
       if (!rec.visible) return;
       if (hiddenSet.has(marker.id)) return;
-      if (!isVisibleHere(rec.dimension)) return;
 
       const pos = rec.position;
       const dx = px - pos.x, dy = py - pos.y, dz = pz - pos.z;
       const limit = rec.drawDistance || MAX_DIST;
       if (dx * dx + dy * dy + dz * dz > limit * limit) return;
+
+      if (!isVisibleHere(rec.dimension)) return;
 
       DrawMarker(
         rec.type,
@@ -110,7 +114,7 @@ function startRendering(pool: MarkerMpPool): void {
         rec.r, rec.g, rec.b, rec.a,
         false, false, 2, false, null, null, false
       );
-    }) as any);
+    });
   });
 
   if (typeof on === "function") {

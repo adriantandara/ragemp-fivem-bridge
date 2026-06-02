@@ -37,7 +37,7 @@ export class Pool {
   }
 
   forEach(fn: (entity: PoolEntity) => void): void {
-    poolStore(this).entities.forEach((entity) => fn(entity));
+    poolStore(this).entities.forEach(fn);
   }
 
   apply(fn: (entity: PoolEntity) => void): void {

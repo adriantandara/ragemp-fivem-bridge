@@ -2,6 +2,7 @@ import { rehydrateArgsFromNet, STATE_KEY_PREFIX } from "@ragemp-fivem-bridge/sha
 import { EntityInternals, EventEmitterInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { safeGetNetworkId, safeGetEntityFromNetId } from "../utils/netId";
 import { onWorldScan } from "../utils/worldScan";
+import { framePlayerPed, framePlayerCoords } from "../utils/frame";
 import { isVisibleHere } from "../utils/dimension";
 import { resolveNetEntity } from "../utils/netEntity";
 import { resolveHandle } from "../internal/pools/streamingService";
@@ -247,7 +248,7 @@ export function setupGlobalErrorHandlers(mgr: EventManager): void {
 export function setupMainTick(mgr: EventManager): void {
   const rec = ClientEventManagerInternals.get(mgr);
   rec.builtinTick = onWorldScan((cache: { players: number[]; vehicles: number[]; peds: number[] }) => {
-    const ped = PlayerPedId();
+    const ped = framePlayerPed();
     if (ped === 0) return;
 
     if (!rec.builtinTickStarted) {
@@ -258,7 +259,7 @@ export function setupMainTick(mgr: EventManager): void {
     const localPlayer = globalThis.mp?.players?.local;
     if (!localPlayer) return;
 
-    const playerCoords = GetEntityCoords(ped, true);
+    const playerCoords = framePlayerCoords();
 
     tickCheckpoints(mgr, ped, localPlayer, playerCoords);
     tickWaypoint(mgr, ped, localPlayer, playerCoords);
@@ -270,7 +271,7 @@ export function setupMainTick(mgr: EventManager): void {
 
   rec.lifecycleTick = setTick(() => {
     if (!rec.builtinTickStarted) return;
-    const ped = PlayerPedId();
+    const ped = framePlayerPed();
     if (ped === 0) return;
     const localPlayer = globalThis.mp?.players?.local;
     if (!localPlayer) return;

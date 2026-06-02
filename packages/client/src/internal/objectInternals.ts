@@ -5,6 +5,8 @@ export interface ObjectInternalsRec {
   isWeak: boolean;
   notifyStreaming: boolean;
   streamingRange: number;
+  removing: boolean;
+  streamedIn: boolean;
 }
 
 export const ObjectInternals = defineInternals<ObjectInternalsRec>();
@@ -14,5 +16,7 @@ export function initObjectInternals(object: ObjectMp): ObjectInternalsRec {
     isWeak: false,
     notifyStreaming: false,
     streamingRange: 0,
+    removing: false,
+    streamedIn: true,
   });
 }

@@ -3,6 +3,7 @@ import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { TextLabelMp } from "../../Entities/TextLabelMp";
 import { TextLabelInternals } from "../textLabelInternals";
 import { isVisibleHere } from "../../utils/dimension";
+import { framePlayerCoords } from "../../utils/frame";
 import type { TextLabelMpPool } from "../../Pools/TextLabelMpPool";
 
 interface TextLabelPoolRec {
@@ -74,21 +75,22 @@ export function setupTextLabelPool(pool: TextLabelMpPool): void {
 function startRendering(pool: TextLabelMpPool): void {
   const poolRec = TextLabelPoolInternals.get(pool);
   poolRec.renderTick = setTick(() => {
-    if (poolStore(pool).entities.size === 0) return;
-    const playerPed = PlayerPedId();
-    const playerCoords = GetEntityCoords(playerPed, true);
-    const playerX = playerCoords[0];
-    const playerY = playerCoords[1];
-    const playerZ = playerCoords[2];
+    const entities = poolStore(pool).entities;
+    if (entities.size === 0) return;
+    const coords = framePlayerCoords();
+    const playerX = coords[0];
+    const playerY = coords[1];
+    const playerZ = coords[2];
 
-    pool.forEach(((label: TextLabelMp) => {
+    entities.forEach((entity) => {
+      const label = entity as unknown as TextLabelMp;
       const rec = TextLabelInternals.get(label);
       if (!rec.visible) return;
-      if (!isVisibleHere(rec.dimension)) return;
 
       const pos = rec.position;
       if (!pos) return;
 
+      // Cheapest, most-selective cull first: squared distance.
       const dx = playerX - pos.x;
       const dy = playerY - pos.y;
       const dz = playerZ - pos.z;
@@ -96,6 +98,9 @@ function startRendering(pool: TextLabelMpPool): void {
       const drawDist = rec.drawDistance;
 
       if (distSq > drawDist * drawDist) return;
+
+      // Only survivors pay for the dimension predicate.
+      if (!isVisibleHere(rec.dimension)) return;
 
       SetDrawOrigin(pos.x, pos.y, pos.z, 0);
       SetTextFont(rec.font);
@@ -107,7 +112,7 @@ function startRendering(pool: TextLabelMpPool): void {
       AddTextComponentSubstringPlayerName(rec.text);
       EndTextCommandDisplayText(0.0, 0.0);
       ClearDrawOrigin();
-    }) as any);
+    });
   });
 
   if (typeof on === "function") {

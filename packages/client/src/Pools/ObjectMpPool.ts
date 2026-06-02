@@ -56,8 +56,9 @@ export class ObjectMpPool extends StreamingPool  {
 
   new(model: number | string, position: { x: number; y: number; z: number }, options: any = {}): ObjectMp {
     const modelHash = typeof model === "string" ? GetHashKey(model) : model;
+    const isNetwork = options.isNetwork !== undefined ? !!options.isNetwork : true;
 
-    const handle = CreateObject(modelHash, position.x, position.y, position.z, true, true, false);
+    const handle = CreateObject(modelHash, position.x, position.y, position.z, isNetwork, true, false);
     const id = nextLocalId();
     const obj = new ObjectMp(id, handle);
 
@@ -71,8 +72,17 @@ export class ObjectMpPool extends StreamingPool  {
 
     this._add(obj);
     this._handleToEntity.set(handle, obj);
+    globalThis.mp?.events?._fire("entityStreamIn", obj);
 
     return obj;
+  }
+
+  _remove(id: number): void {
+    const entity = this._entities.get(id) as ObjectMp | undefined;
+    if (entity && !(entity as any)._isServer && !entity._isWeak) {
+      globalThis.mp?.events?._fire("entityStreamOut", entity);
+    }
+    super._remove(id);
   }
 
   atHandle(handle: number): ObjectMp | null {
@@ -121,6 +131,7 @@ export class ObjectMpPool extends StreamingPool  {
 
     this._add(obj);
     this._handleToEntity.set(handle, obj);
+    globalThis.mp?.events?._fire("entityStreamIn", obj);
 
     return obj;
   }

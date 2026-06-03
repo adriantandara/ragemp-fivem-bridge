@@ -6,6 +6,8 @@ import { PlayerInternals } from "../internal/playerInternals";
 import { removeFromStreamingPool } from "../internal/pools/streamingService";
 import { playerByServerId } from "../internal/pools/playerPoolService";
 
+const MAX_GEAR_INDEX = 10;
+
 export class VehicleMp extends EntityMpBase {
   constructor(token: symbol, id: number, handle: number | null) {
     super(token, id, "vehicle", handle);
@@ -239,22 +241,52 @@ export class VehicleMp extends EntityMpBase {
   setTyresCanBurst(toggle: boolean): void { SetVehicleTyresCanBurst(this.handle, !!toggle); }
 
   getGearRatios() {
-    const gearCount = this.getHandling(`nInitialDriveGears`);
-    if (!Number.isInteger(gearCount)) return [];
+    if (!this.handle) return [];
 
+    const gears = this.forwardGearCount();
     const ratios = [];
-    for (let i = 0; i < gearCount; i++) {
+    for (let i = 0; i <= gears; i++) {
       ratios.push(GetVehicleGearRatio(this.handle, i));
     }
     return ratios;
   }
 
   setGearRatios(ratios: number[]) {
-    if (!Array.isArray(ratios)) return;
+    if (!Array.isArray(ratios) || !this.handle || !DoesEntityExist(this.handle)) return;
 
-    for (let i = 0; i < ratios.length; i++) {
-      SetVehicleGearRatio(this.handle, i, ratios[i]);
+    const rec = VehicleInternals.get(this);
+    if (!rec.defaultGearRatios) {
+      const defaults: number[] = [];
+      let initialised = false;
+      for (let i = 0; i <= MAX_GEAR_INDEX; i++) {
+        const r = GetVehicleGearRatio(this.handle, i);
+        defaults.push(r);
+        if (r !== 0) initialised = true;
+      }
+      if (!initialised) return;
+      rec.defaultGearRatios = defaults;
     }
+
+    if (ratios.length === 0) {
+      const defaults = rec.defaultGearRatios;
+      for (let i = 0; i < defaults.length; i++) {
+        SetVehicleGearRatio(this.handle, i, defaults[i]);
+      }
+      return;
+    }
+
+    const count = Math.min(ratios.length, MAX_GEAR_INDEX + 1);
+    for (let i = 0; i < count; i++) {
+      const r = ratios[i];
+      if (typeof r !== "number" || !Number.isFinite(r)) continue;
+      SetVehicleGearRatio(this.handle, i, r);
+    }
+  }
+
+  private forwardGearCount(): number {
+    const n = GetVehicleHandlingInt(this.handle, "CHandlingData", "nInitialDriveGears");
+    if (!Number.isInteger(n) || n <= 0) return 0;
+    return Math.min(n, MAX_GEAR_INDEX);
   }
 
 

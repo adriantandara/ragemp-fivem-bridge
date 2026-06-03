@@ -4,7 +4,7 @@ import { PedMp } from "../Entities/PedMp";
 import { getPedPool } from "../utils/worldScan";
 import { StreamingInternals } from "../internal/streamingInternals";
 import { setupPedPool } from "../internal/pools/pedPoolService";
-import { startStreaming, registerLocalStreamed } from "../internal/pools/streamingService";
+import { startStreaming, registerLocalStreamed, removeFromStreamingPool } from "../internal/pools/streamingService";
 
 export class PedMpPool extends StreamingPool<PedMp> {
     constructor() {
@@ -42,6 +42,10 @@ export class PedMpPool extends StreamingPool<PedMp> {
                 false,
                 false
             );
+            if (!handle) {
+                removeFromStreamingPool(this, ped.id);
+                return;
+            }
             EntityInternals.get(ped).handle = handle;
             StreamingInternals.get(this).handleToEntity.set(handle, ped);
 
@@ -72,6 +76,7 @@ export class PedMpPool extends StreamingPool<PedMp> {
                     finish();
                 } else if (GetGameTimer() - startedAt > 30000) {
                     clearTick(tick);
+                    removeFromStreamingPool(this, ped.id);
                     console.warn(
                         `[ragemp-bridge] mp.peds.new: model ${hash} failed to load after 30s — ped not created.`
                     );

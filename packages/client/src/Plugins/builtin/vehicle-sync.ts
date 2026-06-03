@@ -1,5 +1,6 @@
 import { applyVehicleSnapshot } from "../../utils/vehicleSync";
 import { safeGetEntityFromNetId } from "../../utils/netId";
+import { addVehicleStreamInHandler } from "../../internal/pools/vehiclePoolService";
 import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 
 interface PluginContext {
@@ -12,7 +13,7 @@ export const name = "vehicle-sync";
 export default function setup({ mp, plugin }: { mp: any; plugin: PluginContext }): void {
   const requested = new Set<number>();
 
-  mp.vehicles.onVehicleStreamIn((_vehicle: unknown, _handle: unknown, netId: number) => {
+  addVehicleStreamInHandler(mp.vehicles, (_vehicle: unknown, _handle: unknown, netId: number) => {
     if (requested.has(netId)) return;
     requested.add(netId);
     emitNet("ragemp:vehicleSync:request", netId);

@@ -3,12 +3,8 @@ import type { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { PlayerMp } from "../Entities/PlayerMp";
 import { setupPlayerPool } from "../internal/pools/playerPoolService";
 
-export class PlayerMpPool extends Pool {
+export class PlayerMpPool extends Pool<PlayerMp> {
   local!: PlayerMp;
-  at!: (id: number) => PlayerMp | null;
-  exists!: (entity: number | { id: number }) => boolean;
-  forEach!: (fn: (entity: PlayerMp) => void) => void;
-  toArray!: () => PlayerMp[];
 
   constructor() {
     super();
@@ -35,11 +31,11 @@ export class PlayerMpPool extends Pool {
     return this.local?.heading ?? 0;
   }
 
-  get streamed(): PlayerMp[] {
+  override get streamed(): PlayerMp[] {
     return this.toArray().filter((p: PlayerMp) => p !== this.local);
   }
 
-  forEachInStreamRange(fn: (player: PlayerMp) => void): void {
+  override forEachInStreamRange(fn: (player: PlayerMp) => void): void {
     this.streamed.forEach(fn);
   }
 }

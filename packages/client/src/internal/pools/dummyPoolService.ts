@@ -1,10 +1,10 @@
-import { poolAdd, removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { poolAdd, removeFromPool, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
 import { DummyMp } from "../../Entities/DummyMp";
 import type { DummyMpPool } from "../../Pools/DummyMpPool";
 
 function addDummy(pool: DummyMpPool, data: any): void {
   if (pool.exists(data.id)) return;
-  const dummy = new DummyMp(data.id, data.dummyType, data.data);
+  const dummy = new DummyMp(CONSTRUCT, data.id, data.dummyType, data.data);
   poolAdd(pool, dummy);
   globalThis.mp?.events?.call("dummyEntityCreated", dummy);
 }

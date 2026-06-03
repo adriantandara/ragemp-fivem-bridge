@@ -1,23 +1,27 @@
-import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
+import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { BroadcastEntity } from "./BroadcastEntity";
 import { TextLabelInternals, initTextLabelInternals } from "../internal/textLabelInternals";
-import { removeFromPool, EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
+import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 
 type LabelColor = { r?: number; g?: number; b?: number; a?: number };
 
-export class TextLabelMp extends Entity {
-  constructor(id: number, text: string, position: Vector3) {
-    super(id, "textlabel");
+export class TextLabelMp extends BroadcastEntity {
+  protected override readonly updateEvent = "ragemp:labelUpdate";
+  protected override readonly destroyEvent = "ragemp:labelDestroy";
+
+  constructor(token: symbol, id: number, text: string, position: Vector3) {
+    super(token, id, "textlabel");
     const rec = EntityInternals.get(this);
     rec.position = position;
     rec.dimension = 0;
     initTextLabelInternals(this, text);
   }
 
-  _sync(): void {
-    emitNet("ragemp:labelUpdate", -1, this.id, this.toData());
+  protected override pool(): object | null | undefined {
+    return globalThis.mp.labels;
   }
 
-  toData(): Record<string, any> {
+  override toData(): Record<string, any> {
     const rec = TextLabelInternals.get(this);
     const ent = EntityInternals.get(this);
     return {
@@ -37,22 +41,13 @@ export class TextLabelMp extends Entity {
     };
   }
 
-  get position(): Vector3 {
-    return EntityInternals.get(this).position!;
-  }
-
-  set position(value: Vector3) {
-    EntityInternals.get(this).position = value;
-    this._sync();
-  }
-
   get text(): string {
     return TextLabelInternals.get(this).text;
   }
 
   set text(value: string) {
     TextLabelInternals.get(this).text = value;
-    this._sync();
+    this.sync();
   }
 
   get color(): { r: number; g: number; b: number; a: number } {
@@ -66,7 +61,7 @@ export class TextLabelMp extends Entity {
     rec.g = value.g ?? rec.g;
     rec.b = value.b ?? rec.b;
     rec.a = value.a ?? rec.a;
-    this._sync();
+    this.sync();
   }
 
   get drawDistance(): number {
@@ -75,7 +70,7 @@ export class TextLabelMp extends Entity {
 
   set drawDistance(value: number) {
     TextLabelInternals.get(this).drawDistance = value;
-    this._sync();
+    this.sync();
   }
 
   get los(): boolean {
@@ -84,7 +79,7 @@ export class TextLabelMp extends Entity {
 
   set los(value: boolean) {
     TextLabelInternals.get(this).los = value;
-    this._sync();
+    this.sync();
   }
 
   get font(): number {
@@ -93,20 +88,6 @@ export class TextLabelMp extends Entity {
 
   set font(value: number) {
     TextLabelInternals.get(this).font = value;
-    this._sync();
-  }
-
-  get dimension(): number {
-    return EntityInternals.get(this).dimension;
-  }
-
-  set dimension(value: number) {
-    EntityInternals.get(this).dimension = value;
-    this._sync();
-  }
-
-  destroy(): void {
-    emitNet("ragemp:labelDestroy", -1, this.id);
-    removeFromPool(globalThis.mp.labels, this.id);
+    this.sync();
   }
 }

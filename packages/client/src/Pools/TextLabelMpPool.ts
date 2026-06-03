@@ -1,25 +1,22 @@
-import { Pool } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
-import { poolAdd } from "@ragemp-fivem-bridge/shared/internal";
+import { poolAdd, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
 import { TextLabelMp } from "../Entities/TextLabelMp";
+import { LocalCreatePool } from "./LocalCreatePool";
 import { TextLabelInternals } from "../internal/textLabelInternals";
 import { setupTextLabelPool } from "../internal/pools/textLabelPoolService";
 
-let localLabelIdCounter = 100000;
-
-export class TextLabelMpPool extends Pool {
+export class TextLabelMpPool extends LocalCreatePool<TextLabelMp> {
   constructor() {
     super();
     setupTextLabelPool(this);
   }
 
   atRemoteId(remoteId: number): TextLabelMp | null {
-    return this.at(remoteId) as unknown as TextLabelMp | null;
+    return this.at(remoteId);
   }
 
   new(text: string, position: Vector3 | { x: number; y: number; z: number }, options: any = {}): TextLabelMp {
-    const id = ++localLabelIdCounter;
-    const label = new TextLabelMp(id);
+    const label = new TextLabelMp(CONSTRUCT, this.nextLocalId());
     const rec = TextLabelInternals.get(label);
 
     rec.text = text;

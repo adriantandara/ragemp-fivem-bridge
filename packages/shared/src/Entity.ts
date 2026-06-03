@@ -1,5 +1,6 @@
 import { Vector3, Vector3Like } from "./Vector3";
 import { EntityInternals, initEntityInternals, type EntityInternalsRec } from "./internal/entityInternals";
+import { CONSTRUCT } from "./internal/construct";
 
 export const STATE_KEY_PREFIX = "rmp:";
 
@@ -21,13 +22,16 @@ export abstract class Entity {
   [key: string]: unknown;
   id: number;
 
-  constructor(id: number, type: string, handle: number = 0) {
+  constructor(token: symbol, id: number, type: string, handle: number | null = null) {
+    if (token !== CONSTRUCT) {
+      throw new TypeError(`${type} entities cannot be constructed directly — use the corresponding mp.<pool>.new(...) factory`);
+    }
     this.id = id;
     initEntityInternals(this, type, handle);
   }
 
   get handle(): number {
-    return EntityInternals.get(this).handle;
+    return EntityInternals.get(this).handle ?? 0;
   }
 
   get type(): string {
@@ -127,6 +131,5 @@ export abstract class Entity {
     return rec.ownVariables.get(key);
   }
 
-  destroy(): void {
-  }
+  abstract destroy(): void;
 }

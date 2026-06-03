@@ -4,6 +4,9 @@ import { acquireNuiPauseGuard, releaseNuiPauseGuard } from "../utils/nuiFocus";
 import {
   BrowserInternals,
   initBrowserInternals,
+  applyBrowserPointerEvents,
+  getChatBrowser,
+  setChatBrowser,
   callBrowserProc,
   setBrowserProcTimeout,
   getBrowserProcTimeout,
@@ -22,10 +25,8 @@ function postFocusState(browserId: number, active: boolean): void {
 }
 
 export class BrowserMp extends Entity {
-  id: number;
-
-  constructor(id: number, url: string) {
-    super(id, "browser");
+  constructor(token: symbol, id: number, url: string) {
+    super(token, id, "browser");
     initBrowserInternals(this, url);
   }
 
@@ -58,32 +59,13 @@ export class BrowserMp extends Entity {
     if (rec.domReady) this.execute(code);
   }
 
-  _onDomReady(): void {
-    const rec = BrowserInternals.get(this);
-    rec.domReady = true;
-    if (rec.cachedExec.length === 0) return;
-    for (const code of rec.cachedExec) this.execute(code);
-  }
-
-  _applyPointerEvents(): void {
-    const rec = BrowserInternals.get(this);
-    if (rec.destroyed || typeof SendNuiMessage !== "function") return;
-    SendNuiMessage(
-      JSON.stringify({
-        type: "__ragemp:browser:pointerEvents",
-        browserId: this.id,
-        enabled: rec.inputEnabled && rec.mouseInputEnabled,
-      })
-    );
-  }
-
   get inputEnabled(): boolean {
     return BrowserInternals.get(this).inputEnabled;
   }
 
   set inputEnabled(value: boolean) {
     BrowserInternals.get(this).inputEnabled = !!value;
-    this._applyPointerEvents();
+    applyBrowserPointerEvents(this);
   }
 
   get mouseInputEnabled(): boolean {
@@ -92,7 +74,7 @@ export class BrowserMp extends Entity {
 
   set mouseInputEnabled(value: boolean) {
     BrowserInternals.get(this).mouseInputEnabled = !!value;
-    this._applyPointerEvents();
+    applyBrowserPointerEvents(this);
   }
 
   get orderId(): number {
@@ -118,8 +100,8 @@ export class BrowserMp extends Entity {
     BrowserInternals.get(this).isChatBrowser = enabled;
     const pool = globalThis.mp?.browsers;
     if (pool) {
-      if (enabled) pool._chatBrowser = this;
-      else if (pool._chatBrowser === this) pool._chatBrowser = null;
+      if (enabled) setChatBrowser(pool, this);
+      else if (getChatBrowser(pool) === this) setChatBrowser(pool, null);
     }
   }
 
@@ -137,7 +119,7 @@ export class BrowserMp extends Entity {
     return callBrowserProc<T>(this.id, procName, args);
   }
 
-  destroy(): void {
+  override destroy(): void {
     const rec = BrowserInternals.get(this);
     if (rec.destroyed) return;
     rec.destroyed = true;
@@ -148,7 +130,7 @@ export class BrowserMp extends Entity {
     releaseNuiPauseGuard("browser:" + this.id);
     postFocusState(this.id, false);
     const pool = globalThis.mp?.browsers;
-    if (pool && pool._chatBrowser === this) pool._chatBrowser = null;
+    if (pool && getChatBrowser(pool) === this) setChatBrowser(pool, null);
     SendNuiMessage(JSON.stringify({ type: "__ragemp:browser:destroy", browserId: this.id }));
     if (pool) removeFromPool(pool, this.id);
   }

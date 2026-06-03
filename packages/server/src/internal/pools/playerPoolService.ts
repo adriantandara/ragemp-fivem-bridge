@@ -1,4 +1,4 @@
-import { poolStore, poolAdd, poolRemove } from "@ragemp-fivem-bridge/shared/internal";
+import { poolStore, poolAdd, poolRemove, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
 import { PlayerMp } from "../../Entities/PlayerMp";
 import { PlayerInternals, resolvePlayerProc } from "../playerInternals";
 import type { PlayerMpPool } from "../../Pools/PlayerMpPool";
@@ -11,7 +11,7 @@ export function setupPlayerPool(pool: PlayerMpPool): void {
       PlayerInternals.get(entities.get(realSource) as PlayerMp).ready = true;
       return;
     }
-    const player = new PlayerMp(realSource);
+    const player = new PlayerMp(CONSTRUCT, realSource);
     PlayerInternals.get(player).ready = true;
     poolAdd(pool, player as any);
     globalThis.mp?.events?.call?.("playerJoin", player);

@@ -1,10 +1,8 @@
-import { Pool } from "@ragemp-fivem-bridge/shared";
 import { BlipMp } from "../Entities/BlipMp";
+import { LocalCreatePool } from "./LocalCreatePool";
 import { setupBlipPool, createBlip } from "../internal/pools/blipPoolService";
 
-let localBlipIdCounter = 100000;
-
-export class BlipMpPool extends Pool {
+export class BlipMpPool extends LocalCreatePool<BlipMp> {
   constructor() {
     super();
     setupBlipPool(this);
@@ -15,7 +13,6 @@ export class BlipMpPool extends Pool {
   }
 
   new(sprite: number, position: { x: number; y: number; z: number }, options: any = {}): BlipMp {
-    const id = ++localBlipIdCounter;
-    return createBlip(this, id, sprite, position, options);
+    return createBlip(this, this.nextLocalId(), sprite, position, options);
   }
 }

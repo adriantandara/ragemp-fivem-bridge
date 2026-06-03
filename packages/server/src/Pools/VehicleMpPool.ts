@@ -1,10 +1,10 @@
 import { HandlePool, Vector3 } from "@ragemp-fivem-bridge/shared";
-import { poolStore, poolAdd, handlePoolStore, EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
+import { poolStore, poolAdd, handlePoolStore, EntityInternals, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
 import { VehicleMp } from "../Entities/VehicleMp";
 import { whenNetworked } from "../utils/whenNetworked";
 import { safeGetEntityFromNetId } from "../utils/netId";
 import { entityCreated, entityBindNetId } from "../utils/entityRegistry";
-import { VehicleInternals } from "../internal/vehicleInternals";
+import { VehicleInternals , emitVehicle } from "../internal/vehicleInternals";
 import { setupVehiclePool, vehicleNetIdMap } from "../internal/pools/vehiclePoolService";
 
 let vehicleIdCounter = 0;
@@ -35,7 +35,7 @@ export class VehicleMpPool extends HandlePool {
       return null;
     }
     const id = ++vehicleIdCounter;
-    const vehicle = new VehicleMp(id, handle);
+    const vehicle = new VehicleMp(CONSTRUCT, id, handle);
 
     if (dimension !== 0) {
       vehicle.dimension = dimension;
@@ -47,7 +47,7 @@ export class VehicleMpPool extends HandlePool {
 
     if (options.alpha !== undefined) {
       EntityInternals.get(vehicle).alpha = options.alpha;
-      vehicle._emit("ragemp:vehicleAlpha", options.alpha);
+      emitVehicle(vehicle, "ragemp:vehicleAlpha", options.alpha);
     }
 
     if (options.color !== undefined) {
@@ -56,7 +56,7 @@ export class VehicleMpPool extends HandlePool {
 
     if (options.engine !== undefined) {
       VehicleInternals.get(vehicle).engine = options.engine;
-      vehicle._emit("ragemp:vehicleEngine", options.engine);
+      emitVehicle(vehicle, "ragemp:vehicleEngine", options.engine);
     }
 
     if (options.locked !== undefined) {
@@ -106,7 +106,7 @@ export class VehicleMpPool extends HandlePool {
     }
     if (typeof DoesEntityExist === "function" && !DoesEntityExist(handle)) return null;
     if (typeof GetEntityType === "function" && GetEntityType(handle) !== 2) return null;
-    const vehicle = new VehicleMp(++vehicleIdCounter, handle);
+    const vehicle = new VehicleMp(CONSTRUCT, ++vehicleIdCounter, handle);
     poolAdd(this, vehicle as any);
     handlePoolStore(this).handleToEntity.set(handle, vehicle as any);
     map.set(netId, vehicle);

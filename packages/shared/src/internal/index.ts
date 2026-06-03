@@ -1,10 +1,12 @@
 export { defineInternals } from "./defineInternals";
 export type { Internals } from "./defineInternals";
+export { CONSTRUCT } from "./construct";
+export { Registry } from "./Registry";
 export { setPoolLifecycleSink, initPool, poolStore, poolAdd, poolRemove } from "./poolStore";
 export type { PoolStore, LifecycleEvent } from "./poolStore";
 export { initHandlePool, handlePoolStore, peekHandlePool, removeFromPool } from "./handlePoolStore";
 export type { HandlePoolStore } from "./handlePoolStore";
-export { EntityInternals, initEntityInternals } from "./entityInternals";
+export { EntityInternals, initEntityInternals, hasHandle } from "./entityInternals";
 export type { EntityInternalsRec } from "./entityInternals";
 export { EventEmitterInternals, initEventEmitterInternals } from "./eventEmitterInternals";
 export type { EventEmitterInternalsRec, EventHandler } from "./eventEmitterInternals";

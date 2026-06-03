@@ -1,5 +1,5 @@
 import { HandlePool, Vector3 } from "@ragemp-fivem-bridge/shared";
-import { poolStore, poolAdd, handlePoolStore } from "@ragemp-fivem-bridge/shared/internal";
+import { poolStore, poolAdd, handlePoolStore, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
 import { PedMp } from "../Entities/PedMp";
 import { whenNetworked } from "../utils/whenNetworked";
 import { entityCreated, entityBindNetId } from "../utils/entityRegistry";
@@ -28,7 +28,7 @@ export class PedMpPool extends HandlePool {
 
     const handle = CreatePed(4, modelHash, position.x, position.y, position.z, heading, true, false);
     const id = ++pedIdCounter;
-    const ped = new PedMp(id, handle);
+    const ped = new PedMp(CONSTRUCT, id, handle);
 
     if (dimension !== 0) {
       ped.dimension = dimension;

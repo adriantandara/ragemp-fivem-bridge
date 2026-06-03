@@ -1,13 +1,11 @@
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
-import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { PedMpBase } from "./PedMpBase";
 import { PedInternals, initPedInternals } from "../internal/pedInternals";
 import { removeFromStreamingPool } from "../internal/pools/streamingService";
 
 export class PedMp extends PedMpBase {
-  constructor(id: number, handle: number) {
-    super(id, "ped");
-    EntityInternals.get(this).handle = handle;
+  constructor(token: symbol, id: number, handle: number | null) {
+    super(token, id, "ped", handle);
     initPedInternals(this);
   }
 
@@ -38,7 +36,7 @@ export class PedMp extends PedMpBase {
     PedInternals.get(this).invincible = !!value;
     SetEntityInvincible(this.handle, !!value);
   }
-  setInvincible(toggle: boolean): void {
+  override setInvincible(toggle: boolean): void {
     PedInternals.get(this).invincible = !!toggle;
     SetEntityInvincible(this.handle, !!toggle);
   }
@@ -59,7 +57,7 @@ export class PedMp extends PedMpBase {
     return (globalThis as any).mp?.players?.at?.(serverId) ?? null;
   }
 
-  destroy(): void {
+  override destroy(): void {
     if (this.handle && DoesEntityExist(this.handle)) {
       SetEntityAsMissionEntity(this.handle, false, true);
       DeleteEntity(this.handle);

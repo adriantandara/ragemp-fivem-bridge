@@ -1,4 +1,4 @@
-import { defineInternals, poolStore, poolAdd, removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { defineInternals, poolStore, poolAdd, removeFromPool, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
 import { rageHealthToGtaPed } from "@ragemp-fivem-bridge/shared";
 import { onWorldScan } from "../../utils/worldScan";
 import { PlayerMp } from "../../Entities/PlayerMp";
@@ -21,7 +21,7 @@ function setupLocal(pool: PlayerMpPool): void {
   try {
     const playerId = PlayerId();
     const serverId = GetPlayerServerId(playerId);
-    pool.local = new PlayerMp(serverId || playerId, playerId);
+    pool.local = new PlayerMp(CONSTRUCT, serverId || playerId, playerId);
     poolAdd(pool, pool.local);
   } catch (e) {
     const tick = setTick(() => {
@@ -30,7 +30,7 @@ function setupLocal(pool: PlayerMpPool): void {
         const serverId = GetPlayerServerId(playerId);
         if (!serverId) return;
         clearTick(tick);
-        pool.local = new PlayerMp(serverId, playerId);
+        pool.local = new PlayerMp(CONSTRUCT, serverId, playerId);
         poolAdd(pool, pool.local);
       } catch (_) {}
     });
@@ -48,7 +48,7 @@ function setupStreaming(pool: PlayerMpPool): void {
       activeSet.add(serverId);
 
       if (!pool.exists(serverId)) {
-        const player = new PlayerMp(serverId, playerIndex);
+        const player = new PlayerMp(CONSTRUCT, serverId, playerIndex);
         poolAdd(pool, player);
       }
     }

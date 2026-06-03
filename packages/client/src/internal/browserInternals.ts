@@ -1,5 +1,6 @@
 import { defineInternals } from "@ragemp-fivem-bridge/shared/internal";
 import type { BrowserMp } from "../Entities/BrowserMp";
+import type { BrowserMpPool } from "../Pools/BrowserMpPool";
 
 export interface BrowserInternalsRec {
   url: string;
@@ -27,6 +28,43 @@ export function initBrowserInternals(browser: BrowserMp, url: string): BrowserIn
     domReady: false,
     cachedExec: [],
   });
+}
+
+export function browserDomReady(browser: BrowserMp): void {
+  const rec = BrowserInternals.get(browser);
+  rec.domReady = true;
+  if (rec.cachedExec.length === 0) return;
+  for (const code of rec.cachedExec) browser.execute(code);
+}
+
+export function applyBrowserPointerEvents(browser: BrowserMp): void {
+  const rec = BrowserInternals.get(browser);
+  if (rec.destroyed || typeof SendNuiMessage !== "function") return;
+  SendNuiMessage(
+    JSON.stringify({
+      type: "__ragemp:browser:pointerEvents",
+      browserId: browser.id,
+      enabled: rec.inputEnabled && rec.mouseInputEnabled,
+    })
+  );
+}
+
+interface BrowserPoolRec {
+  chatBrowser: BrowserMp | null;
+}
+
+const BrowserPoolInternals = defineInternals<BrowserPoolRec>();
+
+export function initBrowserPoolInternals(pool: BrowserMpPool): void {
+  BrowserPoolInternals.init(pool, { chatBrowser: null });
+}
+
+export function getChatBrowser(pool: BrowserMpPool): BrowserMp | null {
+  return BrowserPoolInternals.get(pool).chatBrowser;
+}
+
+export function setChatBrowser(pool: BrowserMpPool, browser: BrowserMp | null): void {
+  BrowserPoolInternals.get(pool).chatBrowser = browser;
 }
 
 interface PendingProc {

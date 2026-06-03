@@ -2,15 +2,15 @@ import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
 import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { scheduleStateBagFlush } from "../utils/stateBagDefer";
 import { safeGetNetworkId } from "../utils/netId";
-import { VehicleInternals, initVehicleInternals } from "../internal/vehicleInternals";
+import { VehicleInternals, initVehicleInternals , emitVehicle } from "../internal/vehicleInternals";
 import { PlayerInternals } from "../internal/playerInternals";
 import { removeFromVehiclePool } from "../internal/pools/vehiclePoolService";
 
 type Quaternion = { x: number; y: number; z: number; w: number };
 
 export class VehicleMp extends Entity {
-  constructor(id: number, handle: number) {
-    super(id, "vehicle", handle);
+  constructor(token: symbol, id: number, handle: number | null) {
+    super(token, id, "vehicle", handle);
     initVehicleInternals(this);
     const rec = EntityInternals.get(this);
     rec.stateBag = () => globalThis.Entity(this.handle).state;
@@ -28,16 +28,13 @@ export class VehicleMp extends Entity {
     }
   }
 
-  _emit(event: string, ...args: any[]): void {
-    VehicleInternals.get(this).sync.emit(event, ...args);
-  }
 
-  get position(): Vector3 {
+  override get position(): Vector3 {
     const coords = GetEntityCoords(this.handle);
     return new Vector3(coords[0], coords[1], coords[2]);
   }
 
-  set position(value: Vector3) {
+  override set position(value: Vector3) {
     SetEntityCoords(
       this.handle,
       value.x,
@@ -67,15 +64,15 @@ export class VehicleMp extends Entity {
     SetEntityHeading(this.handle, value);
   }
 
-  get model(): number {
+  override get model(): number {
     return GetEntityModel(this.handle);
   }
 
-  get dimension(): number {
+  override get dimension(): number {
     return GetEntityRoutingBucket(this.handle);
   }
 
-  set dimension(value: number) {
+  override set dimension(value: number) {
     SetEntityRoutingBucket(this.handle, value);
   }
 
@@ -123,7 +120,7 @@ export class VehicleMp extends Entity {
 
   set engineHealth(value: number) {
     VehicleInternals.get(this).engineHealth = value;
-    this._emit("ragemp:vehicleEngineHealth", value);
+    emitVehicle(this, "ragemp:vehicleEngineHealth", value);
   }
 
   get engine(): boolean {
@@ -132,16 +129,16 @@ export class VehicleMp extends Entity {
 
   set engine(value: boolean) {
     VehicleInternals.get(this).engine = value;
-    this._emit("ragemp:vehicleEngine", value);
+    emitVehicle(this, "ragemp:vehicleEngine", value);
   }
 
-  get alpha(): number {
+  override get alpha(): number {
     return EntityInternals.get(this).alpha;
   }
 
-  set alpha(value: number) {
+  override set alpha(value: number) {
     EntityInternals.get(this).alpha = value;
-    this._emit("ragemp:vehicleAlpha", value);
+    emitVehicle(this, "ragemp:vehicleAlpha", value);
   }
 
   get livery(): number {
@@ -150,7 +147,7 @@ export class VehicleMp extends Entity {
 
   set livery(value: number) {
     VehicleInternals.get(this).livery = value;
-    this._emit("ragemp:vehicleLivery", value);
+    emitVehicle(this, "ragemp:vehicleLivery", value);
   }
 
   get numberPlateType(): number {
@@ -159,7 +156,7 @@ export class VehicleMp extends Entity {
 
   set numberPlateType(value: number) {
     VehicleInternals.get(this).numberPlateType = value;
-    this._emit("ragemp:vehicleNumberPlateType", value);
+    emitVehicle(this, "ragemp:vehicleNumberPlateType", value);
   }
 
   get windowTint(): number {
@@ -168,7 +165,7 @@ export class VehicleMp extends Entity {
 
   set windowTint(value: number) {
     VehicleInternals.get(this).windowTint = value;
-    this._emit("ragemp:vehicleWindowTint", value);
+    emitVehicle(this, "ragemp:vehicleWindowTint", value);
   }
 
   get neonEnabled(): boolean {
@@ -177,7 +174,7 @@ export class VehicleMp extends Entity {
 
   set neonEnabled(value: boolean) {
     VehicleInternals.get(this).neonEnabled = value;
-    this._emit("ragemp:vehicleNeonEnabled", value);
+    emitVehicle(this, "ragemp:vehicleNeonEnabled", value);
   }
 
   get dead(): boolean {
@@ -196,7 +193,7 @@ export class VehicleMp extends Entity {
 
   set customTires(value: boolean) {
     VehicleInternals.get(this).customTires = value;
-    this._emit("ragemp:vehicleCustomTires", value);
+    emitVehicle(this, "ragemp:vehicleCustomTires", value);
   }
 
   get wheelType(): number {
@@ -205,7 +202,7 @@ export class VehicleMp extends Entity {
 
   set wheelType(value: number) {
     VehicleInternals.get(this).wheelType = value;
-    this._emit("ragemp:vehicleWheelType", value);
+    emitVehicle(this, "ragemp:vehicleWheelType", value);
   }
 
   get velocity(): Vector3 {
@@ -328,7 +325,7 @@ export class VehicleMp extends Entity {
 
   set dashboardColor(value: number) {
     VehicleInternals.get(this).dashboardColor = value;
-    this._emit("ragemp:vehicleDashboardColor", value);
+    emitVehicle(this, "ragemp:vehicleDashboardColor", value);
   }
 
   get movable(): boolean {
@@ -346,7 +343,7 @@ export class VehicleMp extends Entity {
 
   set pearlescentColor(value: number) {
     VehicleInternals.get(this).pearlescentColor = value;
-    this._emit("ragemp:vehiclePearlescentColor", value);
+    emitVehicle(this, "ragemp:vehiclePearlescentColor", value);
   }
 
   get taxiLights(): boolean {
@@ -355,7 +352,7 @@ export class VehicleMp extends Entity {
 
   set taxiLights(value: boolean) {
     VehicleInternals.get(this).taxiLights = value;
-    this._emit("ragemp:vehicleTaxiLights", value);
+    emitVehicle(this, "ragemp:vehicleTaxiLights", value);
   }
 
   get trimColor(): number {
@@ -364,7 +361,7 @@ export class VehicleMp extends Entity {
 
   set trimColor(value: number) {
     VehicleInternals.get(this).trimColor = value;
-    this._emit("ragemp:vehicleTrimColor", value);
+    emitVehicle(this, "ragemp:vehicleTrimColor", value);
   }
 
   get wheelColor(): number {
@@ -373,15 +370,15 @@ export class VehicleMp extends Entity {
 
   set wheelColor(value: number) {
     VehicleInternals.get(this).wheelColor = value;
-    this._emit("ragemp:vehicleWheelColor", value);
+    emitVehicle(this, "ragemp:vehicleWheelColor", value);
   }
 
   explode(): void {
-    this._emit("ragemp:vehicleExplode");
+    emitVehicle(this, "ragemp:vehicleExplode");
   }
 
   repair(): void {
-    this._emit("ragemp:vehicleRepair");
+    emitVehicle(this, "ragemp:vehicleRepair");
   }
 
   spawn(position: Vector3, heading?: number): void {
@@ -425,7 +422,7 @@ export class VehicleMp extends Entity {
     ];
     SetVehicleCustomPrimaryColour(this.handle, r1, g1, b1);
     SetVehicleCustomSecondaryColour(this.handle, r2, g2, b2);
-    this._emit("ragemp:vehicleColorRGB", rec.colorRGB);
+    emitVehicle(this, "ragemp:vehicleColorRGB", rec.colorRGB);
   }
 
   getExtra(extraId: number): boolean {
@@ -434,7 +431,7 @@ export class VehicleMp extends Entity {
 
   setExtra(extraId: number, state: boolean): void {
     VehicleInternals.get(this).extras[extraId] = !!state;
-    this._emit("ragemp:vehicleExtra", extraId, !state);
+    emitVehicle(this, "ragemp:vehicleExtra", extraId, !state);
   }
 
   getMod(modType: number): number {
@@ -443,7 +440,7 @@ export class VehicleMp extends Entity {
 
   setMod(modType: number, modIndex: number): void {
     VehicleInternals.get(this).mods[modType] = modIndex;
-    this._emit("ragemp:vehicleMod", modType, modIndex);
+    emitVehicle(this, "ragemp:vehicleMod", modType, modIndex);
   }
 
   getNeonColor(): number[] {
@@ -452,7 +449,7 @@ export class VehicleMp extends Entity {
 
   setNeonColor(r: number, g: number, b: number): void {
     VehicleInternals.get(this).neonColor = [r, g, b];
-    this._emit("ragemp:vehicleNeonColor", r, g, b);
+    emitVehicle(this, "ragemp:vehicleNeonColor", r, g, b);
   }
 
   get driver(): any {
@@ -512,7 +509,7 @@ export class VehicleMp extends Entity {
     return DoesEntityExist(this.handle);
   }
 
-  destroy(): void {
+  override destroy(): void {
     DeleteEntity(this.handle);
     removeFromVehiclePool(globalThis.mp.vehicles, this.id);
   }

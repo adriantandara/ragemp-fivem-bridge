@@ -8,8 +8,8 @@ import { PlayerInternals, initPlayerInternals, resetWeaponState } from "../inter
 import { VehicleInternals } from "../internal/vehicleInternals";
 
 export class PlayerMp extends Entity {
-  constructor(source: number) {
-    super(source, "player");
+  constructor(token: symbol, source: number) {
+    super(token, source, "player");
     initPlayerInternals(this);
     const rec = EntityInternals.get(this);
     rec.stateBag = () => globalThis.Player(this.id).state;
@@ -97,30 +97,30 @@ export class PlayerMp extends Entity {
     SetEntityHeading(this.ped, value);
   }
 
-  get position(): Vector3 {
+  override get position(): Vector3 {
     const coords = GetEntityCoords(this.ped);
     return new Vector3(coords[0], coords[1], coords[2]);
   }
 
-  set position(value: Vector3) {
+  override set position(value: Vector3) {
     SetEntityCoords(this.ped, value.x, value.y, value.z, false, false, false, false);
   }
 
-  get dimension(): number {
+  override get dimension(): number {
     return GetPlayerRoutingBucket(this.id.toString());
   }
 
-  set dimension(value: number) {
+  override set dimension(value: number) {
     const dim = normalizeDimension(value);
     SetPlayerRoutingBucket(this.id.toString(), dim);
     emitNet("ragemp:setDimension", this.id, dim);
   }
 
-  get model(): number {
+  override get model(): number {
     return EntityInternals.get(this).model || GetEntityModel(this.ped);
   }
 
-  set model(value: number | string) {
+  override set model(value: number | string) {
     const rec = EntityInternals.get(this);
     rec.model = typeof value === "string" ? GetHashKey(value) : value;
     emitNet("ragemp:setModel", this.id, rec.model);
@@ -185,11 +185,11 @@ export class PlayerMp extends Entity {
     PlayerInternals.get(this).gameType = value;
   }
 
-  get alpha(): number {
+  override get alpha(): number {
     return EntityInternals.get(this).alpha;
   }
 
-  set alpha(value: number) {
+  override set alpha(value: number) {
     EntityInternals.get(this).alpha = value;
     emitNet("ragemp:setAlpha", this.id, value);
   }
@@ -602,7 +602,7 @@ export class PlayerMp extends Entity {
     emitNet("ragemp:disableVoiceTo", this.id, target.id);
   }
 
-  destroy(): void {
+  override destroy(): void {
     this.kick("Destroyed");
   }
 }

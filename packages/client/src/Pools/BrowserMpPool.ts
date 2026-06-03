@@ -1,25 +1,21 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
-import { poolAdd } from "@ragemp-fivem-bridge/shared/internal";
+import { poolAdd, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
 import { BrowserMp, setBrowserProcTimeout, getBrowserProcTimeout } from "../Entities/BrowserMp";
 import { setupBrowserPool } from "../internal/pools/browserPoolService";
+import { initBrowserPoolInternals } from "../internal/browserInternals";
 
 let _browserIdCounter = -1;
 
-export class BrowserMpPool extends Pool {
-  _chatBrowser: BrowserMp | null = null;
-  at!: (id: number) => BrowserMp | null;
-  exists!: (entity: number | { id: number }) => boolean;
-  forEach!: (fn: (entity: BrowserMp) => void) => void;
-  toArray!: () => BrowserMp[];
-
+export class BrowserMpPool extends Pool<BrowserMp> {
   constructor() {
     super();
+    initBrowserPoolInternals(this);
     setupBrowserPool(this);
   }
 
   new(url: string): BrowserMp {
     const id = ++_browserIdCounter;
-    const browser = new BrowserMp(id, url);
+    const browser = new BrowserMp(CONSTRUCT, id, url);
     poolAdd(this, browser);
 
     if (typeof SendNuiMessage === "function") {

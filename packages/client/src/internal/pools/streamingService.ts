@@ -11,13 +11,20 @@ import {
 
 export const LOCAL_STREAM_ID_BASE = 2_000_000_000;
 
-export interface StreamingPoolHost {
-  _onStreamIn(entity: any, handle: number, netId: number): void;
-  _onStreamOut(entity: any): void;
-}
-
 export function setupStreamingPool(pool: object, netType: string | null): StreamingInternalsRec {
   return initStreamingInternals(pool, netType);
+}
+
+export function setStreamHandlers(
+  pool: object,
+  handlers: {
+    onStreamIn?: (entity: any, handle: number, netId: number) => void;
+    onStreamOut?: (entity: any) => void;
+  },
+): void {
+  const rec = StreamingInternals.get(pool);
+  if (handlers.onStreamIn) rec.onStreamIn = handlers.onStreamIn;
+  if (handlers.onStreamOut) rec.onStreamOut = handlers.onStreamOut;
 }
 
 export function startNetworked(pool: object, makeEntity?: (id: number, handle: number) => any): void {
@@ -51,7 +58,7 @@ function subscribeRegistry(pool: object, rec: StreamingInternalsRec): void {
 function onServerCreate(pool: object, remoteId: number, data: any): void {
   const rec = StreamingInternals.get(pool);
   if (rec.byRemote.has(remoteId)) return;
-  const entity = rec.makeEntity!(remoteId, 0);
+  const entity = rec.makeEntity!(remoteId, null);
   const state = streamEntityState(entity);
   state.isServer = true;
   state.netId = 0;
@@ -80,7 +87,6 @@ function onServerNetId(pool: object, remoteId: number, netId: number): void {
 
 function onServerDestroy(pool: object, remoteId: number): void {
   const rec = StreamingInternals.get(pool);
-  const host = pool as unknown as StreamingPoolHost;
   const entity = rec.byRemote.get(remoteId);
   if (!entity) return;
   const state = streamEntityState(entity);
@@ -92,15 +98,14 @@ function onServerDestroy(pool: object, remoteId: number): void {
   const entities = poolStore(pool).entities;
   if (entities.has(remoteId)) {
     globalThis.mp?.events?.call("entityStreamOut", entity);
-    host._onStreamOut(entity);
+    rec.onStreamOut?.(entity);
     entities.delete(remoteId);
   }
-  EntityInternals.get(entity).handle = 0;
+  EntityInternals.get(entity).handle = null;
 }
 
 export function bindHandle(pool: object, remoteId: number, handle: number, netId: number): any {
   const rec = StreamingInternals.get(pool);
-  const host = pool as unknown as StreamingPoolHost;
   let entity = rec.byRemote.get(remoteId);
   if (!entity) {
     entity = rec.makeEntity!(remoteId, handle);
@@ -126,7 +131,7 @@ export function bindHandle(pool: object, remoteId: number, handle: number, netId
   if (!entities.has(entity.id)) {
     poolAdd(pool, entity);
     globalThis.mp?.events?.call("entityStreamIn", entity);
-    host._onStreamIn(entity, handle, netId);
+    rec.onStreamIn?.(entity, handle, netId);
   }
   return entity;
 }
@@ -134,7 +139,6 @@ export function bindHandle(pool: object, remoteId: number, handle: number, netId
 export function refreshServerHandle(pool: object, entity: any): any {
   if (!entity) return entity;
   const rec = StreamingInternals.get(pool);
-  const host = pool as unknown as StreamingPoolHost;
   const state = streamEntityState(entity);
   if (!state.isServer || !state.netId) return entity;
   const handle = safeGetEntityFromNetId(state.netId);
@@ -148,17 +152,16 @@ export function refreshServerHandle(pool: object, entity: any): any {
     rec.handleToEntity.delete(entity.handle);
     if (entities.has(entity.id)) {
       globalThis.mp?.events?.call("entityStreamOut", entity);
-      host._onStreamOut(entity);
+      rec.onStreamOut?.(entity);
       entities.delete(entity.id);
     }
-    EntityInternals.get(entity).handle = 0;
+    EntityInternals.get(entity).handle = null;
   }
   return entity;
 }
 
 export function resolveHandle(pool: object, handle: number): any {
   const rec = StreamingInternals.get(pool);
-  const host = pool as unknown as StreamingPoolHost;
   if (rec.filter && !rec.filter(handle)) return null;
   if (!handle || !DoesEntityExist(handle)) return null;
 
@@ -179,14 +182,13 @@ export function resolveHandle(pool: object, handle: number): any {
     poolAdd(pool, entity);
     rec.handleToEntity.set(handle, entity);
     globalThis.mp?.events?.call("entityStreamIn", entity);
-    host._onStreamIn(entity, handle, netId);
+    rec.onStreamIn?.(entity, handle, netId);
   }
   return entity;
 }
 
 function scan(pool: object, getHandles: () => number[]): void {
   const rec = StreamingInternals.get(pool);
-  const host = pool as unknown as StreamingPoolHost;
   const handles = getHandles();
   const activeSet = rec.activeSet;
   activeSet.clear();
@@ -202,8 +204,8 @@ function scan(pool: object, getHandles: () => number[]): void {
     rec.handleToEntity.delete(handle);
     entities.delete(entity.id);
     globalThis.mp?.events?.call("entityStreamOut", entity);
-    host._onStreamOut(entity);
-    if (streamEntityState(entity).isServer) EntityInternals.get(entity).handle = 0;
+    rec.onStreamOut?.(entity);
+    if (streamEntityState(entity).isServer) EntityInternals.get(entity).handle = null;
   }
 }
 

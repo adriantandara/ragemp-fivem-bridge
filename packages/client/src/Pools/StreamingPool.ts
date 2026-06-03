@@ -1,4 +1,4 @@
-import { Pool } from "@ragemp-fivem-bridge/shared";
+import { Entity, Pool } from "@ragemp-fivem-bridge/shared";
 import {
   setupStreamingPool,
   atRemote,
@@ -10,20 +10,13 @@ import {
 
 export { LOCAL_STREAM_ID_BASE };
 
-export class StreamingPool extends Pool {
-  forEach!: (fn: (entity: any) => void) => void;
-  toArray!: () => any[];
-
+export class StreamingPool<T extends Entity> extends Pool<T> {
   constructor(netType: string | null = null) {
     super();
     setupStreamingPool(this, netType);
   }
 
-  _onStreamIn(entity: any, handle: number, netId: number): void {}
-
-  _onStreamOut(entity: any): void {}
-
-  at(id: number): any {
+  override at(id: number): any {
     return atRemote(this, id);
   }
 
@@ -65,7 +58,7 @@ export class StreamingPool extends Pool {
     return atNetId(this, netId);
   }
 
-  exists(entity: any): boolean {
+  override exists(entity: any): boolean {
     return existsRemote(this, entity);
   }
 }

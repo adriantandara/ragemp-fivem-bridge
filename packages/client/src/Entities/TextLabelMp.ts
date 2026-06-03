@@ -4,18 +4,16 @@ import { removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
 import { TextLabelInternals, initTextLabelInternals } from "../internal/textLabelInternals";
 
 export class TextLabelMp extends Entity {
-  id: number;
-
-  constructor(id: number) {
-    super(id, "textlabel");
+  constructor(token: symbol, id: number) {
+    super(token, id, "textlabel");
     initTextLabelInternals(this);
   }
 
-  get position(): Vector3 | undefined {
+  override get position(): Vector3 | undefined {
     return TextLabelInternals.get(this).position;
   }
 
-  set position(value: Vector3 | undefined) {
+  override set position(value: Vector3 | undefined) {
     TextLabelInternals.get(this).position = value;
   }
 
@@ -72,15 +70,15 @@ export class TextLabelMp extends Entity {
     TextLabelInternals.get(this).visible = value;
   }
 
-  get dimension(): number {
+  override get dimension(): number {
     return TextLabelInternals.get(this).dimension;
   }
 
-  set dimension(value: number) {
+  override set dimension(value: number) {
     TextLabelInternals.get(this).dimension = value;
   }
 
-  destroy(): void {
+  override destroy(): void {
     if (globalThis.mp.labels) removeFromPool(globalThis.mp.labels, this.id);
   }
 }

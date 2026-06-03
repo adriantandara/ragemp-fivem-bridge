@@ -7,8 +7,8 @@ import { removeFromPedPool } from "../internal/pools/pedPoolService";
 import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 
 export class PedMp extends Entity {
-  constructor(id: number, handle: number) {
-    super(id, "ped", handle);
+  constructor(token: symbol, id: number, handle: number | null) {
+    super(token, id, "ped", handle);
     initPedInternals(this);
     const rec = EntityInternals.get(this);
     rec.stateBag = () => globalThis.Entity(this.handle).state;
@@ -16,12 +16,12 @@ export class PedMp extends Entity {
     rec.onVariableDeferred = () => scheduleStateBagFlush(this as any);
   }
 
-  get position(): Vector3 {
+  override get position(): Vector3 {
     const coords = GetEntityCoords(this.handle);
     return new Vector3(coords[0], coords[1], coords[2]);
   }
 
-  set position(value: Vector3) {
+  override set position(value: Vector3) {
     SetEntityCoords(this.handle, value.x, value.y, value.z, false, false, false, false);
   }
 
@@ -42,15 +42,15 @@ export class PedMp extends Entity {
     SetEntityHeading(this.handle, value);
   }
 
-  get dimension(): number {
+  override get dimension(): number {
     return GetEntityRoutingBucket(this.handle);
   }
 
-  set dimension(value: number) {
+  override set dimension(value: number) {
     SetEntityRoutingBucket(this.handle, value);
   }
 
-  get model(): number {
+  override get model(): number {
     return GetEntityModel(this.handle);
   }
 
@@ -103,7 +103,7 @@ export class PedMp extends Entity {
     emitNet("ragemp:pedInvincible", -1, rec.cachedNetId || safeGetNetworkId(this.handle), value);
   }
 
-  destroy(): void {
+  override destroy(): void {
     DeleteEntity(this.handle);
     removeFromPedPool(globalThis.mp.peds, this.id);
   }

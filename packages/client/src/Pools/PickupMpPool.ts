@@ -1,34 +1,35 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
-import { setupPickupPool, pickupMap, type ClientPickup } from "../internal/pools/pickupPoolService";
+import { setupPickupPool, pickupMap } from "../internal/pools/pickupPoolService";
+import { PickupMp } from "../Entities/PickupMp";
 
-export class PickupMpPool extends Pool {
+export class PickupMpPool extends Pool<PickupMp> {
   constructor() {
     super();
     setupPickupPool(this);
   }
 
-  at(id: number): ClientPickup | null {
+  override at(id: number): PickupMp | null {
     return pickupMap(this).get(id) ?? null;
   }
 
-  exists(idOrPickup: number | { id: number }): boolean {
+  override exists(idOrPickup: number | PickupMp): boolean {
     const id = typeof idOrPickup === "number" ? idOrPickup : idOrPickup?.id;
     return pickupMap(this).has(id);
   }
 
-  forEach(fn: (p: ClientPickup) => void): void {
+  override forEach(fn: (p: PickupMp) => void): void {
     pickupMap(this).forEach((p) => fn(p));
   }
 
-  toArray(): ClientPickup[] {
+  override toArray(): PickupMp[] {
     return Array.from(pickupMap(this).values());
   }
 
-  get length(): number {
+  override get length(): number {
     return pickupMap(this).size;
   }
 
-  get size(): number {
+  override get size(): number {
     return pickupMap(this).size;
   }
 }

@@ -3,15 +3,15 @@ import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { toVec3 } from "../utils/vec";
 
 export class EntityMpBase extends Entity {
-  constructor(id: number, type: string, handle: number) {
-    super(id, type, handle);
+  constructor(token: symbol, id: number, type: string, handle: number | null) {
+    super(token, id, type, handle);
     EntityInternals.get(this).stateBag = () => globalThis.Entity(this.handle).state;
   }
 
-  get position(): Vector3 {
+  override get position(): Vector3 {
     return toVec3(GetEntityCoords(this.handle, true));
   }
-  set position(value: Vector3) {
+  override set position(value: Vector3) {
     SetEntityCoords(this.handle, value.x, value.y, value.z, false, false, false, false);
   }
 
@@ -29,7 +29,7 @@ export class EntityMpBase extends Entity {
     SetEntityHeading(this.handle, value);
   }
 
-  get model(): number {
+  override get model(): number {
     return GetEntityModel(this.handle);
   }
 
@@ -37,10 +37,10 @@ export class EntityMpBase extends Entity {
     return toVec3(GetEntityVelocity(this.handle));
   }
 
-  get alpha(): number {
+  override get alpha(): number {
     return GetEntityAlpha(this.handle);
   }
-  set alpha(value: number) {
+  override set alpha(value: number) {
     SetEntityAlpha(this.handle, value, false);
   }
 
@@ -377,7 +377,7 @@ export class EntityMpBase extends Entity {
     return !!this.handle && DoesEntityExist(this.handle);
   }
 
-  destroy(): void {
+  override destroy(): void {
     if (this.handle && DoesEntityExist(this.handle)) {
       SetEntityAsMissionEntity(this.handle, false, true);
       DeleteEntity(this.handle);

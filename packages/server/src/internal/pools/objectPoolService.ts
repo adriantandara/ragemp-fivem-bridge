@@ -1,20 +1,20 @@
-import { defineInternals, poolStore, removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { defineInternals, poolStore, removeFromPool, Registry } from "@ragemp-fivem-bridge/shared/internal";
 import type { ObjectMp } from "../../Entities/ObjectMp";
 import type { ObjectMpPool } from "../../Pools/ObjectMpPool";
 import { ObjectInternals } from "../objectInternals";
 import { entityDestroyed } from "../../utils/entityRegistry";
 
 interface ObjectPoolState {
-  netIdToEntity: Map<number, ObjectMp>;
+  netIdToEntity: Registry<number, ObjectMp>;
 }
 
 const Store = defineInternals<ObjectPoolState>();
 
 export function setupObjectPool(pool: ObjectMpPool): void {
-  Store.init(pool, { netIdToEntity: new Map() });
+  Store.init(pool, { netIdToEntity: new Registry() });
 }
 
-export function objectNetIdMap(pool: object): Map<number, ObjectMp> {
+export function objectNetIdMap(pool: object): Registry<number, ObjectMp> {
   return Store.get(pool).netIdToEntity;
 }
 

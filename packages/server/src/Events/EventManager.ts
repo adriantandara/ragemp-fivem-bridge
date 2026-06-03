@@ -12,7 +12,7 @@ export class EventManager extends EventEmitter {
     setupEventManager(this);
   }
 
-  add(eventNameOrObject: string | Record<string, EventHandler>, handler?: EventHandler): void {
+  override add(eventNameOrObject: string | Record<string, EventHandler>, handler?: EventHandler): void {
     super.add(eventNameOrObject, handler);
     if (typeof eventNameOrObject === "string") handleEventAdded(this, eventNameOrObject);
   }

@@ -7,8 +7,8 @@ import { objectNetIdMap, removeFromObjectPool } from "../internal/pools/objectPo
 import { handlePoolStore, EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 
 export class ObjectMp extends Entity {
-  constructor(id: number, handle: number) {
-    super(id, "object", handle);
+  constructor(token: symbol, id: number, handle: number | null) {
+    super(token, id, "object", handle);
     initObjectInternals(this);
     const rec = EntityInternals.get(this);
     rec.stateBag = () => globalThis.Entity(this.handle).state;
@@ -16,12 +16,12 @@ export class ObjectMp extends Entity {
     rec.onVariableDeferred = () => scheduleStateBagFlush(this as any);
   }
 
-  get position(): Vector3 {
+  override get position(): Vector3 {
     const coords = GetEntityCoords(this.handle);
     return new Vector3(coords[0], coords[1], coords[2]);
   }
 
-  set position(value: Vector3) {
+  override set position(value: Vector3) {
     SetEntityCoords(this.handle, value.x, value.y, value.z, false, false, false, false);
   }
 
@@ -34,11 +34,11 @@ export class ObjectMp extends Entity {
     SetEntityRotation(this.handle, value.x, value.y, value.z, 2, false);
   }
 
-  get model(): number {
+  override get model(): number {
     return EntityInternals.get(this).model || GetEntityModel(this.handle);
   }
 
-  set model(value: number | string) {
+  override set model(value: number | string) {
     const modelHash = typeof value === "string" ? GetHashKey(value) : value;
 
     if (!DoesEntityExist(this.handle)) {
@@ -91,11 +91,11 @@ export class ObjectMp extends Entity {
     });
   }
 
-  get alpha(): number {
+  override get alpha(): number {
     return EntityInternals.get(this).alpha;
   }
 
-  set alpha(value: number) {
+  override set alpha(value: number) {
     EntityInternals.get(this).alpha = value;
     whenNetworked(this.handle, (netId: number) => {
       if (EntityInternals.get(this).alpha === value) {
@@ -104,15 +104,15 @@ export class ObjectMp extends Entity {
     });
   }
 
-  get dimension(): number {
+  override get dimension(): number {
     return GetEntityRoutingBucket(this.handle);
   }
 
-  set dimension(value: number) {
+  override set dimension(value: number) {
     SetEntityRoutingBucket(this.handle, value);
   }
 
-  destroy(): void {
+  override destroy(): void {
     DeleteEntity(this.handle);
     removeFromObjectPool(globalThis.mp.objects, this.id);
   }

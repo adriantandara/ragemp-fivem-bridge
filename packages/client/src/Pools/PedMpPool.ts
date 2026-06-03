@@ -1,4 +1,4 @@
-import { poolAdd, EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
+import { poolAdd, EntityInternals, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
 import { StreamingPool } from "./StreamingPool";
 import { PedMp } from "../Entities/PedMp";
 import { getPedPool } from "../utils/worldScan";
@@ -6,14 +6,14 @@ import { StreamingInternals } from "../internal/streamingInternals";
 import { setupPedPool, nextLocalPedId } from "../internal/pools/pedPoolService";
 import { startStreaming } from "../internal/pools/streamingService";
 
-export class PedMpPool extends StreamingPool {
+export class PedMpPool extends StreamingPool<PedMp> {
     constructor() {
         super("ped");
         setupPedPool(this);
         startStreaming(
             this,
             getPedPool,
-            (netId: number, handle: number) => new PedMp(netId, handle),
+            (netId: number, handle: number) => new PedMp(CONSTRUCT, netId, handle),
             (handle: number) => !IsPedAPlayer(handle)
         );
     }
@@ -29,7 +29,7 @@ export class PedMpPool extends StreamingPool {
 
         const hash = typeof model === "string" ? GetHashKey(model) : model;
         const id = nextLocalPedId();
-        const ped = new PedMp(id, 0);
+        const ped = new PedMp(CONSTRUCT, id, 0);
         poolAdd(this, ped);
 
         const finish = () => {

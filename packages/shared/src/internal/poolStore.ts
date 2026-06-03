@@ -1,8 +1,8 @@
 import { defineInternals } from "./defineInternals";
-import type { PoolEntity } from "../Pool";
+import type { Entity } from "../Entity";
 
 export type LifecycleEvent = "entityCreated" | "entityDestroyed";
-type LifecycleSink = (event: LifecycleEvent, entity: PoolEntity) => void;
+type LifecycleSink = (event: LifecycleEvent, entity: Entity) => void;
 
 let lifecycleSink: LifecycleSink | null = null;
 
@@ -10,8 +10,8 @@ export function setPoolLifecycleSink(fn: LifecycleSink): void {
   lifecycleSink = fn;
 }
 
-export interface PoolStore {
-  entities: Map<number, PoolEntity>;
+export interface PoolStore<T extends Entity = Entity> {
+  entities: Map<number, T>;
   maxStreamed: number;
 }
 
@@ -21,11 +21,11 @@ export function initPool(pool: object): PoolStore {
   return Store.init(pool, { entities: new Map(), maxStreamed: 64 });
 }
 
-export function poolStore(pool: object): PoolStore {
-  return Store.get(pool);
+export function poolStore<T extends Entity = Entity>(pool: object): PoolStore<T> {
+  return Store.get(pool) as PoolStore<T>;
 }
 
-export function poolAdd(pool: object, entity: PoolEntity): void {
+export function poolAdd(pool: object, entity: Entity): void {
   Store.get(pool).entities.set(entity.id, entity);
   lifecycleSink?.("entityCreated", entity);
 }

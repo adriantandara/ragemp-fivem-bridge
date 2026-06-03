@@ -1,14 +1,18 @@
-import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
+import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { BroadcastEntity } from "./BroadcastEntity";
 import { PickupInternals, initPickupInternals } from "../internal/pickupInternals";
-import { removeFromPool, EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
+import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 
-export class PickupMp extends Entity {
-  constructor(id: number, pickupHash: number, position: Vector3, options: {
+export class PickupMp extends BroadcastEntity {
+  protected override readonly updateEvent = "ragemp:pickupUpdate";
+  protected override readonly destroyEvent = "ragemp:pickupDestroy";
+
+  constructor(token: symbol, id: number, pickupHash: number, position: Vector3, options: {
     value?: number;
     alpha?: number;
     dimension?: number;
   } = {}) {
-    super(id, "pickup");
+    super(token, id, "pickup");
     const rec = EntityInternals.get(this);
     rec.position = position;
     rec.alpha = options.alpha ?? 255;
@@ -16,11 +20,11 @@ export class PickupMp extends Entity {
     initPickupInternals(this, pickupHash, options.value ?? 0);
   }
 
-  _sync(): void {
-    emitNet("ragemp:pickupUpdate", -1, this.id, this.toData());
+  protected override pool(): object | null | undefined {
+    return globalThis.mp?.pickups;
   }
 
-  toData(): Record<string, any> {
+  override toData(): Record<string, any> {
     const rec = PickupInternals.get(this);
     const ent = EntityInternals.get(this);
     return {
@@ -39,49 +43,25 @@ export class PickupMp extends Entity {
     return PickupInternals.get(this).pickupHash;
   }
 
-  get position(): Vector3 {
-    return EntityInternals.get(this).position!;
-  }
-
-  set position(value: Vector3) {
-    EntityInternals.get(this).position = value;
-    this._sync();
-  }
-
   get value(): number {
     return PickupInternals.get(this).value;
   }
 
   set value(v: number) {
     PickupInternals.get(this).value = v;
-    this._sync();
+    this.sync();
   }
 
-  get alpha(): number {
+  override get alpha(): number {
     return EntityInternals.get(this).alpha;
   }
 
-  set alpha(v: number) {
+  override set alpha(v: number) {
     EntityInternals.get(this).alpha = v;
-    this._sync();
+    this.sync();
   }
 
-  get dimension(): number {
-    return EntityInternals.get(this).dimension;
-  }
-
-  set dimension(v: number) {
-    EntityInternals.get(this).dimension = v;
-    this._sync();
-  }
-
-  get model(): number {
+  override get model(): number {
     return PickupInternals.get(this).pickupHash;
-  }
-
-  destroy(): void {
-    emitNet("ragemp:pickupDestroy", -1, this.id);
-    const pool = globalThis.mp?.pickups;
-    if (pool) removeFromPool(pool, this.id);
   }
 }

@@ -6,8 +6,8 @@ import { PlayerInternals } from "../internal/playerInternals";
 import { removeFromStreamingPool } from "../internal/pools/streamingService";
 
 export class VehicleMp extends EntityMpBase {
-  constructor(id: number, handle: number) {
-    super(id, "vehicle", handle);
+  constructor(token: symbol, id: number, handle: number | null) {
+    super(token, id, "vehicle", handle);
     initVehicleInternals(this);
   }
 
@@ -33,7 +33,7 @@ export class VehicleMp extends EntityMpBase {
   get steeringAngle(): number { return GetVehicleSteeringAngle(this.handle); }
   get throttle(): number { return GetVehicleThrottleOffset(this.handle); }
   get wheelCount(): number { return GetVehicleNumberOfWheels(this.handle); }
-  get dead(): boolean { return IsEntityDead(this.handle); }
+  override get dead(): boolean { return IsEntityDead(this.handle); }
 
   get livery(): number { return GetVehicleLivery(this.handle); }
   set livery(value: number) { SetVehicleLivery(this.handle, value); }
@@ -314,7 +314,7 @@ export class VehicleMp extends EntityMpBase {
   getLayoutHash(): number { return GetVehicleLayoutHash(this.handle); }
   isModel(model: number): boolean { return IsVehicleModel(this.handle, model); }
   isBig(): boolean { return IsBigVehicle(this.handle); }
-  isVisible(): boolean { return IsEntityVisible(this.handle); }
+  override isVisible(): boolean { return IsEntityVisible(this.handle); }
 
   isStopped(): boolean { return IsVehicleStopped(this.handle); }
   isStoppedAtTrafficLights(): boolean { return IsVehicleStoppedAtTrafficLights(this.handle); }
@@ -387,7 +387,7 @@ export class VehicleMp extends EntityMpBase {
   isAttachedToCargobob(vehicleAttached: any): boolean { return IsVehicleAttachedToCargobob(this.handle, vehicleAttached?.handle ?? vehicleAttached); }
   setAutomaticallyAttaches(autoAttach: boolean, scanDriver: number): void { SetVehicleAutomaticallyAttaches(this.handle, !!autoAttach, scanDriver ?? 0); }
 
-  destroy(): void {
+  override destroy(): void {
     SetEntityAsMissionEntity(this.handle, false, true);
     DeleteEntity(this.handle);
     if (globalThis.mp.vehicles) removeFromStreamingPool(globalThis.mp.vehicles, this.id);

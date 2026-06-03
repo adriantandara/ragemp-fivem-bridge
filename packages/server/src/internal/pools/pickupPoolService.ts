@@ -1,16 +1,10 @@
 import { poolStore } from "@ragemp-fivem-bridge/shared/internal";
+import { setupBroadcastSync } from "./broadcastSyncService";
 import type { PickupMp } from "../../Entities/PickupMp";
 import type { PickupMpPool } from "../../Pools/PickupMpPool";
 
 export function setupPickupPool(pool: PickupMpPool): void {
-  onNet("ragemp:playerReady", () => {
-    const playerSource = source;
-    const pickups: ReturnType<PickupMp["toData"]>[] = [];
-    poolStore(pool).entities.forEach((pickup) => pickups.push((pickup as unknown as PickupMp).toData()));
-    if (pickups.length > 0) {
-      emitNet("ragemp:pickupSyncAll", playerSource, pickups);
-    }
-  });
+  setupBroadcastSync(pool, "ragemp:pickupSyncAll");
 
   onNet("ragemp:playerPickup", (pickupId: number) => {
     const pickup = poolStore(pool).entities.get(pickupId) as unknown as PickupMp | undefined;

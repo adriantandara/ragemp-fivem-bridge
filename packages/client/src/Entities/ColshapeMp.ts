@@ -3,10 +3,8 @@ import { ColshapeInternals, initColshapeInternals } from "../internal/colshapeIn
 import { removeFromColshapePool } from "../internal/pools/colshapePoolService";
 
 export class ColshapeMp extends Entity {
-  id: number;
-
-  constructor(id: number, shapeType: string, position: Vector3 | undefined, params: Record<string, any> | undefined, dimension: number = 0) {
-    super(id, "colshape");
+  constructor(token: symbol, id: number, shapeType: string, position: Vector3 | undefined, params: Record<string, any> | undefined, dimension: number = 0) {
+    super(token, id, "colshape");
     initColshapeInternals(this, shapeType, position, params, dimension);
   }
 
@@ -14,19 +12,19 @@ export class ColshapeMp extends Entity {
     return ColshapeInternals.get(this).shapeType;
   }
 
-  get position(): Vector3 | undefined {
+  override get position(): Vector3 | undefined {
     return ColshapeInternals.get(this).position;
   }
 
-  set position(value: Vector3 | undefined) {
+  override set position(value: Vector3 | undefined) {
     ColshapeInternals.get(this).position = value;
   }
 
-  get dimension(): number {
+  override get dimension(): number {
     return ColshapeInternals.get(this).dimension;
   }
 
-  set dimension(value: number) {
+  override set dimension(value: number) {
     ColshapeInternals.get(this).dimension = value;
   }
 
@@ -35,7 +33,7 @@ export class ColshapeMp extends Entity {
     return colshapeContains(rec.shapeType, rec.position, rec.params, point, margin);
   }
 
-  destroy(): void {
+  override destroy(): void {
     if (ColshapeInternals.get(this).origin === "server") return;
     const pool = globalThis.mp?.colshapes;
     if (pool) removeFromColshapePool(pool, this.id);

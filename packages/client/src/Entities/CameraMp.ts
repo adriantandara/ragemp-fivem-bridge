@@ -3,21 +3,19 @@ import { toVec3 } from "../utils/vec";
 import { CameraInternals, initCameraInternals } from "../internal/cameraInternals";
 
 export class CameraMp extends Entity {
-  id: number;
-
-  constructor(id: number, handle: number) {
-    super(id, "camera");
+  constructor(token: symbol, id: number, handle: number) {
+    super(token, id, "camera");
     initCameraInternals(this, handle);
   }
 
-  get handle(): number {
+  override get handle(): number {
     return CameraInternals.get(this).handle;
   }
 
-  get position(): Vector3 {
+  override get position(): Vector3 {
     return toVec3(GetCamCoord(CameraInternals.get(this).handle));
   }
-  set position(value: Vector3) {
+  override set position(value: Vector3) {
     SetCamCoord(CameraInternals.get(this).handle, value.x, value.y, value.z);
   }
 
@@ -47,7 +45,7 @@ export class CameraMp extends Entity {
   isInterpolating(): boolean { return IsCamInterpolating(CameraInternals.get(this).handle); }
   isRendering(): boolean { return IsCamRendering(CameraInternals.get(this).handle); }
   doesExist(): boolean { return DoesCamExist(CameraInternals.get(this).handle); }
-  destroy(destroy?: boolean): void { DestroyCam(CameraInternals.get(this).handle, destroy ?? false); }
+  override destroy(destroy?: boolean): void { DestroyCam(CameraInternals.get(this).handle, destroy ?? false); }
 
   getFov(): number { return GetCamFov(CameraInternals.get(this).handle); }
   setFov(fieldOfView: number): void { SetCamFov(CameraInternals.get(this).handle, fieldOfView); }

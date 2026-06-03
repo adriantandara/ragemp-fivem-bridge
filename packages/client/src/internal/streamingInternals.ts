@@ -6,8 +6,10 @@ export interface StreamingInternalsRec {
   netIdToRemote: Map<number, number>;
   activeSet: Set<number>;
   netType: string | null;
-  makeEntity: null | ((id: number, handle: number) => any);
+  makeEntity: null | ((id: number, handle: number | null) => any);
   filter: null | ((handle: number) => boolean);
+  onStreamIn: null | ((entity: any, handle: number, netId: number) => void);
+  onStreamOut: null | ((entity: any) => void);
 }
 
 export const StreamingInternals = defineInternals<StreamingInternalsRec>();
@@ -21,6 +23,8 @@ export function initStreamingInternals(pool: object, netType: string | null): St
     netType,
     makeEntity: null,
     filter: null,
+    onStreamIn: null,
+    onStreamOut: null,
   });
 }
 

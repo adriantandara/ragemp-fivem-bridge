@@ -1,8 +1,9 @@
-import { defineInternals, poolStore, poolAdd } from "@ragemp-fivem-bridge/shared/internal";
+import { defineInternals, poolStore, poolAdd, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { TextLabelMp } from "../../Entities/TextLabelMp";
 import { TextLabelInternals } from "../textLabelInternals";
 import { isVisibleHere } from "../../utils/dimension";
+import { setupNetworkedReceiver } from "./networkedReceiverService";
 import type { TextLabelMpPool } from "../../Pools/TextLabelMpPool";
 
 interface TextLabelPoolRec {
@@ -12,7 +13,7 @@ interface TextLabelPoolRec {
 const TextLabelPoolInternals = defineInternals<TextLabelPoolRec>();
 
 function createFromData(pool: TextLabelMpPool, data: any): TextLabelMp {
-  const label = new TextLabelMp(data.id);
+  const label = new TextLabelMp(CONSTRUCT, data.id);
   const rec = TextLabelInternals.get(label);
   rec.text = data.text;
   rec.position = new Vector3(data.x, data.y, data.z);
@@ -32,40 +33,32 @@ function createFromData(pool: TextLabelMpPool, data: any): TextLabelMp {
 export function setupTextLabelPool(pool: TextLabelMpPool): void {
   TextLabelPoolInternals.init(pool, { renderTick: null });
 
-  onNet("ragemp:labelCreate", (data: any) => {
-    createFromData(pool, data);
-  });
-
-  onNet("ragemp:labelSyncAll", (labels: any[]) => {
-    for (const data of labels) {
-      if (!pool.exists(data.id)) {
-        createFromData(pool, data);
+  setupNetworkedReceiver(pool, {
+    createEvent: "ragemp:labelCreate",
+    syncAllEvent: "ragemp:labelSyncAll",
+    updateEvent: "ragemp:labelUpdate",
+    destroyEvent: "ragemp:labelDestroy",
+    create: (p, data) => createFromData(p, data),
+    update: (p, id, data) => {
+      const existing = p.at(id) as unknown as TextLabelMp | null;
+      if (existing) {
+        const rec = TextLabelInternals.get(existing);
+        rec.text = data.text;
+        rec.position = new Vector3(data.x, data.y, data.z);
+        rec.r = data.r;
+        rec.g = data.g;
+        rec.b = data.b;
+        rec.a = data.a;
+        rec.drawDistance = data.drawDistance;
+        rec.los = data.los;
+        rec.font = data.font;
+        rec.dimension = data.dimension ?? 0;
       }
-    }
-  });
-
-  onNet("ragemp:labelUpdate", (id: number, data: any) => {
-    const existing = pool.at(id) as unknown as TextLabelMp | null;
-    if (existing) {
-      const rec = TextLabelInternals.get(existing);
-      rec.text = data.text;
-      rec.position = new Vector3(data.x, data.y, data.z);
-      rec.r = data.r;
-      rec.g = data.g;
-      rec.b = data.b;
-      rec.a = data.a;
-      rec.drawDistance = data.drawDistance;
-      rec.los = data.los;
-      rec.font = data.font;
-      rec.dimension = data.dimension ?? 0;
-    }
-  });
-
-  onNet("ragemp:labelDestroy", (id: number) => {
-    const existing = pool.at(id) as unknown as TextLabelMp | null;
-    if (existing) {
-      existing.destroy();
-    }
+    },
+    destroy: (p, id) => {
+      const existing = p.at(id) as unknown as TextLabelMp | null;
+      if (existing) existing.destroy();
+    },
   });
 
   startRendering(pool);

@@ -1,4 +1,4 @@
-import { defineInternals, poolAdd, removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { defineInternals, poolAdd, removeFromPool, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { ColshapeMp } from "../../Entities/ColshapeMp";
 import { ColshapeInternals } from "../colshapeInternals";
@@ -18,7 +18,7 @@ const ColshapePoolInternals = defineInternals<ColshapePoolRec>();
 
 function createFromData(pool: ColshapeMpPool, data: any): ColshapeMp {
   const position = new Vector3(data.position.x, data.position.y, data.position.z);
-  const colshape = new ColshapeMp(data.id, data.shapeType, position, data.params, data.dimension ?? 0);
+  const colshape = new ColshapeMp(CONSTRUCT, data.id, data.shapeType, position, data.params, data.dimension ?? 0);
   ColshapeInternals.get(colshape).origin = "server";
   poolAdd(pool, colshape as any);
   return colshape;
@@ -117,7 +117,7 @@ export function setupColshapePool(pool: ColshapeMpPool): void {
 export function createLocalColshape(pool: ColshapeMpPool, shapeType: string, position: Vector3, params: Record<string, any>, dimension: number = 0): ColshapeMp {
   const poolRec = ColshapePoolInternals.get(pool);
   const id = poolRec.nextLocalId++;
-  const colshape = new ColshapeMp(id, shapeType, position, params, dimension);
+  const colshape = new ColshapeMp(CONSTRUCT, id, shapeType, position, params, dimension);
   ColshapeInternals.get(colshape).origin = "local";
   poolAdd(pool, colshape as any);
   return colshape;

@@ -1,4 +1,4 @@
-import { registerBrowserProcChannel } from "../browserInternals";
+import { registerBrowserProcChannel, browserDomReady } from "../browserInternals";
 import type { BrowserMpPool } from "../../Pools/BrowserMpPool";
 
 export function execBrowserCommand(raw: any): void {
@@ -51,7 +51,7 @@ export function setupBrowserPool(pool: BrowserMpPool): void {
       return;
     }
     if (data.event === "domReady") {
-      if (typeof browser._onDomReady === "function") browser._onDomReady();
+      browserDomReady(browser);
       globalThis.mp?.events?.call("browserDomReady", browser);
     } else if (data.event === "loadError") {
       console.error(

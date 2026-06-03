@@ -1,22 +1,19 @@
-import { Pool } from "@ragemp-fivem-bridge/shared";
-import { poolAdd } from "@ragemp-fivem-bridge/shared/internal";
+import { CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
+import { BroadcastPool } from "./BroadcastPool";
 import { DummyMp } from "../Entities/DummyMp";
 import { setupDummyPool } from "../internal/pools/dummyPoolService";
 
-let dummyIdCounter = 0;
+export class DummyMpPool extends BroadcastPool<DummyMp> {
+  protected override readonly createEvent = "ragemp:dummyCreate";
 
-export class DummyMpPool extends Pool {
   constructor() {
     super();
     setupDummyPool(this);
   }
 
   new(dummyType: number, data: Record<string, any>): DummyMp {
-    const id = ++dummyIdCounter;
-    const dummy = new DummyMp(id, dummyType, data);
-    poolAdd(this, dummy as any);
-    emitNet("ragemp:dummyCreate", -1, dummy.toData());
-    return dummy;
+    const dummy = new DummyMp(CONSTRUCT, this.nextId(), dummyType, data);
+    return this.register(dummy);
   }
 
   forEachByType(type: number, fn: (entity: DummyMp) => void): void {

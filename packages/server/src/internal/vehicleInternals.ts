@@ -72,3 +72,7 @@ export function initVehicleInternals(vehicle: VehicleMp): VehicleInternalsRec {
     varFlushScheduled: false,
   });
 }
+
+export function emitVehicle(vehicle: VehicleMp, event: string, ...args: any[]): void {
+  VehicleInternals.get(vehicle).sync.emit(event, ...args);
+}

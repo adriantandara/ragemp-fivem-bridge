@@ -2,7 +2,7 @@ import { defineInternals } from "./defineInternals";
 import type { Vector3 } from "../Vector3";
 
 export interface EntityInternalsRec {
-  handle: number;
+  handle: number | null;
   kind: string;
   variables: Map<string, unknown>;
   ownVariables: Map<string, unknown> | null;
@@ -18,7 +18,11 @@ export interface EntityInternalsRec {
 
 export const EntityInternals = defineInternals<EntityInternalsRec>();
 
-export function initEntityInternals(entity: object, kind: string, handle: number): EntityInternalsRec {
+export function hasHandle(entity: object): boolean {
+  return EntityInternals.get(entity).handle !== null;
+}
+
+export function initEntityInternals(entity: object, kind: string, handle: number | null): EntityInternalsRec {
   return EntityInternals.init(entity, {
     handle,
     kind,

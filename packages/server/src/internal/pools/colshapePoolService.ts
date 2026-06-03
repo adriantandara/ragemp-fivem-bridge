@@ -1,9 +1,33 @@
-import { defineInternals, poolStore, removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
-import { dimensionsMatch } from "@ragemp-fivem-bridge/shared";
-import type { ColshapeMp } from "../../Entities/ColshapeMp";
+import { defineInternals, poolStore, poolAdd, removeFromPool, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
+import { dimensionsMatch, Vector3 } from "@ragemp-fivem-bridge/shared";
+import { ColshapeMp } from "../../Entities/ColshapeMp";
 import type { ColshapeMpPool } from "../../Pools/ColshapeMpPool";
 
 const ENTER_VALIDATION_MARGIN = 5.0;
+
+let colshapeIdCounter = 1;
+
+export function broadcastColshape(event: string, ...args: any[]): void {
+  if (typeof emitNet === "function") emitNet(event, -1, ...args);
+}
+
+export function onColshapeChanged(colshape: ColshapeMp): void {
+  broadcastColshape("ragemp:colshapeUpdate", colshape.id, colshape.toData());
+}
+
+export function createColshape(
+  pool: ColshapeMpPool,
+  shapeType: string,
+  position: Vector3,
+  params: Record<string, any>,
+  dimension: number = 0
+): ColshapeMp {
+  const id = colshapeIdCounter++;
+  const colshape = new ColshapeMp(CONSTRUCT, id, shapeType, position, params, dimension);
+  poolAdd(pool, colshape as any);
+  broadcastColshape("ragemp:colshapeCreate", colshape.toData());
+  return colshape;
+}
 
 interface ColshapePoolRec {
   inside: Map<number, Set<number>>;
@@ -83,6 +107,6 @@ export function colshapePoolForget(pool: ColshapeMpPool, id: number): void {
 
 export function removeFromColshapePool(pool: ColshapeMpPool, id: number): void {
   colshapePoolForget(pool, id);
-  pool._broadcast("ragemp:colshapeDestroy", id);
+  broadcastColshape("ragemp:colshapeDestroy", id);
   removeFromPool(pool, id);
 }

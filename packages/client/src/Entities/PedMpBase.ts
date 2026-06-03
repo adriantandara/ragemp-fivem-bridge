@@ -4,8 +4,8 @@ import { toVec3 } from "../utils/vec";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 
 export class PedMpBase extends EntityMpBase {
-  constructor(id: number, type: string) {
-    super(id, type, 0);
+  constructor(token: symbol, id: number, type: string, handle: number | null = null) {
+    super(token, id, type, handle);
   }
 
   get health(): number {
@@ -14,10 +14,10 @@ export class PedMpBase extends EntityMpBase {
   set health(value: number) {
     SetEntityHealth(this.handle, rageHealthToGtaPed(value));
   }
-  getHealth(): number {
+  override getHealth(): number {
     return gtaPedHealthToRage(GetEntityHealth(this.handle));
   }
-  setHealth(value: number): void {
+  override setHealth(value: number): void {
     SetEntityHealth(this.handle, rageHealthToGtaPed(value));
   }
 
@@ -118,7 +118,7 @@ export class PedMpBase extends EntityMpBase {
   isComponentVariationValid(componentId: number, drawableId: number, textureId: number): boolean { return IsPedComponentVariationValid(this.handle, componentId, drawableId, textureId); }
   isConversationDead(): boolean { return IsConversationPedDead(this.handle); }
   isCuffed(): boolean { return IsPedCuffed(this.handle); }
-  isDead(): boolean { return IsEntityDead(this.handle); }
+  override isDead(): boolean { return IsEntityDead(this.handle); }
   isDeadOrDying(p1: boolean): boolean { return IsPedDeadOrDying(this.handle, p1 ?? true); }
   isDiving(): boolean { return IsPedDiving(this.handle); }
   isDoingDriveby(): boolean { return IsPedDoingDriveby(this.handle); }

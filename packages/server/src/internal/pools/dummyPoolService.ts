@@ -1,6 +1,6 @@
-import { setupBroadcastSync } from "./broadcastSyncService";
+import { setupBroadcastPool } from "./broadcastPoolService";
 import type { DummyMpPool } from "../../Pools/DummyMpPool";
 
 export function setupDummyPool(pool: DummyMpPool): void {
-  setupBroadcastSync(pool, "ragemp:dummySyncAll");
+  setupBroadcastPool(pool, "ragemp:dummyCreate", "ragemp:dummySyncAll");
 }

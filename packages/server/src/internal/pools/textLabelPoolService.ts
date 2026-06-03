@@ -1,6 +1,6 @@
-import { setupBroadcastSync } from "./broadcastSyncService";
+import { setupBroadcastPool } from "./broadcastPoolService";
 import type { TextLabelMpPool } from "../../Pools/TextLabelMpPool";
 
 export function setupTextLabelPool(pool: TextLabelMpPool): void {
-  setupBroadcastSync(pool, "ragemp:labelSyncAll");
+  setupBroadcastPool(pool, "ragemp:labelCreate", "ragemp:labelSyncAll");
 }

@@ -5,9 +5,7 @@ import { whenNetworked } from "../utils/whenNetworked";
 import { safeGetEntityFromNetId } from "../utils/netId";
 import { entityCreated, entityBindNetId } from "../utils/entityRegistry";
 import { VehicleInternals , emitVehicle } from "../internal/vehicleInternals";
-import { setupVehiclePool, vehicleNetIdMap } from "../internal/pools/vehiclePoolService";
-
-let vehicleIdCounter = 0;
+import { setupVehiclePool, vehicleNetIdMap, vehicleIds } from "../internal/pools/vehiclePoolService";
 
 export class VehicleMpPool extends HandlePool {
   constructor() {
@@ -34,7 +32,7 @@ export class VehicleMpPool extends HandlePool {
       console.warn("[bridge] mp.vehicles.new failed: FiveM cannot create a server-side vehicle with no players near the coordinates. Spawn it near a player.");
       return null;
     }
-    const id = ++vehicleIdCounter;
+    const id = vehicleIds.allocate();
     const vehicle = new VehicleMp(CONSTRUCT, id, handle);
 
     if (dimension !== 0) {
@@ -106,7 +104,7 @@ export class VehicleMpPool extends HandlePool {
     }
     if (typeof DoesEntityExist === "function" && !DoesEntityExist(handle)) return null;
     if (typeof GetEntityType === "function" && GetEntityType(handle) !== 2) return null;
-    const vehicle = new VehicleMp(CONSTRUCT, ++vehicleIdCounter, handle);
+    const vehicle = new VehicleMp(CONSTRUCT, vehicleIds.allocate(), handle);
     poolAdd(this, vehicle as any);
     handlePoolStore(this).handleToEntity.set(handle, vehicle as any);
     map.set(netId, vehicle);

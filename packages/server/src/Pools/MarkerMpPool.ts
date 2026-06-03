@@ -1,13 +1,11 @@
-import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { Vector3, Pool } from "@ragemp-fivem-bridge/shared";
 import { EntityInternals, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
-import { BroadcastPool } from "./BroadcastPool";
 import { MarkerMp } from "../Entities/MarkerMp";
 import { MarkerInternals } from "../internal/markerInternals";
 import { setupMarkerPool } from "../internal/pools/markerPoolService";
+import { nextBroadcastId, registerBroadcast } from "../internal/pools/broadcastPoolService";
 
-export class MarkerMpPool extends BroadcastPool<MarkerMp> {
-  protected override readonly createEvent = "ragemp:markerCreate";
-
+export class MarkerMpPool extends Pool<MarkerMp> {
   constructor() {
     super();
     setupMarkerPool(this);
@@ -20,7 +18,7 @@ export class MarkerMpPool extends BroadcastPool<MarkerMp> {
     rotation?: Vector3;
     visible?: boolean;
   } = {}): MarkerMp {
-    const marker = new MarkerMp(CONSTRUCT, this.nextId(), type, position, scale);
+    const marker = new MarkerMp(CONSTRUCT, nextBroadcastId(this), type, position, scale);
     const rec = MarkerInternals.get(marker);
 
     if (options.color) {
@@ -36,6 +34,6 @@ export class MarkerMpPool extends BroadcastPool<MarkerMp> {
     if (options.rotation !== undefined) rec.rotation = options.rotation;
     if (options.visible !== undefined) rec.visible = options.visible;
 
-    return this.register(marker);
+    return registerBroadcast(this, marker);
   }
 }

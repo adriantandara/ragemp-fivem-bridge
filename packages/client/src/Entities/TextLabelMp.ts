@@ -1,6 +1,7 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { freeClientId } from "../internal/pools/clientPool";
 import { TextLabelInternals, initTextLabelInternals } from "../internal/textLabelInternals";
 
 export class TextLabelMp extends Entity {
@@ -79,6 +80,9 @@ export class TextLabelMp extends Entity {
   }
 
   override destroy(): void {
-    if (globalThis.mp.labels) removeFromPool(globalThis.mp.labels, this.id);
+    if (globalThis.mp.labels) {
+      removeFromPool(globalThis.mp.labels, this.id);
+      freeClientId(globalThis.mp.labels, this.id);
+    }
   }
 }

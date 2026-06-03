@@ -2,6 +2,7 @@ import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { PedMpBase } from "./PedMpBase";
 import { PedInternals, initPedInternals } from "../internal/pedInternals";
 import { removeFromStreamingPool } from "../internal/pools/streamingService";
+import { playerByServerId } from "../internal/pools/playerPoolService";
 
 export class PedMp extends PedMpBase {
   constructor(token: symbol, id: number, handle: number | null) {
@@ -54,7 +55,7 @@ export class PedMp extends PedMpBase {
   get controller(): any {
     const serverId = NetworkGetEntityOwner(this.handle);
     if (!serverId) return null;
-    return (globalThis as any).mp?.players?.at?.(serverId) ?? null;
+    return playerByServerId(serverId) ?? null;
   }
 
   override destroy(): void {

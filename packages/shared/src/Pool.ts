@@ -1,5 +1,5 @@
 import { Vector3Like } from "./Vector3";
-import { initPool, poolStore, setPoolLifecycleSink } from "./internal/poolStore";
+import { initPool, poolStore, poolAtRemote, setPoolLifecycleSink } from "./internal/poolStore";
 import { Entity } from "./Entity";
 
 export { setPoolLifecycleSink };
@@ -19,6 +19,10 @@ export class Pool<T extends Entity> {
 
   at(id: number): T | null {
     return poolStore<T>(this).entities.get(id) ?? null;
+  }
+
+  atRemoteId(remoteId: number): T | null {
+    return poolAtRemote<T>(this, remoteId);
   }
 
   exists(entity: number | T): boolean {

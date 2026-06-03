@@ -1,5 +1,6 @@
 import { defineInternals, poolStore, poolAdd, removeFromPool, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
 import { dimensionsMatch, Vector3 } from "@ragemp-fivem-bridge/shared";
+import { playerBySource } from "../../utils/playerRegistry";
 import { ColshapeMp } from "../../Entities/ColshapeMp";
 import type { ColshapeMpPool } from "../../Pools/ColshapeMpPool";
 
@@ -37,7 +38,7 @@ const ColshapePoolInternals = defineInternals<ColshapePoolRec>();
 
 function handleTransition(pool: ColshapeMpPool, playerSource: number, id: number, entering: boolean): void {
   const mp = globalThis.mp;
-  const player = mp?.players?.at(playerSource);
+  const player = playerBySource(playerSource);
   const colshape = pool.at(id) as unknown as ColshapeMp | null;
   if (!player || !colshape) return;
 

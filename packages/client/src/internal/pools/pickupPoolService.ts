@@ -1,4 +1,4 @@
-import { defineInternals, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
+import { defineInternals, CONSTRUCT, IdAllocator, setEntityId, setEntityRemoteId } from "@ragemp-fivem-bridge/shared/internal";
 import { PickupInternals, type PickupRec } from "../pickupInternals";
 import { onWorldScan } from "../../utils/worldScan";
 import { isVisibleHere, onDimensionChange } from "../../utils/dimension";
@@ -22,6 +22,8 @@ function destroyNative(rec: PickupRec): void {
 
 interface PickupPoolRec {
   pickups: Map<number, PickupMp>;
+  byLocal: Map<number, PickupMp>;
+  ids: IdAllocator;
 }
 
 const PickupPoolInternals = defineInternals<PickupPoolRec>();
@@ -30,12 +32,18 @@ export function pickupMap(pool: PickupMpPool): Map<number, PickupMp> {
   return PickupPoolInternals.get(pool).pickups;
 }
 
-export function removePickup(pool: PickupMpPool, id: number): void {
-  const pickups = PickupPoolInternals.get(pool).pickups;
-  const pickup = pickups.get(id);
+export function pickupByLocal(pool: PickupMpPool): Map<number, PickupMp> {
+  return PickupPoolInternals.get(pool).byLocal;
+}
+
+export function removePickup(pool: PickupMpPool, idOrRemote: number): void {
+  const rec0 = PickupPoolInternals.get(pool);
+  const pickup = rec0.pickups.get(idOrRemote) ?? rec0.byLocal.get(idOrRemote);
   if (pickup) {
     destroyNative(PickupInternals.get(pickup));
-    pickups.delete(id);
+    rec0.pickups.delete(pickup.remoteId);
+    rec0.byLocal.delete(pickup.id);
+    rec0.ids.free(pickup.id);
   }
 }
 
@@ -51,15 +59,18 @@ function applyVisibility(pickup: PickupMp): void {
 }
 
 function addPickup(pool: PickupMpPool, data: any): void {
-  const pickups = PickupPoolInternals.get(pool).pickups;
-  if (pickups.has(data.id)) return;
+  const rec0 = PickupPoolInternals.get(pool);
+  if (rec0.pickups.has(data.id)) return;
   const pickup = new PickupMp(CONSTRUCT, data);
-  pickups.set(data.id, pickup);
+  setEntityRemoteId(pickup, data.id);
+  setEntityId(pickup, rec0.ids.allocate());
+  rec0.pickups.set(pickup.remoteId, pickup);
+  rec0.byLocal.set(pickup.id, pickup);
   applyVisibility(pickup);
 }
 
 export function setupPickupPool(pool: PickupMpPool): void {
-  PickupPoolInternals.init(pool, { pickups: new Map() });
+  PickupPoolInternals.init(pool, { pickups: new Map(), byLocal: new Map(), ids: new IdAllocator() });
 
   onDimensionChange(() => PickupPoolInternals.get(pool).pickups.forEach((p) => applyVisibility(p)));
 
@@ -77,8 +88,10 @@ export function setupPickupPool(pool: PickupMpPool): void {
     const pickup = PickupPoolInternals.get(pool).pickups.get(id);
     if (!pickup) return;
     const rec = PickupInternals.get(pickup);
+    const localId = pickup.id;
     destroyNative(rec);
     Object.assign(pickup, data);
+    setEntityId(pickup, localId);
     rec.handle = null;
     rec.collected = false;
     applyVisibility(pickup);

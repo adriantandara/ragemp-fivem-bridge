@@ -1,6 +1,6 @@
-import { setupBroadcastSync } from "./broadcastSyncService";
+import { setupBroadcastPool } from "./broadcastPoolService";
 import type { MarkerMpPool } from "../../Pools/MarkerMpPool";
 
 export function setupMarkerPool(pool: MarkerMpPool): void {
-  setupBroadcastSync(pool, "ragemp:markerSyncAll");
+  setupBroadcastPool(pool, "ragemp:markerCreate", "ragemp:markerSyncAll");
 }

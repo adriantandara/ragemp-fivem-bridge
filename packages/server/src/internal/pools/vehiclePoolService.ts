@@ -1,4 +1,4 @@
-import { defineInternals, poolStore, removeFromPool, Registry } from "@ragemp-fivem-bridge/shared/internal";
+import { defineInternals, poolStore, removeFromPool, Registry, IdAllocator } from "@ragemp-fivem-bridge/shared/internal";
 import type { VehicleMp } from "../../Entities/VehicleMp";
 import type { VehicleMpPool } from "../../Pools/VehicleMpPool";
 import { VehicleInternals } from "../vehicleInternals";
@@ -9,6 +9,8 @@ interface VehiclePoolState {
 }
 
 const Store = defineInternals<VehiclePoolState>();
+
+export const vehicleIds = new IdAllocator();
 
 export function setupVehiclePool(pool: VehicleMpPool): void {
   Store.init(pool, { netIdToEntity: new Registry() });
@@ -29,4 +31,5 @@ export function removeFromVehiclePool(pool: VehicleMpPool, id: number): void {
   }
   entityDestroyed("vehicle", id);
   removeFromPool(pool, id);
+  vehicleIds.free(id);
 }

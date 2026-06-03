@@ -1,11 +1,12 @@
-import { poolAdd, removeFromPool, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
+import { removeFromPool, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
+import { addNetworked, freeClientId } from "./clientPool";
 import { DummyMp } from "../../Entities/DummyMp";
 import type { DummyMpPool } from "../../Pools/DummyMpPool";
 
 function addDummy(pool: DummyMpPool, data: any): void {
-  if (pool.exists(data.id)) return;
+  if (pool.atRemoteId(data.id)) return;
   const dummy = new DummyMp(CONSTRUCT, data.id, data.dummyType, data.data);
-  poolAdd(pool, dummy);
+  addNetworked(pool, dummy);
   globalThis.mp?.events?.call("dummyEntityCreated", dummy);
 }
 
@@ -19,9 +20,10 @@ export function setupDummyPool(pool: DummyMpPool): void {
   });
 
   onNet("ragemp:dummyDestroy", (id: number) => {
-    const dummy = pool.at(id);
+    const dummy = pool.atRemoteId(id);
     if (dummy) {
-      removeFromPool(pool, id);
+      removeFromPool(pool, dummy.id);
+      freeClientId(pool, dummy.id);
       globalThis.mp?.events?.call("dummyEntityDestroyed", dummy);
     }
   });

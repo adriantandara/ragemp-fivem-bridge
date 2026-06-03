@@ -1,5 +1,6 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
 import { removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { freeClientId } from "../internal/pools/clientPool";
 import { setBrowserFocus } from "../utils/nuiFocus";
 import {
   BrowserInternals,
@@ -129,6 +130,9 @@ export class BrowserMp extends Entity {
     const pool = globalThis.mp?.browsers;
     if (pool && getChatBrowser(pool) === this) setChatBrowser(pool, null);
     SendNuiMessage(JSON.stringify({ type: "__ragemp:browser:destroy", browserId: this.id }));
-    if (pool) removeFromPool(pool, this.id);
+    if (pool) {
+      removeFromPool(pool, this.id);
+      freeClientId(pool, this.id);
+    }
   }
 }

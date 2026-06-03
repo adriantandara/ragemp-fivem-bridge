@@ -1,6 +1,7 @@
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { BroadcastEntity } from "./BroadcastEntity";
 import { MarkerInternals, initMarkerInternals } from "../internal/markerInternals";
+import { getPlayerSource } from "../internal/playerInternals";
 import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 
 type MarkerColor = { r: number; g: number; b: number; a: number };
@@ -116,10 +117,10 @@ export class MarkerMp extends BroadcastEntity {
   }
 
   hideFor(player: any): void {
-    emitNet("ragemp:markerHide", player.id, this.id);
+    emitNet("ragemp:markerHide", typeof player === "object" && player ? getPlayerSource(player) : player, this.id);
   }
 
   showFor(player: any): void {
-    emitNet("ragemp:markerShow", player.id, this.id);
+    emitNet("ragemp:markerShow", typeof player === "object" && player ? getPlayerSource(player) : player, this.id);
   }
 }

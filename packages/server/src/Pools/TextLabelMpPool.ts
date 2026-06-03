@@ -1,13 +1,11 @@
-import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { Vector3, Pool } from "@ragemp-fivem-bridge/shared";
 import { EntityInternals, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
-import { BroadcastPool } from "./BroadcastPool";
 import { TextLabelMp } from "../Entities/TextLabelMp";
 import { TextLabelInternals } from "../internal/textLabelInternals";
 import { setupTextLabelPool } from "../internal/pools/textLabelPoolService";
+import { nextBroadcastId, registerBroadcast } from "../internal/pools/broadcastPoolService";
 
-export class TextLabelMpPool extends BroadcastPool<TextLabelMp> {
-  protected override readonly createEvent = "ragemp:labelCreate";
-
+export class TextLabelMpPool extends Pool<TextLabelMp> {
   constructor() {
     super();
     setupTextLabelPool(this);
@@ -20,7 +18,7 @@ export class TextLabelMpPool extends BroadcastPool<TextLabelMp> {
     font?: number;
     los?: boolean;
   } = {}): TextLabelMp {
-    const label = new TextLabelMp(CONSTRUCT, this.nextId(), text, position);
+    const label = new TextLabelMp(CONSTRUCT, nextBroadcastId(this), text, position);
     const rec = TextLabelInternals.get(label);
 
     if (options.color !== undefined) {
@@ -34,6 +32,6 @@ export class TextLabelMpPool extends BroadcastPool<TextLabelMp> {
     if (options.font !== undefined) rec.font = options.font;
     if (options.los !== undefined) rec.los = options.los;
 
-    return this.register(label);
+    return registerBroadcast(this, label);
   }
 }

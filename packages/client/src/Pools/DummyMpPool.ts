@@ -8,10 +8,6 @@ export class DummyMpPool extends Pool<DummyMp> {
     setupDummyPool(this);
   }
 
-  atRemoteId(remoteId: number): DummyMp | null {
-    return this.at(remoteId);
-  }
-
   forEachByType(type: number, fn: (d: DummyMp) => void): void {
     this.forEach((d: DummyMp) => {
       if (d.dummyType === type) fn(d);

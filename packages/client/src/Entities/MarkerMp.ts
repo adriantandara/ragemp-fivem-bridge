@@ -1,6 +1,7 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { freeClientId } from "../internal/pools/clientPool";
 import { MarkerInternals, initMarkerInternals } from "../internal/markerInternals";
 
 export class MarkerMp extends Entity {
@@ -63,6 +64,9 @@ export class MarkerMp extends Entity {
   }
 
   override destroy(): void {
-    if (globalThis.mp.markers) removeFromPool(globalThis.mp.markers, this.id);
+    if (globalThis.mp.markers) {
+      removeFromPool(globalThis.mp.markers, this.id);
+      freeClientId(globalThis.mp.markers, this.id);
+    }
   }
 }

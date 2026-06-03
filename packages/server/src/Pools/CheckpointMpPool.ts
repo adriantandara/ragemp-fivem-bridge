@@ -1,12 +1,10 @@
-import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { Vector3, Pool } from "@ragemp-fivem-bridge/shared";
 import { CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
-import { BroadcastPool } from "./BroadcastPool";
 import { CheckpointMp } from "../Entities/CheckpointMp";
 import { setupCheckpointPool } from "../internal/pools/checkpointPoolService";
+import { nextBroadcastId, registerBroadcast } from "../internal/pools/broadcastPoolService";
 
-export class CheckpointMpPool extends BroadcastPool<CheckpointMp> {
-  protected override readonly createEvent = "ragemp:checkpointCreate";
-
+export class CheckpointMpPool extends Pool<CheckpointMp> {
   constructor() {
     super();
     setupCheckpointPool(this);
@@ -18,7 +16,7 @@ export class CheckpointMpPool extends BroadcastPool<CheckpointMp> {
     direction?: Vector3;
     visible?: boolean;
   } = {}): CheckpointMp {
-    const checkpoint = new CheckpointMp(CONSTRUCT, this.nextId(), type, position, nextPosition, radius, options);
-    return this.register(checkpoint);
+    const checkpoint = new CheckpointMp(CONSTRUCT, nextBroadcastId(this), type, position, nextPosition, radius, options);
+    return registerBroadcast(this, checkpoint);
   }
 }

@@ -28,6 +28,7 @@ export abstract class Entity {
     }
     this.id = id;
     initEntityInternals(this, type, handle);
+    EntityInternals.get(this).remoteId = id;
   }
 
   get handle(): number {
@@ -39,7 +40,7 @@ export abstract class Entity {
   }
 
   get remoteId(): number {
-    return this.id;
+    return EntityInternals.get(this).remoteId;
   }
 
   get alpha(): number { return EntityInternals.get(this).alpha; }

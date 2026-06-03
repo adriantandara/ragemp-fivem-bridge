@@ -11,10 +11,6 @@ export class PlayerMpPool extends Pool<PlayerMp> {
     setupPlayerPool(this);
   }
 
-  atRemoteId(remoteId: number): PlayerMp | null {
-    return this.at(remoteId);
-  }
-
   get weapon(): number {
     return this.local?.weapon ?? 0;
   }

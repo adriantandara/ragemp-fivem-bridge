@@ -3,7 +3,7 @@ import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { PedMpBase } from "./PedMpBase";
 import { toVec3 } from "../utils/vec";
 import { getLocalDimension } from "../utils/dimension";
-import { PlayerInternals, initPlayerInternals } from "../internal/playerInternals";
+import { PlayerInternals, initPlayerInternals, getPlayerServerId } from "../internal/playerInternals";
 
 // Voice FX parameter shapes (from ragemp d.ts)
 interface VoiceFxChorus { fWetDryMix: number; fDepth: number; fFeedback: number; fFrequency: number; lWaveform: number; fDelay: number; lPhase: number; }
@@ -22,7 +22,7 @@ export class PlayerMp extends PedMpBase {
   constructor(token: symbol, id: number, playerIndex: number) {
     super(token, id, "player");
     initPlayerInternals(this, playerIndex);
-    EntityInternals.get(this).stateBag = () => globalThis.Player(this.id).state;
+    EntityInternals.get(this).stateBag = () => globalThis.Player(getPlayerServerId(this)).state;
   }
 
   get ped(): number {

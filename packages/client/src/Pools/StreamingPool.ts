@@ -1,6 +1,7 @@
 import { Entity, Pool } from "@ragemp-fivem-bridge/shared";
 import {
   setupStreamingPool,
+  atLocal,
   atRemote,
   atHandle,
   atNetId,
@@ -17,11 +18,11 @@ export class StreamingPool<T extends Entity> extends Pool<T> {
   }
 
   override at(id: number): any {
-    return atRemote(this, id);
+    return atLocal(this, id);
   }
 
-  atRemoteId(remoteId: number): any {
-    return this.at(remoteId);
+  override atRemoteId(remoteId: number): any {
+    return atRemote(this, remoteId);
   }
 
   atRemoteIdAsync(remoteId: number, options: any = {}): Promise<any> {

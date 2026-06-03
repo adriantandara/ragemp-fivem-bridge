@@ -1,5 +1,5 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
-import { setupPickupPool, pickupMap } from "../internal/pools/pickupPoolService";
+import { setupPickupPool, pickupMap, pickupByLocal } from "../internal/pools/pickupPoolService";
 import { PickupMp } from "../Entities/PickupMp";
 
 export class PickupMpPool extends Pool<PickupMp> {
@@ -9,12 +9,16 @@ export class PickupMpPool extends Pool<PickupMp> {
   }
 
   override at(id: number): PickupMp | null {
-    return pickupMap(this).get(id) ?? null;
+    return pickupByLocal(this).get(id) ?? null;
+  }
+
+  override atRemoteId(remoteId: number): PickupMp | null {
+    return pickupMap(this).get(remoteId) ?? null;
   }
 
   override exists(idOrPickup: number | PickupMp): boolean {
     const id = typeof idOrPickup === "number" ? idOrPickup : idOrPickup?.id;
-    return pickupMap(this).has(id);
+    return pickupByLocal(this).has(id);
   }
 
   override forEach(fn: (p: PickupMp) => void): void {

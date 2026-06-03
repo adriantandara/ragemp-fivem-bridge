@@ -9,10 +9,6 @@ export class ColshapeMpPool extends Pool<ColshapeMp> {
     setupColshapePool(this);
   }
 
-  atRemoteId(remoteId: number): ColshapeMp | null {
-    return this.at(remoteId) as unknown as ColshapeMp | null;
-  }
-
   newSphere(x: number | { x: number; y: number; z: number }, y: number, z: number, range?: number, dimension: number = 0): ColshapeMp {
     if (x !== null && typeof x === "object") {
       return createLocalColshape(this, "sphere", new Vector3(x.x, x.y, x.z), { radius: y }, z ?? 0);

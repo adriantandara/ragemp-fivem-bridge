@@ -1,12 +1,10 @@
-import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { Vector3, Pool } from "@ragemp-fivem-bridge/shared";
 import { CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
-import { BroadcastPool } from "./BroadcastPool";
 import { PickupMp } from "../Entities/PickupMp";
 import { setupPickupPool } from "../internal/pools/pickupPoolService";
+import { nextBroadcastId, registerBroadcast } from "../internal/pools/broadcastPoolService";
 
-export class PickupMpPool extends BroadcastPool<PickupMp> {
-  protected override readonly createEvent = "ragemp:pickupCreate";
-
+export class PickupMpPool extends Pool<PickupMp> {
   constructor() {
     super();
     setupPickupPool(this);
@@ -17,7 +15,7 @@ export class PickupMpPool extends BroadcastPool<PickupMp> {
     alpha?: number;
     dimension?: number;
   } = {}): PickupMp {
-    const pickup = new PickupMp(CONSTRUCT, this.nextId(), pickupHash, position, options);
-    return this.register(pickup);
+    const pickup = new PickupMp(CONSTRUCT, nextBroadcastId(this), pickupHash, position, options);
+    return registerBroadcast(this, pickup);
   }
 }

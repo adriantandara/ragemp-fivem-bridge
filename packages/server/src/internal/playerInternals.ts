@@ -15,6 +15,7 @@ export interface HeadBlend {
 }
 
 export interface PlayerInternalsRec {
+  source: number;
   ready: boolean;
   autoRespawnAfterDeath: boolean;
   autoSpawn: boolean;
@@ -52,8 +53,13 @@ export interface PlayerInternalsRec {
 
 export const PlayerInternals = defineInternals<PlayerInternalsRec>();
 
-export function initPlayerInternals(player: PlayerMp): PlayerInternalsRec {
+export function getPlayerSource(player: PlayerMp): number {
+  return PlayerInternals.get(player).source;
+}
+
+export function initPlayerInternals(player: PlayerMp, source: number): PlayerInternalsRec {
   return PlayerInternals.init(player, {
+    source,
     ready: true,
     autoRespawnAfterDeath: true,
     autoSpawn: true,

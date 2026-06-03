@@ -4,6 +4,7 @@ import { toVec3 } from "../utils/vec";
 import { VehicleInternals, initVehicleInternals } from "../internal/vehicleInternals";
 import { PlayerInternals } from "../internal/playerInternals";
 import { removeFromStreamingPool } from "../internal/pools/streamingService";
+import { playerByServerId } from "../internal/pools/playerPoolService";
 
 export class VehicleMp extends EntityMpBase {
   constructor(token: symbol, id: number, handle: number | null) {
@@ -73,7 +74,7 @@ export class VehicleMp extends EntityMpBase {
   get controller(): any {
     const serverId = NetworkGetEntityOwner(this.handle);
     if (!serverId) return null;
-    return globalThis.mp?.players?.at?.(serverId) ?? null;
+    return playerByServerId(serverId) ?? null;
   }
 
   getColours(): number[] { return GetVehicleColours(this.handle); }

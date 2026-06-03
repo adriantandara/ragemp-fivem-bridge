@@ -1,9 +1,10 @@
 import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
 import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { scheduleStateBagFlush } from "../utils/stateBagDefer";
+import { playerBySource } from "../utils/playerRegistry";
 import { safeGetNetworkId } from "../utils/netId";
 import { VehicleInternals, initVehicleInternals , emitVehicle } from "../internal/vehicleInternals";
-import { PlayerInternals } from "../internal/playerInternals";
+import { PlayerInternals, getPlayerSource } from "../internal/playerInternals";
 import { removeFromVehiclePool } from "../internal/pools/vehiclePoolService";
 
 type Quaternion = { x: number; y: number; z: number; w: number };
@@ -309,14 +310,14 @@ export class VehicleMp extends Entity {
   get controller(): any {
     const ownerSource = NetworkGetEntityOwner(this.handle);
     if (!ownerSource || ownerSource === 0) return null;
-    return globalThis.mp.players.at(ownerSource) ?? null;
+    return playerBySource(ownerSource) ?? null;
   }
 
   set controller(value: any) {
-    const targetId: number | null =
-      value == null ? null : typeof value === "number" ? value : value.id;
+    const targetSource: number | null =
+      value == null ? null : typeof value === "number" ? value : getPlayerSource(value);
     const netId = this.netId;
-    emitNet("ragemp:requestVehicleControl", targetId ?? -1, netId);
+    emitNet("ragemp:requestVehicleControl", targetSource ?? -1, netId);
   }
 
   get dashboardColor(): number {
@@ -472,7 +473,7 @@ export class VehicleMp extends Entity {
     if (!ped || ped === 0) return null;
     const owner = NetworkGetEntityOwner(ped);
     if (owner) {
-      const player = globalThis.mp.players.at(owner);
+      const player = playerBySource(owner);
       if (player && player.ped === ped) return player;
     }
     return globalThis.mp.peds?.atHandle?.(ped) ?? null;

@@ -1,6 +1,7 @@
 import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
 import { gtaPedHealthToRage, rageHealthToGtaPed } from "@ragemp-fivem-bridge/shared";
 import { scheduleStateBagFlush } from "../utils/stateBagDefer";
+import { playerBySource } from "../utils/playerRegistry";
 import { safeGetNetworkId } from "../utils/netId";
 import { PedInternals, initPedInternals } from "../internal/pedInternals";
 import { removeFromPedPool } from "../internal/pools/pedPoolService";
@@ -57,7 +58,7 @@ export class PedMp extends Entity {
   get controller(): any {
     const source = NetworkGetEntityOwner(this.handle);
     if (!source) return null;
-    return globalThis.mp.players.at(source) ?? null;
+    return playerBySource(source) ?? null;
   }
 
   get health(): number {

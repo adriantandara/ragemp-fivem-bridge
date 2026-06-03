@@ -1,4 +1,5 @@
-import { defineInternals, poolStore, poolAdd, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
+import { defineInternals, poolStore, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
+import { addNetworked } from "./clientPool";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { TextLabelMp } from "../../Entities/TextLabelMp";
 import { TextLabelInternals } from "../textLabelInternals";
@@ -26,7 +27,7 @@ function createFromData(pool: TextLabelMpPool, data: any): TextLabelMp {
   rec.font = data.font;
   rec.dimension = data.dimension ?? 0;
   rec.visible = true;
-  poolAdd(pool, label as any);
+  addNetworked(pool, label as any);
   return label;
 }
 
@@ -40,7 +41,7 @@ export function setupTextLabelPool(pool: TextLabelMpPool): void {
     destroyEvent: "ragemp:labelDestroy",
     create: (p, data) => createFromData(p, data),
     update: (p, id, data) => {
-      const existing = p.at(id) as unknown as TextLabelMp | null;
+      const existing = p.atRemoteId(id) as unknown as TextLabelMp | null;
       if (existing) {
         const rec = TextLabelInternals.get(existing);
         rec.text = data.text;
@@ -56,7 +57,7 @@ export function setupTextLabelPool(pool: TextLabelMpPool): void {
       }
     },
     destroy: (p, id) => {
-      const existing = p.at(id) as unknown as TextLabelMp | null;
+      const existing = p.atRemoteId(id) as unknown as TextLabelMp | null;
       if (existing) existing.destroy();
     },
   });

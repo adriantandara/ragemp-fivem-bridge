@@ -4,19 +4,19 @@ import { normalizeDimension } from "@ragemp-fivem-bridge/shared";
 import { sanitizeArgsForNet } from "@ragemp-fivem-bridge/shared";
 import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { safeGetNetworkId } from "../utils/netId";
-import { PlayerInternals, initPlayerInternals, resetWeaponState } from "../internal/playerInternals";
+import { PlayerInternals, initPlayerInternals, resetWeaponState, getPlayerSource } from "../internal/playerInternals";
 import { VehicleInternals } from "../internal/vehicleInternals";
 
 export class PlayerMp extends Entity {
-  constructor(token: symbol, source: number) {
-    super(token, source, "player");
-    initPlayerInternals(this);
+  constructor(token: symbol, remoteId: number, source: number) {
+    super(token, remoteId, "player");
+    initPlayerInternals(this, source);
     const rec = EntityInternals.get(this);
-    rec.stateBag = () => globalThis.Player(this.id).state;
+    rec.stateBag = () => globalThis.Player(getPlayerSource(this)).state;
   }
 
   get name(): string {
-    return PlayerInternals.get(this).name ?? GetPlayerName(this.id.toString());
+    return PlayerInternals.get(this).name ?? GetPlayerName(getPlayerSource(this).toString());
   }
 
   set name(value: string) {
@@ -24,16 +24,16 @@ export class PlayerMp extends Entity {
   }
 
   get ip(): string {
-    return GetPlayerEndpoint(this.id.toString());
+    return GetPlayerEndpoint(getPlayerSource(this).toString());
   }
 
   get ping(): number {
-    return GetPlayerPing(this.id.toString());
+    return GetPlayerPing(getPlayerSource(this).toString());
   }
 
   get identifiers(): Record<string, string> {
     const out: Record<string, string> = {};
-    const src = this.id.toString();
+    const src = getPlayerSource(this).toString();
     const count = GetNumPlayerIdentifiers(src);
     for (let i = 0; i < count; i++) {
       const id = GetPlayerIdentifier(src, i);
@@ -62,7 +62,7 @@ export class PlayerMp extends Entity {
   }
 
   get ped(): number {
-    return GetPlayerPed(this.id.toString());
+    return GetPlayerPed(getPlayerSource(this).toString());
   }
 
   get health(): number {
@@ -70,7 +70,7 @@ export class PlayerMp extends Entity {
   }
 
   set health(value: number) {
-    emitNet("ragemp:setHealth", this.id, value);
+    emitNet("ragemp:setHealth", getPlayerSource(this), value);
   }
 
   getHealth(): number {
@@ -78,7 +78,7 @@ export class PlayerMp extends Entity {
   }
 
   setHealth(value: number): void {
-    emitNet("ragemp:setHealth", this.id, value);
+    emitNet("ragemp:setHealth", getPlayerSource(this), value);
   }
 
   get armour(): number {
@@ -86,7 +86,7 @@ export class PlayerMp extends Entity {
   }
 
   set armour(value: number) {
-    emitNet("ragemp:setArmour", this.id, value);
+    emitNet("ragemp:setArmour", getPlayerSource(this), value);
   }
 
   get heading(): number {
@@ -107,13 +107,13 @@ export class PlayerMp extends Entity {
   }
 
   override get dimension(): number {
-    return GetPlayerRoutingBucket(this.id.toString());
+    return GetPlayerRoutingBucket(getPlayerSource(this).toString());
   }
 
   override set dimension(value: number) {
     const dim = normalizeDimension(value);
-    SetPlayerRoutingBucket(this.id.toString(), dim);
-    emitNet("ragemp:setDimension", this.id, dim);
+    SetPlayerRoutingBucket(getPlayerSource(this).toString(), dim);
+    emitNet("ragemp:setDimension", getPlayerSource(this), dim);
   }
 
   override get model(): number {
@@ -123,7 +123,7 @@ export class PlayerMp extends Entity {
   override set model(value: number | string) {
     const rec = EntityInternals.get(this);
     rec.model = typeof value === "string" ? GetHashKey(value) : value;
-    emitNet("ragemp:setModel", this.id, rec.model);
+    emitNet("ragemp:setModel", getPlayerSource(this), rec.model);
   }
 
   get weapon(): number {
@@ -131,7 +131,7 @@ export class PlayerMp extends Entity {
   }
 
   set weapon(value: number) {
-    emitNet("ragemp:setWeapon", this.id, value);
+    emitNet("ragemp:setWeapon", getPlayerSource(this), value);
   }
 
   get weaponAmmo(): number {
@@ -142,7 +142,7 @@ export class PlayerMp extends Entity {
   set weaponAmmo(value: number) {
     const rec = PlayerInternals.get(this);
     rec.weaponAmmo[rec.weapon] = value;
-    emitNet("ragemp:setWeaponAmmo", this.id, rec.weapon, value);
+    emitNet("ragemp:setWeaponAmmo", getPlayerSource(this), rec.weapon, value);
   }
 
   get eyeColor(): number {
@@ -151,7 +151,7 @@ export class PlayerMp extends Entity {
 
   set eyeColor(value: number) {
     PlayerInternals.get(this).eyeColor = value;
-    emitNet("ragemp:setEyeColor", this.id, value);
+    emitNet("ragemp:setEyeColor", getPlayerSource(this), value);
   }
 
   get packetLoss(): number {
@@ -191,11 +191,11 @@ export class PlayerMp extends Entity {
 
   override set alpha(value: number) {
     EntityInternals.get(this).alpha = value;
-    emitNet("ragemp:setAlpha", this.id, value);
+    emitNet("ragemp:setAlpha", getPlayerSource(this), value);
   }
 
   get seat(): number {
-    const ped = GetPlayerPed(String(this.id));
+    const ped = GetPlayerPed(String(getPlayerSource(this)));
     const veh = GetVehiclePedIsIn(ped, false);
     if (veh === 0) return -1;
     for (let i = -1; i < 16; i++) {
@@ -259,7 +259,7 @@ export class PlayerMp extends Entity {
   set hairColor(value: number) {
     const rec = PlayerInternals.get(this);
     rec.hairColor = value;
-    emitNet("ragemp:setHairColor", this.id, rec.hairColor, rec.hairHighlightColor);
+    emitNet("ragemp:setHairColor", getPlayerSource(this), rec.hairColor, rec.hairHighlightColor);
   }
 
   get hairHighlightColor(): number {
@@ -269,7 +269,7 @@ export class PlayerMp extends Entity {
   set hairHighlightColor(value: number) {
     const rec = PlayerInternals.get(this);
     rec.hairHighlightColor = value;
-    emitNet("ragemp:setHairColor", this.id, rec.hairColor, rec.hairHighlightColor);
+    emitNet("ragemp:setHairColor", getPlayerSource(this), rec.hairColor, rec.hairHighlightColor);
   }
 
   get vehicle(): any {
@@ -286,7 +286,7 @@ export class PlayerMp extends Entity {
   }
 
   kick(reason: string): void {
-    DropPlayer(this.id.toString(), reason ?? "Kicked");
+    DropPlayer(getPlayerSource(this).toString(), reason ?? "Kicked");
   }
 
   spawn(position: Vector3, heading?: number): void {
@@ -297,7 +297,7 @@ export class PlayerMp extends Entity {
     const rec = PlayerInternals.get(this);
     rec.spawnIssued = true;
     resetWeaponState(rec);
-    emitNet("ragemp:spawnmanager:spawn", this.id, info);
+    emitNet("ragemp:spawnmanager:spawn", getPlayerSource(this), info);
   }
 
   get autoSpawn() {
@@ -315,12 +315,12 @@ export class PlayerMp extends Entity {
   setAutoRespawnAfterDeath(state: boolean): void {
     const rec = PlayerInternals.get(this);
     rec.autoRespawnAfterDeath = state !== false;
-    emitNet("ragemp:setAutoRespawn", this.id, rec.autoRespawnAfterDeath);
+    emitNet("ragemp:setAutoRespawn", getPlayerSource(this), rec.autoRespawnAfterDeath);
   }
 
   call(eventName: string, args?: any[]): void {
     const list = Array.isArray(args) ? args : args == null ? [] : [args];
-    emitNet(eventName, this.id, ...sanitizeArgsForNet(list));
+    emitNet(eventName, getPlayerSource(this), ...sanitizeArgsForNet(list));
   }
 
   notify(message: string): void {
@@ -360,12 +360,13 @@ export class PlayerMp extends Entity {
     PlayerInternals.get(this).vehicle = vehicle;
     const targetSeat = typeof seat === "number" ? seat : 0;
     const playerId = this.id;
+    const playerSource = getPlayerSource(this);
     const send = (tries: number): void => {
       if (!globalThis.mp?.players?.at?.(playerId)) return;
       if (!DoesEntityExist(vehicle.handle)) return;
       const netId = VehicleInternals.get(vehicle).cachedNetId || safeGetNetworkId(vehicle.handle);
       if (netId) {
-        emitNet("ragemp:putIntoVehicle", playerId, netId, targetSeat);
+        emitNet("ragemp:putIntoVehicle", playerSource, netId, targetSeat);
       } else if (tries < 50) {
         setTimeout(() => send(tries + 1), 50);
       }
@@ -378,11 +379,11 @@ export class PlayerMp extends Entity {
   }
 
   ban(reason: string): void {
-    DropPlayer(String(this.id), reason ?? "Banned");
+    DropPlayer(String(getPlayerSource(this)), reason ?? "Banned");
   }
 
   kickSilent(reason?: string): void {
-    DropPlayer(String(this.id), reason ?? "");
+    DropPlayer(String(getPlayerSource(this)), reason ?? "");
   }
 
   getClothes(component: number): { drawable: number; texture: number; palette: number } {
@@ -395,7 +396,7 @@ export class PlayerMp extends Entity {
 
   setProp(prop: number, drawable: number, texture: number): void {
     PlayerInternals.get(this).props[prop] = { drawable, texture };
-    emitNet("ragemp:setProp", this.id, prop, drawable, texture);
+    emitNet("ragemp:setProp", getPlayerSource(this), prop, drawable, texture);
   }
 
   getWeaponAmmo(hash: number): number {
@@ -404,26 +405,26 @@ export class PlayerMp extends Entity {
 
   setWeaponAmmo(hash: number, ammo: number): void {
     PlayerInternals.get(this).weaponAmmo[hash] = ammo;
-    emitNet("ragemp:setWeaponAmmo", this.id, hash, ammo);
+    emitNet("ragemp:setWeaponAmmo", getPlayerSource(this), hash, ammo);
   }
 
   playAnimation(dict: string, name: string, speed: number, flag: number): void {
-    emitNet("ragemp:playAnimation", this.id, dict, name, speed ?? 8.0, flag ?? 0);
+    emitNet("ragemp:playAnimation", getPlayerSource(this), dict, name, speed ?? 8.0, flag ?? 0);
   }
 
   stopAnimation(): void {
-    emitNet("ragemp:stopAnimation", this.id);
+    emitNet("ragemp:stopAnimation", getPlayerSource(this));
   }
 
   playScenario(name: string): void {
-    emitNet("ragemp:playScenario", this.id, name);
+    emitNet("ragemp:playScenario", getPlayerSource(this), name);
   }
 
   setHairColor(color: number, highlight: number): void {
     const rec = PlayerInternals.get(this);
     rec.hairColor = color;
     rec.hairHighlightColor = highlight;
-    emitNet("ragemp:setHairColor", this.id, color, highlight);
+    emitNet("ragemp:setHairColor", getPlayerSource(this), color, highlight);
   }
 
   setHeadBlend(shapeFirst: number, shapeSecond: number, shapeThird: number, skinFirst: number, skinSecond: number, skinThird: number, shapeMix: number, skinMix: number, thirdMix: number): void {
@@ -432,7 +433,7 @@ export class PlayerMp extends Entity {
       skinFirst, skinSecond, skinThird,
       shapeMix, skinMix, thirdMix,
     };
-    emitNet("ragemp:setHeadBlend", this.id, shapeFirst, shapeSecond, shapeThird, skinFirst, skinSecond, skinThird, shapeMix, skinMix, thirdMix);
+    emitNet("ragemp:setHeadBlend", getPlayerSource(this), shapeFirst, shapeSecond, shapeThird, skinFirst, skinSecond, skinThird, shapeMix, skinMix, thirdMix);
   }
 
   getHeadBlend(): { shapes: number[]; skins: number[]; shapeMix: number; skinMix: number; thirdMix: number } {
@@ -463,12 +464,12 @@ export class PlayerMp extends Entity {
         shapeMix, skinMix, thirdMix,
       };
     }
-    emitNet("ragemp:updateHeadBlend", this.id, shapeMix, skinMix, thirdMix);
+    emitNet("ragemp:updateHeadBlend", getPlayerSource(this), shapeMix, skinMix, thirdMix);
   }
 
   setFaceFeature(index: number, scale: number): void {
     PlayerInternals.get(this).faceFeatures[index] = scale;
-    emitNet("ragemp:setFaceFeature", this.id, index, scale);
+    emitNet("ragemp:setFaceFeature", getPlayerSource(this), index, scale);
   }
 
   getFaceFeature(index: number): number {
@@ -477,7 +478,7 @@ export class PlayerMp extends Entity {
 
   setHeadOverlay(overlay: number, params: [number, number, number, number]): void {
     PlayerInternals.get(this).headOverlays[overlay] = params;
-    emitNet("ragemp:setHeadOverlay", this.id, overlay, params);
+    emitNet("ragemp:setHeadOverlay", getPlayerSource(this), overlay, params);
   }
 
   getHeadOverlay(overlay: number): [number, number, number, number] {
@@ -496,12 +497,12 @@ export class PlayerMp extends Entity {
             eyeColor, hairColor, highlightColor, faceFeatures,
           };
     PlayerInternals.get(this).customization = params;
-    emitNet("ragemp:setCustomization", this.id, params);
+    emitNet("ragemp:setCustomization", getPlayerSource(this), params);
   }
 
   setDecoration(collection: number, overlay: number): void {
     PlayerInternals.get(this).decorations.push({ collection, overlay });
-    emitNet("ragemp:setDecoration", this.id, collection, overlay);
+    emitNet("ragemp:setDecoration", getPlayerSource(this), collection, overlay);
   }
 
   getDecoration(collection: number, overlay?: number): { collection: number; overlay: number } | null {
@@ -512,15 +513,15 @@ export class PlayerMp extends Entity {
 
   clearDecorations(): void {
     PlayerInternals.get(this).decorations = [];
-    emitNet("ragemp:clearDecorations", this.id);
+    emitNet("ragemp:clearDecorations", getPlayerSource(this));
   }
 
   eval(code: string): void {
-    emitNet("ragemp:eval", this.id, code);
+    emitNet("ragemp:eval", getPlayerSource(this), code);
   }
 
   invoke(hash: string, ...args: any[]): void {
-    emitNet("ragemp:invoke", this.id, hash, ...args);
+    emitNet("ragemp:invoke", getPlayerSource(this), hash, ...args);
   }
 
   isStreamed(target: PlayerMp | number): boolean {
@@ -538,7 +539,7 @@ export class PlayerMp extends Entity {
 
   callUnreliable(eventName: string, args?: any[]): void {
     const list = Array.isArray(args) ? args : args == null ? [] : [args];
-    emitNet(eventName, this.id, ...sanitizeArgsForNet(list));
+    emitNet(eventName, getPlayerSource(this), ...sanitizeArgsForNet(list));
   }
 
   callToStreamed(includeSelf: boolean | string, eventName: string | any[], args?: any[]): void {
@@ -550,11 +551,11 @@ export class PlayerMp extends Entity {
     const argArray = sanitizeArgsForNet(Array.isArray(args) ? args : args == null ? [] : [args]);
     globalThis.mp.players.forEach((other: PlayerMp) => {
       if (other === this) {
-        if (includeSelf) emitNet(eventName as string, other.id, ...argArray);
+        if (includeSelf) emitNet(eventName as string, other.source, ...argArray);
         return;
       }
       if (this.isStreamed(other)) {
-        emitNet(eventName as string, other.id, ...argArray);
+        emitNet(eventName as string, other.source, ...argArray);
       }
     });
   }
@@ -570,7 +571,7 @@ export class PlayerMp extends Entity {
         }
       }, 30000);
       rec.pendingProcs.set(reqId, { procName, resolve, reject, timer });
-      emitNet("ragemp:callProc", this.id, procName, reqId, ...sanitizeArgsForNet(args));
+      emitNet("ragemp:callProc", getPlayerSource(this), procName, reqId, ...sanitizeArgsForNet(args));
     });
   }
 
@@ -595,11 +596,11 @@ export class PlayerMp extends Entity {
   }
 
   enableVoiceTo(target: PlayerMp): void {
-    emitNet("ragemp:enableVoiceTo", this.id, target.id);
+    emitNet("ragemp:enableVoiceTo", getPlayerSource(this), target.id);
   }
 
   disableVoiceTo(target: PlayerMp): void {
-    emitNet("ragemp:disableVoiceTo", this.id, target.id);
+    emitNet("ragemp:disableVoiceTo", getPlayerSource(this), target.id);
   }
 
   override destroy(): void {

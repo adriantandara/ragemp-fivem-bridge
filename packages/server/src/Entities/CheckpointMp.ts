@@ -3,6 +3,7 @@ import { BroadcastEntity } from "./BroadcastEntity";
 import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { CheckpointInternals, initCheckpointInternals, type CheckpointColor } from "../internal/checkpointInternals";
 import { removeFromCheckpointPool } from "../internal/pools/checkpointPoolService";
+import { getPlayerSource } from "../internal/playerInternals";
 
 export class CheckpointMp extends BroadcastEntity {
   protected override readonly updateEvent = "ragemp:checkpointUpdate";
@@ -113,11 +114,11 @@ export class CheckpointMp extends BroadcastEntity {
   }
 
   hideFor(player: any): void {
-    emitNet("ragemp:checkpointHide", player.id ?? player, this.id);
+    emitNet("ragemp:checkpointHide", typeof player === "object" && player ? getPlayerSource(player) : player, this.id);
   }
 
   showFor(player: any): void {
-    emitNet("ragemp:checkpointShow", player.id ?? player, this.id);
+    emitNet("ragemp:checkpointShow", typeof player === "object" && player ? getPlayerSource(player) : player, this.id);
   }
 
   override destroy(): void {

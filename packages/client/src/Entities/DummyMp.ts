@@ -1,5 +1,6 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
 import { removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { freeClientId } from "../internal/pools/clientPool";
 import { DummyInternals, initDummyInternals } from "../internal/dummyInternals";
 
 export class DummyMp extends Entity {
@@ -18,6 +19,9 @@ export class DummyMp extends Entity {
 
   override destroy(): void {
     const pool = globalThis.mp?.dummies;
-    if (pool) removeFromPool(pool, this.id);
+    if (pool) {
+      removeFromPool(pool, this.id);
+      freeClientId(pool, this.id);
+    }
   }
 }

@@ -1,5 +1,6 @@
 import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
 import { removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { freeClientId } from "../internal/pools/clientPool";
 import { toVec3 } from "../utils/vec";
 import { applyBlipName } from "../utils/blipName";
 import { BlipInternals, initBlipInternals } from "../internal/blipInternals";
@@ -90,6 +91,9 @@ export class BlipMp extends Entity {
 
   override destroy(): void {
     RemoveBlip(this.handle);
-    if (globalThis.mp.blips) removeFromPool(globalThis.mp.blips, this.id);
+    if (globalThis.mp.blips) {
+      removeFromPool(globalThis.mp.blips, this.id);
+      freeClientId(globalThis.mp.blips, this.id);
+    }
   }
 }

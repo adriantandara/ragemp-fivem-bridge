@@ -1,6 +1,6 @@
-import { setupBroadcastSync } from "./broadcastSyncService";
+import { setupBroadcastPool } from "./broadcastPoolService";
 import type { BlipMpPool } from "../../Pools/BlipMpPool";
 
 export function setupBlipPool(pool: BlipMpPool): void {
-  setupBroadcastSync(pool, "ragemp:blipSyncAll");
+  setupBroadcastPool(pool, "ragemp:blipCreate", "ragemp:blipSyncAll");
 }

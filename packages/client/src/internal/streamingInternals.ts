@@ -1,9 +1,11 @@
-import { defineInternals } from "@ragemp-fivem-bridge/shared/internal";
+import { defineInternals, IdAllocator } from "@ragemp-fivem-bridge/shared/internal";
 
 export interface StreamingInternalsRec {
   handleToEntity: Map<number, any>;
   byRemote: Map<number, any>;
+  byLocal: Map<number, any>;
   netIdToRemote: Map<number, number>;
+  ids: IdAllocator;
   activeSet: Set<number>;
   netType: string | null;
   makeEntity: null | ((id: number, handle: number | null) => any);
@@ -18,7 +20,9 @@ export function initStreamingInternals(pool: object, netType: string | null): St
   return StreamingInternals.init(pool, {
     handleToEntity: new Map(),
     byRemote: new Map(),
+    byLocal: new Map(),
     netIdToRemote: new Map(),
+    ids: new IdAllocator(),
     activeSet: new Set(),
     netType,
     makeEntity: null,

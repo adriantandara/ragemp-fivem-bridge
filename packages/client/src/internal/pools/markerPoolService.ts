@@ -1,4 +1,5 @@
-import { defineInternals, poolStore, poolAdd, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
+import { defineInternals, poolStore, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
+import { addNetworked } from "./clientPool";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { MarkerMp } from "../../Entities/MarkerMp";
 import { MarkerInternals } from "../markerInternals";
@@ -26,7 +27,7 @@ function createFromData(pool: MarkerMpPool, data: any): MarkerMp {
   rec.a = data.a;
   rec.visible = data.visible;
   rec.dimension = data.dimension ?? 0;
-  poolAdd(pool, marker as any);
+  addNetworked(pool, marker as any);
   return marker;
 }
 
@@ -40,7 +41,7 @@ export function setupMarkerPool(pool: MarkerMpPool): void {
     destroyEvent: "ragemp:markerDestroy",
     create: (p, data) => createFromData(p, data),
     update: (p, id, data) => {
-      const existing = p.at(id) as unknown as MarkerMp | null;
+      const existing = p.atRemoteId(id) as unknown as MarkerMp | null;
       if (existing) {
         const rec = MarkerInternals.get(existing);
         rec.position = new Vector3(data.x, data.y, data.z);
@@ -56,7 +57,7 @@ export function setupMarkerPool(pool: MarkerMpPool): void {
       }
     },
     destroy: (p, id) => {
-      const existing = p.at(id) as unknown as MarkerMp | null;
+      const existing = p.atRemoteId(id) as unknown as MarkerMp | null;
       if (existing) {
         MarkerPoolInternals.get(p).hiddenSet.delete(id);
         existing.destroy();
@@ -88,7 +89,7 @@ function startRendering(pool: MarkerMpPool): void {
     pool.forEach(((marker: MarkerMp) => {
       const rec = MarkerInternals.get(marker);
       if (!rec.visible) return;
-      if (hiddenSet.has(marker.id)) return;
+      if (hiddenSet.has(marker.remoteId)) return;
       if (!isVisibleHere(rec.dimension)) return;
 
       const pos = rec.position;

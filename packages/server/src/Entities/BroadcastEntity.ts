@@ -1,5 +1,6 @@
 import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
 import { EntityInternals, removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { freeBroadcastId } from "../internal/pools/broadcastPoolService";
 
 export abstract class BroadcastEntity extends Entity {
   constructor(token: symbol, id: number, type: string) {
@@ -36,6 +37,9 @@ export abstract class BroadcastEntity extends Entity {
   override destroy(): void {
     emitNet(this.destroyEvent, -1, this.id);
     const pool = this.pool();
-    if (pool) removeFromPool(pool, this.id);
+    if (pool) {
+      removeFromPool(pool, this.id);
+      freeBroadcastId(pool, this.id);
+    }
   }
 }

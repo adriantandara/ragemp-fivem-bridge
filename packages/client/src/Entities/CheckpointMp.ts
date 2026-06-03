@@ -1,5 +1,6 @@
 import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
 import { EntityInternals, removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { freeClientId } from "../internal/pools/clientPool";
 import { CheckpointInternals, initCheckpointInternals } from "../internal/checkpointInternals";
 import { applyCheckpointVisibility } from "../internal/pools/checkpointPoolService";
 
@@ -66,6 +67,9 @@ export class CheckpointMp extends Entity {
 
   override destroy(): void {
     DeleteCheckpoint(this.handle);
-    if (globalThis.mp.checkpoints) removeFromPool(globalThis.mp.checkpoints, this.id);
+    if (globalThis.mp.checkpoints) {
+      removeFromPool(globalThis.mp.checkpoints, this.id);
+      freeClientId(globalThis.mp.checkpoints, this.id);
+    }
   }
 }

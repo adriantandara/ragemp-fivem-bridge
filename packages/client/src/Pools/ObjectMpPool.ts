@@ -1,11 +1,11 @@
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
-import { poolStore, poolAdd, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
+import { poolStore, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
 import { ObjectMp } from "../Entities/ObjectMp";
 import { StreamingPool } from "./StreamingPool";
 import { StreamingInternals } from "../internal/streamingInternals";
 import { ObjectInternals } from "../internal/objectInternals";
-import { setupObjectPool, nextLocalObjectId } from "../internal/pools/objectPoolService";
-import { startNetworked } from "../internal/pools/streamingService";
+import { setupObjectPool } from "../internal/pools/objectPoolService";
+import { startNetworked, registerLocalStreamed } from "../internal/pools/streamingService";
 
 export class ObjectMpPool extends StreamingPool<ObjectMp> {
   constructor() {
@@ -24,8 +24,7 @@ export class ObjectMpPool extends StreamingPool<ObjectMp> {
     const isNetwork = options.isNetwork !== undefined ? !!options.isNetwork : true;
 
     const handle = CreateObject(modelHash, position.x, position.y, position.z, isNetwork, true, false);
-    const id = nextLocalObjectId();
-    const obj = new ObjectMp(CONSTRUCT, id, handle);
+    const obj = new ObjectMp(CONSTRUCT, 0, handle);
 
     if (options.rotation) {
       obj.rotation = options.rotation;
@@ -39,7 +38,7 @@ export class ObjectMpPool extends StreamingPool<ObjectMp> {
       obj.dimension = options.dimension;
     }
 
-    poolAdd(this, obj);
+    registerLocalStreamed(this, obj);
     StreamingInternals.get(this).handleToEntity.set(handle, obj);
     globalThis.mp?.events?.call("entityStreamIn", obj);
 
@@ -47,11 +46,10 @@ export class ObjectMpPool extends StreamingPool<ObjectMp> {
   }
 
   newWeak(handle: number): ObjectMp {
-    const id = nextLocalObjectId();
-    const obj = new ObjectMp(CONSTRUCT, id, handle);
+    const obj = new ObjectMp(CONSTRUCT, 0, handle);
     ObjectInternals.get(obj).isWeak = true;
 
-    poolAdd(this, obj);
+    registerLocalStreamed(this, obj);
     StreamingInternals.get(this).handleToEntity.set(handle, obj);
 
     return obj;
@@ -83,8 +81,7 @@ export class ObjectMpPool extends StreamingPool<ObjectMp> {
       customModelHash
     );
 
-    const id = nextLocalObjectId();
-    const obj = new ObjectMp(CONSTRUCT, id, handle);
+    const obj = new ObjectMp(CONSTRUCT, 0, handle);
 
     if (options.rotation) {
       obj.rotation = options.rotation;
@@ -98,7 +95,7 @@ export class ObjectMpPool extends StreamingPool<ObjectMp> {
       obj.dimension = options.dimension;
     }
 
-    poolAdd(this, obj);
+    registerLocalStreamed(this, obj);
     StreamingInternals.get(this).handleToEntity.set(handle, obj);
     globalThis.mp?.events?.call("entityStreamIn", obj);
 

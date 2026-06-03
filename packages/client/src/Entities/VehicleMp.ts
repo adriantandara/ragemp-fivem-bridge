@@ -386,6 +386,7 @@ export class VehicleMp extends EntityMpBase {
   detachFromAnyCargobob(): boolean { return DetachVehicleFromAnyCargobob(this.handle); }
   isAttachedToCargobob(vehicleAttached: any): boolean { return IsVehicleAttachedToCargobob(this.handle, vehicleAttached?.handle ?? vehicleAttached); }
   setAutomaticallyAttaches(autoAttach: boolean, scanDriver: number): void { SetVehicleAutomaticallyAttaches(this.handle, !!autoAttach, scanDriver ?? 0); }
+  getExtraColours(): number[] { return GetVehicleExtraColours(this.handle); }
 
   destroy(): void {
     SetEntityAsMissionEntity(this.handle, false, true);

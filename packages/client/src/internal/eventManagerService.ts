@@ -467,9 +467,16 @@ export function tickCheckpoints(mgr: EventManager, ped: number, localPlayer: any
   const checkpointPool = globalThis.mp?.checkpoints;
   if (!checkpointPool) return;
 
-  const px = playerCoords[0];
-  const py = playerCoords[1];
-  const pz = playerCoords[2];
+  const cpVehicle = GetVehiclePedIsIn(ped, false);
+  let px: number, py: number, pz: number;
+  if (cpVehicle !== 0) {
+    const v = GetEntityCoords(cpVehicle, true);
+    px = v[0]; py = v[1]; pz = v[2];
+  } else {
+    px = playerCoords[0];
+    py = playerCoords[1];
+    pz = playerCoords[2];
+  }
 
   for (const checkpoint of checkpointPool) {
     const rec = EntityInternals.get(checkpoint);
@@ -480,9 +487,8 @@ export function tickCheckpoints(mgr: EventManager, ped: number, localPlayer: any
     const dx = px - pos.x;
     const dy = py - pos.y;
     const dz = pz - pos.z;
-    const distSq = dx * dx + dy * dy + dz * dz;
-    const isInside =
-      isVisibleHere(rec.dimension) && distSq <= radius * radius;
+    const horizontalSq = dx * dx + dy * dy;
+    const isInside = isVisibleHere(rec.dimension) && horizontalSq <= radius * radius && (dz < 0 ? -dz : dz) <= 4.0;
 
     if (isInside && !rec0.insideCheckpoints.has(checkpoint.id)) {
       rec0.insideCheckpoints.add(checkpoint.id);

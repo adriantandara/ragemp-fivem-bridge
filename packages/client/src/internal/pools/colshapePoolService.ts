@@ -46,10 +46,12 @@ function scan(pool: ColshapeMpPool): void {
 
   let localPos;
   try {
-    localPos = local.position;
+    const [x, y, z] = GetEntityCoords(local.handle, true);
+    localPos = { x, y, z };
   } catch (e) {
     return;
   }
+  
   if (!localPos) return;
 
   const poolRec = ColshapePoolInternals.get(pool);

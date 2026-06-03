@@ -23,6 +23,7 @@ export class BrowserMpPool extends Pool<BrowserMp> {
     }
 
     browser.orderId = id;
+    browser.active = true;
 
     globalThis.mp?.events?.call("browserCreated", browser);
 

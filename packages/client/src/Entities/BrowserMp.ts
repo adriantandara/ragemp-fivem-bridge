@@ -1,6 +1,6 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
 import { removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
-import { acquireNuiPauseGuard, releaseNuiPauseGuard } from "../utils/nuiFocus";
+import { setBrowserFocus } from "../utils/nuiFocus";
 import {
   BrowserInternals,
   initBrowserInternals,
@@ -41,10 +41,8 @@ export class BrowserMp extends Entity {
   set active(value: boolean) {
     const rec = BrowserInternals.get(this);
     rec.active = !!value;
-    SetNuiFocus(rec.active, rec.active);
+    setBrowserFocus("browser:" + this.id, rec.active);
     postFocusState(this.id, rec.active);
-    if (rec.active) acquireNuiPauseGuard("browser:" + this.id);
-    else releaseNuiPauseGuard("browser:" + this.id);
   }
 
   execute(code: string): void {
@@ -125,9 +123,8 @@ export class BrowserMp extends Entity {
     rec.destroyed = true;
     if (rec.active) {
       rec.active = false;
-      SetNuiFocus(false, false);
+      setBrowserFocus("browser:" + this.id, false);
     }
-    releaseNuiPauseGuard("browser:" + this.id);
     postFocusState(this.id, false);
     const pool = globalThis.mp?.browsers;
     if (pool && getChatBrowser(pool) === this) setChatBrowser(pool, null);

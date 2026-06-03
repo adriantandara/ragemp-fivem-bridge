@@ -1,4 +1,4 @@
-import { acquireNuiPauseGuard, releaseNuiPauseGuard } from "./utils/nuiFocus";
+import { setCursorVisible } from "./utils/nuiFocus";
 import { getChatBrowser } from "./internal/browserInternals";
 
 function callChatBrowser(event: string, ...args: any[]): void {
@@ -105,9 +105,7 @@ class CursorMp {
   show(freezeControls: boolean, state: boolean): void {
     this._visible = !!state;
     this._freeze = !!freezeControls;
-    SetNuiFocus(!!state, !!state);
-    if (this._visible) acquireNuiPauseGuard("cursor");
-    else releaseNuiPauseGuard("cursor");
+    setCursorVisible(this._visible);
     this._updateFreezeTick();
   }
 

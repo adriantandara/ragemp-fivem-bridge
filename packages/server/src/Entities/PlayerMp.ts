@@ -112,7 +112,17 @@ export class PlayerMp extends Entity {
 
   set dimension(value: number) {
     const dim = normalizeDimension(value);
-    SetPlayerRoutingBucket(this.id.toString(), dim);
+    const src = this.id.toString();
+    SetPlayerRoutingBucket(src, dim);
+    try {
+      const ped = GetPlayerPed(src);
+      if (ped && ped !== 0) {
+        SetEntityRoutingBucket(ped, dim);
+      }
+    } catch {
+      //
+    }
+    EntityInternals.get(this).dimension = dim;
     emitNet("ragemp:setDimension", this.id, dim);
   }
 

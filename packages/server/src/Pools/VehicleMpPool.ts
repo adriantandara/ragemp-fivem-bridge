@@ -6,6 +6,7 @@ import { safeGetEntityFromNetId } from "../utils/netId";
 import { entityCreated, entityBindNetId } from "../utils/entityRegistry";
 import { VehicleInternals } from "../internal/vehicleInternals";
 import { setupVehiclePool, vehicleNetIdMap } from "../internal/pools/vehiclePoolService";
+import { createServerVehicleHandle } from "../utils/createServerVehicle";
 
 let vehicleIdCounter = 0;
 
@@ -19,6 +20,7 @@ export class VehicleMpPool extends HandlePool {
     heading?: number;
     dimension?: number;
     orphanMode?: number;
+    modelName?: string;
     alpha?: number;
     color?: [number, number] | [[number, number, number], [number, number, number]];
     engine?: boolean;
@@ -26,12 +28,22 @@ export class VehicleMpPool extends HandlePool {
     numberPlate?: string;
   } = {}): VehicleMp | null {
     const modelHash = typeof model === "string" ? GetHashKey(model) : model;
+    const modelName = options.modelName ?? (typeof model === "string" ? model : undefined);
     const heading = options.heading ?? 0;
     const dimension = options.dimension ?? 0;
 
-    const handle = CreateVehicle(modelHash, position.x, position.y, position.z, heading, true, true);
+    const handle = createServerVehicleHandle(
+      modelHash,
+      position.x,
+      position.y,
+      position.z,
+      heading,
+      modelName,
+    );
     if (!handle) {
-      console.warn("[bridge] mp.vehicles.new failed: FiveM cannot create a server-side vehicle with no players near the coordinates. Spawn it near a player.");
+      console.warn(
+        "[bridge] mp.vehicles.new failed: could not create vehicle (no players nearby and CreateVehicleServerSetter unavailable or failed).",
+      );
       return null;
     }
     const id = ++vehicleIdCounter;
@@ -41,9 +53,8 @@ export class VehicleMpPool extends HandlePool {
       vehicle.dimension = dimension;
     }
 
-    if (options.orphanMode !== undefined) {
-      vehicle.setOrphanMode(options.orphanMode);
-    }
+    const orphanMode = options.orphanMode ?? 2;
+    vehicle.setOrphanMode(orphanMode);
 
     if (options.alpha !== undefined) {
       EntityInternals.get(vehicle).alpha = options.alpha;

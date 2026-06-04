@@ -50,6 +50,19 @@ export class PlayerMp extends PedMpBase {
     return (globalThis as any).mp?.vehicles?.atHandle?.(veh) ?? null;
   }
 
+  /** RageMP convention: 0 = driver (GTA seat -1), 1+ = passengers. */
+  get seat(): number {
+    const veh = GetVehiclePedIsIn(this.ped, false);
+    if (!veh) return -1;
+    const maxPassengers = GetVehicleMaxNumberOfPassengers(veh);
+    for (let gtaSeat = -1; gtaSeat < maxPassengers; gtaSeat++) {
+      if (GetPedInVehicleSeat(veh, gtaSeat) === this.ped) {
+        return gtaSeat + 1;
+      }
+    }
+    return -1;
+  }
+
   get aimTarget(): any {
     const [found, entity] = GetPlayerTargetEntity(PlayerInternals.get(this).playerIndex);
     return found ? entity : null;

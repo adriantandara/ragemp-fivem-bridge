@@ -3,11 +3,28 @@ import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { scheduleStateBagFlush } from "../utils/stateBagDefer";
 import { playerBySource } from "../utils/playerRegistry";
 import { safeGetNetworkId } from "../utils/netId";
+import { whenNetworked } from "../utils/whenNetworked";
 import { VehicleInternals, initVehicleInternals , emitVehicle } from "../internal/vehicleInternals";
 import { PlayerInternals, getPlayerSource } from "../internal/playerInternals";
 import { removeFromVehiclePool } from "../internal/pools/vehiclePoolService";
 
 type Quaternion = { x: number; y: number; z: number; w: number };
+
+function applyOrphanMode(vehicle: VehicleMp): void {
+  const handle = vehicle.handle;
+  if (!handle) return;
+  const internals = VehicleInternals.get(vehicle);
+  if (safeGetNetworkId(handle)) {
+    if (internals.orphanMode !== undefined) SetEntityOrphanMode(handle, internals.orphanMode);
+    return;
+  }
+  if (internals.orphanModeScheduled) return;
+  internals.orphanModeScheduled = true;
+  whenNetworked(handle, () => {
+    internals.orphanModeScheduled = false;
+    if (internals.orphanMode !== undefined) SetEntityOrphanMode(handle, internals.orphanMode);
+  });
+}
 
 export class VehicleMp extends Entity {
   constructor(token: symbol, id: number, handle: number | null) {
@@ -83,7 +100,7 @@ export class VehicleMp extends Entity {
 
   set orphanMode(value: number) {
     VehicleInternals.get(this).orphanMode = value;
-    SetEntityOrphanMode(this.handle, value);
+    applyOrphanMode(this);
   }
 
   setOrphanMode(mode: number): void {

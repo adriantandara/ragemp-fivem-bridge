@@ -30,6 +30,7 @@ export interface VehicleInternalsRec {
   engineHealth: number;
   sync: EntitySyncQueue;
   orphanMode?: number;
+  orphanModeScheduled?: boolean;
   netIdReady?: boolean;
   cachedNetId?: number;
   numberPlate?: string;

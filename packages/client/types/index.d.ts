@@ -151,7 +151,7 @@ export interface VehicleMp extends EntityMp {
   repair(): void;
 
   getHandling(field: string): number | Vector3;
-  setHandling(field: string, value: number | Vector3Like | number[]): void;
+  setHandling(field: string, value: number | string | Vector3Like | number[]): void;
   resetHandling(): void;
 
   setWheelSize(size: number): boolean;

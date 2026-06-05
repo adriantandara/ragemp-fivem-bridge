@@ -224,12 +224,13 @@ export class VehicleMp extends EntityMpBase {
       default: return GetVehicleHandlingFloat(this.handle, "CHandlingData", fieldName);
     }
   }
-  setHandling(fieldName: string, value: number | Vector3Like | number[]): void {
-    if (typeof value === "number") {
+  setHandling(fieldName: string, value: number | string | Vector3Like | number[]): void {
+    if (typeof value === "number" || typeof value === "string") {
+      const numeric = typeof value === "number" ? value : parseFloat(value);
       if (handlingFieldKind(fieldName) === "int") {
-        SetVehicleHandlingInt(this.handle, "CHandlingData", fieldName, value);
+        SetVehicleHandlingInt(this.handle, "CHandlingData", fieldName, numeric);
       } else {
-        SetVehicleHandlingFloat(this.handle, "CHandlingData", fieldName, value);
+        SetVehicleHandlingFloat(this.handle, "CHandlingData", fieldName, numeric);
       }
       return;
     }

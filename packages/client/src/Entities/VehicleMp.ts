@@ -1,5 +1,5 @@
 import { EntityMpBase } from "./EntityMpBase";
-import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { Vector3, Vector3Like } from "@ragemp-fivem-bridge/shared";
 import { toVec3 } from "../utils/vec";
 import { VehicleInternals, initVehicleInternals } from "../internal/vehicleInternals";
 import { PlayerInternals } from "../internal/playerInternals";
@@ -7,6 +7,14 @@ import { removeFromStreamingPool } from "../internal/pools/streamingService";
 import { playerByServerId } from "../internal/pools/playerPoolService";
 
 const MAX_GEAR_INDEX = 10;
+
+type HandlingFieldKind = "vector" | "int" | "float";
+
+function handlingFieldKind(fieldName: string): HandlingFieldKind {
+  if (fieldName.startsWith("vec")) return "vector";
+  if (fieldName.startsWith("n")) return "int";
+  return "float";
+}
 
 export class VehicleMp extends EntityMpBase {
   constructor(token: symbol, id: number, handle: number | null) {
@@ -209,17 +217,24 @@ export class VehicleMp extends EntityMpBase {
   setEngineTorqueMultiplier(value: number): void { SetVehicleCheatPowerIncrease(this.handle, value); }
   setHasStrongAxles(toggle: boolean): void { SetVehicleHasStrongAxles(this.handle, !!toggle); }
 
-  getHandling(fieldName: string): number {
-    const v = GetVehicleHandlingFloat(this.handle, "CHandlingData", fieldName);
-    if (typeof v === "number") return v;
-    return GetVehicleHandlingInt(this.handle, "CHandlingData", fieldName);
-  }
-  setHandling(fieldName: string, value: number | string): void {
-    if (typeof value === "number" && !Number.isInteger(value)) {
-      SetVehicleHandlingFloat(this.handle, "CHandlingData", fieldName, value);
-    } else {
-      SetVehicleHandlingInt(this.handle, "CHandlingData", fieldName, value as number);
+  getHandling(fieldName: string): number | Vector3 {
+    switch (handlingFieldKind(fieldName)) {
+      case "vector": return toVec3(GetVehicleHandlingVector(this.handle, "CHandlingData", fieldName));
+      case "int": return GetVehicleHandlingInt(this.handle, "CHandlingData", fieldName);
+      default: return GetVehicleHandlingFloat(this.handle, "CHandlingData", fieldName);
     }
+  }
+  setHandling(fieldName: string, value: number | Vector3Like | number[]): void {
+    if (typeof value === "number") {
+      if (handlingFieldKind(fieldName) === "int") {
+        SetVehicleHandlingInt(this.handle, "CHandlingData", fieldName, value);
+      } else {
+        SetVehicleHandlingFloat(this.handle, "CHandlingData", fieldName, value);
+      }
+      return;
+    }
+    const vec = Array.isArray(value) ? value : [value.x, value.y, value.z];
+    (SetVehicleHandlingVector as (vehicle: number, class_: string, fieldName: string, value: number[]) => void)(this.handle, "CHandlingData", fieldName, vec);
   }
   getDefaultHandling(fieldName: string): number | string { return GetVehicleHandlingFloat(this.handle, "CHandlingData", fieldName); }
   resetHandling(): void { SetVehicleUseAlternateHandling(this.handle, false); }

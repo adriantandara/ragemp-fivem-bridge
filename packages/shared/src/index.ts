@@ -1,4 +1,5 @@
 export { Vector3 } from "./Vector3";
+export type { Vector3Like } from "./Vector3";
 export { NotImplementedError } from "./NotImplementedError";
 export { Pool, setPoolLifecycleSink } from "./Pool";
 export { HandlePool } from "./HandlePool";

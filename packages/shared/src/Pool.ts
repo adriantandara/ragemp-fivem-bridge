@@ -1,34 +1,32 @@
 import { Vector3Like } from "./Vector3";
-import { initPool, poolStore, setPoolLifecycleSink } from "./internal/poolStore";
-
-export interface PoolEntity {
-  id: number;
-  dimension: number;
-  position: { distance(v: Vector3Like): number; distanceSqr(v: Vector3Like): number };
-  [key: string]: unknown;
-}
+import { initPool, poolStore, poolAtRemote, setPoolLifecycleSink } from "./internal/poolStore";
+import { Entity } from "./Entity";
 
 export { setPoolLifecycleSink };
 
-export class Pool {
+export class Pool<T extends Entity> {
   constructor() {
     initPool(this);
   }
 
   get length(): number {
-    return poolStore(this).entities.size;
+    return poolStore<T>(this).entities.size;
   }
 
   get size(): number {
-    return poolStore(this).entities.size;
+    return poolStore<T>(this).entities.size;
   }
 
-  at(id: number): PoolEntity | null {
-    return poolStore(this).entities.get(id) ?? null;
+  at(id: number): T | null {
+    return poolStore<T>(this).entities.get(id) ?? null;
   }
 
-  exists(entity: number | PoolEntity): boolean {
-    const entities = poolStore(this).entities;
+  atRemoteId(remoteId: number): T | null {
+    return poolAtRemote<T>(this, remoteId);
+  }
+
+  exists(entity: number | T): boolean {
+    const entities = poolStore<T>(this).entities;
     if (typeof entity === "number") {
       return entities.has(entity);
     }
@@ -36,27 +34,27 @@ export class Pool {
     return entities.has(entity.id);
   }
 
-  forEach(fn: (entity: PoolEntity) => void): void {
-    poolStore(this).entities.forEach((entity) => fn(entity));
+  forEach(fn: (entity: T) => void): void {
+    poolStore<T>(this).entities.forEach((entity) => fn(entity));
   }
 
-  apply(fn: (entity: PoolEntity) => void): void {
+  apply(fn: (entity: T) => void): void {
     this.forEach(fn);
   }
 
-  toArray(): PoolEntity[] {
-    return Array.from(poolStore(this).entities.values());
+  toArray(): T[] {
+    return Array.from(poolStore<T>(this).entities.values());
   }
 
-  forEachFast(fn: (entity: PoolEntity) => void): void {
+  forEachFast(fn: (entity: T) => void): void {
     this.forEach(fn);
   }
 
-  forEachInRange(position: Vector3Like, range: number, dimensionOrFn: number | ((entity: PoolEntity) => void), maybeFn?: (entity: PoolEntity) => void): void {
+  forEachInRange(position: Vector3Like, range: number, dimensionOrFn: number | ((entity: T) => void), maybeFn?: (entity: T) => void): void {
     const hasDimension = typeof dimensionOrFn === "number";
-    const fn = hasDimension ? maybeFn! : (dimensionOrFn as (entity: PoolEntity) => void);
+    const fn = hasDimension ? maybeFn! : (dimensionOrFn as (entity: T) => void);
     const dimension = hasDimension ? (dimensionOrFn as number) : null;
-    poolStore(this).entities.forEach((entity) => {
+    poolStore<T>(this).entities.forEach((entity) => {
       if (hasDimension && entity.dimension !== dimension) return;
       if (entity.position.distance(position) <= range) {
         fn(entity);
@@ -64,19 +62,19 @@ export class Pool {
     });
   }
 
-  forEachInDimension(dimension: number, fn: (entity: PoolEntity) => void): void {
-    poolStore(this).entities.forEach((entity) => {
+  forEachInDimension(dimension: number, fn: (entity: T) => void): void {
+    poolStore<T>(this).entities.forEach((entity) => {
       if (entity.dimension === dimension) {
         fn(entity);
       }
     });
   }
 
-  getClosest(position: Vector3Like, limit: number = 1): PoolEntity[] {
+  getClosest(position: Vector3Like, limit: number = 1): T[] {
     if (limit === 1) {
-      let best: PoolEntity | null = null;
+      let best: T | null = null;
       let bestDist = Infinity;
-      poolStore(this).entities.forEach((entity) => {
+      poolStore<T>(this).entities.forEach((entity) => {
         const d = entity.position.distanceSqr(position);
         if (d < bestDist) {
           bestDist = d;
@@ -92,31 +90,31 @@ export class Pool {
       .map((x) => x.entity);
   }
 
-  toArrayFast(): PoolEntity[] {
+  toArrayFast(): T[] {
     return this.toArray();
   }
 
-  get streamed(): PoolEntity[] {
+  get streamed(): T[] {
     return this.toArray();
   }
 
   get maxStreamed(): number {
-    return poolStore(this).maxStreamed;
+    return poolStore<T>(this).maxStreamed;
   }
 
   set maxStreamed(v: number) {
-    poolStore(this).maxStreamed = v;
+    poolStore<T>(this).maxStreamed = v;
   }
 
-  forEachInStreamRange(fn: (entity: PoolEntity) => void): void {
+  forEachInStreamRange(fn: (entity: T) => void): void {
     this.forEach(fn);
   }
 
-  getClosestInDimension(position: Vector3Like, dimension: number, limit: number = 1): PoolEntity[] {
+  getClosestInDimension(position: Vector3Like, dimension: number, limit: number = 1): T[] {
     if (limit === 1) {
-      let best: PoolEntity | null = null;
+      let best: T | null = null;
       let bestDist = Infinity;
-      poolStore(this).entities.forEach((entity) => {
+      poolStore<T>(this).entities.forEach((entity) => {
         if (entity.dimension !== dimension) return;
         const d = entity.position.distanceSqr(position);
         if (d < bestDist) {
@@ -134,7 +132,7 @@ export class Pool {
       .map((x) => x.entity);
   }
 
-  [Symbol.iterator](): IterableIterator<PoolEntity> {
-    return poolStore(this).entities.values();
+  [Symbol.iterator](): IterableIterator<T> {
+    return poolStore<T>(this).entities.values();
   }
 }

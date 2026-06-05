@@ -9,6 +9,10 @@ export interface PlayerInternalsRec {
 
 export const PlayerInternals = defineInternals<PlayerInternalsRec>();
 
+export function getPlayerServerId(player: PlayerMp): number {
+  return GetPlayerServerId(PlayerInternals.get(player).playerIndex);
+}
+
 export function initPlayerInternals(player: PlayerMp, playerIndex: number): PlayerInternalsRec {
   return PlayerInternals.init(player, {
     playerIndex,

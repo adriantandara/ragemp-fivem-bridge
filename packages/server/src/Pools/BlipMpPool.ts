@@ -1,11 +1,10 @@
-import { Pool, Vector3 } from "@ragemp-fivem-bridge/shared";
-import { poolAdd } from "@ragemp-fivem-bridge/shared/internal";
+import { Vector3, Pool } from "@ragemp-fivem-bridge/shared";
+import { CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
 import { BlipMp } from "../Entities/BlipMp";
 import { setupBlipPool } from "../internal/pools/blipPoolService";
+import { nextBroadcastId, registerBroadcast } from "../internal/pools/broadcastPoolService";
 
-let blipIdCounter = 0;
-
-export class BlipMpPool extends Pool {
+export class BlipMpPool extends Pool<BlipMp> {
   constructor() {
     super();
     setupBlipPool(this);
@@ -21,13 +20,7 @@ export class BlipMpPool extends Pool {
     scale?: number;
     shortRange?: boolean;
   } = {}): BlipMp {
-    const id = ++blipIdCounter;
-    const blip = new BlipMp(id, sprite, position, options);
-
-    poolAdd(this, blip as any);
-
-    emitNet("ragemp:blipCreate", -1, blip.toData());
-
-    return blip;
+    const blip = new BlipMp(CONSTRUCT, nextBroadcastId(this), sprite, position, options);
+    return registerBroadcast(this, blip);
   }
 }

@@ -40,6 +40,17 @@ export function applyVehicleProp(handle: number, key: string, value: unknown): v
   if (fn) fn(handle, value);
 }
 
+export function applyVehicleColorOption(handle: number, color: unknown): void {
+  if (!Array.isArray(color)) return;
+  const [primary, secondary] = color;
+  if (Array.isArray(primary) && Array.isArray(secondary)) {
+    SetVehicleCustomPrimaryColour(handle, primary[0], primary[1], primary[2]);
+    SetVehicleCustomSecondaryColour(handle, secondary[0], secondary[1], secondary[2]);
+  } else if (typeof primary === "number" && typeof secondary === "number") {
+    SetVehicleColours(handle, primary, secondary);
+  }
+}
+
 export function applyVehicleMod(handle: number, modType: number, modIndex: number): void {
   SetVehicleModKit(handle, 0);
   SetVehicleMod(handle, modType, modIndex, false);

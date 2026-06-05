@@ -1,4 +1,5 @@
-import { defineInternals, poolAdd, removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { defineInternals, removeFromPool, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
+import { addNetworked, addLocal, freeClientId } from "./clientPool";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { ColshapeMp } from "../../Entities/ColshapeMp";
 import { ColshapeInternals } from "../colshapeInternals";
@@ -6,11 +7,8 @@ import { onWorldScan } from "../../utils/worldScan";
 import { isVisibleHere } from "../../utils/dimension";
 import type { ColshapeMpPool } from "../../Pools/ColshapeMpPool";
 
-const LOCAL_ID_BASE = 1000000000;
-
 interface ColshapePoolRec {
   inside: Set<number>;
-  nextLocalId: number;
   warned: boolean;
 }
 
@@ -18,15 +16,15 @@ const ColshapePoolInternals = defineInternals<ColshapePoolRec>();
 
 function createFromData(pool: ColshapeMpPool, data: any): ColshapeMp {
   const position = new Vector3(data.position.x, data.position.y, data.position.z);
-  const colshape = new ColshapeMp(data.id, data.shapeType, position, data.params, data.dimension ?? 0);
+  const colshape = new ColshapeMp(CONSTRUCT, data.id, data.shapeType, position, data.params, data.dimension ?? 0);
   ColshapeInternals.get(colshape).origin = "server";
-  poolAdd(pool, colshape as any);
+  addNetworked(pool, colshape as any);
   return colshape;
 }
 
 function report(pool: ColshapeMpPool, colshape: ColshapeMp, _local: any, entering: boolean): void {
   if (ColshapeInternals.get(colshape).origin === "server") {
-    emitNet(entering ? "ragemp:colshape:enter" : "ragemp:colshape:exit", colshape.id);
+    emitNet(entering ? "ragemp:colshape:enter" : "ragemp:colshape:exit", colshape.remoteId);
     return;
   }
   try {
@@ -82,21 +80,21 @@ function scan(pool: ColshapeMpPool): void {
 }
 
 export function setupColshapePool(pool: ColshapeMpPool): void {
-  ColshapePoolInternals.init(pool, { inside: new Set(), nextLocalId: LOCAL_ID_BASE + 1, warned: false });
+  ColshapePoolInternals.init(pool, { inside: new Set(), warned: false });
 
   onNet("ragemp:colshapeCreate", (data: any) => {
-    if (data && !pool.exists(data.id)) createFromData(pool, data);
+    if (data && !pool.atRemoteId(data.id)) createFromData(pool, data);
   });
 
   onNet("ragemp:colshapeSyncAll", (shapes: any[]) => {
     if (!Array.isArray(shapes)) return;
     for (const data of shapes) {
-      if (data && !pool.exists(data.id)) createFromData(pool, data);
+      if (data && !pool.atRemoteId(data.id)) createFromData(pool, data);
     }
   });
 
   onNet("ragemp:colshapeUpdate", (id: number, data: any) => {
-    const existing = pool.at(id) as unknown as ColshapeMp | null;
+    const existing = pool.atRemoteId(id) as unknown as ColshapeMp | null;
     if (!existing) {
       if (data) createFromData(pool, data);
       return;
@@ -108,22 +106,22 @@ export function setupColshapePool(pool: ColshapeMpPool): void {
   });
 
   onNet("ragemp:colshapeDestroy", (id: number) => {
-    if (pool.exists(id)) removeFromColshapePool(pool, id);
+    const existing = pool.atRemoteId(id) as unknown as ColshapeMp | null;
+    if (existing) removeFromColshapePool(pool, existing.id);
   });
 
   onWorldScan(() => scan(pool));
 }
 
 export function createLocalColshape(pool: ColshapeMpPool, shapeType: string, position: Vector3, params: Record<string, any>, dimension: number = 0): ColshapeMp {
-  const poolRec = ColshapePoolInternals.get(pool);
-  const id = poolRec.nextLocalId++;
-  const colshape = new ColshapeMp(id, shapeType, position, params, dimension);
+  const colshape = new ColshapeMp(CONSTRUCT, 0, shapeType, position, params, dimension);
   ColshapeInternals.get(colshape).origin = "local";
-  poolAdd(pool, colshape as any);
+  addLocal(pool, colshape as any);
   return colshape;
 }
 
 export function removeFromColshapePool(pool: ColshapeMpPool, id: number): void {
   ColshapePoolInternals.get(pool).inside.delete(id);
+  freeClientId(pool, id);
   removeFromPool(pool, id);
 }

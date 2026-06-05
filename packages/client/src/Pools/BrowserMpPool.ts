@@ -1,32 +1,28 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
-import { poolAdd } from "@ragemp-fivem-bridge/shared/internal";
+import { CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
+import { addLocal } from "../internal/pools/clientPool";
 import { BrowserMp, setBrowserProcTimeout, getBrowserProcTimeout } from "../Entities/BrowserMp";
 import { setupBrowserPool } from "../internal/pools/browserPoolService";
+import { initBrowserPoolInternals } from "../internal/browserInternals";
 
-let _browserIdCounter = -1;
-
-export class BrowserMpPool extends Pool {
-  _chatBrowser: BrowserMp | null = null;
-  at!: (id: number) => BrowserMp | null;
-  exists!: (entity: number | { id: number }) => boolean;
-  forEach!: (fn: (entity: BrowserMp) => void) => void;
-  toArray!: () => BrowserMp[];
-
+export class BrowserMpPool extends Pool<BrowserMp> {
   constructor() {
     super();
+    initBrowserPoolInternals(this);
     setupBrowserPool(this);
   }
 
   new(url: string): BrowserMp {
-    const id = ++_browserIdCounter;
-    const browser = new BrowserMp(id, url);
-    poolAdd(this, browser);
+    const browser = new BrowserMp(CONSTRUCT, 0, url);
+    addLocal(this, browser);
+    const id = browser.id;
 
     if (typeof SendNuiMessage === "function") {
       SendNuiMessage(JSON.stringify({ type: "__ragemp:browser:create", browserId: id, url }));
     }
 
     browser.orderId = id;
+    browser.active = true;
 
     globalThis.mp?.events?.call("browserCreated", browser);
 
@@ -43,9 +39,5 @@ export class BrowserMpPool extends Pool {
 
   get procTimeout(): number {
     return getBrowserProcTimeout();
-  }
-
-  atRemoteId(remoteId: number): BrowserMp | null {
-    return this.at(remoteId);
   }
 }

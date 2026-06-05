@@ -1,4 +1,17 @@
-const _entries = new Map();
+import { Registry } from "@ragemp-fivem-bridge/shared/internal";
+
+interface EntityRegistryEntry {
+  type: string;
+  remoteId: number;
+  model: number;
+  x: number;
+  y: number;
+  z: number;
+  dimension: number;
+  netId: number;
+}
+
+const _entries = new Registry<string, EntityRegistryEntry>();
 
 function _key(type: string, remoteId: number) {
   return `${type}:${remoteId}`;

@@ -3,7 +3,7 @@ import { PlayerMp } from "../Entities/PlayerMp";
 import { PlayerInternals } from "../internal/playerInternals";
 import { setupPlayerPool } from "../internal/pools/playerPoolService";
 
-export class PlayerMpPool extends Pool {
+export class PlayerMpPool extends Pool<PlayerMp> {
   constructor() {
     super();
     setupPlayerPool(this);

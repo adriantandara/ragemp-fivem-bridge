@@ -1,21 +1,20 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { freeClientId } from "../internal/pools/clientPool";
 import { MarkerInternals, initMarkerInternals } from "../internal/markerInternals";
 
 export class MarkerMp extends Entity {
-  id: number;
-
-  constructor(id: number, type: number) {
-    super(id, "marker");
+  constructor(token: symbol, id: number, type: number) {
+    super(token, id, "marker");
     initMarkerInternals(this, type);
   }
 
-  get position(): Vector3 {
+  override get position(): Vector3 {
     return MarkerInternals.get(this).position;
   }
 
-  set position(value: { x: number; y: number; z: number }) {
+  override set position(value: { x: number; y: number; z: number }) {
     MarkerInternals.get(this).position = value instanceof Vector3 ? value : new Vector3(value.x, value.y, value.z);
   }
 
@@ -64,7 +63,10 @@ export class MarkerMp extends Entity {
     rec.a = value.a;
   }
 
-  destroy(): void {
-    if (globalThis.mp.markers) removeFromPool(globalThis.mp.markers, this.id);
+  override destroy(): void {
+    if (globalThis.mp.markers) {
+      removeFromPool(globalThis.mp.markers, this.id);
+      freeClientId(globalThis.mp.markers, this.id);
+    }
   }
 }

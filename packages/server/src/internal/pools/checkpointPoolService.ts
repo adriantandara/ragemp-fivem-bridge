@@ -1,4 +1,6 @@
-import { defineInternals, poolStore, removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { defineInternals, removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { setupBroadcastPool, freeBroadcastId } from "./broadcastPoolService";
+import { playerBySource } from "../../utils/playerRegistry";
 import type { CheckpointMp } from "../../Entities/CheckpointMp";
 import type { CheckpointMpPool } from "../../Pools/CheckpointMpPool";
 
@@ -10,7 +12,7 @@ const CheckpointPoolInternals = defineInternals<CheckpointPoolRec>();
 
 function handleTransition(pool: CheckpointMpPool, playerSource: number, id: number, entering: boolean): void {
   const mp = globalThis.mp;
-  const player = mp?.players?.at(playerSource);
+  const player = playerBySource(playerSource);
   const checkpoint = pool.at(id) as unknown as CheckpointMp | null;
   if (!player || !checkpoint) return;
 
@@ -44,14 +46,7 @@ function handleTransition(pool: CheckpointMpPool, playerSource: number, id: numb
 export function setupCheckpointPool(pool: CheckpointMpPool): void {
   CheckpointPoolInternals.init(pool, { inside: new Map() });
 
-  onNet("ragemp:playerReady", () => {
-    const playerSource = source;
-    const checkpoints: ReturnType<CheckpointMp["toData"]>[] = [];
-    poolStore(pool).entities.forEach((cp) => checkpoints.push((cp as unknown as CheckpointMp).toData()));
-    if (checkpoints.length > 0) {
-      emitNet("ragemp:checkpointSyncAll", playerSource, checkpoints);
-    }
-  });
+  setupBroadcastPool(pool, "ragemp:checkpointCreate", "ragemp:checkpointSyncAll");
 
   onNet("ragemp:checkpoint:enter", (id: number) => {
     handleTransition(pool, source, id, true);
@@ -78,4 +73,5 @@ export function checkpointPoolForget(pool: CheckpointMpPool, id: number): void {
 export function removeFromCheckpointPool(pool: CheckpointMpPool, id: number): void {
   checkpointPoolForget(pool, id);
   removeFromPool(pool, id);
+  freeBroadcastId(pool, id);
 }

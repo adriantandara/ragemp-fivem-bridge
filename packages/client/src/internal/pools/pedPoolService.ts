@@ -3,12 +3,6 @@ import { atHandle } from "./streamingService";
 import { PedInternals } from "../pedInternals";
 import type { PedMp } from "../../Entities/PedMp";
 
-let localPedIdCounter = 1000000;
-
-export function nextLocalPedId(): number {
-  return ++localPedIdCounter;
-}
-
 export function setupPedPool(pool: object): void {
   onNet("ragemp:pedInvincible", (netId: number, value: boolean) => {
     const handle = safeGetEntityFromNetId(netId);

@@ -1,5 +1,5 @@
 import { HandlePool, Vector3 } from "@ragemp-fivem-bridge/shared";
-import { poolStore, poolAdd, handlePoolStore, EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
+import { poolStore, poolAdd, handlePoolStore, EntityInternals, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
 import { ObjectMp } from "../Entities/ObjectMp";
 import { whenNetworked } from "../utils/whenNetworked";
 import { safeGetEntityFromNetId } from "../utils/netId";
@@ -45,7 +45,7 @@ export class ObjectMpPool extends HandlePool {
     FreezeEntityPosition(handle, true);
 
     const id = ++objectIdCounter;
-    const obj = new ObjectMp(id, handle);
+    const obj = new ObjectMp(CONSTRUCT, id, handle);
     const objRec = EntityInternals.get(obj);
     objRec.model = modelHash;
     objRec.alpha = options.alpha ?? 255;

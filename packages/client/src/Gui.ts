@@ -1,4 +1,10 @@
-import { acquireNuiPauseGuard, releaseNuiPauseGuard } from "./utils/nuiFocus";
+import { setCursorVisible } from "./utils/nuiFocus";
+import { getChatBrowser } from "./internal/browserInternals";
+
+function callChatBrowser(event: string, ...args: any[]): void {
+  const pool = globalThis.mp?.browsers;
+  if (pool) getChatBrowser(pool)?.call(event, ...args);
+}
 
 export class GuiMp {
   chat: ChatMp;
@@ -44,7 +50,7 @@ class ChatMp {
   activate(state: boolean): void {
     this._active = state;
     emit("chat:toggleActive", state);
-    globalThis.mp?.browsers?._chatBrowser?.call("chat:activate", state);
+    callChatBrowser("chat:activate", state);
   }
 
   get colors(): boolean {
@@ -68,18 +74,18 @@ class ChatMp {
       ? text
       : String(text).replace(/!\{#[0-9a-fA-F]{3,6}\}/g, "").replace(/\^[0-9]/g, "");
     emit("chat:addMessage", { args: [out] });
-    globalThis.mp?.browsers?._chatBrowser?.call("chat:push", out);
+    callChatBrowser("chat:push", out);
   }
 
   show(state: boolean): void {
     this._visible = state;
     emit("chat:toggleVisibility", state);
-    globalThis.mp?.browsers?._chatBrowser?.call("chat:show", state);
+    callChatBrowser("chat:show", state);
   }
 
   clear(): void {
     emit("chat:clear");
-    globalThis.mp?.browsers?._chatBrowser?.call("chat:clear");
+    callChatBrowser("chat:clear");
   }
 }
 
@@ -99,9 +105,7 @@ class CursorMp {
   show(freezeControls: boolean, state: boolean): void {
     this._visible = !!state;
     this._freeze = !!freezeControls;
-    SetNuiFocus(!!state, !!state);
-    if (this._visible) acquireNuiPauseGuard("cursor");
-    else releaseNuiPauseGuard("cursor");
+    setCursorVisible(this._visible);
     this._updateFreezeTick();
   }
 

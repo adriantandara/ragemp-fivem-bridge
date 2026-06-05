@@ -1,23 +1,28 @@
-import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
+import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { BroadcastEntity } from "./BroadcastEntity";
 import { MarkerInternals, initMarkerInternals } from "../internal/markerInternals";
-import { removeFromPool, EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
+import { getPlayerSource } from "../internal/playerInternals";
+import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 
 type MarkerColor = { r: number; g: number; b: number; a: number };
 
-export class MarkerMp extends Entity {
-  constructor(id: number, type: number, position: Vector3, scale: number) {
-    super(id, "marker");
+export class MarkerMp extends BroadcastEntity {
+  protected override readonly updateEvent = "ragemp:markerUpdate";
+  protected override readonly destroyEvent = "ragemp:markerDestroy";
+
+  constructor(token: symbol, id: number, type: number, position: Vector3, scale: number) {
+    super(token, id, "marker");
     const rec = EntityInternals.get(this);
     rec.position = position;
     rec.dimension = 0;
     initMarkerInternals(this, type, scale);
   }
 
-  _sync(): void {
-    emitNet("ragemp:markerUpdate", -1, this.id, this.toData());
+  protected override pool(): object | null | undefined {
+    return globalThis.mp.markers;
   }
 
-  toData(): Record<string, any> {
+  override toData(): Record<string, any> {
     const rec = MarkerInternals.get(this);
     const ent = EntityInternals.get(this);
     return {
@@ -42,31 +47,13 @@ export class MarkerMp extends Entity {
     };
   }
 
-  get position(): Vector3 {
-    return EntityInternals.get(this).position!;
-  }
-
-  set position(value: Vector3) {
-    EntityInternals.get(this).position = value;
-    this._sync();
-  }
-
-  get dimension(): number {
-    return EntityInternals.get(this).dimension;
-  }
-
-  set dimension(value: number) {
-    EntityInternals.get(this).dimension = value;
-    this._sync();
-  }
-
   get direction(): Vector3 {
     return MarkerInternals.get(this).direction;
   }
 
   set direction(value: Vector3) {
     MarkerInternals.get(this).direction = value;
-    this._sync();
+    this.sync();
   }
 
   get scale(): number {
@@ -75,7 +62,7 @@ export class MarkerMp extends Entity {
 
   set scale(value: number) {
     MarkerInternals.get(this).scale = value;
-    this._sync();
+    this.sync();
   }
 
   get visible(): boolean {
@@ -84,7 +71,7 @@ export class MarkerMp extends Entity {
 
   set visible(value: boolean) {
     MarkerInternals.get(this).visible = value;
-    this._sync();
+    this.sync();
   }
 
   get color(): MarkerColor {
@@ -98,7 +85,7 @@ export class MarkerMp extends Entity {
     rec.g = value.g;
     rec.b = value.b;
     rec.a = value.a;
-    this._sync();
+    this.sync();
   }
 
   get rotation(): Vector3 {
@@ -107,11 +94,11 @@ export class MarkerMp extends Entity {
 
   set rotation(value: Vector3) {
     MarkerInternals.get(this).rotation = value;
-    this._sync();
+    this.sync();
   }
 
   // Override Entity.type (string) with marker type (number) — runtime shadowing; any suppresses base mismatch
-  get type(): any {
+  override get type(): any {
     return MarkerInternals.get(this).type;
   }
 
@@ -126,19 +113,14 @@ export class MarkerMp extends Entity {
     rec.g = g;
     rec.b = b;
     rec.a = a;
-    this._sync();
+    this.sync();
   }
 
   hideFor(player: any): void {
-    emitNet("ragemp:markerHide", player.id, this.id);
+    emitNet("ragemp:markerHide", typeof player === "object" && player ? getPlayerSource(player) : player, this.id);
   }
 
   showFor(player: any): void {
-    emitNet("ragemp:markerShow", player.id, this.id);
-  }
-
-  destroy(): void {
-    emitNet("ragemp:markerDestroy", -1, this.id);
-    removeFromPool(globalThis.mp.markers, this.id);
+    emitNet("ragemp:markerShow", typeof player === "object" && player ? getPlayerSource(player) : player, this.id);
   }
 }

@@ -1,22 +1,20 @@
 import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
 import { EntityInternals, removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { freeClientId } from "../internal/pools/clientPool";
 import { CheckpointInternals, initCheckpointInternals } from "../internal/checkpointInternals";
 import { applyCheckpointVisibility } from "../internal/pools/checkpointPoolService";
 
 export class CheckpointMp extends Entity {
-  id: number;
-
-  constructor(id: number, handle: number) {
-    super(id, "checkpoint");
-    EntityInternals.get(this).handle = handle;
+  constructor(token: symbol, id: number, handle: number | null) {
+    super(token, id, "checkpoint", handle);
     initCheckpointInternals(this);
   }
 
-  get position(): Vector3 | undefined {
+  override get position(): Vector3 | undefined {
     return EntityInternals.get(this).position ?? undefined;
   }
 
-  set position(value: Vector3 | undefined) {
+  override set position(value: Vector3 | undefined) {
     EntityInternals.get(this).position = value ?? null;
   }
 
@@ -51,11 +49,11 @@ export class CheckpointMp extends Entity {
     applyCheckpointVisibility(this);
   }
 
-  get dimension(): number {
+  override get dimension(): number {
     return EntityInternals.get(this).dimension;
   }
 
-  set dimension(value: number) {
+  override set dimension(value: number) {
     EntityInternals.get(this).dimension = value;
   }
 
@@ -67,8 +65,11 @@ export class CheckpointMp extends Entity {
     return CheckpointInternals.get(this).origin;
   }
 
-  destroy(): void {
+  override destroy(): void {
     DeleteCheckpoint(this.handle);
-    if (globalThis.mp.checkpoints) removeFromPool(globalThis.mp.checkpoints, this.id);
+    if (globalThis.mp.checkpoints) {
+      removeFromPool(globalThis.mp.checkpoints, this.id);
+      freeClientId(globalThis.mp.checkpoints, this.id);
+    }
   }
 }

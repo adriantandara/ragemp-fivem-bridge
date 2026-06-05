@@ -1,9 +1,13 @@
-import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
+import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { BroadcastEntity } from "./BroadcastEntity";
 import { BlipInternals, initBlipInternals } from "../internal/blipInternals";
-import { removeFromPool, EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
+import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 
-export class BlipMp extends Entity {
-  constructor(id: number, sprite: number, position: Vector3, options: {
+export class BlipMp extends BroadcastEntity {
+  protected override readonly updateEvent = "ragemp:blipUpdate";
+  protected override readonly destroyEvent = "ragemp:blipDestroy";
+
+  constructor(token: symbol, id: number, sprite: number, position: Vector3, options: {
     color?: number;
     scale?: number;
     name?: string;
@@ -13,7 +17,7 @@ export class BlipMp extends Entity {
     drawDistance?: number;
     rotation?: number;
   } = {}) {
-    super(id, "blip");
+    super(token, id, "blip");
     const rec = EntityInternals.get(this);
     rec.position = position;
     rec.alpha = options.alpha ?? 255;
@@ -29,11 +33,11 @@ export class BlipMp extends Entity {
     });
   }
 
-  _sync(): void {
-    emitNet("ragemp:blipUpdate", -1, this.id, this.toData());
+  protected override pool(): object | null | undefined {
+    return globalThis.mp.blips;
   }
 
-  toData(): Record<string, any> {
+  override toData(): Record<string, any> {
     const rec = BlipInternals.get(this);
     const ent = EntityInternals.get(this);
     return {
@@ -53,22 +57,13 @@ export class BlipMp extends Entity {
     };
   }
 
-  get position(): Vector3 {
-    return EntityInternals.get(this).position!;
-  }
-
-  set position(value: Vector3) {
-    EntityInternals.get(this).position = value;
-    this._sync();
-  }
-
   get sprite(): number {
     return BlipInternals.get(this).sprite;
   }
 
   set sprite(value: number) {
     BlipInternals.get(this).sprite = value;
-    this._sync();
+    this.sync();
   }
 
   get color(): number {
@@ -77,7 +72,7 @@ export class BlipMp extends Entity {
 
   set color(value: number) {
     BlipInternals.get(this).color = value;
-    this._sync();
+    this.sync();
   }
 
   get scale(): number {
@@ -86,7 +81,7 @@ export class BlipMp extends Entity {
 
   set scale(value: number) {
     BlipInternals.get(this).scale = value;
-    this._sync();
+    this.sync();
   }
 
   get name(): string {
@@ -95,7 +90,7 @@ export class BlipMp extends Entity {
 
   set name(value: string) {
     BlipInternals.get(this).name = value;
-    this._sync();
+    this.sync();
   }
 
   get shortRange(): boolean {
@@ -104,25 +99,16 @@ export class BlipMp extends Entity {
 
   set shortRange(value: boolean) {
     BlipInternals.get(this).shortRange = value;
-    this._sync();
+    this.sync();
   }
 
-  get alpha(): number {
+  override get alpha(): number {
     return EntityInternals.get(this).alpha;
   }
 
-  set alpha(value: number) {
+  override set alpha(value: number) {
     EntityInternals.get(this).alpha = value;
-    this._sync();
-  }
-
-  get dimension(): number {
-    return EntityInternals.get(this).dimension;
-  }
-
-  set dimension(value: number) {
-    EntityInternals.get(this).dimension = value;
-    this._sync();
+    this.sync();
   }
 
   get drawDistance(): number {
@@ -131,7 +117,7 @@ export class BlipMp extends Entity {
 
   set drawDistance(value: number) {
     BlipInternals.get(this).drawDistance = value;
-    this._sync();
+    this.sync();
   }
 
   get rotation(): number {
@@ -140,7 +126,7 @@ export class BlipMp extends Entity {
 
   set rotation(value: number) {
     BlipInternals.get(this).rotation = value;
-    this._sync();
+    this.sync();
   }
 
   routeFor(player: any | any[] | undefined, color: number, scale: number): void {
@@ -151,10 +137,5 @@ export class BlipMp extends Entity {
   unrouteFor(player: any | any[]): void {
     const target = player?.id ?? player;
     emitNet("ragemp:blipRoute", target, this.id, false);
-  }
-
-  destroy(): void {
-    emitNet("ragemp:blipDestroy", -1, this.id);
-    removeFromPool(globalThis.mp.blips, this.id);
   }
 }

@@ -1,67 +1,149 @@
-import { defineInternals, poolStore, poolAdd, removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { poolStore, removeFromPool, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
+import { addNetworked, addLocal, attachRemoteId, freeClientId } from "./clientPool";
+import { defineInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { rageHealthToGtaPed } from "@ragemp-fivem-bridge/shared";
 import { onWorldScan } from "../../utils/worldScan";
 import { PlayerMp } from "../../Entities/PlayerMp";
 import type { PlayerMpPool } from "../../Pools/PlayerMpPool";
 
 interface PlayerPoolState {
-  activePlayerSet: Set<number>;
+  serverIdToRemote: Map<number, number>;
+  remoteToServerId: Map<number, number>;
+  activeByServerId: Map<number, number>;
 }
 
 const Store = defineInternals<PlayerPoolState>();
 
+export function serverIdToRemoteId(pool: object, serverId: number): number | undefined {
+  return Store.get(pool).serverIdToRemote.get(serverId);
+}
+
+export function playerByServerId(serverId: number): any {
+  const pool = globalThis.mp?.players;
+  if (!pool) return null;
+  const remoteId = serverIdToRemoteId(pool, serverId);
+  return remoteId === undefined ? null : pool.atRemoteId(remoteId);
+}
+
 export function setupPlayerPool(pool: PlayerMpPool): void {
-  Store.init(pool, { activePlayerSet: new Set() });
+  Store.init(pool, {
+    serverIdToRemote: new Map(),
+    remoteToServerId: new Map(),
+    activeByServerId: new Map(),
+  });
+  setupIdentitySync(pool);
   setupLocal(pool);
   setupStreaming(pool);
-  setupServerSync();
+  setupServerSync(pool);
+}
+
+function setLocalRemoteId(pool: PlayerMpPool, remoteId: number): void {
+  const local = pool.local;
+  if (!local || local.remoteId === remoteId) return;
+  attachRemoteId(pool, local, remoteId);
+}
+
+function addRemotePlayer(pool: PlayerMpPool, remoteId: number, playerIndex: number): void {
+  if (pool.atRemoteId(remoteId)) return;
+  addNetworked(pool, new PlayerMp(CONSTRUCT, remoteId, playerIndex));
 }
 
 function setupLocal(pool: PlayerMpPool): void {
-  try {
-    const playerId = PlayerId();
-    const serverId = GetPlayerServerId(playerId);
-    pool.local = new PlayerMp(serverId || playerId, playerId);
-    poolAdd(pool, pool.local);
-  } catch (e) {
+  const create = (): boolean => {
+    try {
+      const playerIndex = PlayerId();
+      const serverId = GetPlayerServerId(playerIndex);
+      if (!serverId) return false;
+      pool.local = new PlayerMp(CONSTRUCT, 0, playerIndex);
+      addLocal(pool, pool.local);
+      const remoteId = Store.get(pool).serverIdToRemote.get(serverId);
+      if (remoteId !== undefined) setLocalRemoteId(pool, remoteId);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+  if (!create()) {
     const tick = setTick(() => {
-      try {
-        const playerId = PlayerId();
-        const serverId = GetPlayerServerId(playerId);
-        if (!serverId) return;
-        clearTick(tick);
-        pool.local = new PlayerMp(serverId, playerId);
-        poolAdd(pool, pool.local);
-      } catch (_) {}
+      if (create()) clearTick(tick);
     });
   }
 }
 
 function setupStreaming(pool: PlayerMpPool): void {
   onWorldScan((cache: { players: number[]; vehicles: number[]; peds: number[] }) => {
-    const activePlayers = cache.players;
-    const activeSet = Store.get(pool).activePlayerSet;
-    activeSet.clear();
+    const st = Store.get(pool);
+    const localIndex = PlayerId();
+    st.activeByServerId.clear();
 
-    for (const playerIndex of activePlayers) {
+    for (const playerIndex of cache.players) {
+      if (playerIndex === localIndex) continue;
       const serverId = GetPlayerServerId(playerIndex);
-      activeSet.add(serverId);
+      if (!serverId || serverId === -1) continue;
+      st.activeByServerId.set(serverId, playerIndex);
 
-      if (!pool.exists(serverId)) {
-        const player = new PlayerMp(serverId, playerIndex);
-        poolAdd(pool, player);
-      }
+      const remoteId = st.serverIdToRemote.get(serverId);
+      if (remoteId === undefined) continue;
+      addRemotePlayer(pool, remoteId, playerIndex);
     }
 
-    for (const [id] of poolStore(pool).entities) {
-      if (id !== pool.local.id && !activeSet.has(id)) {
-        removeFromPool(pool, id);
+    for (const [localId, entity] of poolStore(pool).entities) {
+      if (pool.local && entity === pool.local) continue;
+      const serverId = st.remoteToServerId.get(entity.remoteId);
+      if (serverId === undefined || !st.activeByServerId.has(serverId)) {
+        removeFromPool(pool, localId);
+        freeClientId(pool, localId);
       }
     }
   });
 }
 
-function setupServerSync(): void {
+function applyMap(pool: PlayerMpPool, source: number, remoteId: number): void {
+  if (source == null || remoteId == null) return;
+  const st = Store.get(pool);
+  const prev = st.serverIdToRemote.get(source);
+  if (prev !== undefined && prev !== remoteId) st.remoteToServerId.delete(prev);
+  st.serverIdToRemote.set(source, remoteId);
+  st.remoteToServerId.set(remoteId, source);
+
+  try {
+    if (pool.local && GetPlayerServerId(PlayerId()) === source) {
+      setLocalRemoteId(pool, remoteId);
+      return;
+    }
+  } catch (e) {}
+
+  const playerIndex = st.activeByServerId.get(source);
+  if (playerIndex !== undefined) addRemotePlayer(pool, remoteId, playerIndex);
+}
+
+function applyUnmap(pool: PlayerMpPool, source: number): void {
+  const st = Store.get(pool);
+  const remoteId = st.serverIdToRemote.get(source);
+  st.serverIdToRemote.delete(source);
+  st.activeByServerId.delete(source);
+  if (remoteId === undefined) return;
+  st.remoteToServerId.delete(remoteId);
+  if (pool.local && pool.local.remoteId === remoteId) return;
+  const entity = pool.atRemoteId(remoteId);
+  if (entity) {
+    removeFromPool(pool, entity.id);
+    freeClientId(pool, entity.id);
+  }
+}
+
+function setupIdentitySync(pool: PlayerMpPool): void {
+  onNet("ragemp:player:map", (source: number, remoteId: number) => applyMap(pool, source, remoteId));
+  onNet("ragemp:player:unmap", (source: number) => applyUnmap(pool, source));
+  onNet("ragemp:player:snapshot", (list: [number, number][]) => {
+    if (!Array.isArray(list)) return;
+    for (const entry of list) {
+      if (Array.isArray(entry)) applyMap(pool, entry[0], entry[1]);
+    }
+  });
+}
+
+function setupServerSync(pool: PlayerMpPool): void {
   onNet("ragemp:setHealth", (value: number) => {
     SetEntityHealth(PlayerPedId(), rageHealthToGtaPed(value));
   });
@@ -74,13 +156,15 @@ function setupServerSync(): void {
     SetEntityAlpha(PlayerPedId(), value, false);
   });
 
-  onNet("ragemp:enableVoiceTo", (targetServerId: number) => {
+  onNet("ragemp:enableVoiceTo", (remoteId: number) => {
     const voiceChat = globalThis.mp?.voiceChat;
-    if (voiceChat) voiceChat.listenTo(targetServerId);
+    const target = pool.atRemoteId(remoteId);
+    if (voiceChat && target) voiceChat.listenTo(target);
   });
 
-  onNet("ragemp:disableVoiceTo", (targetServerId: number) => {
+  onNet("ragemp:disableVoiceTo", (remoteId: number) => {
     const voiceChat = globalThis.mp?.voiceChat;
-    if (voiceChat) voiceChat.stopListenTo(targetServerId);
+    const target = pool.atRemoteId(remoteId);
+    if (voiceChat && target) voiceChat.stopListenTo(target);
   });
 }

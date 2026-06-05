@@ -1,12 +1,14 @@
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
-import { EntityInternals, poolAdd, removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { EntityInternals, hasHandle, removeFromPool, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
+import { addNetworked, addLocal, freeClientId } from "./clientPool";
 import { CheckpointMp } from "../../Entities/CheckpointMp";
 import { CheckpointInternals } from "../checkpointInternals";
 import { isVisibleHere, onDimensionChange } from "../../utils/dimension";
+import { setupNetworkedReceiver } from "./networkedReceiverService";
 import type { CheckpointMpPool } from "../../Pools/CheckpointMpPool";
 
 export function applyCheckpointVisibility(cp: CheckpointMp): void {
-  if (!cp.handle) return;
+  if (!hasHandle(cp)) return;
   const rec = CheckpointInternals.get(cp);
   const shown = rec.visible && isVisibleHere(EntityInternals.get(cp).dimension);
   if (shown) {
@@ -26,7 +28,7 @@ function createFromData(pool: CheckpointMpPool, data: any): CheckpointMp {
     0
   );
 
-  const cp = new CheckpointMp(data.id, handle);
+  const cp = new CheckpointMp(CONSTRUCT, data.id, handle);
   const rec = CheckpointInternals.get(cp);
   rec.r = data.r;
   rec.g = data.g;
@@ -37,7 +39,7 @@ function createFromData(pool: CheckpointMpPool, data: any): CheckpointMp {
   rec.radius = data.radius;
   EntityInternals.get(cp).dimension = data.dimension ?? 0;
   rec.origin = "server";
-  poolAdd(pool, cp as any);
+  addNetworked(pool, cp as any);
   applyCheckpointVisibility(cp);
   return cp;
 }
@@ -45,38 +47,30 @@ function createFromData(pool: CheckpointMpPool, data: any): CheckpointMp {
 export function setupCheckpointPool(pool: CheckpointMpPool): void {
   onDimensionChange(() => pool.forEach(((cp: CheckpointMp) => applyCheckpointVisibility(cp)) as any));
 
-  onNet("ragemp:checkpointCreate", (data: any) => {
-    createFromData(pool, data);
-  });
-
-  onNet("ragemp:checkpointSyncAll", (checkpoints: any[]) => {
-    for (const data of checkpoints) {
-      if (!pool.exists(data.id)) {
-        createFromData(pool, data);
+  setupNetworkedReceiver(pool, {
+    createEvent: "ragemp:checkpointCreate",
+    syncAllEvent: "ragemp:checkpointSyncAll",
+    updateEvent: "ragemp:checkpointUpdate",
+    destroyEvent: "ragemp:checkpointDestroy",
+    create: (p, data) => createFromData(p, data),
+    update: (p, id, data) => {
+      const existing = p.atRemoteId(id) as unknown as CheckpointMp | null;
+      if (existing) {
+        DeleteCheckpoint(existing.handle);
+        removeFromPool(p, existing.id);
+        freeClientId(p, existing.id);
+        createFromData(p, data);
       }
-    }
-  });
-
-  onNet("ragemp:checkpointUpdate", (id: number, data: any) => {
-    const existing = pool.at(id) as unknown as CheckpointMp | null;
-    if (existing) {
-      DeleteCheckpoint(existing.handle);
-      removeFromPool(pool, id);
-      createFromData(pool, data);
-    }
-  });
-
-  onNet("ragemp:checkpointDestroy", (id: number) => {
-    const existing = pool.at(id) as unknown as CheckpointMp | null;
-    if (existing) {
-      existing.destroy();
-    }
+    },
+    destroy: (p, id) => {
+      const existing = p.atRemoteId(id) as unknown as CheckpointMp | null;
+      if (existing) existing.destroy();
+    },
   });
 }
 
 export function createCheckpoint(
   pool: CheckpointMpPool,
-  id: number,
   type: number,
   position: { x: number; y: number; z: number },
   nextPosition: { x: number; y: number; z: number } | null | undefined,
@@ -102,7 +96,7 @@ export function createCheckpoint(
     0
   );
 
-  const cp = new CheckpointMp(id, handle);
+  const cp = new CheckpointMp(CONSTRUCT, 0, handle);
   const rec = CheckpointInternals.get(cp);
   rec.r = r;
   rec.g = g;
@@ -113,7 +107,7 @@ export function createCheckpoint(
   rec.radius = radius;
   EntityInternals.get(cp).dimension = options.dimension ?? 0;
   rec.origin = "local";
-  poolAdd(pool, cp as any);
+  addLocal(pool, cp as any);
   applyCheckpointVisibility(cp);
   return cp;
 }

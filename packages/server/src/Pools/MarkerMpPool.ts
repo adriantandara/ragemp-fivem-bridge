@@ -1,12 +1,11 @@
-import { Pool, Vector3 } from "@ragemp-fivem-bridge/shared";
-import { poolAdd, EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
+import { Vector3, Pool } from "@ragemp-fivem-bridge/shared";
+import { EntityInternals, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
 import { MarkerMp } from "../Entities/MarkerMp";
 import { MarkerInternals } from "../internal/markerInternals";
 import { setupMarkerPool } from "../internal/pools/markerPoolService";
+import { nextBroadcastId, registerBroadcast } from "../internal/pools/broadcastPoolService";
 
-let markerIdCounter = 0;
-
-export class MarkerMpPool extends Pool {
+export class MarkerMpPool extends Pool<MarkerMp> {
   constructor() {
     super();
     setupMarkerPool(this);
@@ -19,8 +18,7 @@ export class MarkerMpPool extends Pool {
     rotation?: Vector3;
     visible?: boolean;
   } = {}): MarkerMp {
-    const id = ++markerIdCounter;
-    const marker = new MarkerMp(id, type, position, scale);
+    const marker = new MarkerMp(CONSTRUCT, nextBroadcastId(this), type, position, scale);
     const rec = MarkerInternals.get(marker);
 
     if (options.color) {
@@ -36,10 +34,6 @@ export class MarkerMpPool extends Pool {
     if (options.rotation !== undefined) rec.rotation = options.rotation;
     if (options.visible !== undefined) rec.visible = options.visible;
 
-    poolAdd(this, marker as any);
-
-    emitNet("ragemp:markerCreate", -1, marker.toData());
-
-    return marker;
+    return registerBroadcast(this, marker);
   }
 }

@@ -1,8 +1,10 @@
-import { defineInternals, poolStore, poolAdd } from "@ragemp-fivem-bridge/shared/internal";
+import { defineInternals, poolStore, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
+import { addNetworked } from "./clientPool";
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { MarkerMp } from "../../Entities/MarkerMp";
 import { MarkerInternals } from "../markerInternals";
 import { isVisibleHere } from "../../utils/dimension";
+import { setupNetworkedReceiver } from "./networkedReceiverService";
 import type { MarkerMpPool } from "../../Pools/MarkerMpPool";
 
 interface MarkerPoolRec {
@@ -13,7 +15,7 @@ interface MarkerPoolRec {
 const MarkerPoolInternals = defineInternals<MarkerPoolRec>();
 
 function createFromData(pool: MarkerMpPool, data: any): MarkerMp {
-  const marker = new MarkerMp(data.id, data.type);
+  const marker = new MarkerMp(CONSTRUCT, data.id, data.type);
   const rec = MarkerInternals.get(marker);
   rec.position = new Vector3(data.x, data.y, data.z);
   rec.direction = new Vector3(data.dirX, data.dirY, data.dirZ);
@@ -25,48 +27,42 @@ function createFromData(pool: MarkerMpPool, data: any): MarkerMp {
   rec.a = data.a;
   rec.visible = data.visible;
   rec.dimension = data.dimension ?? 0;
-  poolAdd(pool, marker as any);
+  addNetworked(pool, marker as any);
   return marker;
 }
 
 export function setupMarkerPool(pool: MarkerMpPool): void {
   MarkerPoolInternals.init(pool, { hiddenSet: new Set(), renderTick: null });
 
-  onNet("ragemp:markerCreate", (data: any) => {
-    createFromData(pool, data);
-  });
-
-  onNet("ragemp:markerSyncAll", (markers: any[]) => {
-    for (const data of markers) {
-      if (!pool.exists(data.id)) {
-        createFromData(pool, data);
+  setupNetworkedReceiver(pool, {
+    createEvent: "ragemp:markerCreate",
+    syncAllEvent: "ragemp:markerSyncAll",
+    updateEvent: "ragemp:markerUpdate",
+    destroyEvent: "ragemp:markerDestroy",
+    create: (p, data) => createFromData(p, data),
+    update: (p, id, data) => {
+      const existing = p.atRemoteId(id) as unknown as MarkerMp | null;
+      if (existing) {
+        const rec = MarkerInternals.get(existing);
+        rec.position = new Vector3(data.x, data.y, data.z);
+        rec.direction = new Vector3(data.dirX, data.dirY, data.dirZ);
+        rec.rotation = new Vector3(data.rotX, data.rotY, data.rotZ);
+        rec.scale = data.scale;
+        rec.r = data.r;
+        rec.g = data.g;
+        rec.b = data.b;
+        rec.a = data.a;
+        rec.visible = data.visible;
+        rec.dimension = data.dimension ?? 0;
       }
-    }
-  });
-
-  onNet("ragemp:markerUpdate", (id: number, data: any) => {
-    const existing = pool.at(id) as unknown as MarkerMp | null;
-    if (existing) {
-      const rec = MarkerInternals.get(existing);
-      rec.position = new Vector3(data.x, data.y, data.z);
-      rec.direction = new Vector3(data.dirX, data.dirY, data.dirZ);
-      rec.rotation = new Vector3(data.rotX, data.rotY, data.rotZ);
-      rec.scale = data.scale;
-      rec.r = data.r;
-      rec.g = data.g;
-      rec.b = data.b;
-      rec.a = data.a;
-      rec.visible = data.visible;
-      rec.dimension = data.dimension ?? 0;
-    }
-  });
-
-  onNet("ragemp:markerDestroy", (id: number) => {
-    const existing = pool.at(id) as unknown as MarkerMp | null;
-    if (existing) {
-      MarkerPoolInternals.get(pool).hiddenSet.delete(id);
-      existing.destroy();
-    }
+    },
+    destroy: (p, id) => {
+      const existing = p.atRemoteId(id) as unknown as MarkerMp | null;
+      if (existing) {
+        MarkerPoolInternals.get(p).hiddenSet.delete(id);
+        existing.destroy();
+      }
+    },
   });
 
   onNet("ragemp:markerHide", (id: number) => {
@@ -93,7 +89,7 @@ function startRendering(pool: MarkerMpPool): void {
     pool.forEach(((marker: MarkerMp) => {
       const rec = MarkerInternals.get(marker);
       if (!rec.visible) return;
-      if (hiddenSet.has(marker.id)) return;
+      if (hiddenSet.has(marker.remoteId)) return;
       if (!isVisibleHere(rec.dimension)) return;
 
       const pos = rec.position;

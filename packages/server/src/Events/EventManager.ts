@@ -3,6 +3,7 @@ import { sanitizeArgsForNet } from "@ragemp-fivem-bridge/shared";
 import { EventEmitterInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { ServerEventManagerInternals, initServerEventManagerInternals } from "../internal/eventManagerInternals";
 import { setupEventManager, handleEventAdded } from "../internal/eventManagerService";
+import { getPlayerSource } from "../internal/playerInternals";
 import type { EventHandler } from "@ragemp-fivem-bridge/shared/internal";
 
 export class EventManager extends EventEmitter {
@@ -12,7 +13,7 @@ export class EventManager extends EventEmitter {
     setupEventManager(this);
   }
 
-  add(eventNameOrObject: string | Record<string, EventHandler>, handler?: EventHandler): void {
+  override add(eventNameOrObject: string | Record<string, EventHandler>, handler?: EventHandler): void {
     super.add(eventNameOrObject, handler);
     if (typeof eventNameOrObject === "string") handleEventAdded(this, eventNameOrObject);
   }
@@ -69,9 +70,9 @@ export class EventManager extends EventEmitter {
     ServerEventManagerInternals.get(this).commands.delete(name);
   }
 
-  callRemote(player: { id: number }, eventName: string, args: any[] | any): void {
+  callRemote(player: any, eventName: string, args: any[] | any): void {
     const list = Array.isArray(args) ? args : args === undefined ? [] : [args];
-    emitNet(eventName, player.id, ...sanitizeArgsForNet(list));
+    emitNet(eventName, getPlayerSource(player), ...sanitizeArgsForNet(list));
   }
 
   get delayShutdown(): boolean {

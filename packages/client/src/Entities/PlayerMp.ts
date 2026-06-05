@@ -3,7 +3,7 @@ import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { PedMpBase } from "./PedMpBase";
 import { toVec3 } from "../utils/vec";
 import { getLocalDimension } from "../utils/dimension";
-import { PlayerInternals, initPlayerInternals } from "../internal/playerInternals";
+import { PlayerInternals, initPlayerInternals, getPlayerServerId } from "../internal/playerInternals";
 
 // Voice FX parameter shapes (from ragemp d.ts)
 interface VoiceFxChorus { fWetDryMix: number; fDepth: number; fFeedback: number; fFrequency: number; lWaveform: number; fDelay: number; lPhase: number; }
@@ -19,16 +19,16 @@ interface VoiceFxPeakEq { lBand: number; fBandwidth: number; fQ: number; fCenter
 interface VoiceFxBQF { lFilter: number; fCenter: number; fGain: number; fBandwidth: number; fQ: number; fS: number; lChannel: number; }
 
 export class PlayerMp extends PedMpBase {
-  constructor(id: number, playerIndex: number) {
-    super(id, "player");
+  constructor(token: symbol, id: number, playerIndex: number) {
+    super(token, id, "player");
     initPlayerInternals(this, playerIndex);
-    EntityInternals.get(this).stateBag = () => globalThis.Player(this.id).state;
+    EntityInternals.get(this).stateBag = () => globalThis.Player(getPlayerServerId(this)).state;
   }
 
   get ped(): number {
     return GetPlayerPed(PlayerInternals.get(this).playerIndex);
   }
-  get handle(): number {
+  override get handle(): number {
     return GetPlayerPed(PlayerInternals.get(this).playerIndex);
   }
 
@@ -36,11 +36,11 @@ export class PlayerMp extends PedMpBase {
     return GetPlayerName(PlayerInternals.get(this).playerIndex);
   }
 
-  get dimension(): number {
+  override get dimension(): number {
     if ((globalThis as any).mp?.players?.local === this) return getLocalDimension();
     return PlayerInternals.get(this).dimension ?? 0;
   }
-  set dimension(value: number) {
+  override set dimension(value: number) {
     PlayerInternals.get(this).dimension = value;
   }
 

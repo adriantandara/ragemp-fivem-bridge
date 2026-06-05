@@ -1,11 +1,11 @@
 import { Entity, Vector3, colshapeContains } from "@ragemp-fivem-bridge/shared";
 import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { ColshapeInternals, initColshapeInternals } from "../internal/colshapeInternals";
-import { removeFromColshapePool } from "../internal/pools/colshapePoolService";
+import { removeFromColshapePool, onColshapeChanged } from "../internal/pools/colshapePoolService";
 
 export class ColshapeMp extends Entity {
-  constructor(id: number, shapeType: string, position: Vector3, params: Record<string, any> | null, dimension: number = 0) {
-    super(id, "colshape");
+  constructor(token: symbol, id: number, shapeType: string, position: Vector3, params: Record<string, any> | null, dimension: number = 0) {
+    super(token, id, "colshape");
     const rec = EntityInternals.get(this);
     rec.position = position;
     rec.dimension = dimension;
@@ -19,22 +19,22 @@ export class ColshapeMp extends Entity {
     return ColshapeInternals.get(this).shapeType;
   }
 
-  get position(): Vector3 {
+  override get position(): Vector3 {
     return EntityInternals.get(this).position!;
   }
 
-  set position(value: Vector3) {
+  override set position(value: Vector3) {
     EntityInternals.get(this).position = value;
-    globalThis.mp?.colshapes?._onColshapeChanged?.(this);
+    if (globalThis.mp?.colshapes) onColshapeChanged(this);
   }
 
-  get dimension(): number {
+  override get dimension(): number {
     return EntityInternals.get(this).dimension;
   }
 
-  set dimension(value: number) {
+  override set dimension(value: number) {
     EntityInternals.get(this).dimension = value;
-    globalThis.mp?.colshapes?._onColshapeChanged?.(this);
+    if (globalThis.mp?.colshapes) onColshapeChanged(this);
   }
 
   isPointWithin(point: Vector3, margin: number = 0): boolean {
@@ -54,7 +54,7 @@ export class ColshapeMp extends Entity {
     };
   }
 
-  destroy(): void {
+  override destroy(): void {
     const pool = globalThis.mp?.colshapes;
     if (pool) removeFromColshapePool(pool, this.id);
   }

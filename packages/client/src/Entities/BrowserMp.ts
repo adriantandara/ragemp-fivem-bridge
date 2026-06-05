@@ -1,9 +1,13 @@
 import { Entity } from "@ragemp-fivem-bridge/shared";
 import { removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
-import { acquireNuiPauseGuard, releaseNuiPauseGuard } from "../utils/nuiFocus";
+import { freeClientId } from "../internal/pools/clientPool";
+import { setBrowserFocus } from "../utils/nuiFocus";
 import {
   BrowserInternals,
   initBrowserInternals,
+  applyBrowserPointerEvents,
+  getChatBrowser,
+  setChatBrowser,
   callBrowserProc,
   setBrowserProcTimeout,
   getBrowserProcTimeout,
@@ -22,10 +26,8 @@ function postFocusState(browserId: number, active: boolean): void {
 }
 
 export class BrowserMp extends Entity {
-  id: number;
-
-  constructor(id: number, url: string) {
-    super(id, "browser");
+  constructor(token: symbol, id: number, url: string) {
+    super(token, id, "browser");
     initBrowserInternals(this, url);
   }
 
@@ -40,10 +42,8 @@ export class BrowserMp extends Entity {
   set active(value: boolean) {
     const rec = BrowserInternals.get(this);
     rec.active = !!value;
-    SetNuiFocus(rec.active, rec.active);
+    setBrowserFocus("browser:" + this.id, rec.active);
     postFocusState(this.id, rec.active);
-    if (rec.active) acquireNuiPauseGuard("browser:" + this.id);
-    else releaseNuiPauseGuard("browser:" + this.id);
   }
 
   execute(code: string): void {
@@ -58,32 +58,13 @@ export class BrowserMp extends Entity {
     if (rec.domReady) this.execute(code);
   }
 
-  _onDomReady(): void {
-    const rec = BrowserInternals.get(this);
-    rec.domReady = true;
-    if (rec.cachedExec.length === 0) return;
-    for (const code of rec.cachedExec) this.execute(code);
-  }
-
-  _applyPointerEvents(): void {
-    const rec = BrowserInternals.get(this);
-    if (rec.destroyed || typeof SendNuiMessage !== "function") return;
-    SendNuiMessage(
-      JSON.stringify({
-        type: "__ragemp:browser:pointerEvents",
-        browserId: this.id,
-        enabled: rec.inputEnabled && rec.mouseInputEnabled,
-      })
-    );
-  }
-
   get inputEnabled(): boolean {
     return BrowserInternals.get(this).inputEnabled;
   }
 
   set inputEnabled(value: boolean) {
     BrowserInternals.get(this).inputEnabled = !!value;
-    this._applyPointerEvents();
+    applyBrowserPointerEvents(this);
   }
 
   get mouseInputEnabled(): boolean {
@@ -92,7 +73,7 @@ export class BrowserMp extends Entity {
 
   set mouseInputEnabled(value: boolean) {
     BrowserInternals.get(this).mouseInputEnabled = !!value;
-    this._applyPointerEvents();
+    applyBrowserPointerEvents(this);
   }
 
   get orderId(): number {
@@ -118,8 +99,8 @@ export class BrowserMp extends Entity {
     BrowserInternals.get(this).isChatBrowser = enabled;
     const pool = globalThis.mp?.browsers;
     if (pool) {
-      if (enabled) pool._chatBrowser = this;
-      else if (pool._chatBrowser === this) pool._chatBrowser = null;
+      if (enabled) setChatBrowser(pool, this);
+      else if (getChatBrowser(pool) === this) setChatBrowser(pool, null);
     }
   }
 
@@ -137,19 +118,21 @@ export class BrowserMp extends Entity {
     return callBrowserProc<T>(this.id, procName, args);
   }
 
-  destroy(): void {
+  override destroy(): void {
     const rec = BrowserInternals.get(this);
     if (rec.destroyed) return;
     rec.destroyed = true;
     if (rec.active) {
       rec.active = false;
-      SetNuiFocus(false, false);
+      setBrowserFocus("browser:" + this.id, false);
     }
-    releaseNuiPauseGuard("browser:" + this.id);
     postFocusState(this.id, false);
     const pool = globalThis.mp?.browsers;
-    if (pool && pool._chatBrowser === this) pool._chatBrowser = null;
+    if (pool && getChatBrowser(pool) === this) setChatBrowser(pool, null);
     SendNuiMessage(JSON.stringify({ type: "__ragemp:browser:destroy", browserId: this.id }));
-    if (pool) removeFromPool(pool, this.id);
+    if (pool) {
+      removeFromPool(pool, this.id);
+      freeClientId(pool, this.id);
+    }
   }
 }

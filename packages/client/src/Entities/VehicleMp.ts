@@ -1,13 +1,24 @@
 import { EntityMpBase } from "./EntityMpBase";
-import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { Vector3, Vector3Like } from "@ragemp-fivem-bridge/shared";
 import { toVec3 } from "../utils/vec";
 import { VehicleInternals, initVehicleInternals } from "../internal/vehicleInternals";
 import { PlayerInternals } from "../internal/playerInternals";
 import { removeFromStreamingPool } from "../internal/pools/streamingService";
+import { playerByServerId } from "../internal/pools/playerPoolService";
+
+const MAX_GEAR_INDEX = 10;
+
+type HandlingFieldKind = "vector" | "int" | "float";
+
+function handlingFieldKind(fieldName: string): HandlingFieldKind {
+  if (fieldName.startsWith("vec")) return "vector";
+  if (fieldName.startsWith("n")) return "int";
+  return "float";
+}
 
 export class VehicleMp extends EntityMpBase {
-  constructor(id: number, handle: number) {
-    super(id, "vehicle", handle);
+  constructor(token: symbol, id: number, handle: number | null) {
+    super(token, id, "vehicle", handle);
     initVehicleInternals(this);
   }
 
@@ -33,7 +44,7 @@ export class VehicleMp extends EntityMpBase {
   get steeringAngle(): number { return GetVehicleSteeringAngle(this.handle); }
   get throttle(): number { return GetVehicleThrottleOffset(this.handle); }
   get wheelCount(): number { return GetVehicleNumberOfWheels(this.handle); }
-  get dead(): boolean { return IsEntityDead(this.handle); }
+  override get dead(): boolean { return IsEntityDead(this.handle); }
 
   get livery(): number { return GetVehicleLivery(this.handle); }
   set livery(value: number) { SetVehicleLivery(this.handle, value); }
@@ -56,6 +67,7 @@ export class VehicleMp extends EntityMpBase {
 
   get lightsOn(): boolean { return !!GetVehicleLightsState(this.handle)[1]; }
   get highbeamsOn(): boolean { return !!GetVehicleLightsState(this.handle)[2]; }
+  getLightsState(_lightsOn?: number, _highbeamsOn?: number): { lightsOn: boolean; highbeamsOn: boolean } { const s = GetVehicleLightsState(this.handle); return { lightsOn: !!s[1], highbeamsOn: !!s[2] }; }
 
   get neonEnabled(): boolean { return IsVehicleNeonLightEnabled(this.handle, 0); }
   set neonEnabled(value: boolean) { for (let i = 0; i < 4; i++) SetVehicleNeonLightEnabled(this.handle, i, !!value); }
@@ -73,7 +85,7 @@ export class VehicleMp extends EntityMpBase {
   get controller(): any {
     const serverId = NetworkGetEntityOwner(this.handle);
     if (!serverId) return null;
-    return globalThis.mp?.players?.at?.(serverId) ?? null;
+    return playerByServerId(serverId) ?? null;
   }
 
   getColours(): number[] { return GetVehicleColours(this.handle); }
@@ -205,17 +217,25 @@ export class VehicleMp extends EntityMpBase {
   setEngineTorqueMultiplier(value: number): void { SetVehicleCheatPowerIncrease(this.handle, value); }
   setHasStrongAxles(toggle: boolean): void { SetVehicleHasStrongAxles(this.handle, !!toggle); }
 
-  getHandling(fieldName: string): number {
-    const v = GetVehicleHandlingFloat(this.handle, "CHandlingData", fieldName);
-    if (typeof v === "number") return v;
-    return GetVehicleHandlingInt(this.handle, "CHandlingData", fieldName);
-  }
-  setHandling(fieldName: string, value: number | string): void {
-    if (typeof value === "number" && !Number.isInteger(value)) {
-      SetVehicleHandlingFloat(this.handle, "CHandlingData", fieldName, value);
-    } else {
-      SetVehicleHandlingInt(this.handle, "CHandlingData", fieldName, value as number);
+  getHandling(fieldName: string): number | Vector3 {
+    switch (handlingFieldKind(fieldName)) {
+      case "vector": return toVec3(GetVehicleHandlingVector(this.handle, "CHandlingData", fieldName));
+      case "int": return GetVehicleHandlingInt(this.handle, "CHandlingData", fieldName);
+      default: return GetVehicleHandlingFloat(this.handle, "CHandlingData", fieldName);
     }
+  }
+  setHandling(fieldName: string, value: number | string | Vector3Like | number[]): void {
+    if (typeof value === "number" || typeof value === "string") {
+      const numeric = typeof value === "number" ? value : parseFloat(value);
+      if (handlingFieldKind(fieldName) === "int") {
+        SetVehicleHandlingInt(this.handle, "CHandlingData", fieldName, numeric);
+      } else {
+        SetVehicleHandlingFloat(this.handle, "CHandlingData", fieldName, numeric);
+      }
+      return;
+    }
+    const vec = Array.isArray(value) ? value : [value.x, value.y, value.z];
+    (SetVehicleHandlingVector as (vehicle: number, class_: string, fieldName: string, value: number[]) => void)(this.handle, "CHandlingData", fieldName, vec);
   }
   getDefaultHandling(fieldName: string): number | string { return GetVehicleHandlingFloat(this.handle, "CHandlingData", fieldName); }
   resetHandling(): void { SetVehicleUseAlternateHandling(this.handle, false); }
@@ -238,22 +258,52 @@ export class VehicleMp extends EntityMpBase {
   setTyresCanBurst(toggle: boolean): void { SetVehicleTyresCanBurst(this.handle, !!toggle); }
 
   getGearRatios() {
-    const gearCount = this.getHandling(`nInitialDriveGears`);
-    if (!Number.isInteger(gearCount)) return [];
+    if (!this.handle) return [];
 
+    const gears = this.forwardGearCount();
     const ratios = [];
-    for (let i = 0; i < gearCount; i++) {
+    for (let i = 0; i <= gears; i++) {
       ratios.push(GetVehicleGearRatio(this.handle, i));
     }
     return ratios;
   }
 
   setGearRatios(ratios: number[]) {
-    if (!Array.isArray(ratios)) return;
+    if (!Array.isArray(ratios) || !this.handle || !DoesEntityExist(this.handle)) return;
 
-    for (let i = 0; i < ratios.length; i++) {
-      SetVehicleGearRatio(this.handle, i, ratios[i]);
+    const rec = VehicleInternals.get(this);
+    if (!rec.defaultGearRatios) {
+      const defaults: number[] = [];
+      let initialised = false;
+      for (let i = 0; i <= MAX_GEAR_INDEX; i++) {
+        const r = GetVehicleGearRatio(this.handle, i);
+        defaults.push(r);
+        if (r !== 0) initialised = true;
+      }
+      if (!initialised) return;
+      rec.defaultGearRatios = defaults;
     }
+
+    if (ratios.length === 0) {
+      const defaults = rec.defaultGearRatios;
+      for (let i = 0; i < defaults.length; i++) {
+        SetVehicleGearRatio(this.handle, i, defaults[i]);
+      }
+      return;
+    }
+
+    const count = Math.min(ratios.length, MAX_GEAR_INDEX + 1);
+    for (let i = 0; i < count; i++) {
+      const r = ratios[i];
+      if (typeof r !== "number" || !Number.isFinite(r)) continue;
+      SetVehicleGearRatio(this.handle, i, r);
+    }
+  }
+
+  private forwardGearCount(): number {
+    const n = GetVehicleHandlingInt(this.handle, "CHandlingData", "nInitialDriveGears");
+    if (!Number.isInteger(n) || n <= 0) return 0;
+    return Math.min(n, MAX_GEAR_INDEX);
   }
 
 
@@ -314,7 +364,7 @@ export class VehicleMp extends EntityMpBase {
   getLayoutHash(): number { return GetVehicleLayoutHash(this.handle); }
   isModel(model: number): boolean { return IsVehicleModel(this.handle, model); }
   isBig(): boolean { return IsBigVehicle(this.handle); }
-  isVisible(): boolean { return IsEntityVisible(this.handle); }
+  override isVisible(): boolean { return IsEntityVisible(this.handle); }
 
   isStopped(): boolean { return IsVehicleStopped(this.handle); }
   isStoppedAtTrafficLights(): boolean { return IsVehicleStoppedAtTrafficLights(this.handle); }
@@ -387,7 +437,7 @@ export class VehicleMp extends EntityMpBase {
   isAttachedToCargobob(vehicleAttached: any): boolean { return IsVehicleAttachedToCargobob(this.handle, vehicleAttached?.handle ?? vehicleAttached); }
   setAutomaticallyAttaches(autoAttach: boolean, scanDriver: number): void { SetVehicleAutomaticallyAttaches(this.handle, !!autoAttach, scanDriver ?? 0); }
 
-  destroy(): void {
+  override destroy(): void {
     SetEntityAsMissionEntity(this.handle, false, true);
     DeleteEntity(this.handle);
     if (globalThis.mp.vehicles) removeFromStreamingPool(globalThis.mp.vehicles, this.id);

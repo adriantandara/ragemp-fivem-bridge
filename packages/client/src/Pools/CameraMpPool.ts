@@ -1,16 +1,10 @@
 import { Pool } from "@ragemp-fivem-bridge/shared";
-import { poolAdd } from "@ragemp-fivem-bridge/shared/internal";
+import { CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
+import { addLocal } from "../internal/pools/clientPool";
 import { CameraMp } from "../Entities/CameraMp";
 import { setupCameraPool, getGameplayCamera, GameplayCamera } from "../internal/pools/cameraPoolService";
 
-let cameraIdCounter = 0;
-
-export class CameraMpPool extends Pool {
-    at!: (id: number) => CameraMp | null;
-    exists!: (entity: number | { id: number }) => boolean;
-    forEach!: (fn: (entity: CameraMp) => void) => void;
-    toArray!: () => CameraMp[];
-
+export class CameraMpPool extends Pool<CameraMp> {
     constructor() {
         super();
         setupCameraPool(this);
@@ -39,9 +33,8 @@ export class CameraMpPool extends Pool {
             2
         );
 
-        const id = ++cameraIdCounter;
-        const cam = new CameraMp(id, handle);
-        poolAdd(this, cam);
+        const cam = new CameraMp(CONSTRUCT, 0, handle);
+        addLocal(this, cam);
         return cam;
     }
 }

@@ -1,5 +1,6 @@
 import { STATE_KEY_PREFIX } from "@ragemp-fivem-bridge/shared";
 import { sendEntitySnapshot } from "../utils/entityRegistry";
+import { playerBySource } from "../utils/playerRegistry";
 import { EntityInternals, EventEmitterInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { ServerEventManagerInternals } from "./eventManagerInternals";
 import { PlayerInternals } from "./playerInternals";
@@ -22,7 +23,7 @@ export function setupEventManager(mgr: EventManager): void {
 function setupBuiltinEvents(mgr: EventManager): void {
   onNet("ragemp:playerReady", (forResource: string) => {
     const src = source;
-    const player = globalThis.mp.players.at(src);
+    const player = playerBySource(src);
     if (!player) return;
     emitNet("ragemp:playerReady", src, forResource);
     sendEntitySnapshot(src);
@@ -43,7 +44,7 @@ function setupBuiltinEvents(mgr: EventManager): void {
 
   onNet("ragemp:proc", async (procName: string, requestId: string, ...args: any[]) => {
     const src = source;
-    const player = globalThis.mp.players.at(src);
+    const player = playerBySource(src);
     if (!player) return;
     const handler = ServerEventManagerInternals.get(mgr).procs.get(procName);
     if (!handler) {
@@ -59,7 +60,7 @@ function setupBuiltinEvents(mgr: EventManager): void {
   });
 
   onNet("ragemp:chat:message", (rawText: string) => {
-    const player = globalThis.mp.players.at(source);
+    const player = playerBySource(source);
     if (!player || typeof rawText !== "string") return;
     const text = rawText.slice(0, 256);
 
@@ -79,13 +80,13 @@ function setupBuiltinEvents(mgr: EventManager): void {
   });
 
   onNet("ragemp:playerDeath", (reason: number, killerId: number | null) => {
-    const player = globalThis.mp.players.at(source);
-    const killer = killerId ? globalThis.mp.players.at(killerId) : null;
+    const player = playerBySource(source);
+    const killer = killerId ? playerBySource(killerId) : null;
     if (player) mgr.call("playerDeath", player, reason, killer);
   });
 
   onNet("ragemp:playerSpawn", () => {
-    const player = globalThis.mp.players.at(source);
+    const player = playerBySource(source);
     if (player) mgr.call("playerSpawn", player);
   });
 
@@ -97,7 +98,7 @@ function setupBuiltinEvents(mgr: EventManager): void {
       const realKey = key.slice(STATE_KEY_PREFIX.length);
       let entity: any = null;
       if (bagName.indexOf("player:") === 0) {
-        entity = mp.players?.at?.(parseInt(bagName.slice(7), 10)) ?? null;
+        entity = playerBySource(parseInt(bagName.slice(7), 10)) ?? null;
       } else if (bagName.indexOf("entity:") === 0) {
         const handle =
           typeof GetEntityFromStateBagName === "function"
@@ -118,7 +119,7 @@ function setupBuiltinEvents(mgr: EventManager): void {
   }
 
   onNet("ragemp:playerEnterVehicle", (vehicleNetId: number, seatIndex: number) => {
-    const player = globalThis.mp.players.at(source);
+    const player = playerBySource(source);
     const vehicle = globalThis.mp.vehicles.atNetId(vehicleNetId);
     if (player) {
       PlayerInternals.get(player as any).vehicle = vehicle ?? null;
@@ -132,7 +133,7 @@ function setupBuiltinEvents(mgr: EventManager): void {
   });
 
   onNet("ragemp:playerExitVehicle", (vehicleNetId: number) => {
-    const player = globalThis.mp.players.at(source);
+    const player = playerBySource(source);
     const vehicle = globalThis.mp.vehicles.atNetId(vehicleNetId);
     if (player) {
       PlayerInternals.get(player as any).vehicle = null;
@@ -141,26 +142,26 @@ function setupBuiltinEvents(mgr: EventManager): void {
   });
 
   onNet("ragemp:playerStartEnterVehicle", (vehicleNetId: number, seatIndex: number) => {
-    const player = globalThis.mp.players.at(source);
+    const player = playerBySource(source);
     const vehicle = globalThis.mp.vehicles.atNetId(vehicleNetId);
     if (player)
       mgr.call("playerStartEnterVehicle", player, vehicle, seatIndex);
   });
 
   onNet("ragemp:playerStartExitVehicle", (vehicleNetId: number) => {
-    const player = globalThis.mp.players.at(source);
+    const player = playerBySource(source);
     const vehicle = globalThis.mp.vehicles.atNetId(vehicleNetId);
     if (player) mgr.call("playerStartExitVehicle", player, vehicle);
   });
 
   onNet("ragemp:playerWeaponChange", (oldWeapon: number, newWeapon: number) => {
-    const player = globalThis.mp.players.at(source);
+    const player = playerBySource(source);
     if (player)
       mgr.call("playerWeaponChange", player, oldWeapon, newWeapon);
   });
 
   onNet("ragemp:playerDamage", (healthLoss: number, armorLoss: number) => {
-    const player = globalThis.mp.players.at(source);
+    const player = playerBySource(source);
     if (player) mgr.call("playerDamage", player, healthLoss, armorLoss);
   });
 
@@ -196,14 +197,14 @@ function setupBuiltinEvents(mgr: EventManager): void {
   });
 
   on("playerEnteredScope", (data: { player: number; for: number }) => {
-    const observer = globalThis.mp?.players?.at(data.player);
-    const entered = globalThis.mp?.players?.at(data["for"]);
+    const observer = playerBySource(data.player);
+    const entered = playerBySource(data["for"]);
     if (observer && entered) mgr.call("playerStreamIn", entered, observer);
   });
 
   on("playerLeftScope", (data: { player: number; for: number }) => {
-    const observer = globalThis.mp?.players?.at(data.player);
-    const left = globalThis.mp?.players?.at(data["for"]);
+    const observer = playerBySource(data.player);
+    const left = playerBySource(data["for"]);
     if (observer && left) mgr.call("playerStreamOut", left, observer);
   });
 
@@ -244,7 +245,7 @@ function setupBuiltinEvents(mgr: EventManager): void {
   });
 
   onNet("ragemp:playerReachWaypoint", (x: number, y: number, z: number) => {
-    const player = globalThis.mp?.players?.at(source);
+    const player = playerBySource(source);
     if (player) mgr.call("playerReachWaypoint", player, x, y, z);
   });
 
@@ -256,7 +257,7 @@ function setupBuiltinEvents(mgr: EventManager): void {
         mp.vehicles?.atNetId?.(entityNetId) ??
         mp.peds?.atNetId?.(entityNetId) ??
         mp.objects?.atNetId?.(entityNetId) ??
-        mp.players?.at(source) ??
+        playerBySource(source) ??
         null;
     }
     mgr.call("entityModelChange", entity, oldModel, newModel);
@@ -295,7 +296,7 @@ export function handleEventAdded(mgr: EventManager, eventName: string): void {
     EventEmitterInternals.get(mgr).handlers.set(`__net_${eventName}`, new Set([true]) as any);
     onNet(eventName, (...args: any[]) => {
       const src = source;
-      const player = globalThis.mp.players.at(src);
+      const player = playerBySource(src);
       if (player) {
         mgr.call(eventName, player, ...args);
       }
@@ -327,7 +328,7 @@ export function emitDataChange(mgr: EventManager, entity: any, key: string, valu
 }
 
 export function processCommand(mgr: EventManager, src: number, commandText: string): void {
-  const player = globalThis.mp?.players?.at(src);
+  const player = playerBySource(src);
   if (!player) return;
   const raw = String(commandText ?? "").trim();
   if (!raw) return;

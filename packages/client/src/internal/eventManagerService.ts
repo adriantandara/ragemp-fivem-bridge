@@ -5,6 +5,7 @@ import { onWorldScan } from "../utils/worldScan";
 import { isVisibleHere } from "../utils/dimension";
 import { resolveNetEntity } from "../utils/netEntity";
 import { resolveHandle } from "../internal/pools/streamingService";
+import { playerByServerId } from "../internal/pools/playerPoolService";
 import { ClientEventManagerInternals } from "../internal/eventManagerInternals";
 import type { EventManager } from "../Events/EventManager";
 
@@ -189,7 +190,7 @@ export function setupStateBags(mgr: EventManager): void {
     let entity = null;
     if (bagName.indexOf("player:") === 0) {
       entity =
-        mp.players?.atRemoteId?.(parseInt(bagName.slice(7), 10)) ?? null;
+        playerByServerId(parseInt(bagName.slice(7), 10)) ?? null;
     } else if (bagName.indexOf("entity:") === 0) {
       const handle = safeGetEntityFromNetId(parseInt(bagName.slice(7), 10));
       if (handle) {
@@ -352,7 +353,7 @@ export function tickLifecycle(mgr: EventManager, ped: number, localPlayer: any):
     }
 
     const killer = killerId
-      ? (globalThis.mp?.players?.atRemoteId?.(killerId) ?? null)
+      ? (playerByServerId(killerId) ?? null)
       : null;
     mgr.call("playerDeath", localPlayer, causeOfDeath, killer);
     emitNet("ragemp:playerDeath", causeOfDeath, killerId);
@@ -487,12 +488,12 @@ export function tickCheckpoints(mgr: EventManager, ped: number, localPlayer: any
       rec0.insideCheckpoints.add(checkpoint.id);
       mgr.call("playerEnterCheckpoint", checkpoint);
       if (checkpoint._origin === "server")
-        emitNet("ragemp:checkpoint:enter", checkpoint.id);
+        emitNet("ragemp:checkpoint:enter", checkpoint.remoteId);
     } else if (!isInside && rec0.insideCheckpoints.has(checkpoint.id)) {
       rec0.insideCheckpoints.delete(checkpoint.id);
       mgr.call("playerExitCheckpoint", checkpoint);
       if (checkpoint._origin === "server")
-        emitNet("ragemp:checkpoint:exit", checkpoint.id);
+        emitNet("ragemp:checkpoint:exit", checkpoint.remoteId);
     }
   }
 
@@ -644,13 +645,12 @@ export function tickStreaming(mgr: EventManager, cache: { players: number[]; veh
   const activeSet = rec.activeSet;
   activeSet.clear();
   const localPlayerId = PlayerId();
-  const pool = globalThis.mp?.players;
 
   for (const p of activePlayers) {
     const serverId = GetPlayerServerId(p);
     if (!serverId || serverId === -1) continue;
     activeSet.add(serverId);
-    const remoteMp = pool?.atRemoteId?.(serverId) ?? p;
+    const remoteMp = playerByServerId(serverId) ?? p;
     const isLocal = p === localPlayerId;
 
     if (!isLocal) {
@@ -686,7 +686,7 @@ export function tickStreaming(mgr: EventManager, cache: { players: number[]; veh
   for (const id of rec.connectedPlayers) {
     if (!activeSet.has(id)) {
       rec.connectedPlayers.delete(id);
-      const quitMp = pool?.atRemoteId?.(id) ?? id;
+      const quitMp = playerByServerId(id as number) ?? id;
       mgr.call("playerQuit", quitMp, "quit", "");
     }
   }

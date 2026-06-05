@@ -1,23 +1,21 @@
 import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
-import { EntityInternals, removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { removeFromPool } from "@ragemp-fivem-bridge/shared/internal";
+import { freeClientId } from "../internal/pools/clientPool";
 import { toVec3 } from "../utils/vec";
 import { applyBlipName } from "../utils/blipName";
 import { BlipInternals, initBlipInternals } from "../internal/blipInternals";
 import { applyBlipVisibility } from "../internal/pools/blipPoolService";
 
 export class BlipMp extends Entity {
-  id: number;
-
-  constructor(id: number, handle: number) {
-    super(id, "blip");
-    EntityInternals.get(this).handle = handle;
+  constructor(token: symbol, id: number, handle: number | null) {
+    super(token, id, "blip", handle);
     initBlipInternals(this);
   }
 
-  get position(): Vector3 {
+  override get position(): Vector3 {
     return toVec3(GetBlipCoords(this.handle));
   }
-  set position(value: Vector3) {
+  override set position(value: Vector3) {
     SetBlipCoords(this.handle, value.x, value.y, value.z);
   }
 
@@ -36,11 +34,11 @@ export class BlipMp extends Entity {
   get shortRange(): boolean { return BlipInternals.get(this).shortRange ?? false; }
   set shortRange(value: boolean) { BlipInternals.get(this).shortRange = value; SetBlipAsShortRange(this.handle, value); }
 
-  get alpha(): number { return BlipInternals.get(this).alpha; }
-  set alpha(value: number) { BlipInternals.get(this).alpha = value; applyBlipVisibility(this); }
+  override get alpha(): number { return BlipInternals.get(this).alpha; }
+  override set alpha(value: number) { BlipInternals.get(this).alpha = value; applyBlipVisibility(this); }
 
-  get dimension(): number { return BlipInternals.get(this).dimension; }
-  set dimension(value: number) { BlipInternals.get(this).dimension = value; applyBlipVisibility(this); }
+  override get dimension(): number { return BlipInternals.get(this).dimension; }
+  override set dimension(value: number) { BlipInternals.get(this).dimension = value; applyBlipVisibility(this); }
 
   doesExist(): boolean { return DoesBlipExist(this.handle); }
   getAlpha(): number { return GetBlipAlpha(this.handle); }
@@ -58,7 +56,6 @@ export class BlipMp extends Entity {
   isMissionCreator(): boolean { return IsMissionCreatorBlip(this.handle); }
   isOnMinimap(): boolean { return IsBlipOnMinimap(this.handle); }
   isShortRange(): boolean { return IsBlipShortRange(this.handle); }
-
   setAlpha(alpha: number): void { SetBlipAlpha(this.handle, alpha); }
   setAsFriendly(toggle: boolean): void { SetBlipAsFriendly(this.handle, !!toggle); }
   setAsMissionCreator(toggle: boolean): void { SetBlipAsMissionCreatorBlip(this.handle, !!toggle); }
@@ -75,8 +72,6 @@ export class BlipMp extends Entity {
   setFlashTimer(duration: number): void { SetBlipFlashTimer(this.handle, duration); }
   setHighDetail(toggle: boolean): void { SetBlipHighDetail(this.handle, !!toggle); }
   setNameFromTextFile(gxtEntry: string): void { SetBlipNameFromTextFile(this.handle, gxtEntry); }
-  // Note: d.ts declares setNameToPlayerName(player: PlayerMp) but the implementation uses _playerIndex,
-  // typed as any to avoid circular import with PlayerMp.
   setNameToPlayerName(player: any): void { SetBlipNameToPlayerName(this.handle, player?._playerIndex ?? player); }
   setPosition(posX: number, posY: number, posZ: number): void { SetBlipCoords(this.handle, posX, posY, posZ ?? 0); }
   setPriority(priority: number): void { SetBlipPriority(this.handle, priority); }
@@ -88,16 +83,17 @@ export class BlipMp extends Entity {
   setShowCone(toggle: boolean): void { (SetBlipShowCone as (...args: any[]) => void)(this.handle, !!toggle, 6); }
   setShowHeadingIndicator(toggle: boolean): void { ShowHeadingIndicatorOnBlip(this.handle, !!toggle); }
   setSprite(spriteId: number): void { SetBlipSprite(this.handle, spriteId); }
-
   addTextComponentSubstringName(text: string): void { AddTextComponentSubstringPlayerName(text); }
   endTextCommandSetName(): void { EndTextCommandSetBlipName(this.handle); }
-
   pulse(): void { PulseBlip(this.handle); }
   showNumberOn(number: number): void { ShowNumberOnBlip(this.handle, number); }
   hideNumberOn(): void { HideNumberOnBlip(this.handle); }
 
-  destroy(): void {
+  override destroy(): void {
     RemoveBlip(this.handle);
-    if (globalThis.mp.blips) removeFromPool(globalThis.mp.blips, this.id);
+    if (globalThis.mp.blips) {
+      removeFromPool(globalThis.mp.blips, this.id);
+      freeClientId(globalThis.mp.blips, this.id);
+    }
   }
 }

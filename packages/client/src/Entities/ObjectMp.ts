@@ -3,8 +3,8 @@ import { ObjectInternals, initObjectInternals } from "../internal/objectInternal
 import { removeFromObjectPool } from "../internal/pools/objectPoolService";
 
 export class ObjectMp extends EntityMpBase {
-  constructor(id: number, handle: number) {
-    super(id, "object", handle);
+  constructor(token: symbol, id: number, handle: number | null) {
+    super(token, id, "object", handle);
     initObjectInternals(this);
   }
 
@@ -60,7 +60,7 @@ export class ObjectMp extends EntityMpBase {
     SetEntityAsMissionEntity(this.handle, false, true);
   }
 
-  destroy(): void {
+  override destroy(): void {
     if (this.handle && DoesEntityExist(this.handle)) {
       SetEntityAsMissionEntity(this.handle, false, true);
       DeleteEntity(this.handle);

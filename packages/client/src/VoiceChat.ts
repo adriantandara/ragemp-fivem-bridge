@@ -1,3 +1,5 @@
+import { getPlayerServerId } from "./internal/playerInternals";
+
 const LISTEN_CHANNEL = 31;
 
 export class VoiceChatMp {
@@ -24,16 +26,16 @@ export class VoiceChatMp {
     MumbleSetTalkerProximity(value);
   }
 
-  listenTo(player: number | { id: number }) {
-    const serverId = typeof player === "number" ? player : player?.id;
+  listenTo(player: number | any) {
+    const serverId = typeof player === "number" ? player : player ? getPlayerServerId(player) : null;
     if (serverId != null) {
       MumbleAddVoiceTargetPlayerByServerId(LISTEN_CHANNEL, serverId);
       MumbleAddVoiceChannelListen(LISTEN_CHANNEL);
     }
   }
 
-  stopListenTo(player: number | { id: number }) {
-    const serverId = typeof player === "number" ? player : player?.id;
+  stopListenTo(player: number | any) {
+    const serverId = typeof player === "number" ? player : player ? getPlayerServerId(player) : null;
     if (serverId != null) {
       MumbleRemoveVoiceTargetPlayerByServerId(LISTEN_CHANNEL, serverId);
     }
@@ -44,8 +46,8 @@ export class VoiceChatMp {
     MumbleRemoveVoiceChannelListen(LISTEN_CHANNEL);
   }
 
-  isTalking(player: number | { id: number }) {
-    const p = typeof player === "number" ? player : player?.id;
+  isTalking(player: number | any) {
+    const p = typeof player === "number" ? player : player ? getPlayerServerId(player) : null;
     if (p == null) return NetworkIsPlayerTalking(PlayerId());
     return MumbleIsPlayerTalking(GetPlayerFromServerId(p));
   }

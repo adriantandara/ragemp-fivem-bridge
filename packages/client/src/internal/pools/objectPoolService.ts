@@ -5,14 +5,6 @@ import { ObjectInternals } from "../objectInternals";
 import { removeFromStreamingPool } from "./streamingService";
 import type { ObjectMp } from "../../Entities/ObjectMp";
 
-export const LOCAL_STREAM_ID_BASE = 2_000_000_000;
-
-let localObjectCounter = 0;
-
-export function nextLocalObjectId(): number {
-  return LOCAL_STREAM_ID_BASE + ++localObjectCounter;
-}
-
 export function setupObjectPool(_pool: object): void {
   onNet("ragemp:objectAlpha", (netId: number, value: number) => {
     const handle = safeGetEntityFromNetId(netId);

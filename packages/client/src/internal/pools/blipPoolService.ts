@@ -1,9 +1,11 @@
 import { Vector3 } from "@ragemp-fivem-bridge/shared";
-import { poolAdd } from "@ragemp-fivem-bridge/shared/internal";
+import { CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
+import { addNetworked, addLocal } from "./clientPool";
 import { BlipMp } from "../../Entities/BlipMp";
 import { BlipInternals } from "../blipInternals";
 import { applyBlipName } from "../../utils/blipName";
 import { isVisibleHere, onDimensionChange } from "../../utils/dimension";
+import { setupNetworkedReceiver } from "./networkedReceiverService";
 import type { BlipMpPool } from "../../Pools/BlipMpPool";
 
 export function applyBlipVisibility(blip: BlipMp): void {
@@ -21,7 +23,7 @@ function createFromData(pool: BlipMpPool, data: any): BlipMp {
   SetBlipAsShortRange(handle, data.shortRange);
   applyBlipName(handle, data.name);
 
-  const blip = new BlipMp(data.id, handle);
+  const blip = new BlipMp(CONSTRUCT, data.id, handle);
   const rec = BlipInternals.get(blip);
   rec.name = data.name;
   rec.shortRange = data.shortRange;
@@ -29,7 +31,7 @@ function createFromData(pool: BlipMpPool, data: any): BlipMp {
   rec.alpha = data.alpha ?? 255;
   rec.dimension = data.dimension ?? 0;
   applyBlipVisibility(blip);
-  poolAdd(pool, blip as any);
+  addNetworked(pool, blip as any);
 
   if (data.name) {
     setTimeout(() => {
@@ -45,41 +47,33 @@ function createFromData(pool: BlipMpPool, data: any): BlipMp {
 export function setupBlipPool(pool: BlipMpPool): void {
   onDimensionChange(() => pool.forEach(((blip: BlipMp) => applyBlipVisibility(blip)) as any));
 
-  onNet("ragemp:blipCreate", (data: any) => {
-    createFromData(pool, data);
-  });
-
-  onNet("ragemp:blipSyncAll", (blips: any[]) => {
-    for (const data of blips) {
-      if (!pool.exists(data.id)) {
-        createFromData(pool, data);
+  setupNetworkedReceiver(pool, {
+    createEvent: "ragemp:blipCreate",
+    syncAllEvent: "ragemp:blipSyncAll",
+    updateEvent: "ragemp:blipUpdate",
+    destroyEvent: "ragemp:blipDestroy",
+    create: (p, data) => createFromData(p, data),
+    update: (p, id, data) => {
+      const existing = p.atRemoteId(id) as unknown as BlipMp | null;
+      if (existing) {
+        existing.position = new Vector3(data.x, data.y, data.z);
+        existing.sprite = data.sprite;
+        existing.color = data.color;
+        existing.scale = data.scale;
+        BlipInternals.get(existing).alpha = data.alpha ?? 255;
+        existing.shortRange = data.shortRange;
+        existing.dimension = data.dimension ?? 0;
+        if (data.name) existing.name = data.name;
       }
-    }
-  });
-
-  onNet("ragemp:blipUpdate", (id: number, data: any) => {
-    const existing = pool.at(id) as unknown as BlipMp | null;
-    if (existing) {
-      existing.position = new Vector3(data.x, data.y, data.z);
-      existing.sprite = data.sprite;
-      existing.color = data.color;
-      existing.scale = data.scale;
-      BlipInternals.get(existing).alpha = data.alpha ?? 255;
-      existing.shortRange = data.shortRange;
-      existing.dimension = data.dimension ?? 0;
-      if (data.name) existing.name = data.name;
-    }
-  });
-
-  onNet("ragemp:blipDestroy", (id: number) => {
-    const existing = pool.at(id) as unknown as BlipMp | null;
-    if (existing) {
-      existing.destroy();
-    }
+    },
+    destroy: (p, id) => {
+      const existing = p.atRemoteId(id) as unknown as BlipMp | null;
+      if (existing) existing.destroy();
+    },
   });
 
   onNet("ragemp:blipRoute", (id: number, state: boolean, color: number | null | undefined, _scale: number) => {
-    const existing = pool.at(id) as unknown as BlipMp | null;
+    const existing = pool.atRemoteId(id) as unknown as BlipMp | null;
     if (existing) {
       SetBlipRoute(existing.handle, state);
       if (state && color !== undefined && color !== null) {
@@ -89,7 +83,7 @@ export function setupBlipPool(pool: BlipMpPool): void {
   });
 }
 
-export function createBlip(pool: BlipMpPool, id: number, sprite: number, position: { x: number; y: number; z: number }, options: any): BlipMp {
+export function createBlip(pool: BlipMpPool, sprite: number, position: { x: number; y: number; z: number }, options: any): BlipMp {
   const handle = AddBlipForCoord(position.x, position.y, position.z);
 
   SetBlipSprite(handle, sprite);
@@ -99,7 +93,7 @@ export function createBlip(pool: BlipMpPool, id: number, sprite: number, positio
 
   applyBlipName(handle, options.name);
 
-  const blip = new BlipMp(id, handle);
+  const blip = new BlipMp(CONSTRUCT, 0, handle);
   const rec = BlipInternals.get(blip);
   rec.name = options.name ?? "";
   rec.shortRange = options.shortRange ?? false;
@@ -107,7 +101,7 @@ export function createBlip(pool: BlipMpPool, id: number, sprite: number, positio
   rec.alpha = options.alpha ?? 255;
   rec.dimension = options.dimension ?? 0;
   applyBlipVisibility(blip);
-  poolAdd(pool, blip as any);
+  addLocal(pool, blip as any);
 
   return blip;
 }

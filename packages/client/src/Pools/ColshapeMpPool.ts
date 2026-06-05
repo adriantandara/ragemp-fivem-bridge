@@ -3,14 +3,10 @@ import { Vector3 } from "@ragemp-fivem-bridge/shared";
 import { ColshapeMp } from "../Entities/ColshapeMp";
 import { setupColshapePool, createLocalColshape } from "../internal/pools/colshapePoolService";
 
-export class ColshapeMpPool extends Pool {
+export class ColshapeMpPool extends Pool<ColshapeMp> {
   constructor() {
     super();
     setupColshapePool(this);
-  }
-
-  atRemoteId(remoteId: number): ColshapeMp | null {
-    return this.at(remoteId) as unknown as ColshapeMp | null;
   }
 
   newSphere(x: number | { x: number; y: number; z: number }, y: number, z: number, range?: number, dimension: number = 0): ColshapeMp {

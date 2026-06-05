@@ -1,15 +1,16 @@
 import { defineInternals } from "./defineInternals";
 import { poolStore, poolRemove } from "./poolStore";
+import { Registry } from "./Registry";
 import type { HandlePoolEntity } from "../HandlePool";
 
 export interface HandlePoolStore {
-  handleToEntity: Map<number, HandlePoolEntity>;
+  handleToEntity: Registry<number, HandlePoolEntity>;
 }
 
 const Store = defineInternals<HandlePoolStore>();
 
 export function initHandlePool(pool: object): HandlePoolStore {
-  return Store.init(pool, { handleToEntity: new Map() });
+  return Store.init(pool, { handleToEntity: new Registry() });
 }
 
 export function handlePoolStore(pool: object): HandlePoolStore {

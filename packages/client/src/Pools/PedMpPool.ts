@@ -1,19 +1,19 @@
-import { poolAdd, EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
+import { EntityInternals, CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
 import { StreamingPool } from "./StreamingPool";
 import { PedMp } from "../Entities/PedMp";
 import { getPedPool } from "../utils/worldScan";
 import { StreamingInternals } from "../internal/streamingInternals";
-import { setupPedPool, nextLocalPedId } from "../internal/pools/pedPoolService";
-import { startStreaming } from "../internal/pools/streamingService";
+import { setupPedPool } from "../internal/pools/pedPoolService";
+import { startStreaming, registerLocalStreamed, removeFromStreamingPool } from "../internal/pools/streamingService";
 
-export class PedMpPool extends StreamingPool {
+export class PedMpPool extends StreamingPool<PedMp> {
     constructor() {
         super("ped");
         setupPedPool(this);
         startStreaming(
             this,
             getPedPool,
-            (netId: number, handle: number) => new PedMp(netId, handle),
+            (netId: number, handle: number) => new PedMp(CONSTRUCT, netId, handle),
             (handle: number) => !IsPedAPlayer(handle)
         );
     }
@@ -28,9 +28,8 @@ export class PedMpPool extends StreamingPool {
         if (typeof callback !== "function") callback = null;
 
         const hash = typeof model === "string" ? GetHashKey(model) : model;
-        const id = nextLocalPedId();
-        const ped = new PedMp(id, 0);
-        poolAdd(this, ped);
+        const ped = new PedMp(CONSTRUCT, 0, 0);
+        registerLocalStreamed(this, ped);
 
         const finish = () => {
             const handle = CreatePed(
@@ -43,6 +42,10 @@ export class PedMpPool extends StreamingPool {
                 false,
                 false
             );
+            if (!handle) {
+                removeFromStreamingPool(this, ped.id);
+                return;
+            }
             EntityInternals.get(ped).handle = handle;
             StreamingInternals.get(this).handleToEntity.set(handle, ped);
 
@@ -73,6 +76,7 @@ export class PedMpPool extends StreamingPool {
                     finish();
                 } else if (GetGameTimer() - startedAt > 30000) {
                     clearTick(tick);
+                    removeFromStreamingPool(this, ped.id);
                     console.warn(
                         `[ragemp-bridge] mp.peds.new: model ${hash} failed to load after 30s — ped not created.`
                     );

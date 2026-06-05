@@ -5,6 +5,7 @@ import * as spawnmanager from "./Plugins/builtin/spawnmanager";
 import * as vehicleSync from "./Plugins/builtin/vehicle-sync";
 import { setLocalDimension } from "./utils/dimension";
 import { safeGetEntityFromNetId } from "./utils/netId";
+import { getChatBrowser } from "./internal/browserInternals";
 
 if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "library") {
   globalThis.mp = new Mp();
@@ -367,7 +368,8 @@ if (GetResourceMetadata(GetCurrentResourceName(), "ragemp_bridge", 0) !== "libra
 
   onNet("ragemp:chatMessage", (message: string) => {
     emit("chat:addMessage", { args: [message] });
-    globalThis.mp?.browsers?._chatBrowser?.call("chat:push", message);
+    const browserPool = globalThis.mp?.browsers;
+    if (browserPool) getChatBrowser(browserPool)?.call("chat:push", message);
   });
 
   onNet("ragemp:requestVehicleControl", (targetServerId: number, netId: number) => {

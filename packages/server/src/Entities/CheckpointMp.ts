@@ -1,15 +1,20 @@
-import { Entity, Vector3 } from "@ragemp-fivem-bridge/shared";
+import { Vector3 } from "@ragemp-fivem-bridge/shared";
+import { BroadcastEntity } from "./BroadcastEntity";
 import { EntityInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { CheckpointInternals, initCheckpointInternals, type CheckpointColor } from "../internal/checkpointInternals";
 import { removeFromCheckpointPool } from "../internal/pools/checkpointPoolService";
+import { getPlayerSource } from "../internal/playerInternals";
 
-export class CheckpointMp extends Entity {
-  constructor(id: number, type: number, position: Vector3, nextPosition: Vector3 | null, radius: number, options: {
+export class CheckpointMp extends BroadcastEntity {
+  protected override readonly updateEvent = "ragemp:checkpointUpdate";
+  protected override readonly destroyEvent = "ragemp:checkpointDestroy";
+
+  constructor(token: symbol, id: number, type: number, position: Vector3, nextPosition: Vector3 | null, radius: number, options: {
     color?: [number, number, number, number] | CheckpointColor;
     dimension?: number;
     visible?: boolean;
   } = {}) {
-    super(id, "checkpoint");
+    super(token, id, "checkpoint");
     const ent = EntityInternals.get(this);
     ent.position = position;
     ent.dimension = options.dimension ?? 0;
@@ -26,11 +31,11 @@ export class CheckpointMp extends Entity {
     });
   }
 
-  _sync(): void {
-    emitNet("ragemp:checkpointUpdate", -1, this.id, this.toData());
+  protected override pool(): object | null | undefined {
+    return globalThis.mp.checkpoints;
   }
 
-  toData(): Record<string, any> {
+  override toData(): Record<string, any> {
     const rec = CheckpointInternals.get(this);
     const ent = EntityInternals.get(this);
     return {
@@ -52,22 +57,13 @@ export class CheckpointMp extends Entity {
     };
   }
 
-  get position(): Vector3 {
-    return EntityInternals.get(this).position!;
-  }
-
-  set position(value: Vector3) {
-    EntityInternals.get(this).position = value;
-    this._sync();
-  }
-
   get nextPosition(): Vector3 {
     return CheckpointInternals.get(this).nextPosition;
   }
 
   set nextPosition(value: Vector3) {
     CheckpointInternals.get(this).nextPosition = value;
-    this._sync();
+    this.sync();
   }
 
   get radius(): number {
@@ -76,7 +72,7 @@ export class CheckpointMp extends Entity {
 
   set radius(value: number) {
     CheckpointInternals.get(this).radius = value;
-    this._sync();
+    this.sync();
   }
 
   get color(): CheckpointColor {
@@ -85,26 +81,17 @@ export class CheckpointMp extends Entity {
 
   set color(value: CheckpointColor) {
     CheckpointInternals.get(this).color = value;
-    this._sync();
+    this.sync();
   }
 
   // Override Entity.type (string) with checkpoint type (number) — runtime shadowing; any suppresses base mismatch
-  get type(): any {
+  override get type(): any {
     return CheckpointInternals.get(this).type;
   }
 
-  set type(value: any) {
+  override set type(value: any) {
     CheckpointInternals.get(this).type = value;
-    this._sync();
-  }
-
-  get dimension(): number {
-    return EntityInternals.get(this).dimension;
-  }
-
-  set dimension(value: number) {
-    EntityInternals.get(this).dimension = value;
-    this._sync();
+    this.sync();
   }
 
   get visible(): boolean {
@@ -113,7 +100,7 @@ export class CheckpointMp extends Entity {
 
   set visible(value: boolean) {
     CheckpointInternals.get(this).visible = value;
-    this._sync();
+    this.sync();
   }
 
   getColor(): number[] {
@@ -123,19 +110,19 @@ export class CheckpointMp extends Entity {
 
   setColor(r: number, g: number, b: number, a: number): void {
     CheckpointInternals.get(this).color = { r, g, b, a };
-    this._sync();
+    this.sync();
   }
 
   hideFor(player: any): void {
-    emitNet("ragemp:checkpointHide", player.id ?? player, this.id);
+    emitNet("ragemp:checkpointHide", typeof player === "object" && player ? getPlayerSource(player) : player, this.id);
   }
 
   showFor(player: any): void {
-    emitNet("ragemp:checkpointShow", player.id ?? player, this.id);
+    emitNet("ragemp:checkpointShow", typeof player === "object" && player ? getPlayerSource(player) : player, this.id);
   }
 
-  destroy(): void {
-    emitNet("ragemp:checkpointDestroy", -1, this.id);
+  override destroy(): void {
+    emitNet(this.destroyEvent, -1, this.id);
     removeFromCheckpointPool(globalThis.mp.checkpoints, this.id);
   }
 }

@@ -1,25 +1,18 @@
-import { Pool } from "@ragemp-fivem-bridge/shared";
-import { Vector3 } from "@ragemp-fivem-bridge/shared";
-import { poolAdd } from "@ragemp-fivem-bridge/shared/internal";
+import { Vector3, Pool } from "@ragemp-fivem-bridge/shared";
+import { CONSTRUCT } from "@ragemp-fivem-bridge/shared/internal";
+import { addLocal } from "../internal/pools/clientPool";
 import { MarkerMp } from "../Entities/MarkerMp";
 import { MarkerInternals } from "../internal/markerInternals";
 import { setupMarkerPool } from "../internal/pools/markerPoolService";
 
-let localMarkerIdCounter = 100000;
-
-export class MarkerMpPool extends Pool {
+export class MarkerMpPool extends Pool<MarkerMp> {
   constructor() {
     super();
     setupMarkerPool(this);
   }
 
-  atRemoteId(remoteId: number): MarkerMp | null {
-    return this.at(remoteId) as unknown as MarkerMp | null;
-  }
-
   new(type: number, position: { x: number; y: number; z: number } | Vector3, scale: number, options: any = {}): MarkerMp {
-    const id = ++localMarkerIdCounter;
-    const marker = new MarkerMp(id, type);
+    const marker = new MarkerMp(CONSTRUCT, 0, type);
     const rec = MarkerInternals.get(marker);
     rec.position = position instanceof Vector3 ? position : new Vector3(position.x, position.y, position.z);
     rec.scale = scale;
@@ -41,7 +34,7 @@ export class MarkerMpPool extends Pool {
     if (options.visible !== undefined) rec.visible = options.visible;
     if (options.dimension !== undefined) rec.dimension = options.dimension;
 
-    poolAdd(this, marker as any);
+    addLocal(this, marker as any);
     return marker;
   }
 }

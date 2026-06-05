@@ -143,6 +143,7 @@ export interface VehicleMp extends EntityMp {
   setColorRGB(r1: number, g1: number, b1: number, r2: number, g2: number, b2: number): void;
   getNeonColor(): [number, number, number];
   setNeonColor(r: number, g: number, b: number): void;
+  getLightsState(lightsOn?: number, highbeamsOn?: number): { lightsOn: boolean; highbeamsOn: boolean };
   getMod(type: number): number;
   setMod(type: number, index: number): void;
   getExtra(extraId: number): boolean;

@@ -59,6 +59,7 @@ export class VehicleMp extends EntityMpBase {
 
   get lightsOn(): boolean { return !!GetVehicleLightsState(this.handle)[1]; }
   get highbeamsOn(): boolean { return !!GetVehicleLightsState(this.handle)[2]; }
+  getLightsState(_lightsOn?: number, _highbeamsOn?: number): { lightsOn: boolean; highbeamsOn: boolean } { const s = GetVehicleLightsState(this.handle); return { lightsOn: !!s[1], highbeamsOn: !!s[2] }; }
 
   get neonEnabled(): boolean { return IsVehicleNeonLightEnabled(this.handle, 0); }
   set neonEnabled(value: boolean) { for (let i = 0; i < 4; i++) SetVehicleNeonLightEnabled(this.handle, i, !!value); }

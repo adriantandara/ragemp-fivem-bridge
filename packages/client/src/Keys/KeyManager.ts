@@ -1,3 +1,5 @@
+import { isCursorVisible } from "../utils/nuiFocus";
+
 export class KeyManager {
   _bindings: Map<string, Set<() => void>> = new Map();
   _keyCodeCache: Map<string, number> = new Map();
@@ -23,8 +25,7 @@ export class KeyManager {
 
   isDown(keyCode: number | string): boolean {
     const code = typeof keyCode === "number" ? keyCode : parseInt(keyCode, 10);
-    const focused = typeof IsNuiFocused === "function" && IsNuiFocused();
-    if (focused) {
+    if (isCursorVisible()) {
       return this._nuiPressed.has(code);
     }
     if (typeof IsDisabledRawKeyDown === "function") {
@@ -82,11 +83,11 @@ export class KeyManager {
   _ensureTick(): void {
     if (this._tick !== null) return;
     this._tick = setTick(() => {
-      const focused = typeof IsNuiFocused === "function" && IsNuiFocused();
-      if (!focused && this._nuiPressed.size) this._nuiPressed.clear();
+      const cursorVisible = isCursorVisible();
+      if (!cursorVisible && this._nuiPressed.size) this._nuiPressed.clear();
       for (const key of this._bindings.keys()) {
         const keyCode = this._keyCodeCache.get(key)!;
-        const isDown = focused
+        const isDown = cursorVisible
           ? this._nuiPressed.has(keyCode)
           : IsDisabledRawKeyDown(keyCode) || IsRawKeyDown(keyCode);
         const wasDown = this._pressedKeys.has(keyCode);

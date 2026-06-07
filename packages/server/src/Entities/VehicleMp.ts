@@ -40,6 +40,14 @@ export class VehicleMp extends Entity {
     return VehicleInternals.get(this).cachedNetId || safeGetNetworkId(this.handle);
   }
 
+  private deferIfPending(op: () => void): boolean {
+    if (this.handle) return false;
+    const rec = VehicleInternals.get(this);
+    if (!rec.pendingOps) rec.pendingOps = [];
+    rec.pendingOps.push(op);
+    return true;
+  }
+
   setDistanceCullingRadius(radius: number): void {
     if (typeof SetEntityDistanceCullingRadius === "function") {
       SetEntityDistanceCullingRadius(this.handle, radius);
@@ -48,11 +56,19 @@ export class VehicleMp extends Entity {
 
 
   override get position(): Vector3 {
+    if (!this.handle) {
+      const p = EntityInternals.get(this).position;
+      return p ? new Vector3(p.x, p.y, p.z) : new Vector3(0, 0, 0);
+    }
     const coords = GetEntityCoords(this.handle);
     return new Vector3(coords[0], coords[1], coords[2]);
   }
 
   override set position(value: Vector3) {
+    if (!this.handle) {
+      EntityInternals.get(this).position = new Vector3(value.x, value.y, value.z);
+      return;
+    }
     SetEntityCoords(
       this.handle,
       value.x,
@@ -66,31 +82,44 @@ export class VehicleMp extends Entity {
   }
 
   get rotation(): Vector3 {
+    if (!this.handle) return new Vector3(0, 0, 0);
     const rot = GetEntityRotation(this.handle);
     return new Vector3(rot[0], rot[1], rot[2]);
   }
 
   set rotation(value: Vector3) {
+    if (!this.handle) return;
     SetEntityRotation(this.handle, value.x, value.y, value.z, 2, false);
   }
 
   get heading(): number {
+    if (!this.handle) return VehicleInternals.get(this).pendingHeading ?? 0;
     return GetEntityHeading(this.handle);
   }
 
   set heading(value: number) {
+    if (!this.handle) {
+      VehicleInternals.get(this).pendingHeading = value;
+      return;
+    }
     SetEntityHeading(this.handle, value);
   }
 
   override get model(): number {
+    if (!this.handle) return EntityInternals.get(this).model;
     return GetEntityModel(this.handle);
   }
 
   override get dimension(): number {
+    if (!this.handle) return EntityInternals.get(this).dimension;
     return GetEntityRoutingBucket(this.handle);
   }
 
   override set dimension(value: number) {
+    if (!this.handle) {
+      EntityInternals.get(this).dimension = value;
+      return;
+    }
     SetEntityRoutingBucket(this.handle, value);
   }
 
@@ -112,6 +141,7 @@ export class VehicleMp extends Entity {
   }
 
   set locked(value: boolean) {
+    if (this.deferIfPending(() => SetVehicleDoorsLocked(this.handle, value ? 2 : 1))) return;
     SetVehicleDoorsLocked(this.handle, value ? 2 : 1);
   }
 
@@ -129,6 +159,7 @@ export class VehicleMp extends Entity {
   }
 
   set bodyHealth(value: number) {
+    if (this.deferIfPending(() => SetVehicleBodyHealth(this.handle, value))) return;
     SetVehicleBodyHealth(this.handle, value);
   }
 
@@ -230,6 +261,7 @@ export class VehicleMp extends Entity {
   }
 
   get quaternion(): Quaternion {
+    if (!this.handle) return { x: 0, y: 0, z: 0, w: 1 };
     const rot = GetEntityRotation(this.handle);
     const rad = Math.PI / 180;
     const rx = (rot[0] * rad) / 2,
@@ -284,6 +316,7 @@ export class VehicleMp extends Entity {
   get streamedPlayers(): any[] {
     const mp = globalThis.mp;
     if (!mp || !mp.players) return [];
+    if (!this.handle) return [];
     let pos: Vector3;
     try {
       pos = this.position;
@@ -325,6 +358,7 @@ export class VehicleMp extends Entity {
   }
 
   get controller(): any {
+    if (!this.handle) return null;
     const ownerSource = NetworkGetEntityOwner(this.handle);
     if (!ownerSource || ownerSource === 0) return null;
     return playerBySource(ownerSource) ?? null;
@@ -352,6 +386,7 @@ export class VehicleMp extends Entity {
 
   set movable(value: boolean) {
     VehicleInternals.get(this).movable = value;
+    if (this.deferIfPending(() => FreezeEntityPosition(this.handle, !value))) return;
     FreezeEntityPosition(this.handle, !value);
   }
 
@@ -400,6 +435,12 @@ export class VehicleMp extends Entity {
   }
 
   spawn(position: Vector3, heading?: number): void {
+    if (!this.handle) {
+      this.position = position;
+      this.heading = heading ?? 0;
+      this.repair();
+      return;
+    }
     SetEntityCoords(
       this.handle,
       position.x,
@@ -420,6 +461,7 @@ export class VehicleMp extends Entity {
   }
 
   setColor(primary: number, secondary: number): void {
+    if (this.deferIfPending(() => SetVehicleColours(this.handle, primary, secondary))) return;
     SetVehicleColours(this.handle, primary, secondary);
   }
 
@@ -486,6 +528,7 @@ export class VehicleMp extends Entity {
   }
 
   getOccupant(seat: number): any {
+    if (!this.handle) return null;
     const ped = GetPedInVehicleSeat(this.handle, seat - 1);
     if (!ped || ped === 0) return null;
     const owner = NetworkGetEntityOwner(ped);
@@ -520,6 +563,7 @@ export class VehicleMp extends Entity {
 
   setPaint(primary: number, secondary: number): void {
     VehicleInternals.get(this).paint = { primary, secondary };
+    if (this.deferIfPending(() => SetVehicleColours(this.handle, primary, secondary))) return;
     SetVehicleColours(this.handle, primary, secondary);
   }
 
@@ -528,6 +572,11 @@ export class VehicleMp extends Entity {
   }
 
   override destroy(): void {
+    if (!this.handle) {
+      VehicleInternals.get(this).pendingCancelled = true;
+      removeFromVehiclePool(globalThis.mp.vehicles, this.id);
+      return;
+    }
     DeleteEntity(this.handle);
     removeFromVehiclePool(globalThis.mp.vehicles, this.id);
   }

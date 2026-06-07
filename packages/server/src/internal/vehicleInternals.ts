@@ -35,6 +35,11 @@ export interface VehicleInternalsRec {
   cachedNetId?: number;
   numberPlate?: string;
   varFlushScheduled: boolean;
+  pending?: boolean;
+  pendingHeading?: number;
+  pendingCancelled?: boolean;
+  pendingOptions?: any;
+  pendingOps?: Array<() => void>;
 }
 
 export const VehicleInternals = defineInternals<VehicleInternalsRec>();

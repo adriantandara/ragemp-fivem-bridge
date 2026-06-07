@@ -30,6 +30,9 @@ version '1.0.0'
 
 ragemp_bridge 'library'
 
+-- Optional plugins (disabled by default). Uncomment a line to enable:
+-- bridge_world_vehicles 'yes' -- spawn server vehicles anywhere on the map (CreateVehicleServerSetter + retry queue)
+
 server_script 'server.js'
 client_script 'client.js'
 

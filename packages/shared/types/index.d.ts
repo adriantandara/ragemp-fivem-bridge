@@ -76,6 +76,9 @@ export interface EntityMp {
   dist(other: EntityMp): number;
   distSquared(other: EntityMp): number;
 
+  getBoneIndexByName(boneName: string): number;
+  getWorldPositionOfBone(boneIndex: number): Vector3;
+
   destroy(): void;
 }
 

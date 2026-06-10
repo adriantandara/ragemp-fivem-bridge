@@ -47,6 +47,8 @@ export class EventManager {
 
   call(eventName: string, ...args: unknown[]): void {
     this._fire(eventName, ...args);
+    log("events.call ->client", eventName, "from", this._getSelfId());
+    toClient("ragemp:browserEvent", { browserId: this._getSelfId(), event: eventName, args });
   }
 
   remove(eventName: string, handler?: Handler): void {

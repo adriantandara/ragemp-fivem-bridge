@@ -49,7 +49,7 @@ export class GamePlayerNs {
   stopTeleport(): void { StopPlayerTeleport(); }
 
 
-  setHealthRechargeMultiplier(player: number, rechargeRate: number): void { SetPlayerHealthRechargeMultiplier(player, rechargeRate); }
+  setHealthRechargeMultiplier(rechargeRate: number): void { SetPlayerHealthRechargeMultiplier(PlayerId(), rechargeRate); }
   setMaxArmour(player: number, value: number): void { SetPlayerMaxArmour(player, value); }
   setFallDistance(player: number, fallDistance: number): void { SetPlayerFallDistance(player, fallDistance); }
   restoreStamina(player: number, p1: number): void { RestorePlayerStamina(player ?? PlayerId(), p1 ?? 1.0); }

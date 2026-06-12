@@ -1,5 +1,21 @@
 import { isCursorVisible } from "../utils/nuiFocus";
 
+const MODIFIER_KEY_ALIASES: Record<number, readonly number[]> = {
+  16: [16, 160, 161],
+  160: [160, 16],
+  161: [161, 16],
+  17: [17, 162, 163],
+  162: [162, 17],
+  163: [163, 17],
+  18: [18, 164, 165],
+  164: [164, 18],
+  165: [165, 18],
+};
+
+function keyAliases(code: number): readonly number[] {
+  return MODIFIER_KEY_ALIASES[code] ?? [code];
+}
+
 export class KeyManager {
   _bindings: Map<string, Set<() => void>> = new Map();
   _keyCodeCache: Map<string, number> = new Map();
@@ -10,12 +26,18 @@ export class KeyManager {
   constructor() {
     if (typeof RegisterNuiCallbackType === "function") {
       RegisterNuiCallbackType("ragemp:__keyEvent");
-      on("__cfx_nui:ragemp:__keyEvent", (data: { code?: number; down?: boolean }, cb: (result: Record<string, never>) => void) => {
-        if (data && typeof data.code === "number") {
-          this._setNuiKey(data.code, !!data.down);
-        }
-        cb({});
-      });
+      on(
+        "__cfx_nui:ragemp:__keyEvent",
+        (
+          data: { code?: number; down?: boolean },
+          cb: (result: Record<string, never>) => void,
+        ) => {
+          if (data && typeof data.code === "number") {
+            this._setNuiKey(data.code, !!data.down);
+          }
+          cb({});
+        },
+      );
     }
   }
 
@@ -25,13 +47,14 @@ export class KeyManager {
 
   isDown(keyCode: number | string): boolean {
     const code = typeof keyCode === "number" ? keyCode : parseInt(keyCode, 10);
+    const codes = keyAliases(code);
     if (isCursorVisible()) {
-      return this._nuiPressed.has(code);
+      return codes.some((c) => this._nuiPressed.has(c));
     }
     if (typeof IsDisabledRawKeyDown === "function") {
-      return IsDisabledRawKeyDown(code) || IsRawKeyDown(code);
+      return codes.some((c) => IsDisabledRawKeyDown(c) || IsRawKeyDown(c));
     }
-    return this._pressedKeys.has(code);
+    return codes.some((c) => this._pressedKeys.has(c));
   }
 
   isUp(keyCode: number | string): boolean {
@@ -63,7 +86,11 @@ export class KeyManager {
     this._ensureTick();
   }
 
-  unbind(keyCode: number | string, isDown: boolean, handler?: () => void): void {
+  unbind(
+    keyCode: number | string,
+    isDown: boolean,
+    handler?: () => void,
+  ): void {
     const key = this._getKey(keyCode, isDown);
     const handlers = this._bindings.get(key);
     if (!handlers) return;
@@ -87,9 +114,10 @@ export class KeyManager {
       if (!cursorVisible && this._nuiPressed.size) this._nuiPressed.clear();
       for (const key of this._bindings.keys()) {
         const keyCode = this._keyCodeCache.get(key)!;
+        const codes = keyAliases(keyCode);
         const isDown = cursorVisible
-          ? this._nuiPressed.has(keyCode)
-          : IsDisabledRawKeyDown(keyCode) || IsRawKeyDown(keyCode);
+          ? codes.some((c) => this._nuiPressed.has(c))
+          : codes.some((c) => IsDisabledRawKeyDown(c) || IsRawKeyDown(c));
         const wasDown = this._pressedKeys.has(keyCode);
         if (isDown && !wasDown) {
           this._pressedKeys.add(keyCode);

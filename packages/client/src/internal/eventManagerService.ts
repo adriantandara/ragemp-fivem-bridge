@@ -1,4 +1,4 @@
-import { rehydrateArgsFromNet, STATE_KEY_PREFIX } from "@ragemp-fivem-bridge/shared";
+import { rehydrateArgsFromNet, STATE_KEY_PREFIX, Vector3 } from "@ragemp-fivem-bridge/shared";
 import { EntityInternals, EventEmitterInternals } from "@ragemp-fivem-bridge/shared/internal";
 import { safeGetNetworkId, safeGetEntityFromNetId } from "../utils/netId";
 import { onWorldScan } from "../utils/worldScan";
@@ -526,7 +526,7 @@ export function tickWaypoint(mgr: EventManager, ped: number, localPlayer: any, p
         rec.waypointY = wy;
         rec.waypointZ = wz;
         rec.waypointReached = false;
-        mgr.call("playerCreateWaypoint", localPlayer, wx, wy, wz);
+        mgr.call("playerCreateWaypoint", new Vector3(wx, wy, wz));
       }
 
       if (!rec.waypointReached) {

@@ -56,9 +56,17 @@ export class PedMp extends Entity {
   }
 
   get controller(): any {
+    const rec = PedInternals.get(this);
+    if (rec.hasControllerOverride) return rec.controllerOverride;
     const source = NetworkGetEntityOwner(this.handle);
     if (!source) return null;
     return playerBySource(source) ?? null;
+  }
+
+  set controller(value: any) {
+    const rec = PedInternals.get(this);
+    rec.controllerOverride = value;
+    rec.hasControllerOverride = true;
   }
 
   get health(): number {

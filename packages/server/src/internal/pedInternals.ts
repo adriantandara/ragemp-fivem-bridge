@@ -8,6 +8,8 @@ export interface PedInternalsRec {
   cachedNetId?: number;
   dynamic?: boolean;
   lockController?: boolean;
+  controllerOverride?: unknown;
+  hasControllerOverride?: boolean;
   varFlushScheduled: boolean;
 }
 

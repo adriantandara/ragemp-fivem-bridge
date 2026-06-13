@@ -5,5 +5,6 @@ export function gtaPedHealthToRage(gtaHealth: number): number {
 }
 
 export function rageHealthToGtaPed(rageHealth: number): number {
-  return Math.max(0, Math.round(rageHealth)) + RAGE_HEALTH_OFFSET;
+  if (rageHealth <= 0) return 0;
+  return Math.round(rageHealth) + RAGE_HEALTH_OFFSET;
 }

@@ -476,9 +476,9 @@ export class VehicleMp extends Entity {
     this.repair();
   }
 
-  getColor(id?: number): number {
+  getColor(): [number, number] {
     const paint = VehicleInternals.get(this).paint;
-    return (id === 1 ? paint.secondary : paint.primary) ?? 0;
+    return [paint.primary ?? 0, paint.secondary ?? 0];
   }
 
   setColor(primary: number, secondary: number): void {
@@ -486,15 +486,15 @@ export class VehicleMp extends Entity {
     emitVehicle(this, "ragemp:vehicleColor", primary, secondary);
   }
 
-  getColorRGB(
-    id?: number,
-  ): [[number, number, number], [number, number, number]] {
-    return (
-      VehicleInternals.get(this).colorRGB ?? [
-        [0, 0, 0],
-        [0, 0, 0],
-      ]
-    );
+  getColorRGB(): {
+    primary: [number, number, number];
+    secondary: [number, number, number];
+  } {
+    const rgb = VehicleInternals.get(this).colorRGB ?? [
+      [0, 0, 0],
+      [0, 0, 0],
+    ];
+    return { primary: rgb[0], secondary: rgb[1] };
   }
 
   setColorRGB(

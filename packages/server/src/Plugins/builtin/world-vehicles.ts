@@ -229,15 +229,30 @@ function stopFallback(): void {
   running = false;
 }
 
-function playerInRange(x: number, y: number, z: number, dimension: number): boolean {
+interface PlayerPos {
+  x: number;
+  y: number;
+  z: number;
+  dimension: number;
+}
+
+function snapshotPlayers(): PlayerPos[] {
+  const out: PlayerPos[] = [];
   for (const playerId of getPlayers()) {
     const ped = GetPlayerPed(playerId);
     if (!ped || !DoesEntityExist(ped)) continue;
-    if (GetPlayerRoutingBucket(playerId) !== dimension) continue;
     const c = GetEntityCoords(ped);
-    const dx = c[0] - x;
-    const dy = c[1] - y;
-    const dz = c[2] - z;
+    out.push({ x: c[0], y: c[1], z: c[2], dimension: GetPlayerRoutingBucket(playerId) });
+  }
+  return out;
+}
+
+function playerInRange(players: PlayerPos[], x: number, y: number, z: number, dimension: number): boolean {
+  for (const p of players) {
+    if (p.dimension !== dimension) continue;
+    const dx = p.x - x;
+    const dy = p.y - y;
+    const dz = p.z - z;
     if (dx * dx + dy * dy + dz * dz <= RANGE_SQ) return true;
   }
   return false;
@@ -245,6 +260,7 @@ function playerInRange(x: number, y: number, z: number, dimension: number): bool
 
 function tick(): void {
   const vehicles = globalThis.mp?.vehicles;
+  const players = snapshotPlayers();
 
   for (let i = queue.length - 1; i >= 0; i--) {
     const item = queue[i];
@@ -268,7 +284,7 @@ function tick(): void {
     }
 
     const pos = vehicle.position;
-    if (!playerInRange(pos.x, pos.y, pos.z, vehicle.dimension)) continue;
+    if (!playerInRange(players, pos.x, pos.y, pos.z, vehicle.dimension)) continue;
 
     const handle = CreateVehicle(item.req.modelHash, pos.x, pos.y, pos.z, vehicle.heading, true, true);
     if (handle && DoesEntityExist(handle)) {

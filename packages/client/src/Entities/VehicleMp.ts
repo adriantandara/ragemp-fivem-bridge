@@ -91,7 +91,7 @@ export class VehicleMp extends EntityMpBase {
   }
 
   getColours(): number[] { return GetVehicleColours(this.handle); }
-  getColor(): { primary: number; secondary: number } { const c = GetVehicleColours(this.handle); return { primary: c[0], secondary: c[1] }; }
+  getColor(): [number, number] { const c = GetVehicleColours(this.handle); return [c[0], c[1]]; }
   setColor(primary: number, secondary: number): void { SetVehicleColours(this.handle, primary, secondary); }
   setColours(colorPrimary: number, colorSecondary: number): void { SetVehicleColours(this.handle, colorPrimary, colorSecondary); }
   getColourCombination(): number { return GetVehicleColourCombination(this.handle); }
@@ -102,7 +102,7 @@ export class VehicleMp extends EntityMpBase {
   setCustomSecondaryColour(r: number, g: number, b: number): void { SetVehicleCustomSecondaryColour(this.handle, r, g, b); }
   clearCustomPrimaryColour(): void { ClearVehicleCustomPrimaryColour(this.handle); }
   clearCustomSecondaryColour(): void { ClearVehicleCustomSecondaryColour(this.handle); }
-  getColorRGB(): number[][] { const c1 = GetVehicleCustomPrimaryColour(this.handle); const c2 = GetVehicleCustomSecondaryColour(this.handle); return [[c1[0], c1[1], c1[2]], [c2[0], c2[1], c2[2]]]; }
+  getColorRGB(): { primary: [number, number, number]; secondary: [number, number, number] } { const c1 = GetVehicleCustomPrimaryColour(this.handle); const c2 = GetVehicleCustomSecondaryColour(this.handle); return { primary: [c1[0], c1[1], c1[2]], secondary: [c2[0], c2[1], c2[2]] }; }
   setColorRGB(r1: number, g1: number, b1: number, r2: number, g2: number, b2: number): void { SetVehicleCustomPrimaryColour(this.handle, r1, g1, b1); SetVehicleCustomSecondaryColour(this.handle, r2, g2, b2); }
   getIsPrimaryColourCustom(): boolean { return GetIsVehiclePrimaryColourCustom(this.handle); }
   getIsSecondaryColourCustom(): boolean { return GetIsVehicleSecondaryColourCustom(this.handle); }

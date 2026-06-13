@@ -703,7 +703,8 @@ export function tickStreaming(mgr: EventManager, cache: { players: number[]; veh
     const prev = rec.entityOwners.get(handle);
     if (prev !== undefined && prev !== owner) {
       const vehMp = globalThis.mp?.vehicles?.atHandle?.(handle);
-      mgr.call("entityControllerChange", vehMp ?? handle, owner);
+      const controller = owner < 0 ? null : (playerByServerId(GetPlayerServerId(owner)) ?? null);
+      mgr.call("entityControllerChange", vehMp ?? handle, controller);
     }
     rec.entityOwners.set(handle, owner);
 

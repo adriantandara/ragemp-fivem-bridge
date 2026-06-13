@@ -148,17 +148,12 @@ export class VehicleMp extends Entity {
   }
 
   get locked(): boolean {
-    return GetVehicleDoorLockStatus(this.handle) === 2;
+    return VehicleInternals.get(this).locked;
   }
 
   set locked(value: boolean) {
-    if (
-      this.deferIfPending(() =>
-        SetVehicleDoorsLocked(this.handle, value ? 2 : 1),
-      )
-    )
-      return;
-    SetVehicleDoorsLocked(this.handle, value ? 2 : 1);
+    VehicleInternals.get(this).locked = value;
+    emitVehicle(this, "ragemp:vehicleLocked", value);
   }
 
   get numberPlate(): string {
@@ -170,7 +165,7 @@ export class VehicleMp extends Entity {
 
   set numberPlate(value: string) {
     VehicleInternals.get(this).numberPlate = value;
-    SetVehicleNumberPlateText(this.handle, value);
+    emitVehicle(this, "ragemp:vehicleNumberPlate", value);
   }
 
   get bodyHealth(): number {
@@ -482,18 +477,13 @@ export class VehicleMp extends Entity {
   }
 
   getColor(id?: number): number {
-    const c = GetVehicleColours(this.handle);
-    return id === 1 ? c[1] : c[0];
+    const paint = VehicleInternals.get(this).paint;
+    return (id === 1 ? paint.secondary : paint.primary) ?? 0;
   }
 
   setColor(primary: number, secondary: number): void {
-    if (
-      this.deferIfPending(() =>
-        SetVehicleColours(this.handle, primary, secondary),
-      )
-    )
-      return;
-    SetVehicleColours(this.handle, primary, secondary);
+    VehicleInternals.get(this).paint = { primary, secondary };
+    emitVehicle(this, "ragemp:vehicleColor", primary, secondary);
   }
 
   getColorRGB(
@@ -603,13 +593,7 @@ export class VehicleMp extends Entity {
 
   setPaint(primary: number, secondary: number): void {
     VehicleInternals.get(this).paint = { primary, secondary };
-    if (
-      this.deferIfPending(() =>
-        SetVehicleColours(this.handle, primary, secondary),
-      )
-    )
-      return;
-    SetVehicleColours(this.handle, primary, secondary);
+    emitVehicle(this, "ragemp:vehicleColor", primary, secondary);
   }
 
   isStreamed(player?: any): boolean {

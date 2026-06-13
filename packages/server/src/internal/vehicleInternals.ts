@@ -6,6 +6,7 @@ export interface VehicleInternalsRec {
   neonEnabled: boolean;
   customTires: boolean;
   engine: boolean;
+  locked: boolean;
   colorRGB: [[number, number, number], [number, number, number]] | null;
   neonColor: [number, number, number];
   mods: Record<number, number>;
@@ -50,6 +51,7 @@ export function initVehicleInternals(vehicle: VehicleMp): VehicleInternalsRec {
     neonEnabled: false,
     customTires: false,
     engine: false,
+    locked: false,
     colorRGB: null,
     neonColor: [0, 0, 0],
     mods: {},

@@ -35,7 +35,7 @@ export interface ClientEventManagerRec {
   talkingPlayers: Set<unknown>;
   activeSet: Set<unknown>;
   entityOwners: Map<number, number>;
-  vehicleHealth: Map<number, { body: number; engine: number; dead: boolean }>;
+  vehicleHealth: Map<number, { body: number; engine: number; dead: boolean; netId: number }>;
   vehicleHealthSeen: Set<number>;
   insideCheckpoints: Set<unknown>;
   waypointActive: boolean;

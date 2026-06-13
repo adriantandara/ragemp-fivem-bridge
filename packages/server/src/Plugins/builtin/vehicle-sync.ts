@@ -24,6 +24,7 @@ export default function setup({ mp, plugin }: { mp: any; plugin: PluginContext }
     if (rec.windowTint) snap.windowTint = rec.windowTint;
     if (rec.wheelType) snap.wheelType = rec.wheelType;
     if (rec.engineHealth !== 1000) snap.engineHealth = rec.engineHealth;
+    if (rec.bodyHealth !== 1000) snap.bodyHealth = rec.bodyHealth;
     if (rec.neonEnabled) snap.neonEnabled = true;
     if (rec.customTires) snap.customTires = true;
     if (rec.dashboardColor) snap.dashboardColor = rec.dashboardColor;

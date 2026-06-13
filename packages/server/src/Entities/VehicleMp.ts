@@ -155,16 +155,16 @@ export class VehicleMp extends Entity {
   }
 
   get bodyHealth(): number {
-    return GetVehicleBodyHealth(this.handle);
+    return VehicleInternals.get(this).bodyHealth;
   }
 
   set bodyHealth(value: number) {
-    if (this.deferIfPending(() => SetVehicleBodyHealth(this.handle, value))) return;
-    SetVehicleBodyHealth(this.handle, value);
+    VehicleInternals.get(this).bodyHealth = value;
+    emitVehicle(this, "ragemp:vehicleBodyHealth", value);
   }
 
   get engineHealth(): number {
-    return GetVehicleEngineHealth(this.handle);
+    return VehicleInternals.get(this).engineHealth;
   }
 
   set engineHealth(value: number) {

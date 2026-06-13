@@ -35,6 +35,8 @@ export interface ClientEventManagerRec {
   talkingPlayers: Set<unknown>;
   activeSet: Set<unknown>;
   entityOwners: Map<number, number>;
+  vehicleHealth: Map<number, { body: number; engine: number; dead: boolean }>;
+  vehicleHealthSeen: Set<number>;
   insideCheckpoints: Set<unknown>;
   waypointActive: boolean;
   waypointX: number;
@@ -81,6 +83,8 @@ export function initClientEventManagerInternals(mgr: object): ClientEventManager
     talkingPlayers: new Set(),
     activeSet: new Set(),
     entityOwners: new Map(),
+    vehicleHealth: new Map(),
+    vehicleHealthSeen: new Set(),
     insideCheckpoints: new Set(),
     waypointActive: false,
     waypointX: 0,

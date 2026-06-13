@@ -25,6 +25,7 @@ const VEHICLE_DISPATCH: Record<string, (h: number, ...args: any[]) => void> = {
   "ragemp:vehicleCustomTires": (h: number, v: any) => applyVehicleProp(h, "customTires", v),
   "ragemp:vehicleWheelType": (h: number, v: any) => applyVehicleProp(h, "wheelType", v),
   "ragemp:vehicleEngineHealth": (h: number, v: any) => applyVehicleProp(h, "engineHealth", v),
+  "ragemp:vehicleBodyHealth": (h: number, v: any) => applyVehicleProp(h, "bodyHealth", v),
   "ragemp:vehicleDashboardColor": (h: number, v: any) => applyVehicleProp(h, "dashboardColor", v),
   "ragemp:vehiclePearlescentColor": (h: number, v: any) => applyVehicleProp(h, "pearlescentColor", v),
   "ragemp:vehicleTaxiLights": (h: number, v: any) => applyVehicleProp(h, "taxiLights", v),

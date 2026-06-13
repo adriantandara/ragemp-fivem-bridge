@@ -5,6 +5,7 @@ import { EntityInternals, EventEmitterInternals } from "@ragemp-fivem-bridge/sha
 import { ServerEventManagerInternals } from "./eventManagerInternals";
 import { PlayerInternals } from "./playerInternals";
 import { removeFromVehiclePool } from "./pools/vehiclePoolService";
+import { VehicleInternals } from "./vehicleInternals";
 import { removeFromPedPool } from "./pools/pedPoolService";
 import { removeFromObjectPool } from "./pools/objectPoolService";
 import type { EventManager } from "../Events/EventManager";
@@ -171,16 +172,23 @@ function setupBuiltinEvents(mgr: EventManager): void {
   });
 
   onNet(
-    "ragemp:vehicleDamage",
-    (vehicleNetId: number, bodyHealthLoss: number, engineHealthLoss: number) => {
+    "ragemp:vehicleHealthReport",
+    (vehicleNetId: number, bodyHealth: number, engineHealth: number) => {
       const vehicle = globalThis.mp.vehicles.atNetId(vehicleNetId);
-      if (vehicle)
+      if (!vehicle) return;
+      const rec = VehicleInternals.get(vehicle);
+      const bodyHealthLoss = rec.bodyHealth - bodyHealth;
+      const engineHealthLoss = rec.engineHealth - engineHealth;
+      rec.bodyHealth = bodyHealth;
+      rec.engineHealth = engineHealth;
+      if (bodyHealthLoss > 0 || engineHealthLoss > 0) {
         mgr.call(
           "vehicleDamage",
           vehicle,
-          bodyHealthLoss,
-          engineHealthLoss,
+          Math.max(0, bodyHealthLoss),
+          Math.max(0, engineHealthLoss),
         );
+      }
     },
   );
 

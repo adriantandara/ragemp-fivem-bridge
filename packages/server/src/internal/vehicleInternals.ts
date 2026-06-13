@@ -28,6 +28,7 @@ export interface VehicleInternalsRec {
   windowTint: number;
   wheelType: number;
   engineHealth: number;
+  bodyHealth: number;
   sync: EntitySyncQueue;
   orphanMode?: number;
   orphanModeScheduled?: boolean;
@@ -71,6 +72,7 @@ export function initVehicleInternals(vehicle: VehicleMp): VehicleInternalsRec {
     windowTint: 0,
     wheelType: 0,
     engineHealth: 1000,
+    bodyHealth: 1000,
     sync: new EntitySyncQueue(() => vehicle.handle, "ragemp:vehicle:batch", {
       range: 250 /* Streaming Distance */,
       useRoutingBucket: true,

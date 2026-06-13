@@ -267,6 +267,7 @@ export function setupMainTick(mgr: EventManager): void {
     tickModelAndHealth(mgr, ped);
     tickActions(mgr, ped, localPlayer);
     tickStreaming(mgr, cache, localPlayer);
+    tickVehicleHealth(mgr, cache);
   });
 
   rec.lifecycleTick = setTick(() => {
@@ -707,6 +708,46 @@ export function tickStreaming(mgr: EventManager, cache: { players: number[]; veh
   }
   for (const [h] of rec.entityOwners) {
     if (!DoesEntityExist(h)) rec.entityOwners.delete(h);
+  }
+}
+
+export function tickVehicleHealth(mgr: EventManager, cache: { players: number[]; vehicles: number[]; peds: number[] }): void {
+  const rec = ClientEventManagerInternals.get(mgr);
+  const localPlayerId = PlayerId();
+  const seen = rec.vehicleHealthSeen;
+  seen.clear();
+
+  for (const handle of cache.vehicles) {
+    if (!NetworkGetEntityIsNetworked(handle)) continue;
+    if (NetworkGetEntityOwner(handle) !== localPlayerId) continue;
+    seen.add(handle);
+
+    const body = GetVehicleBodyHealth(handle);
+    const engine = GetVehicleEngineHealth(handle);
+    const dead = IsEntityDead(handle);
+    const prev = rec.vehicleHealth.get(handle);
+
+    if (!prev) {
+      rec.vehicleHealth.set(handle, { body, engine, dead });
+      continue;
+    }
+
+    if (body !== prev.body || engine !== prev.engine) {
+      const netId = safeGetNetworkId(handle);
+      if (netId) emitNet("ragemp:vehicleHealthReport", netId, body, engine);
+      prev.body = body;
+      prev.engine = engine;
+    }
+
+    if (dead && !prev.dead) {
+      const netId = safeGetNetworkId(handle);
+      if (netId) emitNet("ragemp:vehicleDeath", netId);
+    }
+    prev.dead = dead;
+  }
+
+  for (const handle of rec.vehicleHealth.keys()) {
+    if (!seen.has(handle)) rec.vehicleHealth.delete(handle);
   }
 }
 

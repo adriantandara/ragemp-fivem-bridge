@@ -4,7 +4,11 @@ import { scheduleStateBagFlush } from "../utils/stateBagDefer";
 import { playerBySource } from "../utils/playerRegistry";
 import { safeGetNetworkId } from "../utils/netId";
 import { whenNetworked } from "../utils/whenNetworked";
-import { VehicleInternals, initVehicleInternals , emitVehicle } from "../internal/vehicleInternals";
+import {
+  VehicleInternals,
+  initVehicleInternals,
+  emitVehicle,
+} from "../internal/vehicleInternals";
 import { PlayerInternals, getPlayerSource } from "../internal/playerInternals";
 import { removeFromVehiclePool } from "../internal/pools/vehiclePoolService";
 
@@ -15,14 +19,16 @@ function applyOrphanMode(vehicle: VehicleMp): void {
   if (!handle) return;
   const internals = VehicleInternals.get(vehicle);
   if (safeGetNetworkId(handle)) {
-    if (internals.orphanMode !== undefined) SetEntityOrphanMode(handle, internals.orphanMode);
+    if (internals.orphanMode !== undefined)
+      SetEntityOrphanMode(handle, internals.orphanMode);
     return;
   }
   if (internals.orphanModeScheduled) return;
   internals.orphanModeScheduled = true;
   whenNetworked(handle, () => {
     internals.orphanModeScheduled = false;
-    if (internals.orphanMode !== undefined) SetEntityOrphanMode(handle, internals.orphanMode);
+    if (internals.orphanMode !== undefined)
+      SetEntityOrphanMode(handle, internals.orphanMode);
   });
 }
 
@@ -37,7 +43,9 @@ export class VehicleMp extends Entity {
   }
 
   get netId(): number {
-    return VehicleInternals.get(this).cachedNetId || safeGetNetworkId(this.handle);
+    return (
+      VehicleInternals.get(this).cachedNetId || safeGetNetworkId(this.handle)
+    );
   }
 
   private deferIfPending(op: () => void): boolean {
@@ -54,7 +62,6 @@ export class VehicleMp extends Entity {
     }
   }
 
-
   override get position(): Vector3 {
     if (!this.handle) {
       const p = EntityInternals.get(this).position;
@@ -66,7 +73,11 @@ export class VehicleMp extends Entity {
 
   override set position(value: Vector3) {
     if (!this.handle) {
-      EntityInternals.get(this).position = new Vector3(value.x, value.y, value.z);
+      EntityInternals.get(this).position = new Vector3(
+        value.x,
+        value.y,
+        value.z,
+      );
       return;
     }
     SetEntityCoords(
@@ -141,12 +152,20 @@ export class VehicleMp extends Entity {
   }
 
   set locked(value: boolean) {
-    if (this.deferIfPending(() => SetVehicleDoorsLocked(this.handle, value ? 2 : 1))) return;
+    if (
+      this.deferIfPending(() =>
+        SetVehicleDoorsLocked(this.handle, value ? 2 : 1),
+      )
+    )
+      return;
     SetVehicleDoorsLocked(this.handle, value ? 2 : 1);
   }
 
   get numberPlate(): string {
-    return VehicleInternals.get(this).numberPlate ?? GetVehicleNumberPlateText(this.handle);
+    return (
+      VehicleInternals.get(this).numberPlate ??
+      GetVehicleNumberPlateText(this.handle)
+    );
   }
 
   set numberPlate(value: string) {
@@ -191,7 +210,7 @@ export class VehicleMp extends Entity {
   }
 
   get livery(): number {
-    return GetVehicleLivery(this.handle);
+    return VehicleInternals.get(this).livery;
   }
 
   set livery(value: number) {
@@ -200,7 +219,7 @@ export class VehicleMp extends Entity {
   }
 
   get numberPlateType(): number {
-    return GetVehicleNumberPlateTextIndex(this.handle);
+    return VehicleInternals.get(this).numberPlateType;
   }
 
   set numberPlateType(value: number) {
@@ -209,7 +228,7 @@ export class VehicleMp extends Entity {
   }
 
   get windowTint(): number {
-    return GetVehicleWindowTint(this.handle);
+    return VehicleInternals.get(this).windowTint;
   }
 
   set windowTint(value: number) {
@@ -232,7 +251,6 @@ export class VehicleMp extends Entity {
   }
 
   set dead(value: boolean) {
-    // setter not in d.ts but property is read/write in some contexts; no-op setter
     void value;
   }
 
@@ -246,7 +264,7 @@ export class VehicleMp extends Entity {
   }
 
   get wheelType(): number {
-    return GetVehicleWheelType(this.handle);
+    return VehicleInternals.get(this).wheelType;
   }
 
   set wheelType(value: number) {
@@ -366,7 +384,11 @@ export class VehicleMp extends Entity {
 
   set controller(value: any) {
     const targetSource: number | null =
-      value == null ? null : typeof value === "number" ? value : getPlayerSource(value);
+      value == null
+        ? null
+        : typeof value === "number"
+          ? value
+          : getPlayerSource(value);
     const netId = this.netId;
     emitNet("ragemp:requestVehicleControl", targetSource ?? -1, netId);
   }
@@ -386,7 +408,8 @@ export class VehicleMp extends Entity {
 
   set movable(value: boolean) {
     VehicleInternals.get(this).movable = value;
-    if (this.deferIfPending(() => FreezeEntityPosition(this.handle, !value))) return;
+    if (this.deferIfPending(() => FreezeEntityPosition(this.handle, !value)))
+      return;
     FreezeEntityPosition(this.handle, !value);
   }
 
@@ -431,6 +454,9 @@ export class VehicleMp extends Entity {
   }
 
   repair(): void {
+    const rec = VehicleInternals.get(this);
+    rec.bodyHealth = 1000;
+    rec.engineHealth = 1000;
     emitVehicle(this, "ragemp:vehicleRepair");
   }
 
@@ -461,11 +487,18 @@ export class VehicleMp extends Entity {
   }
 
   setColor(primary: number, secondary: number): void {
-    if (this.deferIfPending(() => SetVehicleColours(this.handle, primary, secondary))) return;
+    if (
+      this.deferIfPending(() =>
+        SetVehicleColours(this.handle, primary, secondary),
+      )
+    )
+      return;
     SetVehicleColours(this.handle, primary, secondary);
   }
 
-  getColorRGB(id?: number): [[number, number, number], [number, number, number]] {
+  getColorRGB(
+    id?: number,
+  ): [[number, number, number], [number, number, number]] {
     return (
       VehicleInternals.get(this).colorRGB ?? [
         [0, 0, 0],
@@ -474,7 +507,14 @@ export class VehicleMp extends Entity {
     );
   }
 
-  setColorRGB(r1: number, g1: number, b1: number, r2: number, g2: number, b2: number): void {
+  setColorRGB(
+    r1: number,
+    g1: number,
+    b1: number,
+    r2: number,
+    g2: number,
+    b2: number,
+  ): void {
     const rec = VehicleInternals.get(this);
     rec.colorRGB = [
       [r1, g1, b1],
@@ -563,7 +603,12 @@ export class VehicleMp extends Entity {
 
   setPaint(primary: number, secondary: number): void {
     VehicleInternals.get(this).paint = { primary, secondary };
-    if (this.deferIfPending(() => SetVehicleColours(this.handle, primary, secondary))) return;
+    if (
+      this.deferIfPending(() =>
+        SetVehicleColours(this.handle, primary, secondary),
+      )
+    )
+      return;
     SetVehicleColours(this.handle, primary, secondary);
   }
 

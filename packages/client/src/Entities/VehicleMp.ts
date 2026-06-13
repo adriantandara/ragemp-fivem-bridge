@@ -83,8 +83,10 @@ export class VehicleMp extends EntityMpBase {
   set paintType(value: number) { VehicleInternals.get(this).paintType = value; }
 
   get controller(): any {
-    const serverId = NetworkGetEntityOwner(this.handle);
-    if (!serverId) return null;
+    const playerIndex = NetworkGetEntityOwner(this.handle);
+    if (playerIndex < 0) return null;
+    const serverId = GetPlayerServerId(playerIndex);
+    if (!serverId || serverId === -1) return null;
     return playerByServerId(serverId) ?? null;
   }
 

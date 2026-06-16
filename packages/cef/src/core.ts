@@ -83,14 +83,6 @@ export function createRuntime(): {
       toClient("ragemp:browserEvent", { browserId: selfId, event: eventName, args });
     },
     invoke(eventName: string, ...args: unknown[]): void {
-      if (eventName === "command") {
-        toClient("ragemp:cef:command", { command: args[0] });
-        return;
-      }
-      if (eventName === "chatMessage" || eventName === "chat:message") {
-        toClient("ragemp:cef:chatMessage", { message: args[0] });
-        return;
-      }
       (mp.trigger as (...a: unknown[]) => void)(eventName, ...args);
     },
     events,

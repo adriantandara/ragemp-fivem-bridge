@@ -1,22 +1,6 @@
 import { registerBrowserProcChannel, browserDomReady } from "../browserInternals";
 import type { BrowserMpPool } from "../../Pools/BrowserMpPool";
 
-export function execBrowserCommand(raw: any): void {
-  const text = typeof raw === "string" ? raw.trim() : "";
-  const command = text.charAt(0) === "/" ? text.slice(1) : text;
-  if (command) emitNet("ragemp:command", command);
-}
-
-export function sendBrowserChatMessage(message: any): void {
-  const text = typeof message === "string" ? message.trim() : "";
-  if (!text) return;
-  if (text.charAt(0) === "/") {
-    execBrowserCommand(text);
-    return;
-  }
-  emitNet("ragemp:chat:message", text);
-}
-
 function formatError(info: any): string {
   const id = info && info.browserId;
   const kind = (info && info.kind) || "error";
@@ -65,25 +49,9 @@ export function setupBrowserPool(pool: BrowserMpPool): void {
   RegisterNuiCallbackType("ragemp:browserEvent");
   on("__cfx_nui:ragemp:browserEvent", (data: any, cb: (result: Record<string, never>) => void) => {
     const { event, args } = data;
-    if (event === "command") {
-      execBrowserCommand((args ?? [])[0]);
-    } else if (event === "chatMessage" || event === "chat:message") {
-      sendBrowserChatMessage((args ?? [])[0]);
-    } else if (event && globalThis.mp?.events) {
+    if (event && globalThis.mp?.events) {
       globalThis.mp.events.call(event, ...(args ?? []));
     }
-    cb({});
-  });
-
-  RegisterNuiCallbackType("ragemp:cef:command");
-  on("__cfx_nui:ragemp:cef:command", (data: any, cb: (result: Record<string, never>) => void) => {
-    execBrowserCommand(data && data.command);
-    cb({});
-  });
-
-  RegisterNuiCallbackType("ragemp:cef:chatMessage");
-  on("__cfx_nui:ragemp:cef:chatMessage", (data: any, cb: (result: Record<string, never>) => void) => {
-    sendBrowserChatMessage(data && data.message);
     cb({});
   });
 }

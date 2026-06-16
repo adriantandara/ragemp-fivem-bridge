@@ -14,6 +14,11 @@ const BUILTIN_EVENTS = new Set<string>([
   "playerQuit",
   "playerReady",
   "playerChat",
+  // Local-only hook the bridge raises after an uncancelled `playerChat`. The
+  // `ragemp-chat` example listens to it to render the default echo. Listed here
+  // so registering a handler never auto-wires a network listener for it (which
+  // would let clients spoof chat output).
+  "ragemp:chat:output",
 ]);
 
 export function setupEventManager(mgr: EventManager): void {
@@ -64,6 +69,12 @@ function setupBuiltinEvents(mgr: EventManager): void {
     if (!player || typeof rawText !== "string") return;
     const text = rawText.slice(0, 256);
 
+    // The bridge owns the RAGE:MP `playerChat` event lifecycle only — it fires
+    // the event and honours a handler returning `false` to cancel the default.
+    // It does NOT render or broadcast anything itself: the default "name: text"
+    // echo is chat policy and lives entirely in the `ragemp-chat` example
+    // resource, which listens for `ragemp:chat:output`. With no such resource
+    // loaded, a plain message produces no output.
     let cancelled = false;
     const handlers = EventEmitterInternals.get(mgr).handlers.get("playerChat");
     if (handlers) {
@@ -73,10 +84,7 @@ function setupBuiltinEvents(mgr: EventManager): void {
     }
     if (cancelled) return;
 
-    const safe = text.replace(/[<>]/g, "");
-    globalThis.mp.players.forEach((p: any) =>
-      p.outputChatBox(`${player.name}: ${safe}`),
-    );
+    mgr.call("ragemp:chat:output", player, text);
   });
 
   onNet("ragemp:playerDeath", (reason: number, killerId: number | null) => {

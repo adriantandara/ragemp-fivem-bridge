@@ -18,9 +18,19 @@ FiveM's default `chat` resource: it consumes the exact events the bridge's
 
 - Press **T** to open the input box.
 - Type `/command args` → runs as a command, reaching `mp.events.addCommand` on the server.
-- Type a plain message → the server fires `playerChat(player, text)` and, unless a
-  handler returns `false`, echoes `name: message` to everyone (RAGE:MP default).
+- Type a plain message → the bridge fires `playerChat(player, text)` and, unless a
+  handler returns `false`, this resource echoes `name: message` to everyone
+  (RAGE:MP default).
 - **↑ / ↓** cycle input history, **Esc** cancels.
+
+## Where the default echo lives
+
+The **bridge core renders no chat at all** — it only owns the `playerChat` event
+lifecycle. After an uncancelled `playerChat`, the bridge raises a local
+`ragemp:chat:output` hook; the default `name: message` broadcast is implemented
+here, in [`server.js`](server.js). Without this resource loaded, a plain message
+produces no output. To change the formatting (timestamps, colours, channels) or
+suppress the default entirely, edit or remove the handler in `server.js`.
 
 ## Install
 

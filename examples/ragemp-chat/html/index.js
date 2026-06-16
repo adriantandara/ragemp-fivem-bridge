@@ -76,10 +76,6 @@
     chat.classList.add("hidden-input");
     input.blur();
     var text = message || "";
-    if (!canceled && text.length > 0 && text.charAt(0) === "/" && window.mp && typeof window.mp.invoke === "function") {
-      window.mp.invoke("command", text.substring(1));
-      return;
-    }
     fetch("https://ragemp-chat/chatResult", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
